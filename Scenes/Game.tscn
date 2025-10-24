@@ -1,22 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7hmvxn4qm0vm"]
+[gd_scene load_steps=3 format=3 uid="uid://c7hmvxn4qm0vm"]
 
 [ext_resource type="Script" uid="uid://d1feybhab8i8p" path="res://Scripts/Game.gd" id="1_iukft"]
+[ext_resource type="PackedScene" uid="uid://xmmalpaqabfy" path="res://Scenes/PrepareCanvas.tscn" id="2_gl6un"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_iukft")
 
-[node name="Prepare" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 378.0
-offset_top = 132.0
-offset_right = 712.0
-offset_bottom = 443.0
-
-[node name="Button" type="Button" parent="Prepare"]
-layout_mode = 0
-offset_left = 89.0
-offset_top = 97.0
-offset_right = 161.0
-offset_bottom = 128.0
-text = "开始战斗"
+[node name="PrepareCanvas" parent="." instance=ExtResource("2_gl6un")]

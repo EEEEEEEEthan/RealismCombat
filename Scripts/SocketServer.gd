@@ -68,6 +68,7 @@ func _handle_client_async(client: StreamPeerTCP) -> void:
 		client.disconnect_from_host()
 
 func _process_request_async(request: String) -> String:
+	await get_tree().process_frame
 	if request == "hello":
 		return "world"
 	elif request == "system.shutdown":
