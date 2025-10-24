@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Threading;
 using ModelContextProtocol.Server;
 namespace RealismCombat.McpServer
 {
@@ -14,6 +16,25 @@ namespace RealismCombat.McpServer
 	static class SystemTools
 	{
 		[McpServerTool, Description("hello"),] static Task<string> hello() => Task.FromResult("hello");
+
+		/// <summary>
+		/// 连接到指定端口的游戏实例并执行握手验证
+		/// </summary>
+		[McpServerTool, Description("connect to game instance on specified port"),]
+		static async Task<string> connect_game(int port)
+		{
+			try
+			{
+				var result = await ConnectAndHandshake("127.0.0.1", port, 5000);
+				return result 
+					? $"成功连接到游戏实例，端口: {port}，握手完成" 
+					: $"连接失败或握手超时，端口: {port}";
+			}
+			catch (Exception ex)
+			{
+				return $"连接游戏失败: {ex.Message}";
+			}
+		}
 
 		/// <summary>
 		/// 启动 Godot 运行当前项目。如果根目录缺少本机配置文件或缺少 godot 配置，将自动创建与补全默认值。
@@ -33,6 +54,8 @@ namespace RealismCombat.McpServer
 			var configuredGodot = settings[GodotKey];
 			var fileNameToStart = ResolveGodotExecutable(rootDir, configuredGodot);
 
+			var port = new Random().Next(9000, 10000);
+
 			try
 			{
 				var psi = new ProcessStartInfo
@@ -40,14 +63,26 @@ namespace RealismCombat.McpServer
 					FileName = fileNameToStart,
 					WorkingDirectory = rootDir,
 					UseShellExecute = true,
-					Arguments = "--path .",
+					Arguments = $"--path . --port={port}",
 				};
 				var proc = Process.Start(psi);
 				if (proc == null)
 				{
 					return $"启动失败: 未能创建进程。可编辑 {LocalSettingsFileName} 配置 godot 路径。";
 				}
-				return await Task.FromResult($"已启动 Godot。PID={proc.Id}，工作目录={rootDir}，命令={fileNameToStart} --path .");
+
+				await Task.Delay(2000);
+
+				var handshakeSuccess = await ConnectAndHandshake("127.0.0.1", port, 5000);
+				
+				if (handshakeSuccess)
+				{
+					return $"游戏启动成功！PID={proc.Id}，端口={port}，握手完成";
+				}
+				else
+				{
+					return $"游戏已启动但握手失败。PID={proc.Id}，端口={port}，请检查游戏是否正常运行";
+				}
 			}
 			catch (Exception ex)
 			{
@@ -185,6 +220,47 @@ namespace RealismCombat.McpServer
 				// 忽略目录读取异常
 			}
 			return Path.Combine(directoryPath, "godot.exe");
+		}
+
+		/// <summary>
+		/// 连接到指定地址和端口，执行 hello/world 握手
+		/// </summary>
+		static async Task<bool> ConnectAndHandshake(string host, int port, int timeoutMs)
+		{
+			TcpClient client = null;
+			try
+			{
+				client = new TcpClient();
+				var connectTask = client.ConnectAsync(host, port);
+				var timeoutTask = Task.Delay(timeoutMs);
+				
+				var completedTask = await Task.WhenAny(connectTask, timeoutTask);
+				if (completedTask == timeoutTask || !client.Connected)
+				{
+					return false;
+				}
+
+				var stream = client.GetStream();
+				stream.ReadTimeout = timeoutMs;
+				stream.WriteTimeout = timeoutMs;
+
+				var helloBytes = Encoding.UTF8.GetBytes("hello\n");
+				await stream.WriteAsync(helloBytes, 0, helloBytes.Length);
+
+				var buffer = new byte[1024];
+				var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+				var response = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
+
+				return response == "world";
+			}
+			catch
+			{
+				return false;
+			}
+			finally
+			{
+				client?.Close();
+			}
 		}
 
 		const string LocalSettingsFileName = ".local.settings";
