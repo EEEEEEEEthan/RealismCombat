@@ -16,9 +16,9 @@ func _ready() -> void:
 	prepare_canvas = scene.instantiate()
 	add_child(prepare_canvas)
 
-func log(message: Object) -> void:
+func log(message) -> void:
 	on_log.emit(str(message))
 	print(message)
 
 func exec_command(command: String) -> String:
-	return command_handler.handle(command)
+	return await command_handler.handle(command)
