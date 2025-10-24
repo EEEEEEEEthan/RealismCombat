@@ -14,7 +14,7 @@ func handle(command: String) -> String:
 	if command == "game.check_status":
 		_game.log("这个功能还没实现")
 	elif command == StartNextCombat.NAME:
-		await StartNextCombat.new().execute()
+		await StartNextCombat.new(_game).execute()
 	else:
 		_game.log("unknown command: " + command)
 	_game.on_log.disconnect(_on_log)
