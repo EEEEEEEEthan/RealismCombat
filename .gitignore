@@ -1,2 +1,4 @@
-.vs/
-obj/
+/.godot/
+/.McpServer/.idea
+/.McpServer/bin/
+/.McpServer/obj/
