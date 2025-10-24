@@ -3,7 +3,6 @@
 // ReSharper disable UnusedMember.Local
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using ModelContextProtocol.Server;
@@ -14,36 +13,48 @@ static class SystemTools
 	const string LocalSettingsFileName = ".local.settings";
 	const string GodotKey = "godot";
 	const string DefaultGodotValue = "godot.exe";
+	const string PortKey = "port";
+	const string DefaultPortValue = "3000";
 	/// <summary>
 	///     向 Godot 发送 hello 请求测试短连接通信
 	/// </summary>
-	[McpServerTool, Description("hello"),] 
-	static async Task<string> hello(int port) => await SendShortRequest("127.0.0.1", port, "hello", 3000);
-	/// <summary>
-	///     启动 Godot 运行当前项目。如果根目录缺少本机配置文件或缺少 godot 配置，将自动创建与补全默认值。
-	/// </summary>
-	[McpServerTool, Description("start game"),]
-	static async Task<string> start_game()
+	[McpServerTool, Description("hello"),]
+	static async Task<string> hello()
 	{
 		var rootDir = FindProjectRoot();
 		var settingsPath = Path.Combine(rootDir, LocalSettingsFileName);
 		var settings = LoadOrCreateSettings(settingsPath);
-		if (!settings.ContainsKey(GodotKey))
+		if (!settings.ContainsKey(PortKey))
+		{
+			AppendSettingIfMissing(settingsPath, PortKey, DefaultPortValue);
+			settings[PortKey] = DefaultPortValue;
+		}
+		var port = int.Parse(settings[PortKey]);
+		return await SendShortRequest("127.0.0.1", port, "hello", 3000);
+	}
+	/// <summary>
+	///     启动 Godot 运行当前项目。如果根目录缺少本机配置文件或缺少 godot 配置，将自动创建与补全默认值。
+	/// </summary>
+	[McpServerTool, Description("start game"),]
+	static string start_game()
+	{
+		var rootDir = FindProjectRoot();
+		var settingsPath = Path.Combine(rootDir, LocalSettingsFileName);
+		var settings = LoadOrCreateSettings(settingsPath);
+		if (!settings.TryGetValue(GodotKey, out var configuredGodot))
 		{
 			AppendSettingIfMissing(settingsPath, GodotKey, DefaultGodotValue);
-			settings[GodotKey] = DefaultGodotValue;
+			configuredGodot = DefaultGodotValue;
+			settings[GodotKey] = configuredGodot;
 		}
-		var configuredGodot = settings[GodotKey];
+		if (!settings.TryGetValue(PortKey, out var value))
+		{
+			AppendSettingIfMissing(settingsPath, PortKey, DefaultPortValue);
+			value = DefaultPortValue;
+			settings[PortKey] = value;
+		}
 		var fileNameToStart = ResolveGodotExecutable(rootDir, configuredGodot);
-		int port;
-		try
-		{
-			port = GetAvailablePort();
-		}
-		catch (Exception ex)
-		{
-			return $"启动失败: {ex.Message}";
-		}
+		var port = int.Parse(value);
 		try
 		{
 			var psi = new ProcessStartInfo
@@ -176,41 +187,18 @@ static class SystemTools
 		return Path.Combine(directoryPath, "godot.exe");
 	}
 	/// <summary>
-	///     检查指定端口是否被占用
-	/// </summary>
-	static bool IsPortInUse(int port)
-	{
-		var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-		var tcpConnInfoArray = ipGlobalProperties.GetActiveTcpListeners();
-		return tcpConnInfoArray.Any(endpoint => endpoint.Port == port);
-	}
-	/// <summary>
-	///     获取一个可用的随机端口
-	/// </summary>
-	static int GetAvailablePort(int minPort = 9000, int maxPort = 10000, int maxAttempts = 100)
-	{
-		var random = new Random();
-		for (var i = 0; i < maxAttempts; i++)
-		{
-			var port = random.Next(minPort, maxPort);
-			if (!IsPortInUse(port)) return port;
-		}
-		throw new InvalidOperationException($"无法在 {minPort}-{maxPort} 范围内找到可用端口");
-	}
-	/// <summary>
 	///     发送短连接请求到 Godot 服务器
 	/// </summary>
 	static async Task<string> SendShortRequest(string host, int port, string request, int timeoutMs)
 	{
-		TcpClient client = null;
+		TcpClient? client = null;
 		try
 		{
 			client = new();
 			var connectTask = client.ConnectAsync(host, port);
 			var timeoutTask = Task.Delay(timeoutMs);
 			var completedTask = await Task.WhenAny(connectTask, timeoutTask);
-			if (completedTask == timeoutTask || !client.Connected) 
-				return $"连接超时";
+			if (completedTask == timeoutTask || !client.Connected) return "连接超时";
 			var stream = client.GetStream();
 			stream.ReadTimeout = timeoutMs;
 			stream.WriteTimeout = timeoutMs;
