@@ -1,9 +1,13 @@
 extends Node
 
+class_name SocketServer
+
 var tcp_server: TCPServer
 var port: int = 9999
+var _game: Game
 
-func _ready() -> void:
+func _init(game: Game) -> void:
+	_game = game
 	_parse_port_from_args()
 	_start_server()
 
@@ -57,24 +61,24 @@ func _handle_client_async(client: StreamPeerTCP) -> void:
 				client.put_data(response_data)
 				print("SocketServer: 发送响应: ", response)
 			
-			await get_tree().process_frame
+			await _game.get_tree().process_frame
 			client.disconnect_from_host()
 			return
 		
-		await get_tree().process_frame
+		await _game.get_tree().process_frame
 	
 	print("SocketServer: 等待数据超时")
 	if client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		client.disconnect_from_host()
 
 func _process_request_async(request: String) -> String:
-	await get_tree().process_frame
+	await _game.get_tree().process_frame
 	if request == "system.shutdown":
 		print("SocketServer: 收到关闭命令，准备退出游戏")
-		get_tree().call_deferred("quit")
+		_game.get_tree().call_deferred("quit")
 		return "游戏即将关闭"
 	else:
-		return Game.instance.exec_command(request)
+		return _game.exec_command(request)
 
 func _exit_tree() -> void:
 	if tcp_server != null:

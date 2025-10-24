@@ -1,14 +1,14 @@
 extends Node
 class_name Game
 
-static var instance: Game
-
 signal on_log(message: String)
 var prepare: PrepareCanvas
-var _command_handler: CommandHandler = CommandHandler.new()
+@onready var command_handler: CommandHandler = $CommandHandler
+var socket_server: SocketServer
 
 func _init() -> void:
-	instance = self
+	socket_server = SocketServer.new(self)
+	add_child(socket_server, false, Node.INTERNAL_MODE_BACK)
 
 func _ready() -> void:
 	var prepare_scene = load(ResourceTable.SCENE_PREPARE_CANVAS)
@@ -20,4 +20,4 @@ func log(message: Object) -> void:
 	print(message)
 
 func exec_command(command: String) -> String:
-	return _command_handler.handle(command)
+	return command_handler.handle(command)
