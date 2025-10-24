@@ -3,10 +3,11 @@ class_name Game
 
 signal on_log(message: String)
 var prepare: PrepareCanvas
-@onready var command_handler: CommandHandler = $CommandHandler
+var command_handler: CommandHandler
 var socket_server: SocketServer
 
 func _init() -> void:
+	command_handler = CommandHandler.new(self)
 	socket_server = SocketServer.new(self)
 	add_child(socket_server, false, Node.INTERNAL_MODE_BACK)
 

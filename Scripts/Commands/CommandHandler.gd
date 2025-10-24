@@ -1,8 +1,11 @@
-extends Node
+extends RefCounted
 
 class_name CommandHandler
 
-@onready var game: Game = $".."
+var _game: Game
+
+func _init(game: Game) -> void:
+	_game = game
 
 func handle(command: String) -> String:
 	if command == "game.check_status":
