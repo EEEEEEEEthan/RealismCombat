@@ -9,7 +9,6 @@ func _init(game: Game) -> void:
 	_game = game
 
 func handle(command: String) -> String:
-	return "以后再实现"
 	logs.clear()
 	_game.on_log.connect(_on_log)
 	if command == "game.check_status":
