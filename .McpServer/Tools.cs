@@ -8,9 +8,9 @@ namespace RealismCombat.McpServer;
 static class SystemTools
 {
 	[McpServerTool, Description("hello"),]
-	static Task<string> hello() => GameLauncher.SendCommand("hello");
+	static Task<string> hello() => GameClient.SendCommand("hello", 3000);
 	[McpServerTool, Description("start game"),]
-	static string start_game() => GameLauncher.StartGame();
+	static string start_game() => GameClient.StartGame();
 	[McpServerTool, Description("stop game"),]
-	static Task<string> stop_game() => GameLauncher.SendCommand("system.shutdown");
+	static Task<string> stop_game() => GameClient.SendCommand("system.shutdown", 3000);
 }

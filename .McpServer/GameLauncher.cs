@@ -3,14 +3,14 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 namespace RealismCombat.McpServer;
-public static class GameLauncher
+public static class GameClient
 {
 	const string localSettingsFileName = ".local.settings";
 	const string godotKey = "godot";
 	const string defaultGodotValue = "godot.exe";
 	const string portKey = "port";
 	const string defaultPortValue = "3000";
-	public static async Task<string> SendCommand(string command)
+	public static async Task<string> SendCommand(string command, int timeoutMs)
 	{
 		var rootDir = FindProjectRoot();
 		var settingsPath = Path.Combine(rootDir, localSettingsFileName);
@@ -22,7 +22,7 @@ public static class GameLauncher
 			settings[portKey] = value;
 		}
 		var port = int.Parse(value);
-		return await SendShortRequest("127.0.0.1", port, command, 3000);
+		return await SendShortRequest("127.0.0.1", port, command, timeoutMs);
 	}
 	public static string StartGame()
 	{
