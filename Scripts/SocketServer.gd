@@ -65,6 +65,10 @@ func _handle_short_connection(client: StreamPeerTCP) -> void:
 func _process_request(request: String) -> String:
 	if request == "hello":
 		return "world"
+	elif request == "system.shutdown":
+		print("SocketServer: 收到关闭命令，准备退出游戏")
+		get_tree().call_deferred("quit")
+		return "游戏即将关闭"
 	else:
 		return "unknown command: " + request
 

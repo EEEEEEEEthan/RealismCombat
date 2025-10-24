@@ -11,4 +11,6 @@ static class SystemTools
 	static Task<string> hello() => GameLauncher.SendCommand("hello");
 	[McpServerTool, Description("start game"),]
 	static string start_game() => GameLauncher.StartGame();
+	[McpServerTool, Description("stop game"),]
+	static Task<string> stop_game() => GameLauncher.SendCommand("system.shutdown");
 }
