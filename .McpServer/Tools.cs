@@ -3,6 +3,7 @@
 // ReSharper disable UnusedMember.Local
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using ModelContextProtocol.Server;
@@ -56,6 +57,7 @@ static class SystemTools
 		}
 		var fileNameToStart = ResolveGodotExecutable(rootDir, configuredGodot);
 		var port = int.Parse(value);
+		if (IsPortInUse(port)) return $"启动失败: 端口 {port} 已被占用。请修改 {LocalSettingsFileName} 中的端口配置或释放该端口。";
 		try
 		{
 			var psi = new ProcessStartInfo
@@ -72,6 +74,23 @@ static class SystemTools
 		catch (Exception ex)
 		{
 			return $"启动失败: {ex.Message}。请检查根目录下 {LocalSettingsFileName} 的 godot 配置。";
+		}
+	}
+	/// <summary>
+	///     检查指定端口是否已被占用
+	/// </summary>
+	static bool IsPortInUse(int port)
+	{
+		try
+		{
+			var listener = new TcpListener(IPAddress.Any, port);
+			listener.Start();
+			listener.Stop();
+			return false;
+		}
+		catch
+		{
+			return true;
 		}
 	}
 	/// <summary>
