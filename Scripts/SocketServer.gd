@@ -1,7 +1,6 @@
 extends Node
 
 var tcp_server: TCPServer
-var clients: Array[StreamPeerTCP] = []
 var port: int = 9999
 
 func _ready() -> void:
@@ -33,45 +32,43 @@ func _process(_delta: float) -> void:
 	if tcp_server.is_connection_available():
 		var client = tcp_server.take_connection()
 		if client != null:
-			clients.append(client)
-			print("SocketServer: 新客户端连接，当前连接数: ", clients.size())
+			print("SocketServer: 接收短连接")
+			_handle_short_connection(client)
+
+func _handle_short_connection(client: StreamPeerTCP) -> void:
+	var timeout = 100
+	var elapsed = 0
 	
-	for i in range(clients.size() - 1, -1, -1):
-		var client = clients[i]
-		
-		if client.get_status() != StreamPeerTCP.STATUS_CONNECTED:
-			print("SocketServer: 客户端断开连接")
-			clients.remove_at(i)
-			continue
-		
+	while elapsed < timeout:
 		var available = client.get_available_bytes()
 		if available > 0:
 			var data = client.get_utf8_string(available)
-			_handle_message(client, data)
-
-func _handle_message(client: StreamPeerTCP, message: String) -> void:
-	message = message.strip_edges()
-	print("SocketServer: 收到消息: ", message)
-	
-	if message == "hello":
-		send_message(client, "world")
-	else:
-		send_message(client, "unknown command: " + message)
-
-func send_message(client: StreamPeerTCP, message: String) -> void:
-	if client.get_status() != StreamPeerTCP.STATUS_CONNECTED:
-		print("SocketServer: 无法发送消息，客户端未连接")
+			var message = data.strip_edges()
+			print("SocketServer: 收到请求: ", message)
+			
+			var response = _process_request(message)
+			
+			var response_data = response.to_utf8_buffer()
+			client.put_data(response_data)
+			print("SocketServer: 发送响应: ", response)
+			
+			await get_tree().process_frame
+			client.disconnect_from_host()
 		return
 	
-	var data = (message + "\n").to_utf8_buffer()
-	client.put_data(data)
-	print("SocketServer: 发送消息: ", message)
+		await get_tree().process_frame
+		elapsed += 1
+	
+	print("SocketServer: 等待数据超时")
+	client.disconnect_from_host()
+
+func _process_request(request: String) -> String:
+	if request == "hello":
+		return "world"
+	else:
+		return "unknown command: " + request
 
 func _exit_tree() -> void:
-	for client in clients:
-		client.disconnect_from_host()
-	clients.clear()
-	
 	if tcp_server != null:
 		tcp_server.stop()
 	print("SocketServer: 已关闭")

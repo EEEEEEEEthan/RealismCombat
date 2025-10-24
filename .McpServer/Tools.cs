@@ -14,25 +14,11 @@ static class SystemTools
 	const string LocalSettingsFileName = ".local.settings";
 	const string GodotKey = "godot";
 	const string DefaultGodotValue = "godot.exe";
-	[McpServerTool, Description("hello"),] static Task<string> hello() => Task.FromResult("hello");
 	/// <summary>
-	///     连接到指定端口的游戏实例并执行握手验证
+	///     向 Godot 发送 hello 请求测试短连接通信
 	/// </summary>
-	[McpServerTool, Description("connect to game instance on specified port"),]
-	static async Task<string> connect_game(int port)
-	{
-		try
-		{
-			var result = await ConnectAndHandshake("127.0.0.1", port, 5000);
-			return result
-				? $"成功连接到游戏实例，端口: {port}，握手完成"
-				: $"连接失败或握手超时，端口: {port}";
-		}
-		catch (Exception ex)
-		{
-			return $"连接游戏失败: {ex.Message}";
-		}
-	}
+	[McpServerTool, Description("hello"),] 
+	static async Task<string> hello(int port) => await SendShortRequest("127.0.0.1", port, "hello", 3000);
 	/// <summary>
 	///     启动 Godot 运行当前项目。如果根目录缺少本机配置文件或缺少 godot 配置，将自动创建与补全默认值。
 	/// </summary>
@@ -69,10 +55,7 @@ static class SystemTools
 			};
 			var proc = Process.Start(psi);
 			if (proc == null) return $"启动失败: 未能创建进程。可编辑 {LocalSettingsFileName} 配置 godot 路径。";
-			await Task.Delay(2000);
-			var handshakeSuccess = await ConnectAndHandshake("127.0.0.1", port, 5000);
-			if (handshakeSuccess) return $"游戏启动成功！PID={proc.Id}，端口={port}，握手完成";
-			return $"游戏已启动但握手失败。PID={proc.Id}，端口={port}，请检查游戏是否正常运行";
+			return $"游戏启动成功！PID={proc.Id}，端口={port}";
 		}
 		catch (Exception ex)
 		{
@@ -215,9 +198,9 @@ static class SystemTools
 		throw new InvalidOperationException($"无法在 {minPort}-{maxPort} 范围内找到可用端口");
 	}
 	/// <summary>
-	///     连接到指定地址和端口，执行 hello/world 握手
+	///     发送短连接请求到 Godot 服务器
 	/// </summary>
-	static async Task<bool> ConnectAndHandshake(string host, int port, int timeoutMs)
+	static async Task<string> SendShortRequest(string host, int port, string request, int timeoutMs)
 	{
 		TcpClient client = null;
 		try
@@ -226,20 +209,21 @@ static class SystemTools
 			var connectTask = client.ConnectAsync(host, port);
 			var timeoutTask = Task.Delay(timeoutMs);
 			var completedTask = await Task.WhenAny(connectTask, timeoutTask);
-			if (completedTask == timeoutTask || !client.Connected) return false;
+			if (completedTask == timeoutTask || !client.Connected) 
+				return $"连接超时";
 			var stream = client.GetStream();
 			stream.ReadTimeout = timeoutMs;
 			stream.WriteTimeout = timeoutMs;
-			var helloBytes = Encoding.UTF8.GetBytes("hello\n");
-			await stream.WriteAsync(helloBytes, 0, helloBytes.Length);
+			var requestBytes = Encoding.UTF8.GetBytes(request);
+			await stream.WriteAsync(requestBytes, 0, requestBytes.Length);
 			var buffer = new byte[1024];
 			var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
 			var response = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
-			return response == "world";
+			return response;
 		}
-		catch
+		catch (Exception ex)
 		{
-			return false;
+			return $"请求失败: {ex.Message}";
 		}
 		finally
 		{
