@@ -2,3 +2,5 @@
 /.McpServer/.idea
 /.McpServer/bin/
 /.McpServer/obj/
+
+.local.settings
