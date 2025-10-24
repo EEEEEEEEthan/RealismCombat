@@ -24,12 +24,13 @@ static class SystemTools
 		var rootDir = FindProjectRoot();
 		var settingsPath = Path.Combine(rootDir, LocalSettingsFileName);
 		var settings = LoadOrCreateSettings(settingsPath);
-		if (!settings.ContainsKey(PortKey))
+		if (!settings.TryGetValue(PortKey, out var value))
 		{
 			AppendSettingIfMissing(settingsPath, PortKey, DefaultPortValue);
-			settings[PortKey] = DefaultPortValue;
+			value = DefaultPortValue;
+			settings[PortKey] = value;
 		}
-		var port = int.Parse(settings[PortKey]);
+		var port = int.Parse(value);
 		return await SendShortRequest("127.0.0.1", port, "hello", 3000);
 	}
 	/// <summary>
