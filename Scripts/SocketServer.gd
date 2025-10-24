@@ -78,7 +78,7 @@ func _process_request_async(request: String) -> String:
 		_game.get_tree().call_deferred("quit")
 		return "游戏即将关闭"
 	else:
-		return _game.exec_command(request)
+		return await _game.exec_command(request)
 
 func _exit_tree() -> void:
 	if tcp_server != null:
