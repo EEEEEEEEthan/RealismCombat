@@ -56,8 +56,8 @@ func _handle_short_connection(client: StreamPeerTCP) -> void:
 			client.disconnect_from_host()
 		return
 	
-		await get_tree().process_frame
-		elapsed += 1
+	await get_tree().process_frame
+	elapsed += 1
 	
 	print("SocketServer: 等待数据超时")
 	client.disconnect_from_host()
@@ -72,4 +72,3 @@ func _exit_tree() -> void:
 	if tcp_server != null:
 		tcp_server.stop()
 	print("SocketServer: 已关闭")
-
