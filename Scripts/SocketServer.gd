@@ -69,14 +69,12 @@ func _handle_client_async(client: StreamPeerTCP) -> void:
 
 func _process_request_async(request: String) -> String:
 	await get_tree().process_frame
-	if request == "hello":
-		return "world"
-	elif request == "system.shutdown":
+	if request == "system.shutdown":
 		print("SocketServer: 收到关闭命令，准备退出游戏")
 		get_tree().call_deferred("quit")
 		return "游戏即将关闭"
 	else:
-		return "unknown command: " + request
+		return Game.instance.exec_command(request)
 
 func _exit_tree() -> void:
 	if tcp_server != null:
