@@ -1,6 +1,5 @@
 /.godot/
-/.McpServer/.idea
+/.idea/
 /.McpServer/bin/
 /.McpServer/obj/
-
-.local.settings
+/.local.settings
