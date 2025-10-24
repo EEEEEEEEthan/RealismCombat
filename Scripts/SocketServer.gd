@@ -32,37 +32,42 @@ func _process(_delta: float) -> void:
 	if tcp_server.is_connection_available():
 		var client = tcp_server.take_connection()
 		if client != null:
-			print("SocketServer: 接收短连接")
-			_handle_short_connection(client)
+			print("SocketServer: 接收新连接")
+			_handle_client_async(client)
 
-func _handle_short_connection(client: StreamPeerTCP) -> void:
-	var timeout = 100
-	var elapsed = 0
+func _handle_client_async(client: StreamPeerTCP) -> void:
+	var start_time = Time.get_ticks_msec()
+	var timeout_ms = 5000
 	
-	while elapsed < timeout:
+	while (Time.get_ticks_msec() - start_time) < timeout_ms:
+		if client.get_status() != StreamPeerTCP.STATUS_CONNECTED:
+			print("SocketServer: 客户端断开连接")
+			return
+		
 		var available = client.get_available_bytes()
 		if available > 0:
 			var data = client.get_utf8_string(available)
 			var message = data.strip_edges()
 			print("SocketServer: 收到请求: ", message)
 			
-			var response = _process_request(message)
+			var response = await _process_request_async(message)
 			
-			var response_data = response.to_utf8_buffer()
-			client.put_data(response_data)
-			print("SocketServer: 发送响应: ", response)
+			if client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var response_data = response.to_utf8_buffer()
+				client.put_data(response_data)
+				print("SocketServer: 发送响应: ", response)
 			
 			await get_tree().process_frame
 			client.disconnect_from_host()
-		return
-	
-	await get_tree().process_frame
-	elapsed += 1
+			return
+		
+		await get_tree().process_frame
 	
 	print("SocketServer: 等待数据超时")
-	client.disconnect_from_host()
+	if client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+		client.disconnect_from_host()
 
-func _process_request(request: String) -> String:
+func _process_request_async(request: String) -> String:
 	if request == "hello":
 		return "world"
 	elif request == "system.shutdown":
