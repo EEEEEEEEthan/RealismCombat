@@ -2,7 +2,7 @@ extends Node
 class_name Game
 
 signal on_log(message: String)
-var prepare: PrepareCanvas
+var prepare_canvas: PrepareCanvas
 var command_handler: CommandHandler
 var socket_server: SocketServer
 
@@ -12,9 +12,9 @@ func _init() -> void:
 	add_child(socket_server, false, Node.INTERNAL_MODE_BACK)
 
 func _ready() -> void:
-	var prepare_scene = load(ResourceTable.SCENE_PREPARE_CANVAS)
-	prepare = prepare_scene.instantiate()
-	add_child(prepare)
+	var scene = load(ResourceTable.SCENE_PREPARE_CANVAS)
+	prepare_canvas = scene.instantiate()
+	add_child(prepare_canvas)
 
 func log(message: Object) -> void:
 	on_log.emit(str(message))

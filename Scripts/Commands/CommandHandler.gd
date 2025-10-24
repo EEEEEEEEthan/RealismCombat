@@ -10,6 +10,6 @@ func _init(game: Game) -> void:
 func handle(command: String) -> String:
 	if command == "game.check_status":
 		return "这个功能还没实现";
-	if command == "game.start_next_combat":
+	if command == StartNextCombat.NAME:
 		return StartNextCombat.new().execute()
 	return "unknown command: " + command

@@ -9,4 +9,4 @@ func _ready() -> void:
 	button_next_battle.pressed.connect(_on_button_pressed)
 
 func _on_button_pressed() -> void:
-	print("hello")
+	game.command_handler.handle(StartNextCombat.NAME)
