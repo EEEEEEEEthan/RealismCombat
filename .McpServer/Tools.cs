@@ -7,60 +7,76 @@ namespace RealismCombat.McpServer;
 [McpServerToolType]
 static class SystemTools
 {
-    static GameClient? client;
-    public static GameClient? Client => client;
-    [McpServerTool, Description("start game"),]
-    static string start_game()
-    {
-        if (client != null)
-        {
-            return $"游戏已在运行中\n端口: {client.Port}\n进程ID: {client.ProcessId}\n日志文件: {client.LogFilePath}";
-        }
-        try
-        {
-            client = new GameClient();
-            return $"游戏启动成功\n端口: {client.Port}\n进程ID: {client.ProcessId}\n日志文件: {client.LogFilePath}";
-        }
-        catch (Exception e)
-        {
-            client?.Dispose();
-            client = null;
-            return $"启动失败: {e.Message}";
-        }
-    }
-    [McpServerTool, Description("stop game"),]
-    static string stop_game()
-    {
-        try
-        {
-            var result = client is null ? "not running" : client.SendCommand("system.shutdown", 3000).GetAwaiter().GetResult();
-            client?.Dispose();
-            client = null;
-            return result;
-        }
-        catch (Exception e)
-        {
-            client?.Dispose();
-            client = null;
-            return $"error: {e.Message}";
-        }
-    }
+	public static GameClient? Client { get; private set; }
+	[McpServerTool, Description("start game"),]
+	static string start_game()
+	{
+		McpLogger.Log("收到启动游戏请求");
+		if (Client != null)
+		{
+			var msg = $"游戏已在运行中\n端口: {Client.Port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.LogFilePath}";
+			McpLogger.Log($"游戏已在运行中 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}");
+			return msg;
+		}
+		try
+		{
+			McpLogger.Log("正在创建游戏客户端实例...");
+			Client = new();
+			var msg = $"游戏启动成功\n端口: {Client.Port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.LogFilePath}";
+			McpLogger.Log($"游戏启动成功 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}, 日志: {Client.LogFilePath}");
+			return msg;
+		}
+		catch (Exception e)
+		{
+			McpLogger.LogError("游戏启动失败", e);
+			Client?.Dispose();
+			Client = null;
+			return $"启动失败: {e.Message}";
+		}
+	}
+	[McpServerTool, Description("stop game"),]
+	static string stop_game()
+	{
+		McpLogger.Log("收到停止游戏请求");
+		try
+		{
+			if (Client is null)
+			{
+				McpLogger.Log("游戏未运行，无需停止");
+				return "not running";
+			}
+			McpLogger.Log("正在发送关闭命令到游戏...");
+			var result = Client.SendCommand("system.shutdown", 3000).GetAwaiter().GetResult();
+			McpLogger.Log($"游戏关闭命令已发送，结果: {result}");
+			Client?.Dispose();
+			Client = null;
+			McpLogger.Log("游戏客户端已释放");
+			return result;
+		}
+		catch (Exception e)
+		{
+			McpLogger.LogError("停止游戏时发生错误", e);
+			Client?.Dispose();
+			Client = null;
+			return $"error: {e.Message}";
+		}
+	}
 }
 /*
 [McpServerToolType]
 static class GameTools
 {
-    [McpServerTool, Description("check current status"),]
-    static Task<string> status()
-    {
-        if (SystemTools.Client is null) return Task.FromResult("未连接到游戏");
-        return SystemTools.Client.SendCommand("game.check_status", 3000);
-    }
-    [McpServerTool, Description("start next combat"),]
-    static Task<string> start_next_combat()
-    {
-        if (SystemTools.Client is null) return Task.FromResult("未连接到游戏");
-        return SystemTools.Client.SendCommand("game.start_next_combat", 3000);
-    }
+	[McpServerTool, Description("check current status"),]
+	static Task<string> status()
+	{
+		if (SystemTools.Client is null) return Task.FromResult("未连接到游戏");
+		return SystemTools.Client.SendCommand("game.check_status", 3000);
+	}
+	[McpServerTool, Description("start next combat"),]
+	static Task<string> start_next_combat()
+	{
+		if (SystemTools.Client is null) return Task.FromResult("未连接到游戏");
+		return SystemTools.Client.SendCommand("game.start_next_combat", 3000);
+	}
 }
 */
