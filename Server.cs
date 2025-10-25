@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RealismCombat.Extensions;
 namespace RealismCombat;
 /// <summary>
 ///     简单的单客户端TCP服务器：
@@ -15,14 +16,13 @@ namespace RealismCombat;
 public class Server
 {
 	readonly TcpListener listener;
-	readonly CancellationTokenSource cts = new();
+	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly object sync = new();
 	readonly object writeSync = new();
-	readonly Task acceptLoop;
-	TcpClient client;
-	NetworkStream stream;
-	StreamReader reader;
-	StreamWriter writer;
+	TcpClient? client;
+	NetworkStream? stream;
+	StreamReader? reader;
+	StreamWriter? writer;
 	public string? PendingRequest { get; private set; }
 	public event Action? OnClientConnected;
 	public event Action? OnClientDisconnected;
@@ -30,7 +30,7 @@ public class Server
 	{
 		listener = new(localaddr: IPAddress.Loopback, port: port);
 		listener.Start();
-		acceptLoop = Task.Run(AcceptLoopAsync);
+		Task.Run(AcceptLoopAsync);
 	}
 	public void Respond(string response)
 	{
@@ -46,23 +46,9 @@ public class Server
 			PendingRequest = null;
 		}
 	}
-	public void Stop()
-	{
-		cts.Cancel();
-		try
-		{
-			listener.Stop();
-		}
-		catch { }
-		try
-		{
-			acceptLoop?.Wait(500);
-		}
-		catch { }
-	}
 	async Task AcceptLoopAsync()
 	{
-		var token = cts.Token;
+		var token = cancellationTokenSource.Token;
 		try
 		{
 			while (!token.IsCancellationRequested)
@@ -86,23 +72,26 @@ public class Server
 					{
 						client.Close();
 					}
-					catch { }
+					catch (Exception e)
+					{
+						Log.PrintException(e);
+					}
 					continue;
 				}
 				OnClientConnected?.Invoke();
-				Task.Run(ReadLoopAsync);
+				_ = Task.Run(function: ReadLoopAsync, cancellationToken: token);
 			}
 		}
 		catch (OperationCanceledException) { }
 	}
 	async Task ReadLoopAsync()
 	{
-		var token = cts.Token;
+		var token = cancellationTokenSource.Token;
 		try
 		{
 			while (!token.IsCancellationRequested)
 			{
-				var line = await reader!.ReadLineAsync().ConfigureAwait(false);
+				var line = await reader!.ReadLineAsync(token).ConfigureAwait(false);
 				if (line is null) break;
 				var trimmed = line.Trim();
 				if (trimmed.Length == 0) continue;
@@ -131,30 +120,14 @@ public class Server
 	{
 		lock (sync)
 		{
-			try
-			{
-				reader?.Dispose();
-			}
-			catch { }
-			try
-			{
-				writer?.Dispose();
-			}
-			catch { }
-			try
-			{
-				stream?.Dispose();
-			}
-			catch { }
-			try
-			{
-				client?.Close();
-			}
-			catch { }
-			client = null;
-			stream = null;
+			reader?.TryDispose();
+			writer?.TryDispose();
+			stream?.TryDispose();
+			client?.TryDispose();
 			reader = null;
 			writer = null;
+			client = null;
+			stream = null;
 			PendingRequest = null;
 		}
 		OnClientDisconnected?.Invoke();
