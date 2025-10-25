@@ -1,8 +1,15 @@
 {
   "mcpServers": {
     "RealismCombatMcp": {
-      "command": "launch_mcp.bat",
-      "args": [],
+      "command": "dotnet",
+      "args": [
+        "run",
+        "-c",
+        "Release",
+        "--project",
+        ".McpServer",
+        "--"
+      ],
       "env": {}
     }
   }
