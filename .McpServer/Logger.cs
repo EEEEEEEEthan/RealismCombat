@@ -22,7 +22,7 @@ public static class Log
 		var logFilePath1 = Path.Combine(logDir, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}_mcp_server.log");
 		try
 		{
-			logWriter = new(new FileStream(logFilePath1, FileMode.Append, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))
+			logWriter = new(new FileStream(logFilePath1, FileMode.Create, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))
 			{
 				AutoFlush = true,
 			};
