@@ -72,7 +72,7 @@ public class McpHandler
 			if (commandLifeCycle == null)
 			{
 				commandLifeCycle = new();
-				gameRoot.commandHandler.HandleCommand(pendingRequest);
+				gameRoot.commandHandler.Execute(pendingRequest);
 			}
 	}
 	void Respond(string response)
@@ -89,7 +89,6 @@ public class McpHandler
 			pendingRequest = null;
 		}
 	}
-	void OnLog(string message) { }
 	async Task AcceptLoopAsync()
 	{
 		var token = cancellationTokenSource.Token;

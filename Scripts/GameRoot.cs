@@ -4,7 +4,7 @@ using Godot;
 namespace RealismCombat;
 public partial class GameRoot : Node
 {
-	public static readonly IReadOnlyDictionary<string, string> arguments;
+	static readonly IReadOnlyDictionary<string, string> arguments;
 	static GameRoot()
 	{
 		var dict = new Dictionary<string, string>();
@@ -17,20 +17,20 @@ public partial class GameRoot : Node
 		arguments = dict;
 	}
 	public readonly CommandHandler commandHandler;
-	public McpHandler? McpHandler { get; private set; }
+	public readonly McpHandler? mcpHandler;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
-	GameRoot() => commandHandler = new(this);
-	public override void _Ready()
+	GameRoot()
 	{
+		commandHandler = new(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (ushort.TryParse(s: portText, result: out var port))
 			{
 				Log.Print($"启动服务器，端口: {port}");
-				McpHandler = new(gameRoot: this, port: port);
-				McpHandler.OnClientConnected += OnClientConnected;
-				McpHandler.OnClientDisconnected += OnClientDisconnected;
+				mcpHandler = new(gameRoot: this, port: port);
+				mcpHandler.OnClientConnected += OnClientConnected;
+				mcpHandler.OnClientDisconnected += OnClientDisconnected;
 				Log.Print($"服务器已启动，监听端口 {port}");
 			}
 			else
@@ -39,12 +39,14 @@ public partial class GameRoot : Node
 			}
 		else
 			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
+		var battlePrepareScene = BattlePrepareScene.Create(this);
+		AddChild(battlePrepareScene);
 	}
 	public override void _Process(double delta)
 	{
 		TotalTime += delta;
 		FrameCount++;
-		McpHandler?.Update();
+		mcpHandler?.Update();
 	}
 	void _QuitGame() => GetTree().Quit();
 	void OnClientConnected() => HadClientConnected = true;
