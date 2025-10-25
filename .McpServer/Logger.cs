@@ -7,7 +7,7 @@ namespace RealismCombat.McpServer;
 /// </summary>
 public static class Log
 {
-	struct Scope : IDisposable
+	readonly struct Scope : IDisposable
 	{
 		readonly Action<string> onLog;
 		public Scope(out StringBuilder builder)
@@ -26,8 +26,8 @@ public static class Log
 	}
 	static readonly object logLock = new();
 	static readonly StreamWriter? logWriter;
-	public static event Action<string> OnLog;
-	public static event Action<string> OnError;
+	public static event Action<string>? OnLog;
+	public static event Action<string>? OnError;
 	static Log()
 	{
 		var logDir = Path.Combine(Program.projectRoot, ".logs");

@@ -13,4 +13,15 @@ public static partial class Extensions
 			Log.PrintException(e);
 		}
 	}
+	public static void TryInvoke<T>(this Action<T> @this, T arg)
+	{
+		try
+		{
+			@this(arg);
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+		}
+	}
 }
