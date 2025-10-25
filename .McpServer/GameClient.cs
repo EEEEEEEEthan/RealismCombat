@@ -37,17 +37,19 @@ public sealed class GameClient : IDisposable
 			RedirectStandardOutput = true,
 			RedirectStandardError = true,
 		};
-		using var process = Process.Start(psi);
+		var process = Process.Start(psi);
 		if (process is null)
 		{
 			Log.PrintError("无法启动dotnet build");
 			throw new InvalidOperationException("无法启动 dotnet build");
 		}
+		var stdout = process.StandardOutput;
+		var stderr = process.StandardError;
 		var output = Task.Run(() =>
 		{
 			while (true)
 			{
-				var line = process.StandardOutput.ReadLine();
+				var line = stdout.ReadLine();
 				if (line is null) break;
 				Log.Print($"[构建输出] {line}");
 			}
@@ -56,13 +58,14 @@ public sealed class GameClient : IDisposable
 		{
 			while (true)
 			{
-				var line = process.StandardError.ReadLine();
+				var line = stderr.ReadLine();
 				if (line is null) break;
 				Log.Print($"[构建错误] {line}");
 			}
 		});
 		process.WaitForExit();
 		Task.WaitAll(output, error);
+		process.Dispose();
 		if (process.ExitCode != 0)
 		{
 			Log.PrintError($"编译失败，退出码: {process.ExitCode}");
