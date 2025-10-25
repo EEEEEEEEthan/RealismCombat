@@ -22,6 +22,8 @@ public sealed class GameClient : IDisposable
 	readonly SemaphoreSlim _sendLock = new(1, 1);
 	readonly string _projectRoot;
 	public int Port { get; }
+	public int ProcessId { get; private set; }
+	public string LogFilePath { get; private set; } = string.Empty;
 
 	/// <summary>
 	/// 构造时：确保.local.settings与godot配置，编译项目，启动Godot并以--port=xxx运行，随后连接Server。
@@ -169,6 +171,7 @@ public sealed class GameClient : IDisposable
 		try { Directory.CreateDirectory(logDir); } catch { }
 		var logName = DateTime.Now.ToString("yyyyMMdd_HHmmss");
 		var logPath = Path.Combine(logDir, $"{logName}.log");
+		LogFilePath = logPath;
 
 		var psi = new ProcessStartInfo
 		{
@@ -192,6 +195,7 @@ public sealed class GameClient : IDisposable
 			_process = Process.Start(psi);
 			if (_process != null)
 			{
+				ProcessId = _process.Id;
 				_process.OutputDataReceived += (_, e) =>
 				{
 					if (e.Data is null) return;
@@ -223,10 +227,29 @@ public sealed class GameClient : IDisposable
 		}
 
 		var csprojPath = csprojFiles[0];
+		var binDebugPath = Path.Combine(projectRoot, ".godot", "mono", "temp", "bin", "Debug");
+		
+		if (Directory.Exists(binDebugPath))
+		{
+			var binFiles = Directory.GetFiles(binDebugPath, "*.dll");
+			if (binFiles.Length > 0)
+			{
+				var lastBuildTime = binFiles.Max(f => File.GetLastWriteTimeUtc(f));
+				var csprojModTime = File.GetLastWriteTimeUtc(csprojPath);
+				var csFiles = Directory.GetFiles(projectRoot, "*.cs", SearchOption.AllDirectories);
+				var latestCsModTime = csFiles.Length > 0 ? csFiles.Max(f => File.GetLastWriteTimeUtc(f)) : DateTime.MinValue;
+				
+				if (lastBuildTime > csprojModTime && lastBuildTime > latestCsModTime)
+				{
+					return;
+				}
+			}
+		}
+
 		var psi = new ProcessStartInfo
 		{
 			FileName = "dotnet",
-			Arguments = $"build \"{csprojPath}\"",
+			Arguments = $"build \"{csprojPath}\" --nologo --verbosity quiet",
 			WorkingDirectory = projectRoot,
 			UseShellExecute = false,
 			CreateNoWindow = true,

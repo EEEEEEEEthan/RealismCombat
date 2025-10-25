@@ -12,17 +12,20 @@ static class SystemTools
     [McpServerTool, Description("start game"),]
     static string start_game()
     {
-        if (client != null) return $"ok: {client.Port}";
+        if (client != null)
+        {
+            return $"游戏已在运行中\n端口: {client.Port}\n进程ID: {client.ProcessId}\n日志文件: {client.LogFilePath}";
+        }
         try
         {
             client = new GameClient();
-            return $"ok: {client.Port}";
+            return $"游戏启动成功\n端口: {client.Port}\n进程ID: {client.ProcessId}\n日志文件: {client.LogFilePath}";
         }
         catch (Exception e)
         {
             client?.Dispose();
             client = null;
-            return $"error: {e.Message}";
+            return $"启动失败: {e.Message}";
         }
     }
     [McpServerTool, Description("stop game"),]
