@@ -40,6 +40,7 @@ MCP(Model Context Protocol)交互系统允许外部工具通过TCP连接控制�
 - `system_shutdown` - 关闭游戏 (`Scripts/Commands/ShutdownCommand.cs`)
 - `game_check_status` - 查询当前状态和可用指令 (`Scripts/Commands/CheckStatusCommand.cs`)
 - `game_start_combat` - 开始战斗 (`Scripts/Commands/StartCombatCommand.cs`)
+- `debug_show_node_tree` - 显示节点树结构 (`Scripts/Commands/DebugShowNodeTreeCommand.cs`)
 
 ### 3. 状态机集成
 位于 `Scripts/StateMachine/State.cs` 和 `Scripts/GameRoot.cs`
@@ -50,8 +51,8 @@ MCP(Model Context Protocol)交互系统允许外部工具通过TCP连接控制�
 - 状态切换时自动触发检查点，将日志回复给MCP客户端
 
 **状态与指令映射：**
-- `PreparerState`（准备状态）：支持 `system_shutdown`, `game_check_status`, `game_start_combat`
-- `CombatState`（战斗状态）：支持 `system_shutdown`, `game_check_status`
+- `PreparerState`（准备状态）：支持 `system_shutdown`, `game_check_status`, `game_start_combat`, `debug_show_node_tree`
+- `CombatState`（战斗状态）：支持 `system_shutdown`, `game_check_status`, `debug_show_node_tree`
 
 ### 4. GameRoot集成
 位于 `Scripts/GameRoot.cs`
