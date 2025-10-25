@@ -17,8 +17,8 @@ public partial class GameRoot : Node
 				{
 					GD.Print($"[GameRoot] 启动服务器，端口: {port}");
 					server = new Server(port);
-					server.ClientConnected += OnClientConnected;
-					server.ClientDisconnected += OnClientDisconnected;
+					server.OnClientConnected += OnClientConnected;
+					server.OnClientDisconnected += OnClientDisconnected;
 					GD.Print($"[GameRoot] 服务器已启动，监听端口 {port}");
 				}
 				break;

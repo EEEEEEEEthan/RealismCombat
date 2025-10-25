@@ -14,72 +14,69 @@ namespace RealismCombat;
 /// </summary>
 public class Server
 {
-	readonly int _port;
-	readonly TcpListener _listener;
-	readonly CancellationTokenSource _cts = new();
-	readonly object _sync = new();
-	readonly object _writeSync = new();
-	TcpClient? _client;
-	NetworkStream? _stream;
-	StreamReader? _reader;
-	StreamWriter? _writer;
-	readonly Task? _acceptLoopTask;
-	Task? _readLoopTask;
+	readonly TcpListener listener;
+	readonly CancellationTokenSource cts = new();
+	readonly object sync = new();
+	readonly object writeSync = new();
+	readonly Task acceptLoop;
+	TcpClient client;
+	NetworkStream stream;
+	StreamReader reader;
+	StreamWriter writer;
 	public string? PendingRequest { get; private set; }
-	public event Action? ClientConnected;
-	public event Action? ClientDisconnected;
+	public event Action? OnClientConnected;
+	public event Action? OnClientDisconnected;
 	public Server(int port)
 	{
-		_port = port;
-		_listener = new(localaddr: IPAddress.Loopback, port: _port);
-		_listener.Start();
-		_acceptLoopTask = Task.Run(AcceptLoopAsync);
+		listener = new(localaddr: IPAddress.Loopback, port: port);
+		listener.Start();
+		acceptLoop = Task.Run(AcceptLoopAsync);
 	}
 	public void Respond(string response)
 	{
-		lock (_sync)
+		lock (sync)
 		{
-			if (_client is null || _stream is null || _writer is null) return;
+			if (client is null || stream is null || writer is null) return;
 			if (PendingRequest is null) return;
-			lock (_writeSync)
+			lock (writeSync)
 			{
-				_writer.WriteLine(response);
-				_writer.Flush();
+				writer.WriteLine(response);
+				writer.Flush();
 			}
 			PendingRequest = null;
 		}
 	}
 	public void Stop()
 	{
-		_cts.Cancel();
+		cts.Cancel();
 		try
 		{
-			_listener.Stop();
+			listener.Stop();
 		}
 		catch { }
 		try
 		{
-			_acceptLoopTask?.Wait(500);
+			acceptLoop?.Wait(500);
 		}
 		catch { }
 	}
 	async Task AcceptLoopAsync()
 	{
-		var token = _cts.Token;
+		var token = cts.Token;
 		try
 		{
 			while (!token.IsCancellationRequested)
 			{
-				var client = await _listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
+				var client = await listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
 				var accepted = false;
-				lock (_sync)
+				lock (sync)
 				{
-					if (_client is null)
+					if (this.client is null)
 					{
-						_client = client;
-						_stream = client.GetStream();
-						_reader = new(stream: _stream, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
-						_writer = new(stream: _stream, encoding: new UTF8Encoding(false)) { AutoFlush = true, };
+						this.client = client;
+						stream = client.GetStream();
+						reader = new(stream: stream, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
+						writer = new(stream: stream, encoding: new UTF8Encoding(false)) { AutoFlush = true, };
 						accepted = true;
 					}
 				}
@@ -92,34 +89,34 @@ public class Server
 					catch { }
 					continue;
 				}
-				ClientConnected?.Invoke();
-				_readLoopTask = Task.Run(ReadLoopAsync);
+				OnClientConnected?.Invoke();
+				Task.Run(ReadLoopAsync);
 			}
 		}
 		catch (OperationCanceledException) { }
 	}
 	async Task ReadLoopAsync()
 	{
-		var token = _cts.Token;
+		var token = cts.Token;
 		try
 		{
 			while (!token.IsCancellationRequested)
 			{
-				var line = await _reader!.ReadLineAsync().ConfigureAwait(false);
+				var line = await reader!.ReadLineAsync().ConfigureAwait(false);
 				if (line is null) break;
 				var trimmed = line.Trim();
 				if (trimmed.Length == 0) continue;
 				bool isBusy;
-				lock (_sync)
+				lock (sync)
 				{
 					isBusy = PendingRequest is not null;
 					if (!isBusy) PendingRequest = trimmed;
 				}
 				if (isBusy)
-					lock (_writeSync)
+					lock (writeSync)
 					{
-						_writer!.WriteLine("正忙");
-						_writer!.Flush();
+						writer!.WriteLine("正忙");
+						writer!.Flush();
 					}
 			}
 		}
@@ -132,34 +129,34 @@ public class Server
 	}
 	void HandleClientDisconnected()
 	{
-		lock (_sync)
+		lock (sync)
 		{
 			try
 			{
-				_reader?.Dispose();
+				reader?.Dispose();
 			}
 			catch { }
 			try
 			{
-				_writer?.Dispose();
+				writer?.Dispose();
 			}
 			catch { }
 			try
 			{
-				_stream?.Dispose();
+				stream?.Dispose();
 			}
 			catch { }
 			try
 			{
-				_client?.Close();
+				client?.Close();
 			}
 			catch { }
-			_client = null;
-			_stream = null;
-			_reader = null;
-			_writer = null;
+			client = null;
+			stream = null;
+			reader = null;
+			writer = null;
 			PendingRequest = null;
 		}
-		ClientDisconnected?.Invoke();
+		OnClientDisconnected?.Invoke();
 	}
 }
