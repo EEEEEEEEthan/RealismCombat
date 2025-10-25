@@ -61,6 +61,7 @@ public partial class GameRoot : Node, IStateOwner
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
+	public BattlePrepareScene? battlePrepareScene;
 	public State State
 	{
 		get => state;
@@ -90,7 +91,7 @@ public partial class GameRoot : Node, IStateOwner
 			}
 		else
 			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
-		var battlePrepareScene = BattlePrepareScene.Create(this);
+		battlePrepareScene = BattlePrepareScene.Create(this);
 		AddChild(battlePrepareScene);
 	}
 	public override void _Process(double delta)
