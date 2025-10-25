@@ -1,39 +1,36 @@
-using System.Text;
 using Godot;
 namespace RealismCombat;
 public class CommandHandler(GameRoot gameRoot)
 {
-	public string HandleCommand(string cmd)
+	public void HandleCommand(string cmd)
 	{
 		switch (cmd)
 		{
 			case "system.shutdown":
 				gameRoot.CallDeferred(GameRoot.MethodName._QuitGame);
-				return "ok";
+				Log.Print("游戏即将关闭");
+				gameRoot.McpHandler?.McpCheckPoint();
+				break;
 			case "game.check_status":
-				return BuildStatusResponse();
+				PrintStatus();
+				gameRoot.McpHandler?.McpCheckPoint();
+				break;
 			default:
-				return "unknown";
+				Log.Print($"未知指令{cmd}");
+				break;
 		}
 	}
-	string BuildStatusResponse()
+	void PrintStatus()
 	{
-		var sb = new StringBuilder();
-		sb.AppendLine("游戏运行状态:");
-		sb.AppendLine($"  运行时间: {gameRoot.TotalTime:F2}秒");
-		sb.AppendLine($"  总帧数: {gameRoot.FrameCount}");
-		sb.AppendLine($"  平均FPS: {(gameRoot.TotalTime > 0 ? gameRoot.FrameCount / gameRoot.TotalTime : 0):F2}");
-		sb.AppendLine($"  当前FPS: {Engine.GetFramesPerSecond()}");
-		sb.AppendLine($"  客户端已连接: {gameRoot.HadClientConnected}");
-		if (gameRoot.Server is not null)
-		{
-			sb.AppendLine("  服务器状态: 运行中");
-			sb.AppendLine($"  待处理请求: {(gameRoot.Server.PendingRequest is not null ? "有" : "无")}");
-		}
+		Log.Print("游戏运行状态:");
+		Log.Print($"  运行时间: {gameRoot.TotalTime:F2}秒");
+		Log.Print($"  总帧数: {gameRoot.FrameCount}");
+		Log.Print($"  平均FPS: {(gameRoot.TotalTime > 0 ? gameRoot.FrameCount / gameRoot.TotalTime : 0):F2}");
+		Log.Print($"  当前FPS: {Engine.GetFramesPerSecond()}");
+		Log.Print($"  客户端已连接: {gameRoot.HadClientConnected}");
+		if (gameRoot.McpHandler is not null)
+			Log.Print("  服务器状态: 运行中");
 		else
-		{
-			sb.AppendLine("  服务器状态: 未启动");
-		}
-		return sb.ToString().TrimEnd();
+			Log.Print("  服务器状态: 未启动");
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -13,39 +14,82 @@ namespace RealismCombat;
 ///     - 一次仅处理一条指令，其余直接回复"正忙"
 ///     - 客户端断开时触发事件
 /// </summary>
-public class Server
+public class McpHandler
 {
+	class CommandLifeCycle : IDisposable
+	{
+		readonly List<string> messages = new();
+		readonly Action<string> onLog;
+		public string Message => string.Join(separator: "\n", values: messages);
+		public CommandLifeCycle()
+		{
+			onLog = s => messages.Add(s);
+			Log.OnLog += onLog;
+			Log.OnError += onLog;
+		}
+		public void Dispose()
+		{
+			Log.OnLog -= onLog;
+			Log.OnError -= onLog;
+		}
+	}
 	readonly TcpListener listener;
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly object sync = new();
 	readonly object writeSync = new();
+	readonly GameRoot gameRoot;
 	TcpClient? client;
 	NetworkStream? stream;
 	BinaryReader? reader;
 	BinaryWriter? writer;
-	public string? PendingRequest { get; private set; }
+	string? pendingRequest;
+	CommandLifeCycle? commandLifeCycle;
 	public event Action? OnClientConnected;
 	public event Action? OnClientDisconnected;
-	public Server(int port)
+	public McpHandler(GameRoot gameRoot, int port)
 	{
+		this.gameRoot = gameRoot;
 		listener = new(localaddr: IPAddress.Loopback, port: port);
 		listener.Start();
 		Task.Run(AcceptLoopAsync);
 	}
-	public void Respond(string response)
+	/// <summary>
+	///     标记Mcp检查点.Mcp请求会在此时将日志打包回复
+	/// </summary>
+	public void McpCheckPoint()
+	{
+		if (commandLifeCycle != null)
+		{
+			var state = commandLifeCycle;
+			commandLifeCycle = null;
+			Respond(state.Message);
+			state.Dispose();
+		}
+	}
+	internal void Update()
+	{
+		if (pendingRequest != null)
+			if (commandLifeCycle == null)
+			{
+				commandLifeCycle = new();
+				gameRoot.commandHandler.HandleCommand(pendingRequest);
+			}
+	}
+	void Respond(string response)
 	{
 		lock (sync)
 		{
 			if (client is null || stream is null || writer is null) return;
-			if (PendingRequest is null) return;
+			if (pendingRequest is null) return;
 			lock (writeSync)
 			{
 				writer.Write(response);
 				writer.Flush();
 			}
-			PendingRequest = null;
+			pendingRequest = null;
 		}
 	}
+	void OnLog(string message) { }
 	async Task AcceptLoopAsync()
 	{
 		var token = cancellationTokenSource.Token;
@@ -97,8 +141,8 @@ public class Server
 				bool isBusy;
 				lock (sync)
 				{
-					isBusy = PendingRequest is not null;
-					if (!isBusy) PendingRequest = trimmed;
+					isBusy = pendingRequest is not null;
+					if (!isBusy) pendingRequest = trimmed;
 				}
 				if (isBusy)
 					lock (writeSync)
@@ -129,7 +173,7 @@ public class Server
 			writer = null;
 			client = null;
 			stream = null;
-			PendingRequest = null;
+			pendingRequest = null;
 		}
 		OnClientDisconnected?.Invoke();
 	}
