@@ -9,14 +9,18 @@ namespace RealismCombat.McpServer;
 /// </summary>
 public sealed class GameClient : IDisposable
 {
-	static string CreateLogFile()
+	static (string path, StreamWriter writer) CreateLogStream()
 	{
 		var logDir = Path.Combine(Program.projectRoot, ".logs");
 		if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
 		var logName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
 		var logPath = Path.Combine(logDir, $"{logName}.log");
 		Log.Print($"游戏日志路径: {logPath}");
-		return logPath;
+		var writer = new StreamWriter(new FileStream(logPath, FileMode.Append, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))
+		{
+			AutoFlush = true,
+		};
+		return (logPath, writer);
 	}
 	static void BuildProject()
 	{
@@ -48,16 +52,24 @@ public sealed class GameClient : IDisposable
 		}
 		Log.Print("项目构建完成");
 	}
-	public readonly string logFilePath;
+	static int AllocateFreePort()
+	{
+		var l = new TcpListener(IPAddress.Loopback, 0);
+		l.Start();
+		var p = ((IPEndPoint)l.LocalEndpoint).Port;
+		l.Stop();
+		return p;
+	}
 	public readonly int port;
+	public readonly string logFilePath;
 	readonly object sync = new();
 	readonly SemaphoreSlim sendLock = new(1, 1);
-	TcpClient client;
-	NetworkStream stream;
-	StreamReader reader;
-	StreamWriter writer;
-	Process process;
-	StreamWriter logWriter;
+	readonly Process process;
+	readonly TcpClient client;
+	readonly NetworkStream stream;
+	readonly StreamReader reader;
+	readonly StreamWriter writer;
+	readonly StreamWriter logWriter;
 	public int ProcessId { get; private set; }
 	/// <summary>
 	///     构造时：确保.local.settings与godot配置，编译项目，启动Godot并以--port=xxx运行，随后连接Server。
@@ -69,17 +81,11 @@ public sealed class GameClient : IDisposable
 		Log.Print($"找到Godot路径: {godotPath}");
 		BuildProject();
 		port = preferredPort ?? AllocateFreePort();
-		logFilePath = CreateLogFile();
+		(logFilePath, logWriter) = CreateLogStream();
 		Log.Print($"分配端口: {port}");
-		StartGodotProcess(godotPath, Program.projectRoot, port);
+		process = StartGodotProcess(godotPath, Program.projectRoot, port);
 		Log.Print("等待游戏启动并建立连接...");
-		var connected = WaitForGameAndConnect(port, TimeSpan.FromSeconds(15));
-		if (!connected)
-		{
-			Log.PrintError("连接游戏超时");
-			Dispose();
-			throw new InvalidOperationException("启动游戏失败或连接超时");
-		}
+		(client, stream, reader, writer) = WaitForGameAndConnect(port, TimeSpan.FromSeconds(15));
 		Log.Print("GameClient构造完成，连接成功");
 	}
 	/// <summary>
@@ -137,30 +143,8 @@ public sealed class GameClient : IDisposable
 			process.TryDispose();
 			logWriter.TryDispose();
 		}
-		sendLock.Dispose();
+		sendLock.TryDispose();
 		Log.Print("GameClient资源释放完成");
-	}
-	string? ReadSetting(string settingsPath, string key)
-	{
-		foreach (var raw in File.ReadAllLines(settingsPath, Encoding.UTF8))
-		{
-			var line = raw.Trim();
-			if (string.IsNullOrEmpty(line) || line.StartsWith("#")) continue;
-			var idx = line.IndexOf('=');
-			if (idx <= 0) continue;
-			var k = line[..idx].Trim();
-			if (!k.Equals(key, StringComparison.OrdinalIgnoreCase)) continue;
-			return line[(idx + 1)..].Trim();
-		}
-		return null;
-	}
-	int AllocateFreePort()
-	{
-		var l = new TcpListener(IPAddress.Loopback, 0);
-		l.Start();
-		var p = ((IPEndPoint)l.LocalEndpoint).Port;
-		l.Stop();
-		return p;
 	}
 	Process StartGodotProcess(string godotPath, string projectRoot, int port)
 	{
@@ -178,76 +162,57 @@ public sealed class GameClient : IDisposable
 		lock (sync)
 		{
 			var process = Process.Start(processStartInfo);
-			if (process != null)
+			if (process is null) throw new InvalidOperationException("无法启动Godot进程");
+			ProcessId = process.Id;
+			Log.Print($"Godot进程已启动，进程ID: {ProcessId}");
+			DataReceivedEventHandler onOutput = (_, @event) =>
 			{
-				ProcessId = process.Id;
-				Log.Print($"Godot进程已启动，进程ID: {ProcessId}");
-				process.OutputDataReceived += (_, e) =>
+				if (@event.Data is null) return;
+				lock (sync)
 				{
-					if (e.Data is null) return;
-					lock (sync)
+					try
 					{
-						try
-						{
-							logWriter?.WriteLine(e.Data);
-						}
-						catch { }
+						logWriter.WriteLine(@event.Data);
 					}
-				};
-				process.ErrorDataReceived += (_, e) =>
-				{
-					if (e.Data is null) return;
-					lock (sync)
+					catch (Exception e)
 					{
-						try
-						{
-							logWriter?.WriteLine(e.Data);
-						}
-						catch { }
+						Log.PrintException(e);
 					}
-				};
-				try
-				{
-					process.BeginOutputReadLine();
 				}
-				catch { }
-				try
-				{
-					process.BeginErrorReadLine();
-				}
-				catch { }
-			}
+			};
+			process.OutputDataReceived += onOutput;
+			process.ErrorDataReceived += onOutput;
+			process.BeginOutputReadLine();
+			process.BeginErrorReadLine();
 			return process;
 		}
 	}
-	bool WaitForGameAndConnect(int port, TimeSpan timeout)
+	(TcpClient, NetworkStream, StreamReader, StreamWriter) WaitForGameAndConnect(int port, TimeSpan timeout)
 	{
 		var deadline = DateTime.UtcNow + timeout;
 		while (DateTime.UtcNow < deadline)
 			try
 			{
-				var c = new TcpClient();
-				var task = c.ConnectAsync(IPAddress.Loopback, port);
-				if (!task.Wait(TimeSpan.FromMilliseconds(300)) || !c.Connected)
+				var client = new TcpClient();
+				var task = client.ConnectAsync(IPAddress.Loopback, port);
+				if (!task.Wait(TimeSpan.FromMilliseconds(300)) || !client.Connected)
 				{
-					c.Dispose();
+					client.Dispose();
 					Thread.Sleep(100);
 					continue;
 				}
 				lock (sync)
 				{
-					client = c;
-					stream = c.GetStream();
-					reader = new(stream, Encoding.UTF8, false, 1024, leaveOpen: true);
-					writer = new(stream, new UTF8Encoding(false)) { AutoFlush = true, };
+					var stream = client.GetStream();
+					var reader = new StreamReader(stream, Encoding.UTF8, false, 1024, leaveOpen: true);
+					var writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true, };
+					return (client, stream, reader, writer);
 				}
-				Log.Print($"成功连接到游戏服务器，端口: {port}");
-				return true;
 			}
 			catch (Exception)
 			{
 				Thread.Sleep(200);
 			}
-		return false;
+		throw new TimeoutException("连接游戏服务器超时");
 	}
 }
