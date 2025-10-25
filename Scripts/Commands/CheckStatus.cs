@@ -1,5 +1,6 @@
-﻿namespace RealismCombat.Commands;
-public class CheckStatus(GameRoot gameRoot) : Command(gameRoot)
+﻿using System.Collections.Generic;
+namespace RealismCombat.Commands;
+public class CheckStatus(GameRoot gameRoot, Dictionary<string, string> args) : Command(gameRoot: gameRoot, args: args)
 {
 	public const string name = "game.check_status";
 	public override void Execute()
