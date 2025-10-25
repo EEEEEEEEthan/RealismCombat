@@ -1,7 +1,7 @@
 namespace RealismCombat.Commands;
 public class ShutdownCommand(GameRoot gameRoot) : Command(gameRoot)
 {
-	public const string name = "system.shutdown";
+	public const string name = "system_shutdown";
 	public override void Execute()
 	{
 		gameRoot.CallDeferred(GameRoot.MethodName._QuitGame);

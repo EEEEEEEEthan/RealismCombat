@@ -9,7 +9,7 @@ static class SystemTools
 {
 	public static GameClient? Client { get; private set; }
 	[McpServerTool, Description("start game"),]
-	static string start_game()
+	static string system_start_game()
 	{
 		using var _ = Log.BeginScope(out var builder);
 		Log.Print("收到启动游戏请求");
@@ -41,7 +41,7 @@ static class SystemTools
 		}
 	}
 	[McpServerTool, Description("stop game"),]
-	static string stop_game()
+	static string system_shutdown()
 	{
 		using var _ = Log.BeginScope(out var builder);
 		Log.Print("收到停止游戏请求");
@@ -53,7 +53,7 @@ static class SystemTools
 				return "not running";
 			}
 			Log.Print("正在发送关闭命令到游戏...");
-			var result = Client.SendCommand("system.shutdown", 3000).GetAwaiter().GetResult();
+			var result = Client.SendCommand(nameof(system_shutdown), 3000).GetAwaiter().GetResult();
 			Log.Print($"游戏关闭命令已发送，结果: {result}");
 			Client.Dispose();
 			Client = null;
@@ -73,15 +73,15 @@ static class SystemTools
 static class GameTools
 {
 	[McpServerTool, Description("check current status"),]
-	static Task<string> status()
+	static Task<string> game_check_status()
 	{
 		if (SystemTools.Client is null) return Task.FromResult("游戏未启动. 使用start_game启动游戏");
-		return SystemTools.Client.SendCommand("game.check_status", 3000);
+		return SystemTools.Client.SendCommand(nameof(game_check_status), 3000);
 	}
 	[McpServerTool, Description("start next combat"),]
-	static Task<string> start_next_combat()
+	static Task<string> game_start_combat()
 	{
 		if (SystemTools.Client is null) return Task.FromResult("游戏未启动. 使用start_game启动游戏");
-		return SystemTools.Client.SendCommand("game.start_combat", 3000);
+		return SystemTools.Client.SendCommand(nameof(game_start_combat), 3000);
 	}
 }
