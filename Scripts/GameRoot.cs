@@ -62,6 +62,7 @@ public partial class GameRoot : Node, IStateOwner
 	}
 	public readonly McpHandler? mcpHandler;
 	public BattlePrepareScene? battlePrepareScene;
+	public Combat? combat;
 	State state;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
