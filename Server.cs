@@ -61,8 +61,8 @@ public class Server
 					{
 						this.client = client;
 						stream = client.GetStream();
-						reader = new(stream, Encoding.UTF8, leaveOpen: true);
-						writer = new(stream, Encoding.UTF8, leaveOpen: true);
+						reader = new(input: stream, encoding: Encoding.UTF8, leaveOpen: true);
+						writer = new(output: stream, encoding: Encoding.UTF8, leaveOpen: true);
 						accepted = true;
 					}
 				}
@@ -91,7 +91,7 @@ public class Server
 		{
 			while (!token.IsCancellationRequested)
 			{
-				var command = await Task.Run(() => reader!.ReadString(), token).ConfigureAwait(false);
+				var command = await Task.Run(function: () => reader!.ReadString(), cancellationToken: token).ConfigureAwait(false);
 				var trimmed = command.Trim();
 				if (trimmed.Length == 0) continue;
 				bool isBusy;
@@ -108,9 +108,10 @@ public class Server
 					}
 			}
 		}
-		catch (EndOfStreamException) { }
-		catch (IOException) { }
-		catch (ObjectDisposedException) { }
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+		}
 		finally
 		{
 			HandleClientDisconnected();
