@@ -9,6 +9,47 @@ namespace RealismCombat.McpServer;
 /// </summary>
 public sealed class GameClient : IDisposable
 {
+	static string CreateLogFile()
+	{
+		var logDir = Path.Combine(Program.projectRoot, ".logs");
+		if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+		var logName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+		var logPath = Path.Combine(logDir, $"{logName}.log");
+		Log.Print($"游戏日志路径: {logPath}");
+		return logPath;
+	}
+	static void BuildProject()
+	{
+		var projectRoot = Program.projectRoot;
+		var slnPath = $"{projectRoot}/RealismCombat.sln";
+		Log.Print($"开始构建项目: {slnPath}");
+		var psi = new ProcessStartInfo
+		{
+			FileName = "dotnet",
+			Arguments = $"build \"{slnPath}\" --nologo --verbosity quiet",
+			WorkingDirectory = projectRoot,
+			UseShellExecute = false,
+			CreateNoWindow = true,
+			RedirectStandardOutput = true,
+			RedirectStandardError = true,
+		};
+		using var process = Process.Start(psi);
+		if (process is null)
+		{
+			Log.PrintError("无法启动dotnet build");
+			throw new InvalidOperationException("无法启动 dotnet build");
+		}
+		process.WaitForExit();
+		if (process.ExitCode != 0)
+		{
+			var error = process.StandardError.ReadToEnd();
+			Log.PrintError($"编译失败: {error}");
+			throw new InvalidOperationException($"编译失败: {error}");
+		}
+		Log.Print("项目构建完成");
+	}
+	public readonly string logFilePath;
+	public readonly int port;
 	readonly object sync = new();
 	readonly SemaphoreSlim sendLock = new(1, 1);
 	TcpClient client;
@@ -17,9 +58,7 @@ public sealed class GameClient : IDisposable
 	StreamWriter writer;
 	Process process;
 	StreamWriter logWriter;
-	public int Port { get; }
 	public int ProcessId { get; private set; }
-	public string LogFilePath { get; private set; } = string.Empty;
 	/// <summary>
 	///     构造时：确保.local.settings与godot配置，编译项目，启动Godot并以--port=xxx运行，随后连接Server。
 	/// </summary>
@@ -29,11 +68,12 @@ public sealed class GameClient : IDisposable
 		var godotPath = Program.settings.GetValueOrDefault(Program.SettingKeys.godotPath, "");
 		Log.Print($"找到Godot路径: {godotPath}");
 		BuildProject();
-		Port = preferredPort ?? AllocateFreePort();
-		Log.Print($"分配端口: {Port}");
-		StartGodotProcess(godotPath, Program.projectRoot, Port);
+		port = preferredPort ?? AllocateFreePort();
+		logFilePath = CreateLogFile();
+		Log.Print($"分配端口: {port}");
+		StartGodotProcess(godotPath, Program.projectRoot, port);
 		Log.Print("等待游戏启动并建立连接...");
-		var connected = WaitForGameAndConnect(Port, TimeSpan.FromSeconds(15));
+		var connected = WaitForGameAndConnect(port, TimeSpan.FromSeconds(15));
 		if (!connected)
 		{
 			Log.PrintError("连接游戏超时");
@@ -122,20 +162,10 @@ public sealed class GameClient : IDisposable
 		l.Stop();
 		return p;
 	}
-	void StartGodotProcess(string godotPath, string projectRoot, int port)
+	Process StartGodotProcess(string godotPath, string projectRoot, int port)
 	{
 		Log.Print($"准备启动Godot进程，端口: {port}");
-		var logDir = Path.Combine(projectRoot, ".logs");
-		try
-		{
-			Directory.CreateDirectory(logDir);
-		}
-		catch { }
-		var logName = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-		var logPath = Path.Combine(logDir, $"{logName}.log");
-		LogFilePath = logPath;
-		Log.Print($"游戏日志路径: {logPath}");
-		var psi = new ProcessStartInfo
+		var processStartInfo = new ProcessStartInfo
 		{
 			FileName = godotPath,
 			Arguments = $"--path \"{projectRoot}\" -- --port={port}",
@@ -147,17 +177,7 @@ public sealed class GameClient : IDisposable
 		};
 		lock (sync)
 		{
-			process.TryDispose();
-			logWriter.TryDispose();
-			try
-			{
-				logWriter = new(new FileStream(logPath, FileMode.Create, FileAccess.Write, FileShare.Read), new UTF8Encoding(false)) { AutoFlush = true, };
-			}
-			catch (Exception e)
-			{
-				Log.PrintException(e);
-			}
-			process = Process.Start(psi);
+			var process = Process.Start(processStartInfo);
 			if (process != null)
 			{
 				ProcessId = process.Id;
@@ -197,37 +217,8 @@ public sealed class GameClient : IDisposable
 				}
 				catch { }
 			}
+			return process;
 		}
-	}
-	void BuildProject()
-	{
-		var projectRoot = Program.projectRoot;
-		var slnPath = $"{projectRoot}/RealismCombat.sln";
-		Log.Print($"开始构建项目: {slnPath}");
-		var psi = new ProcessStartInfo
-		{
-			FileName = "dotnet",
-			Arguments = $"build \"{slnPath}\" --nologo --verbosity quiet",
-			WorkingDirectory = projectRoot,
-			UseShellExecute = false,
-			CreateNoWindow = true,
-			RedirectStandardOutput = true,
-			RedirectStandardError = true,
-		};
-		using var process = Process.Start(psi);
-		if (process is null)
-		{
-			Log.PrintError("无法启动dotnet build");
-			throw new InvalidOperationException("无法启动 dotnet build");
-		}
-		process.WaitForExit();
-		if (process.ExitCode != 0)
-		{
-			var error = process.StandardError.ReadToEnd();
-			Log.PrintError($"编译失败: {error}");
-			throw new InvalidOperationException($"编译失败: {error}");
-		}
-		Log.Print("项目构建完成");
 	}
 	bool WaitForGameAndConnect(int port, TimeSpan timeout)
 	{

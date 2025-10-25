@@ -14,16 +14,16 @@ static class SystemTools
 		Log.Print("收到启动游戏请求");
 		if (Client != null)
 		{
-			var msg = $"游戏已在运行中\n端口: {Client.Port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.LogFilePath}";
-			Log.Print($"游戏已在运行中 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}");
+			var msg = $"游戏已在运行中\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}";
+			Log.Print($"游戏已在运行中 - 端口: {Client.port}, 进程ID: {Client.ProcessId}");
 			return msg;
 		}
 		try
 		{
 			Log.Print("正在创建游戏客户端实例...");
 			Client = new();
-			var msg = $"游戏启动成功\n端口: {Client.Port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.LogFilePath}";
-			Log.Print($"游戏启动成功 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}, 日志: {Client.LogFilePath}");
+			var msg = $"游戏启动成功\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}";
+			Log.Print($"游戏启动成功 - 端口: {Client.port}, 进程ID: {Client.ProcessId}, 日志: {Client.logFilePath}");
 			return msg;
 		}
 		catch (Exception e)
