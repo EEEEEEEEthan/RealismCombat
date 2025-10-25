@@ -3,12 +3,11 @@ namespace RealismCombat.McpServer;
 /// <summary>
 ///     MCP服务器日志记录器
 /// </summary>
-public static class McpLogger
+public static class Logger
 {
-	static readonly string logFilePath;
 	static readonly object logLock = new();
-	static StreamWriter? logWriter;
-	static McpLogger()
+	static readonly StreamWriter? logWriter;
+	static Logger()
 	{
 		var projectRoot = GetProjectRoot();
 		var logDir = Path.Combine(projectRoot, ".logs");
@@ -16,11 +15,14 @@ public static class McpLogger
 		{
 			Directory.CreateDirectory(logDir);
 		}
-		catch { }
-		logFilePath = Path.Combine(logDir, "mcp.log");
+		catch
+		{
+			// ignored
+		}
+		var logFilePath1 = Path.Combine(logDir, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}_mcp_server.log");
 		try
 		{
-			logWriter = new(new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))
+			logWriter = new(new FileStream(logFilePath1, FileMode.Append, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))
 			{
 				AutoFlush = true,
 			};
@@ -41,26 +43,16 @@ public static class McpLogger
 			{
 				logWriter?.WriteLine(logMessage);
 			}
-			catch { }
+			catch
+			{
+				// ignored
+			}
 		}
 	}
 	public static void LogError(string message, Exception? ex = null)
 	{
 		var errorMessage = ex is null ? message : $"{message}: {ex.Message}";
 		Log($"ERROR: {errorMessage}");
-	}
-	public static void Dispose()
-	{
-		lock (logLock)
-		{
-			try
-			{
-				Log("MCP服务器日志关闭");
-				logWriter?.Dispose();
-				logWriter = null;
-			}
-			catch { }
-		}
 	}
 	static string GetProjectRoot()
 	{
