@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 namespace RealismCombat.McpServer;
 static partial class Program
 {
-	public static readonly string projectRoot = GetProjectRoot();
-	public static readonly IReadOnlyDictionary<string, string> settings;
 	public static class SettingKeys
 	{
 		public const string godotPath = "godot";
 	}
+	public static readonly string projectRoot = GetProjectRoot();
+	public static readonly IReadOnlyDictionary<string, string> settings;
 	static Program()
 	{
 		settings = ensureLocalSettings();
