@@ -1,8 +1,8 @@
 # test
 
-1. 使用mcp工具启动游戏(start_game).
+1. 使用mcp工具启动游戏(system_start_game).
 2. 进行相关内容测试
 3. 如果遇到问题, 查看`.logs/`对应文件定位问题
-4. 测试完毕关闭游戏(stop_game)
+4. 测试完毕关闭游戏(system_shut_down)
 
 你不需要自行等待.每一个指令都会在完成其功能之后得到返回内容
