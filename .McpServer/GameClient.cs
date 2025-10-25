@@ -8,15 +8,33 @@ namespace RealismCombat.McpServer;
 /// </summary>
 public sealed class GameClient : IDisposable
 {
-	readonly object _sync = new();
-	readonly SemaphoreSlim _sendLock = new(1, 1);
-	readonly string _projectRoot;
-	TcpClient _client;
-	NetworkStream _stream;
-	StreamReader _reader;
-	StreamWriter _writer;
-	Process _process;
-	StreamWriter _logWriter;
+	static readonly string projectRoot;
+	static GameClient()
+	{
+		projectRoot = getProjectRoot();
+		return;
+		static string getProjectRoot()
+		{
+			const string file = "project.godot";
+			var currentDirectory = Directory.GetCurrentDirectory();
+			if (File.Exists(Path.Combine(currentDirectory, file))) return currentDirectory;
+			var dir = new DirectoryInfo(currentDirectory);
+			while (dir is not null)
+			{
+				if (File.Exists(Path.Combine(dir.FullName, file))) return dir.FullName;
+				dir = dir.Parent;
+			}
+			return currentDirectory;
+		}
+	}
+	readonly object sync = new();
+	readonly SemaphoreSlim sendLock = new(1, 1);
+	TcpClient client;
+	NetworkStream stream;
+	StreamReader reader;
+	StreamWriter writer;
+	Process process;
+	StreamWriter logWriter;
 	public int Port { get; }
 	public int ProcessId { get; private set; }
 	public string LogFilePath { get; private set; } = string.Empty;
@@ -25,15 +43,14 @@ public sealed class GameClient : IDisposable
 	/// </summary>
 	public GameClient(int? preferredPort = null)
 	{
-		_projectRoot = EnsureProjectRoot();
-		var settingsPath = Path.Combine(_projectRoot, ".local.settings");
+		var settingsPath = Path.Combine(projectRoot, ".local.settings");
 		EnsureLocalSettings(settingsPath);
 		var godotPath = ReadSetting(settingsPath, "godot");
 		if (string.IsNullOrWhiteSpace(godotPath) || !File.Exists(godotPath))
 			throw new InvalidOperationException("未配置或找不到godot路径，请在 .local.settings 中设置 godot = <Godot可执行路径>");
-		BuildProject(_projectRoot);
+		BuildProject(projectRoot);
 		Port = preferredPort ?? AllocateFreePort();
-		StartGodotProcess(godotPath, _projectRoot, Port);
+		StartGodotProcess(godotPath, projectRoot, Port);
 		var connected = WaitForGameAndConnect(Port, TimeSpan.FromSeconds(15));
 		if (!connected)
 		{
@@ -46,16 +63,16 @@ public sealed class GameClient : IDisposable
 	/// </summary>
 	public async Task<string> SendCommand(string command, int timeoutMs)
 	{
-		await _sendLock.WaitAsync().ConfigureAwait(false);
+		await sendLock.WaitAsync().ConfigureAwait(false);
 		try
 		{
-			lock (_sync)
+			lock (sync)
 			{
-				if (_client is null || _stream is null || _reader is null || _writer is null || !_client.Connected) return "未连接到游戏";
+				if (client is null || stream is null || reader is null || writer is null || !client.Connected) return "未连接到游戏";
 			}
-			await _writer!.WriteLineAsync(command).ConfigureAwait(false);
-			await _writer.FlushAsync().ConfigureAwait(false);
-			var readTask = _reader!.ReadLineAsync();
+			await writer!.WriteLineAsync(command).ConfigureAwait(false);
+			await writer.FlushAsync().ConfigureAwait(false);
+			var readTask = reader!.ReadLineAsync();
 			var completed = await Task.WhenAny(readTask, Task.Delay(timeoutMs)).ConfigureAwait(false);
 			if (completed == readTask)
 			{
@@ -70,7 +87,7 @@ public sealed class GameClient : IDisposable
 		}
 		finally
 		{
-			_sendLock.Release();
+			sendLock.Release();
 		}
 	}
 	/// <summary>
@@ -78,67 +95,55 @@ public sealed class GameClient : IDisposable
 	/// </summary>
 	public void Dispose()
 	{
-		lock (_sync)
+		lock (sync)
 		{
 			try
 			{
-				_reader.Dispose();
+				reader.Dispose();
 			}
 			catch { }
 			try
 			{
-				_writer.Dispose();
+				writer.Dispose();
 			}
 			catch { }
 			try
 			{
-				_stream.Dispose();
+				stream.Dispose();
 			}
 			catch { }
 			try
 			{
-				_client.Close();
+				client.Close();
 			}
 			catch { }
 			try
 			{
-				_process.CancelOutputRead();
+				process.CancelOutputRead();
 			}
 			catch { }
 			try
 			{
-				_process.CancelErrorRead();
+				process.CancelErrorRead();
 			}
 			catch { }
 			try
 			{
-				_process.Dispose();
+				process.Dispose();
 			}
 			catch { }
-			_process = null;
+			process = null;
 			try
 			{
-				_logWriter.Dispose();
+				logWriter.Dispose();
 			}
 			catch
 			{
 				// ignored
 			}
-			_logWriter = null;
+			logWriter = null;
 		}
-		_sendLock.Dispose();
-	}
-	string EnsureProjectRoot()
-	{
-		var cwd = Directory.GetCurrentDirectory();
-		if (File.Exists(Path.Combine(cwd, "project.godot"))) return cwd;
-		var dir = new DirectoryInfo(cwd);
-		while (dir is not null)
-		{
-			if (File.Exists(Path.Combine(dir.FullName, "project.godot"))) return dir.FullName;
-			dir = dir.Parent;
-		}
-		return cwd;
+		sendLock.Dispose();
 	}
 	void EnsureLocalSettings(string settingsPath)
 	{
@@ -194,59 +199,59 @@ public sealed class GameClient : IDisposable
 			RedirectStandardOutput = true,
 			RedirectStandardError = true,
 		};
-		lock (_sync)
+		lock (sync)
 		{
 			try
 			{
-				_process?.Dispose();
+				process?.Dispose();
 			}
 			catch { }
 			try
 			{
-				_logWriter?.Dispose();
+				logWriter?.Dispose();
 			}
 			catch { }
 			try
 			{
-				_logWriter = new(new FileStream(logPath, FileMode.Create, FileAccess.Write, FileShare.Read), new UTF8Encoding(false)) { AutoFlush = true, };
+				logWriter = new(new FileStream(logPath, FileMode.Create, FileAccess.Write, FileShare.Read), new UTF8Encoding(false)) { AutoFlush = true, };
 			}
 			catch { }
-			_process = Process.Start(psi);
-			if (_process != null)
+			process = Process.Start(psi);
+			if (process != null)
 			{
-				ProcessId = _process.Id;
-				_process.OutputDataReceived += (_, e) =>
+				ProcessId = process.Id;
+				process.OutputDataReceived += (_, e) =>
 				{
 					if (e.Data is null) return;
-					lock (_sync)
+					lock (sync)
 					{
 						try
 						{
-							_logWriter?.WriteLine(e.Data);
+							logWriter?.WriteLine(e.Data);
 						}
 						catch { }
 					}
 				};
-				_process.ErrorDataReceived += (_, e) =>
+				process.ErrorDataReceived += (_, e) =>
 				{
 					if (e.Data is null) return;
-					lock (_sync)
+					lock (sync)
 					{
 						try
 						{
-							_logWriter?.WriteLine(e.Data);
+							logWriter?.WriteLine(e.Data);
 						}
 						catch { }
 					}
 				};
 				try
 				{
-					_process.BeginOutputReadLine();
+					process.BeginOutputReadLine();
 				}
 				catch { }
 				try
 				{
-					_process.BeginErrorReadLine();
+					process.BeginErrorReadLine();
 				}
 				catch { }
 			}
@@ -309,12 +314,12 @@ public sealed class GameClient : IDisposable
 					Thread.Sleep(100);
 					continue;
 				}
-				lock (_sync)
+				lock (sync)
 				{
-					_client = c;
-					_stream = c.GetStream();
-					_reader = new(_stream, Encoding.UTF8, false, 1024, leaveOpen: true);
-					_writer = new(_stream, new UTF8Encoding(false)) { AutoFlush = true, };
+					client = c;
+					stream = c.GetStream();
+					reader = new(stream, Encoding.UTF8, false, 1024, leaveOpen: true);
+					writer = new(stream, new UTF8Encoding(false)) { AutoFlush = true, };
 				}
 				return true;
 			}
