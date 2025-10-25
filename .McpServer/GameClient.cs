@@ -43,12 +43,30 @@ public sealed class GameClient : IDisposable
 			Log.PrintError("无法启动dotnet build");
 			throw new InvalidOperationException("无法启动 dotnet build");
 		}
+		var output = Task.Run(() =>
+		{
+			while (true)
+			{
+				var line = process.StandardOutput.ReadLine();
+				if (line is null) break;
+				Log.Print($"[构建输出] {line}");
+			}
+		});
+		var error = Task.Run(() =>
+		{
+			while (true)
+			{
+				var line = process.StandardError.ReadLine();
+				if (line is null) break;
+				Log.Print($"[构建错误] {line}");
+			}
+		});
 		process.WaitForExit();
+		Task.WaitAll(output, error);
 		if (process.ExitCode != 0)
 		{
-			var error = process.StandardError.ReadToEnd();
-			Log.PrintError($"编译失败: {error}");
-			throw new InvalidOperationException($"编译失败: {error}");
+			Log.PrintError($"编译失败，退出码: {process.ExitCode}");
+			throw new InvalidOperationException($"编译失败，退出码: {process.ExitCode}");
 		}
 		Log.Print("项目构建完成");
 	}

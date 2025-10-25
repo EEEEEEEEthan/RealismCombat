@@ -59,5 +59,5 @@ static partial class Program
 			.WithToolsFromAssembly();
 		await builder.Build().RunAsync();
 	}
-	[GeneratedRegex(@"(\S+)\s*=\s*(\S+)")] private static partial Regex ConfigRegex();
+	[GeneratedRegex(@"(\S+)\s*=\s*(.+)")] private static partial Regex ConfigRegex();
 }
