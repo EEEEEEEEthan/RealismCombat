@@ -89,8 +89,8 @@ public sealed class GameClient : IDisposable
 	readonly Process process;
 	readonly TcpClient client;
 	readonly NetworkStream stream;
-	readonly StreamReader reader;
-	readonly StreamWriter writer;
+	readonly BinaryReader reader;
+	readonly BinaryWriter writer;
 	readonly StreamWriter logWriter;
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	bool disposed;
@@ -115,7 +115,7 @@ public sealed class GameClient : IDisposable
 		StartConnectionMonitor();
 	}
 	/// <summary>
-	///     发送字符串指令并等待服务器返回一行文本，超时返回提示。
+	///     发送字符串指令并等待服务器返回字符串，超时返回提示。
 	/// </summary>
 	public async Task<string> SendCommand(string command, int timeoutMs)
 	{
@@ -131,15 +131,18 @@ public sealed class GameClient : IDisposable
 					return "未连接到游戏";
 				}
 			}
-			await writer.WriteLineAsync(command).ConfigureAwait(false);
-			await writer.FlushAsync().ConfigureAwait(false);
-			var read = reader.ReadLineAsync();
-			var completed = await Task.WhenAny(read, Task.Delay(timeoutMs)).ConfigureAwait(false);
-			if (completed == read)
+			await Task.Run(() =>
 			{
-				var line = await read.ConfigureAwait(false);
-				Log.Print($"命令响应: {line ?? "(空)"}");
-				return line ?? "";
+				writer.Write(command);
+				writer.Flush();
+			}).ConfigureAwait(false);
+			var readTask = Task.Run(() => reader.ReadString());
+			var completed = await Task.WhenAny(readTask, Task.Delay(timeoutMs)).ConfigureAwait(false);
+			if (completed == readTask)
+			{
+				var response = await readTask.ConfigureAwait(false);
+				Log.Print($"命令响应: {response}");
+				return response;
 			}
 			Log.PrintError($"命令超时: {command}");
 			return "请求超时";
@@ -257,7 +260,7 @@ public sealed class GameClient : IDisposable
 			return process;
 		}
 	}
-	(TcpClient, NetworkStream, StreamReader, StreamWriter) WaitForGameAndConnect(int port, TimeSpan timeout)
+	(TcpClient, NetworkStream, BinaryReader, BinaryWriter) WaitForGameAndConnect(int port, TimeSpan timeout)
 	{
 		var deadline = DateTime.UtcNow + timeout;
 		while (DateTime.UtcNow < deadline)
@@ -274,8 +277,8 @@ public sealed class GameClient : IDisposable
 				lock (sync)
 				{
 					var stream = client.GetStream();
-					var reader = new StreamReader(stream, Encoding.UTF8, false, 1024, leaveOpen: true);
-					var writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true, };
+					var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+					var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
 					return (client, stream, reader, writer);
 				}
 			}

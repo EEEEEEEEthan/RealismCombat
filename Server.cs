@@ -21,8 +21,8 @@ public class Server
 	readonly object writeSync = new();
 	TcpClient? client;
 	NetworkStream? stream;
-	StreamReader? reader;
-	StreamWriter? writer;
+	BinaryReader? reader;
+	BinaryWriter? writer;
 	public string? PendingRequest { get; private set; }
 	public event Action? OnClientConnected;
 	public event Action? OnClientDisconnected;
@@ -40,7 +40,7 @@ public class Server
 			if (PendingRequest is null) return;
 			lock (writeSync)
 			{
-				writer.WriteLine(response);
+				writer.Write(response);
 				writer.Flush();
 			}
 			PendingRequest = null;
@@ -61,8 +61,8 @@ public class Server
 					{
 						this.client = client;
 						stream = client.GetStream();
-						reader = new(stream: stream, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
-						writer = new(stream: stream, encoding: new UTF8Encoding(false)) { AutoFlush = true, };
+						reader = new(stream, Encoding.UTF8, leaveOpen: true);
+						writer = new(stream, Encoding.UTF8, leaveOpen: true);
 						accepted = true;
 					}
 				}
@@ -91,9 +91,8 @@ public class Server
 		{
 			while (!token.IsCancellationRequested)
 			{
-				var line = await reader!.ReadLineAsync(token).ConfigureAwait(false);
-				if (line is null) break;
-				var trimmed = line.Trim();
+				var command = await Task.Run(() => reader!.ReadString(), token).ConfigureAwait(false);
+				var trimmed = command.Trim();
 				if (trimmed.Length == 0) continue;
 				bool isBusy;
 				lock (sync)
@@ -104,11 +103,12 @@ public class Server
 				if (isBusy)
 					lock (writeSync)
 					{
-						writer!.WriteLine("正忙");
+						writer!.Write("正忙");
 						writer!.Flush();
 					}
 			}
 		}
+		catch (EndOfStreamException) { }
 		catch (IOException) { }
 		catch (ObjectDisposedException) { }
 		finally
