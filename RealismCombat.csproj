@@ -1,10 +1,7 @@
 <Project Sdk="Godot.NET.Sdk/4.5.0">
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<LangVersion>latest</LangVersion>
-		<AssemblyName>RealismCombat.Game</AssemblyName>
-		<RootNamespace>RealismCombat.Game</RootNamespace>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
 </Project>
-

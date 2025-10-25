@@ -1,3 +1,4 @@
+namespace RealismCombat.Combats;
 /// <summary>
 ///     角色部位占位类型。
 /// </summary>

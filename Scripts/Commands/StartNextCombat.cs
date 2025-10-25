@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-namespace RealismCombat.Game.Commands;
+namespace RealismCombat.Commands;
 /// <summary>
 ///     开始下一场战斗。
 /// </summary>
@@ -11,6 +11,7 @@ public class StartNextCombat
 	public Task Execute()
 	{
 		Log.Print("战斗开始了");
+		gameRoot.MarkCheckPoint();
 		return Task.CompletedTask;
 	}
 }

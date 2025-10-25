@@ -1,6 +1,6 @@
 using Godot;
-using RealismCombat.Game.Commands;
-namespace RealismCombat.Game;
+using RealismCombat.Commands;
+namespace RealismCombat;
 public partial class PrepareCanvas : Node
 {
 	GameRoot root = null!;

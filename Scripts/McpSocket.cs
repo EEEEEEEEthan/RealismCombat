@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
-namespace RealismCombat.Game;
+namespace RealismCombat;
 class McpSocket : IDisposable
 {
 	readonly struct RequestItem(string message, TaskCompletionSource<string> taskCompletionSource)
@@ -19,6 +20,9 @@ class McpSocket : IDisposable
 	readonly GameRoot gameRoot;
 	readonly TcpListener tcpListener;
 	readonly CancellationTokenSource cancellationTokenSource;
+	readonly object checkpointSync = new();
+	readonly List<string> checkpointBuffer = [];
+	TaskCompletionSource<string>? checkpointPendingTcs;
 	int port = 9999;
 	bool disposed;
 	internal McpSocket(GameRoot gameRoot)
@@ -48,9 +52,57 @@ class McpSocket : IDisposable
 		{
 			Log.Print(e);
 		}
+		TaskCompletionSource<string>? tcsToComplete = null;
+		var resultToSend = string.Empty;
+		lock (checkpointSync)
+		{
+			if (checkpointPendingTcs != null)
+			{
+				Log.OnLog -= OnLogCaptured;
+				Log.OnError -= OnErrorCaptured;
+				resultToSend = string.Join(separator: "\n", values: checkpointBuffer);
+				checkpointBuffer.Clear();
+				tcsToComplete = checkpointPendingTcs;
+				checkpointPendingTcs = null;
+			}
+		}
+		tcsToComplete?.TrySetResult(resultToSend);
 		Log.PrintE($"{nameof(McpSocket)}已关闭");
 	}
+	/// <summary>
+	///     结束当前挂起的日志收集请求，将收集到的所有日志行作为响应返回，并清理订阅与缓存。
+	/// </summary>
+	internal void MarkCheckPoint()
+	{
+		TaskCompletionSource<string>? tcsToComplete;
+		string result;
+		lock (checkpointSync)
+		{
+			if (checkpointPendingTcs is null) return;
+			Log.OnLog -= OnLogCaptured;
+			Log.OnError -= OnErrorCaptured;
+			result = string.Join(separator: "\n", values: checkpointBuffer);
+			checkpointBuffer.Clear();
+			tcsToComplete = checkpointPendingTcs;
+			checkpointPendingTcs = null;
+		}
+		tcsToComplete!.TrySetResult(result);
+	}
 	void IDisposable.Dispose() => Dispose();
+	void OnLogCaptured(string text)
+	{
+		lock (checkpointSync)
+		{
+			if (checkpointPendingTcs != null) checkpointBuffer.Add(text);
+		}
+	}
+	void OnErrorCaptured(string text)
+	{
+		lock (checkpointSync)
+		{
+			if (checkpointPendingTcs != null) checkpointBuffer.Add(text);
+		}
+	}
 	void ParsePortFromArgs()
 	{
 		var args = OS.GetCmdlineArgs();
@@ -162,14 +214,31 @@ class McpSocket : IDisposable
 	{
 		try
 		{
-			if (item.message == "system.shutdown")
+			var started = false;
+			lock (checkpointSync)
 			{
-				gameRoot.GetTree().CallDeferred("quit");
-				item.taskCompletionSource.TrySetResult("游戏即将关闭");
+				if (checkpointPendingTcs == null)
+				{
+					checkpointPendingTcs = item.taskCompletionSource;
+					checkpointBuffer.Clear();
+					Log.OnLog += OnLogCaptured;
+					Log.OnError += OnErrorCaptured;
+					started = true;
+				}
+			}
+			if (!started)
+			{
+				item.taskCompletionSource.TrySetResult("正忙");
 				return;
 			}
-			var result = await gameRoot.ExecCommand(item.message);
-			item.taskCompletionSource.TrySetResult(result);
+			if (item.message == "system.shutdown")
+			{
+				Log.Print("游戏即将关闭");
+				MarkCheckPoint();
+				gameRoot.GetTree().CallDeferred("quit");
+				return;
+			}
+			await gameRoot.ExecCommand(item.message);
 		}
 		catch (Exception ex)
 		{

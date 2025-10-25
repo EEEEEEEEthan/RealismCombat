@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-namespace RealismCombat.Game.Commands;
+namespace RealismCombat.Commands;
 /// <summary>
 ///     负责处理文本命令。
 /// </summary>

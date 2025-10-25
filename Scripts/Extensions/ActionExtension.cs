@@ -1,5 +1,5 @@
 ﻿using System;
-namespace RealismCombat.Game.Extensions;
+namespace RealismCombat.Extensions;
 public static class ActionExtension
 {
 	public static void TryInvoke(this Action @this)

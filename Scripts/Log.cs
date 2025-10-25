@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using Godot;
-using RealismCombat.Game.Extensions;
-namespace RealismCombat.Game;
+using RealismCombat.Extensions;
+namespace RealismCombat;
 public static class Log
 {
 	public static event Action<string>? OnLog;
