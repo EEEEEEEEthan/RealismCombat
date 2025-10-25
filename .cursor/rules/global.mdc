@@ -7,6 +7,6 @@ alwaysApply: true
 所有文档包括guideline都在[这里](../../.documents/index.md)
 
 ## 测试
-完成修改之后需要自测
+完成修改之后需要使用mcp工具自测
 [测试规则](../commands/test.md)
 [mcp工具说明](../../.documents/关于测试.md)
