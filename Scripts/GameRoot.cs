@@ -25,7 +25,7 @@ public partial class GameRoot : Node
 	{
 		commandHandler = new(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
-			if (ushort.TryParse(s: portText, result: out var port))
+			if (int.TryParse(s: portText, result: out var port))
 			{
 				Log.Print($"启动服务器，端口: {port}");
 				mcpHandler = new(gameRoot: this, port: port);

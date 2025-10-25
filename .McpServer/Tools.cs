@@ -78,4 +78,10 @@ static class GameTools
 		if (SystemTools.Client is null) return Task.FromResult("游戏未启动. 使用start_game启动游戏");
 		return SystemTools.Client.SendCommand("game.check_status", 3000);
 	}
+	[McpServerTool, Description("start next combat"),]
+	static Task<string> start_next_combat()
+	{
+		if (SystemTools.Client is null) return Task.FromResult("游戏未启动. 使用start_game启动游戏");
+		return SystemTools.Client.SendCommand("game.start_combat", 3000);
+	}
 }

@@ -131,16 +131,18 @@ public sealed class GameClient : IDisposable
 					return "未连接到游戏";
 				}
 			}
-			await Task.Run(() =>
+			await Task
+				.Run(() =>
+				{
+					writer.Write(command);
+					writer.Flush();
+				})
+				.ConfigureAwait(false);
+			var read = Task.Run(() => reader.ReadString());
+			var completed = await Task.WhenAny(read, Task.Delay(timeoutMs)).ConfigureAwait(false);
+			if (completed == read)
 			{
-				writer.Write(command);
-				writer.Flush();
-			}).ConfigureAwait(false);
-			var readTask = Task.Run(() => reader.ReadString());
-			var completed = await Task.WhenAny(readTask, Task.Delay(timeoutMs)).ConfigureAwait(false);
-			if (completed == readTask)
-			{
-				var response = await readTask.ConfigureAwait(false);
+				var response = await read.ConfigureAwait(false);
 				Log.Print($"命令响应: {response}");
 				return response;
 			}
