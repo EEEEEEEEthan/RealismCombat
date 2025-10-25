@@ -1,17 +1,13 @@
-using System.Threading.Tasks;
 namespace RealismCombat.Commands;
 /// <summary>
 ///     开始下一场战斗。
 /// </summary>
-public class StartNextCombat
+public class StartNextCombat(GameRoot gameRoot) : Command(gameRoot)
 {
-	public const string NAME = "game.start_next_combat";
-	readonly GameRoot gameRoot;
-	public StartNextCombat(GameRoot gameRoot) => this.gameRoot = gameRoot;
-	public Task Execute()
+	public const string name = "game.start_next_combat";
+	public override void Execute()
 	{
 		Log.Print("战斗开始了");
-		gameRoot.MarkCheckPoint();
-		return Task.CompletedTask;
+		gameRoot.McpCheckPoint();
 	}
 }

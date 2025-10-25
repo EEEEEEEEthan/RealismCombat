@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
 using RealismCombat.Commands;
 namespace RealismCombat;
@@ -28,10 +27,10 @@ public partial class GameRoot : Node
 		AddChild(PrepareCanvas);
 	}
 	public override void _Process(double delta) => mcpSocket?.Update(delta);
-	public async Task<string> ExecCommand(string command) => await CommandHandler.Handle(command);
+	public void ExecCommand(string command) => CommandHandler.Handle(command);
 	/// <summary>
 	///     结束当前挂起的日志收集请求，并回复收集到的日志。
 	/// </summary>
-	public void MarkCheckPoint() => mcpSocket?.MarkCheckPoint();
+	public void McpCheckPoint() => mcpSocket?.MarkCheckPoint();
 	protected override void Dispose(bool disposing) => mcpSocket?.Dispose();
 }

@@ -37,7 +37,7 @@ class McpSocket : IDisposable
 	}
 	internal void Update(double delta)
 	{
-		while (requestQueue.TryDequeue(out var item)) _ = ProcessOneOnMainThread(item);
+		while (requestQueue.TryDequeue(out var item)) ProcessOneOnMainThread(item);
 	}
 	internal void Dispose()
 	{
@@ -210,7 +210,7 @@ class McpSocket : IDisposable
 			}
 		}
 	}
-	async Task ProcessOneOnMainThread(RequestItem item)
+	void ProcessOneOnMainThread(RequestItem item)
 	{
 		try
 		{
@@ -238,7 +238,7 @@ class McpSocket : IDisposable
 				gameRoot.GetTree().CallDeferred("quit");
 				return;
 			}
-			await gameRoot.ExecCommand(item.message);
+			gameRoot.ExecCommand(item.message);
 		}
 		catch (Exception ex)
 		{

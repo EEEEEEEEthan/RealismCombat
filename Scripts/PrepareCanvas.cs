@@ -11,5 +11,5 @@ public partial class PrepareCanvas : Node
 		buttonNextBattle = GetNode<Button>("ButtonNextBattle");
 		buttonNextBattle.Pressed += OnButtonPressed;
 	}
-	void OnButtonPressed() => _ = root.CommandHandler.Handle(StartNextCombat.NAME);
+	void OnButtonPressed() => root.CommandHandler.Handle(StartNextCombat.name);
 }
