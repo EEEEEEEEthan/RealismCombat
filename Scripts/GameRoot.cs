@@ -1,9 +1,31 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
+using RealismCombat.Commands;
+using RealismCombat.StateMachine;
 namespace RealismCombat;
-public partial class GameRoot : Node
+public partial class GameRoot : Node, IStateOwner
 {
+	public class PreparerState(GameRoot root) : State(root)
+	{
+		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
+		{
+			Command? command = name switch
+			{
+				ShutdownCommand.name => new ShutdownCommand(root),
+				CheckStatusCommand.name => new CheckStatusCommand(root),
+				StartCombatCommand.name => new StartCombatCommand(root),
+				_ => null,
+			};
+			command?.Execute();
+		}
+		private protected override IEnumerable<string> GetAvailableCommands()
+		{
+			yield return ShutdownCommand.name;
+			yield return CheckStatusCommand.name;
+			yield return StartCombatCommand.name;
+		}
+	}
 	static readonly IReadOnlyDictionary<string, string> arguments;
 	static GameRoot()
 	{
@@ -16,14 +38,14 @@ public partial class GameRoot : Node
 		}
 		arguments = dict;
 	}
-	public readonly CommandHandler commandHandler;
 	public readonly McpHandler? mcpHandler;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
+	public State State { get; set; }
 	GameRoot()
 	{
-		commandHandler = new(this);
+		State = new PreparerState(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (int.TryParse(s: portText, result: out var port))
 			{

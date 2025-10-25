@@ -16,5 +16,5 @@ public partial class BattlePrepareScene : Node
 		buttonNextCombat = GetChild<Button>(0);
 		buttonNextCombat.Pressed += OnPressed;
 	}
-	void OnPressed() => gameRoot.commandHandler.Execute(StartCombatCommand.name);
+	void OnPressed() => gameRoot.State.ExecuteCommand(CheckStatusCommand.name);
 }

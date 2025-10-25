@@ -42,7 +42,7 @@ public class McpHandler
 	NetworkStream? stream;
 	BinaryReader? reader;
 	BinaryWriter? writer;
-	string? pendingRequest;
+	string? pendingCommand;
 	CommandLifeCycle? commandLifeCycle;
 	public event Action? OnClientConnected;
 	public event Action? OnClientDisconnected;
@@ -68,11 +68,11 @@ public class McpHandler
 	}
 	internal void Update()
 	{
-		if (pendingRequest != null)
+		if (pendingCommand != null)
 			if (commandLifeCycle == null)
 			{
 				commandLifeCycle = new();
-				gameRoot.commandHandler.Execute(pendingRequest);
+				gameRoot.State.ExecuteCommand(pendingCommand);
 			}
 	}
 	void Respond(string response)
@@ -80,13 +80,13 @@ public class McpHandler
 		lock (sync)
 		{
 			if (client is null || stream is null || writer is null) return;
-			if (pendingRequest is null) return;
+			if (pendingCommand is null) return;
 			lock (writeSync)
 			{
 				writer.Write(response);
 				writer.Flush();
 			}
-			pendingRequest = null;
+			pendingCommand = null;
 		}
 	}
 	async Task AcceptLoopAsync()
@@ -140,8 +140,8 @@ public class McpHandler
 				bool isBusy;
 				lock (sync)
 				{
-					isBusy = pendingRequest is not null;
-					if (!isBusy) pendingRequest = trimmed;
+					isBusy = pendingCommand is not null;
+					if (!isBusy) pendingCommand = trimmed;
 				}
 				if (isBusy)
 					lock (writeSync)
@@ -172,7 +172,7 @@ public class McpHandler
 			writer = null;
 			client = null;
 			stream = null;
-			pendingRequest = null;
+			pendingCommand = null;
 		}
 		OnClientDisconnected?.Invoke();
 	}

@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 namespace RealismCombat.Commands;
 public class ShutdownCommand(GameRoot gameRoot) : Command(gameRoot)
 {
 	public const string name = "system.shutdown";
-	public override void Execute(IReadOnlyDictionary<string, string> arguments)
+	public override void Execute()
 	{
 		gameRoot.CallDeferred(GameRoot.MethodName._QuitGame);
 		Log.Print("游戏即将关闭");
