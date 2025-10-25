@@ -11,38 +11,39 @@ static class SystemTools
 	[McpServerTool, Description("start game"),]
 	static string start_game()
 	{
+		using var _ = Log.BeginScope(out var builder);
 		Log.Print("收到启动游戏请求");
 		if (Client != null)
 		{
-			var msg = $"游戏已在运行中\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}";
 			Log.Print($"游戏已在运行中 - 端口: {Client.port}, 进程ID: {Client.ProcessId}");
-			return msg;
+			return builder.ToString();
 		}
 		try
 		{
 			Log.Print("正在创建游戏客户端实例...");
-			Client = new();
-			Client.OnDisconnected += () =>
+			var client = new GameClient();
+			client.OnDisconnected += () =>
 			{
-				Log.PrintWarning("游戏连接断开，自动清理GameClient");
-				Client?.Dispose();
+				Log.Print("游戏连接断开，自动清理GameClient");
+				client.Dispose();
 				Client = null;
 			};
-			var msg = $"游戏启动成功\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}";
-			Log.Print($"游戏启动成功 - 端口: {Client.port}, 进程ID: {Client.ProcessId}, 日志: {Client.logFilePath}");
-			return msg;
+			Client = client;
+			Log.Print($"游戏启动成功\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}");
+			return builder.ToString();
 		}
 		catch (Exception e)
 		{
-			Log.PrintError("游戏启动失败", e);
+			Log.PrintException(e);
 			Client?.Dispose();
 			Client = null;
-			return $"启动失败: {e.Message}";
+			return builder.ToString();
 		}
 	}
 	[McpServerTool, Description("stop game"),]
 	static string stop_game()
 	{
+		using var _ = Log.BeginScope(out var builder);
 		Log.Print("收到停止游戏请求");
 		try
 		{
@@ -54,17 +55,17 @@ static class SystemTools
 			Log.Print("正在发送关闭命令到游戏...");
 			var result = Client.SendCommand("system.shutdown", 3000).GetAwaiter().GetResult();
 			Log.Print($"游戏关闭命令已发送，结果: {result}");
-			Client?.Dispose();
+			Client.Dispose();
 			Client = null;
 			Log.Print("游戏客户端已释放");
-			return result;
+			return builder.ToString();
 		}
 		catch (Exception e)
 		{
-			Log.PrintError("停止游戏时发生错误", e);
+			Log.PrintException(e);
 			Client?.Dispose();
 			Client = null;
-			return $"error: {e.Message}";
+			return builder.ToString();
 		}
 	}
 }

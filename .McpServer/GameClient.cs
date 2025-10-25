@@ -203,7 +203,7 @@ public sealed class GameClient : IDisposable
 						}
 						if (disconnected)
 						{
-							Log.PrintWarning("检测到游戏连接已断开");
+							Log.Print("检测到游戏连接已断开");
 							OnDisconnected?.Invoke();
 							break;
 						}

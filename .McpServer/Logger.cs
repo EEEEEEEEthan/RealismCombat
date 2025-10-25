@@ -1,13 +1,33 @@
 using System.Diagnostics;
 using System.Text;
+using RealismCombat.McpServer.Extensions;
 namespace RealismCombat.McpServer;
 /// <summary>
 ///     MCP服务器日志记录器
 /// </summary>
 public static class Log
 {
+	struct Scope : IDisposable
+	{
+		readonly Action<string> onLog;
+		public Scope(out StringBuilder builder)
+		{
+			builder = new();
+			var copiedBuilder = builder;
+			onLog = msg => copiedBuilder.AppendLine(msg);
+			OnLog += onLog;
+			OnError += onLog;
+		}
+		void IDisposable.Dispose()
+		{
+			OnError -= onLog;
+			OnLog -= onLog;
+		}
+	}
 	static readonly object logLock = new();
 	static readonly StreamWriter? logWriter;
+	public static event Action<string> OnLog;
+	public static event Action<string> OnError;
 	static Log()
 	{
 		var logDir = Path.Combine(Program.projectRoot, ".logs");
@@ -33,6 +53,7 @@ public static class Log
 			Console.Error.WriteLine($"[McpLogger] 无法初始化日志文件: {ex.Message}");
 		}
 	}
+	public static IDisposable BeginScope(out StringBuilder builder) => new Scope(out builder);
 	public static void Print(params object[] objects)
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -48,22 +69,7 @@ public static class Log
 				// ignored
 			}
 		}
-	}
-	public static void PrintWarning(params object[] objects)
-	{
-		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-		var logMessage = $"[{timestamp}][WARNING] {string.Join(" ", objects)}";
-		lock (logLock)
-		{
-			try
-			{
-				logWriter?.WriteLine(logMessage);
-			}
-			catch
-			{
-				// ignored
-			}
-		}
+		OnLog?.TryInvoke(logMessage);
 	}
 	public static void PrintError(params object[] objects)
 	{
@@ -81,6 +87,7 @@ public static class Log
 				// ignored
 			}
 		}
+		OnError?.TryInvoke<string>(logMessage);
 	}
 	public static void PrintException(Exception e)
 	{
