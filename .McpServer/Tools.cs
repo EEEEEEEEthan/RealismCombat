@@ -7,7 +7,7 @@ namespace RealismCombat.McpServer;
 [McpServerToolType]
 static class SystemTools
 {
-	public static GameClient? Client { get; private set; }
+	static GameClient? Client { get; set; }
 	[McpServerTool, Description("start game"),]
 	static string start_game()
 	{
@@ -22,6 +22,12 @@ static class SystemTools
 		{
 			Log.Print("正在创建游戏客户端实例...");
 			Client = new();
+			Client.OnDisconnected += () =>
+			{
+				Log.PrintWarning("游戏连接断开，自动清理GameClient");
+				Client?.Dispose();
+				Client = null;
+			};
 			var msg = $"游戏启动成功\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}";
 			Log.Print($"游戏启动成功 - 端口: {Client.port}, 进程ID: {Client.ProcessId}, 日志: {Client.logFilePath}");
 			return msg;

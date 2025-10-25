@@ -92,7 +92,10 @@ public sealed class GameClient : IDisposable
 	readonly StreamReader reader;
 	readonly StreamWriter writer;
 	readonly StreamWriter logWriter;
+	readonly CancellationTokenSource cancellationTokenSource = new();
+	bool disposed;
 	public int ProcessId { get; private set; }
+	public event Action? OnDisconnected;
 	/// <summary>
 	///     构造时：确保.local.settings与godot配置，编译项目，启动Godot并以--port=xxx运行，随后连接Server。
 	/// </summary>
@@ -109,6 +112,7 @@ public sealed class GameClient : IDisposable
 		Log.Print("等待游戏启动并建立连接...");
 		(client, stream, reader, writer) = WaitForGameAndConnect(port, TimeSpan.FromSeconds(15));
 		Log.Print("GameClient构造完成，连接成功");
+		StartConnectionMonitor();
 	}
 	/// <summary>
 	///     发送字符串指令并等待服务器返回一行文本，超时返回提示。
@@ -158,6 +162,9 @@ public sealed class GameClient : IDisposable
 		Log.Print("开始释放GameClient资源");
 		lock (sync)
 		{
+			if (disposed) return;
+			disposed = true;
+			cancellationTokenSource.Cancel();
 			reader.TryDispose();
 			writer.TryDispose();
 			stream.TryDispose();
@@ -165,9 +172,50 @@ public sealed class GameClient : IDisposable
 			process.TryDispose();
 			logWriter.TryDispose();
 		}
+		cancellationTokenSource.TryDispose();
 		sendLock.TryDispose();
 		Log.Print("GameClient资源释放完成");
 	}
+	void StartConnectionMonitor() =>
+		Task.Run(async () =>
+			{
+				try
+				{
+					while (!cancellationTokenSource.Token.IsCancellationRequested)
+					{
+						await Task.Delay(2000, cancellationTokenSource.Token).ConfigureAwait(false);
+						var disconnected = false;
+						lock (sync)
+						{
+							if (disposed) break;
+							try
+							{
+								if (client.Client.Poll(0, SelectMode.SelectRead))
+								{
+									var buffer = new byte[1];
+									if (client.Client.Receive(buffer, SocketFlags.Peek) == 0) disconnected = true;
+								}
+							}
+							catch
+							{
+								disconnected = true;
+							}
+						}
+						if (disconnected)
+						{
+							Log.PrintWarning("检测到游戏连接已断开");
+							OnDisconnected?.Invoke();
+							break;
+						}
+					}
+				}
+				catch (OperationCanceledException) { }
+				catch (Exception ex)
+				{
+					Log.PrintError("连接监控任务异常", ex);
+				}
+			},
+			cancellationTokenSource.Token);
 	Process StartGodotProcess(string godotPath, string projectRoot, int port)
 	{
 		Log.Print($"准备启动Godot进程，端口: {port}");

@@ -49,6 +49,22 @@ public static class Log
 			}
 		}
 	}
+	public static void PrintWarning(params object[] objects)
+	{
+		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+		var logMessage = $"[{timestamp}][WARNING] {string.Join(" ", objects)}";
+		lock (logLock)
+		{
+			try
+			{
+				logWriter?.WriteLine(logMessage);
+			}
+			catch
+			{
+				// ignored
+			}
+		}
+	}
 	public static void PrintError(params object[] objects)
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
