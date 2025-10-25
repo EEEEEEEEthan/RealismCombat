@@ -1,10 +1,40 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text.RegularExpressions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 namespace RealismCombat.McpServer;
-static class Program
+static partial class Program
 {
 	public static readonly string projectRoot = GetProjectRoot();
+	public static readonly IReadOnlyDictionary<string, string> settings;
+	public static class SettingKeys
+	{
+		public const string godotPath = "godot";
+	}
+	static Program()
+	{
+		settings = ensureLocalSettings();
+		return;
+		static Dictionary<string, string> ensureLocalSettings()
+		{
+			var result = new Dictionary<string, string>();
+			var settingsPath = Path.Combine(projectRoot, ".local.settings");
+			if (!File.Exists(settingsPath)) File.Create(settingsPath);
+			var regex = ConfigRegex();
+			foreach (var line in File.ReadLines(settingsPath))
+			{
+				var match = regex.Match(line);
+				if (match.Success)
+				{
+					var key = match.Groups[1].Value.Trim();
+					var value = match.Groups[2].Value.Trim();
+					result[key] = value;
+				}
+			}
+			if (!result.ContainsKey("godot")) File.AppendAllLines(settingsPath, ["godot = GODOT.exe",]);
+			return result;
+		}
+	}
 	static string GetProjectRoot()
 	{
 		const string file = "project.godot";
@@ -29,4 +59,5 @@ static class Program
 			.WithToolsFromAssembly();
 		await builder.Build().RunAsync();
 	}
+	[GeneratedRegex(@"(\S+)\s*=\s*(\S+)")] private static partial Regex ConfigRegex();
 }

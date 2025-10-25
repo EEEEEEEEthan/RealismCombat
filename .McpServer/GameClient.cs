@@ -2,28 +2,13 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using RealismCombat.McpServer.Extensions;
 namespace RealismCombat.McpServer;
 /// <summary>
 ///     提供与游戏进程的生命周期和Socket通信的客户端封装（实例化）。
 /// </summary>
 public sealed class GameClient : IDisposable
 {
-	static void SafeDispose(IDisposable? obj)
-	{
-		try
-		{
-			obj?.Dispose();
-		}
-		catch (Exception e) { }
-	}
-	static void SafeAction(Action action)
-	{
-		try
-		{
-			action();
-		}
-		catch { }
-	}
 	readonly object sync = new();
 	readonly SemaphoreSlim sendLock = new(1, 1);
 	TcpClient client;
@@ -41,14 +26,7 @@ public sealed class GameClient : IDisposable
 	public GameClient(int? preferredPort = null)
 	{
 		Log.Print("GameClient构造函数开始");
-		var settingsPath = Path.Combine(Program.projectRoot, ".local.settings");
-		EnsureLocalSettings(settingsPath);
-		var godotPath = ReadSetting(settingsPath, "godot");
-		if (string.IsNullOrWhiteSpace(godotPath) || !File.Exists(godotPath))
-		{
-			Log.PrintError("未配置或找不到godot路径");
-			throw new InvalidOperationException("未配置或找不到godot路径，请在 .local.settings 中设置 godot = <Godot可执行路径>");
-		}
+		var godotPath = Program.settings.GetValueOrDefault(Program.SettingKeys.godotPath);
 		Log.Print($"找到Godot路径: {godotPath}");
 		BuildProject(Program.projectRoot);
 		Port = preferredPort ?? AllocateFreePort();
@@ -81,9 +59,9 @@ public sealed class GameClient : IDisposable
 					return "未连接到游戏";
 				}
 			}
-			await writer!.WriteLineAsync(command).ConfigureAwait(false);
+			await writer.WriteLineAsync(command).ConfigureAwait(false);
 			await writer.FlushAsync().ConfigureAwait(false);
-			var read = reader!.ReadLineAsync();
+			var read = reader.ReadLineAsync();
 			var completed = await Task.WhenAny(read, Task.Delay(timeoutMs)).ConfigureAwait(false);
 			if (completed == read)
 			{
@@ -112,30 +90,15 @@ public sealed class GameClient : IDisposable
 		Log.Print("开始释放GameClient资源");
 		lock (sync)
 		{
-			SafeDispose(reader);
-			SafeDispose(writer);
-			SafeDispose(stream);
-			SafeAction(() => client.Close());
-			SafeAction(() => process.CancelOutputRead());
-			SafeAction(() => process.CancelErrorRead());
-			SafeDispose(process);
-			process = null;
-			SafeDispose(logWriter);
-			logWriter = null;
+			reader.TryDispose();
+			writer.TryDispose();
+			stream.TryDispose();
+			client.TryDispose();
+			process.TryDispose();
+			logWriter.TryDispose();
 		}
 		sendLock.Dispose();
 		Log.Print("GameClient资源释放完成");
-	}
-	void EnsureLocalSettings(string settingsPath)
-	{
-		if (!File.Exists(settingsPath))
-		{
-			File.WriteAllText(settingsPath, "godot = \r\n", new UTF8Encoding(false));
-			return;
-		}
-		var content = File.ReadAllText(settingsPath, Encoding.UTF8);
-		if (!content.Split('\n').Any(l => l.TrimStart().StartsWith("godot", StringComparison.OrdinalIgnoreCase)))
-			File.AppendAllText(settingsPath, "godot = \r\n");
 	}
 	string? ReadSetting(string settingsPath, string key)
 	{
@@ -184,21 +147,16 @@ public sealed class GameClient : IDisposable
 		};
 		lock (sync)
 		{
-			try
-			{
-				process?.Dispose();
-			}
-			catch { }
-			try
-			{
-				logWriter?.Dispose();
-			}
-			catch { }
+			process.TryDispose();
+			logWriter.TryDispose();
 			try
 			{
 				logWriter = new(new FileStream(logPath, FileMode.Create, FileAccess.Write, FileShare.Read), new UTF8Encoding(false)) { AutoFlush = true, };
 			}
-			catch { }
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+			}
 			process = Process.Start(psi);
 			if (process != null)
 			{
@@ -302,13 +260,7 @@ public sealed class GameClient : IDisposable
 			{
 				var c = new TcpClient();
 				var task = c.ConnectAsync(IPAddress.Loopback, port);
-				if (!task.Wait(TimeSpan.FromMilliseconds(300)))
-				{
-					c.Dispose();
-					Thread.Sleep(100);
-					continue;
-				}
-				if (!c.Connected)
+				if (!task.Wait(TimeSpan.FromMilliseconds(300)) || !c.Connected)
 				{
 					c.Dispose();
 					Thread.Sleep(100);
