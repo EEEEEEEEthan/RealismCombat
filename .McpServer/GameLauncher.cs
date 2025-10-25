@@ -46,16 +46,34 @@ public static class GameClient
 		if (IsPortInUse(port)) return $"启动失败: 端口 {port} 已被占用。请修改 {localSettingsFileName} 中的端口配置或释放该端口。";
 		try
 		{
+			var logsDir = Path.Combine(rootDir, ".logs");
+			Directory.CreateDirectory(logsDir);
+			var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+			var logFilePath = Path.Combine(logsDir, $"{timestamp}.log");
 			var psi = new ProcessStartInfo
 			{
 				FileName = fileNameToStart,
 				WorkingDirectory = rootDir,
-				UseShellExecute = true,
+				UseShellExecute = false,
 				Arguments = $"--path . --port={port}",
+				RedirectStandardOutput = true,
+				RedirectStandardError = true,
 			};
 			var proc = Process.Start(psi);
 			if (proc == null) return $"启动失败: 未能创建进程。可编辑 {localSettingsFileName} 配置 godot 路径。";
-			return $"游戏启动成功！PID={proc.Id}，端口={port}";
+			var logWriter = new StreamWriter(logFilePath, false, new UTF8Encoding(false)) { AutoFlush = true };
+			proc.OutputDataReceived += (sender, e) =>
+			{
+				if (e.Data != null) logWriter.WriteLine($"[OUT] {e.Data}");
+			};
+			proc.ErrorDataReceived += (sender, e) =>
+			{
+				if (e.Data != null) logWriter.WriteLine($"[ERR] {e.Data}");
+			};
+			proc.BeginOutputReadLine();
+			proc.BeginErrorReadLine();
+			proc.Exited += (sender, e) => logWriter.Dispose();
+			return $"游戏启动成功！PID={proc.Id}，端口={port}，日志文件={logFilePath}";
 		}
 		catch (Exception ex)
 		{
