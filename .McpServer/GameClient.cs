@@ -65,11 +65,12 @@ public sealed class GameClient : IDisposable
 		});
 		process.WaitForExit();
 		Task.WaitAll(output, error);
+		var exit = process.ExitCode;
 		process.Dispose();
-		if (process.ExitCode != 0)
+		if (exit != 0)
 		{
-			Log.PrintError($"编译失败，退出码: {process.ExitCode}");
-			throw new InvalidOperationException($"编译失败，退出码: {process.ExitCode}");
+			Log.PrintError($"编译失败，退出码: {exit}");
+			throw new InvalidOperationException($"编译失败，退出码: {exit}");
 		}
 		Log.Print("项目构建完成");
 	}
