@@ -26,9 +26,9 @@ public sealed class GameClient : IDisposable
 	public GameClient(int? preferredPort = null)
 	{
 		Log.Print("GameClient构造函数开始");
-		var godotPath = Program.settings.GetValueOrDefault(Program.SettingKeys.godotPath);
+		var godotPath = Program.settings.GetValueOrDefault(Program.SettingKeys.godotPath, "");
 		Log.Print($"找到Godot路径: {godotPath}");
-		BuildProject(Program.projectRoot);
+		BuildProject();
 		Port = preferredPort ?? AllocateFreePort();
 		Log.Print($"分配端口: {Port}");
 		StartGodotProcess(godotPath, Program.projectRoot, Port);
@@ -199,38 +199,15 @@ public sealed class GameClient : IDisposable
 			}
 		}
 	}
-	void BuildProject(string projectRoot)
+	void BuildProject()
 	{
-		Log.Print("检查项目构建状态...");
-		var csprojFiles = Directory.GetFiles(projectRoot, "*.csproj");
-		if (csprojFiles.Length == 0)
-		{
-			Log.PrintError("未找到.csproj文件");
-			throw new InvalidOperationException("未找到 .csproj 文件");
-		}
-		var csprojPath = csprojFiles[0];
-		var binDebugPath = Path.Combine(projectRoot, ".godot", "mono", "temp", "bin", "Debug");
-		if (Directory.Exists(binDebugPath))
-		{
-			var binFiles = Directory.GetFiles(binDebugPath, "*.dll");
-			if (binFiles.Length > 0)
-			{
-				var lastBuildTime = binFiles.Max(f => File.GetLastWriteTimeUtc(f));
-				var csprojModTime = File.GetLastWriteTimeUtc(csprojPath);
-				var csFiles = Directory.GetFiles(projectRoot, "*.cs", SearchOption.AllDirectories);
-				var latestCsModTime = csFiles.Length > 0 ? csFiles.Max(f => File.GetLastWriteTimeUtc(f)) : DateTime.MinValue;
-				if (lastBuildTime > csprojModTime && lastBuildTime > latestCsModTime)
-				{
-					Log.Print("项目已是最新，跳过构建");
-					return;
-				}
-			}
-		}
-		Log.Print($"开始构建项目: {csprojPath}");
+		var projectRoot = Program.projectRoot;
+		var slnPath = $"{projectRoot}/RealismCombat.sln";
+		Log.Print($"开始构建项目: {slnPath}");
 		var psi = new ProcessStartInfo
 		{
 			FileName = "dotnet",
-			Arguments = $"build \"{csprojPath}\" --nologo --verbosity quiet",
+			Arguments = $"build \"{slnPath}\" --nologo --verbosity quiet",
 			WorkingDirectory = projectRoot,
 			UseShellExecute = false,
 			CreateNoWindow = true,
