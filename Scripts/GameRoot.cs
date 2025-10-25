@@ -57,13 +57,24 @@ public partial class GameRoot : Node, IStateOwner
 		arguments = dict;
 	}
 	public readonly McpHandler? mcpHandler;
+	State state;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
-	public State State { get; set; }
+	public State State
+	{
+		get => state;
+		set
+		{
+			state = value;
+			Log.Print($"游戏进入状态:{state}");
+			Log.Print($"可用指令: {string.Join(separator: ", ", values: state.AvailableCommands)}");
+			mcpHandler?.McpCheckPoint();
+		}
+	}
 	GameRoot()
 	{
-		State = new PreparerState(this);
+		state = new PreparerState(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (int.TryParse(s: portText, result: out var port))
 			{
