@@ -5,6 +5,7 @@ public class StartCombatCommand(GameRoot gameRoot) : Command(gameRoot)
 	public override void Execute()
 	{
 		Log.Print("战斗开始!");
+		gameRoot.State = new GameRoot.CombatState(gameRoot);
 		gameRoot.mcpHandler?.McpCheckPoint();
 	}
 }

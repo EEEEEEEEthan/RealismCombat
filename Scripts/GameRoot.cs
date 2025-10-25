@@ -26,6 +26,24 @@ public partial class GameRoot : Node, IStateOwner
 			yield return StartCombatCommand.name;
 		}
 	}
+	public class CombatState(GameRoot root) : State(root)
+	{
+		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
+		{
+			Command? command = name switch
+			{
+				ShutdownCommand.name => new ShutdownCommand(root),
+				CheckStatusCommand.name => new CheckStatusCommand(root),
+				_ => null,
+			};
+			command?.Execute();
+		}
+		private protected override IEnumerable<string> GetAvailableCommands()
+		{
+			yield return ShutdownCommand.name;
+			yield return CheckStatusCommand.name;
+		}
+	}
 	static readonly IReadOnlyDictionary<string, string> arguments;
 	static GameRoot()
 	{
