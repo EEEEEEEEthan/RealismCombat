@@ -8,24 +8,21 @@ namespace RealismCombat.McpServer;
 /// </summary>
 public sealed class GameClient : IDisposable
 {
-	static readonly string projectRoot;
-	static GameClient()
+	static void SafeDispose(IDisposable? obj)
 	{
-		projectRoot = getProjectRoot();
-		return;
-		static string getProjectRoot()
+		try
 		{
-			const string file = "project.godot";
-			var currentDirectory = Directory.GetCurrentDirectory();
-			if (File.Exists(Path.Combine(currentDirectory, file))) return currentDirectory;
-			var dir = new DirectoryInfo(currentDirectory);
-			while (dir is not null)
-			{
-				if (File.Exists(Path.Combine(dir.FullName, file))) return dir.FullName;
-				dir = dir.Parent;
-			}
-			return currentDirectory;
+			obj?.Dispose();
 		}
+		catch (Exception e) { }
+	}
+	static void SafeAction(Action action)
+	{
+		try
+		{
+			action();
+		}
+		catch { }
 	}
 	readonly object sync = new();
 	readonly SemaphoreSlim sendLock = new(1, 1);
@@ -43,36 +40,36 @@ public sealed class GameClient : IDisposable
 	/// </summary>
 	public GameClient(int? preferredPort = null)
 	{
-		Logger.Log("GameClient构造函数开始");
-		var settingsPath = Path.Combine(projectRoot, ".local.settings");
+		Log.Print("GameClient构造函数开始");
+		var settingsPath = Path.Combine(Program.projectRoot, ".local.settings");
 		EnsureLocalSettings(settingsPath);
 		var godotPath = ReadSetting(settingsPath, "godot");
 		if (string.IsNullOrWhiteSpace(godotPath) || !File.Exists(godotPath))
 		{
-			Logger.LogError("未配置或找不到godot路径");
+			Log.PrintError("未配置或找不到godot路径");
 			throw new InvalidOperationException("未配置或找不到godot路径，请在 .local.settings 中设置 godot = <Godot可执行路径>");
 		}
-		Logger.Log($"找到Godot路径: {godotPath}");
-		BuildProject(projectRoot);
+		Log.Print($"找到Godot路径: {godotPath}");
+		BuildProject(Program.projectRoot);
 		Port = preferredPort ?? AllocateFreePort();
-		Logger.Log($"分配端口: {Port}");
-		StartGodotProcess(godotPath, projectRoot, Port);
-		Logger.Log("等待游戏启动并建立连接...");
+		Log.Print($"分配端口: {Port}");
+		StartGodotProcess(godotPath, Program.projectRoot, Port);
+		Log.Print("等待游戏启动并建立连接...");
 		var connected = WaitForGameAndConnect(Port, TimeSpan.FromSeconds(15));
 		if (!connected)
 		{
-			Logger.LogError("连接游戏超时");
+			Log.PrintError("连接游戏超时");
 			Dispose();
 			throw new InvalidOperationException("启动游戏失败或连接超时");
 		}
-		Logger.Log("GameClient构造完成，连接成功");
+		Log.Print("GameClient构造完成，连接成功");
 	}
 	/// <summary>
 	///     发送字符串指令并等待服务器返回一行文本，超时返回提示。
 	/// </summary>
 	public async Task<string> SendCommand(string command, int timeoutMs)
 	{
-		Logger.Log($"发送命令: {command}");
+		Log.Print($"发送命令: {command}");
 		await sendLock.WaitAsync().ConfigureAwait(false);
 		try
 		{
@@ -80,26 +77,26 @@ public sealed class GameClient : IDisposable
 			{
 				if (!client.Connected)
 				{
-					Logger.LogError("未连接到游戏");
+					Log.PrintError("未连接到游戏");
 					return "未连接到游戏";
 				}
 			}
 			await writer!.WriteLineAsync(command).ConfigureAwait(false);
 			await writer.FlushAsync().ConfigureAwait(false);
-			var readTask = reader!.ReadLineAsync();
-			var completed = await Task.WhenAny(readTask, Task.Delay(timeoutMs)).ConfigureAwait(false);
-			if (completed == readTask)
+			var read = reader!.ReadLineAsync();
+			var completed = await Task.WhenAny(read, Task.Delay(timeoutMs)).ConfigureAwait(false);
+			if (completed == read)
 			{
-				var line = await readTask.ConfigureAwait(false);
-				Logger.Log($"命令响应: {line ?? "(空)"}");
+				var line = await read.ConfigureAwait(false);
+				Log.Print($"命令响应: {line ?? "(空)"}");
 				return line ?? "";
 			}
-			Logger.LogError($"命令超时: {command}");
+			Log.PrintError($"命令超时: {command}");
 			return "请求超时";
 		}
 		catch (Exception ex)
 		{
-			Logger.LogError($"发送命令异常: {command}", ex);
+			Log.PrintError($"发送命令异常: {command}", ex);
 			return $"错误: {ex.Message}";
 		}
 		finally
@@ -112,7 +109,7 @@ public sealed class GameClient : IDisposable
 	/// </summary>
 	public void Dispose()
 	{
-		Logger.Log("开始释放GameClient资源");
+		Log.Print("开始释放GameClient资源");
 		lock (sync)
 		{
 			SafeDispose(reader);
@@ -127,25 +124,7 @@ public sealed class GameClient : IDisposable
 			logWriter = null;
 		}
 		sendLock.Dispose();
-		Logger.Log("GameClient资源释放完成");
-	}
-
-	static void SafeDispose(IDisposable? obj)
-	{
-		try
-		{
-			obj?.Dispose();
-		}
-		catch { }
-	}
-
-	static void SafeAction(Action action)
-	{
-		try
-		{
-			action();
-		}
-		catch { }
+		Log.Print("GameClient资源释放完成");
 	}
 	void EnsureLocalSettings(string settingsPath)
 	{
@@ -182,7 +161,7 @@ public sealed class GameClient : IDisposable
 	}
 	void StartGodotProcess(string godotPath, string projectRoot, int port)
 	{
-		Logger.Log($"准备启动Godot进程，端口: {port}");
+		Log.Print($"准备启动Godot进程，端口: {port}");
 		var logDir = Path.Combine(projectRoot, ".logs");
 		try
 		{
@@ -192,7 +171,7 @@ public sealed class GameClient : IDisposable
 		var logName = DateTime.Now.ToString("yyyyMMdd_HHmmss");
 		var logPath = Path.Combine(logDir, $"{logName}.log");
 		LogFilePath = logPath;
-		Logger.Log($"游戏日志路径: {logPath}");
+		Log.Print($"游戏日志路径: {logPath}");
 		var psi = new ProcessStartInfo
 		{
 			FileName = godotPath,
@@ -224,7 +203,7 @@ public sealed class GameClient : IDisposable
 			if (process != null)
 			{
 				ProcessId = process.Id;
-				Logger.Log($"Godot进程已启动，进程ID: {ProcessId}");
+				Log.Print($"Godot进程已启动，进程ID: {ProcessId}");
 				process.OutputDataReceived += (_, e) =>
 				{
 					if (e.Data is null) return;
@@ -264,11 +243,11 @@ public sealed class GameClient : IDisposable
 	}
 	void BuildProject(string projectRoot)
 	{
-		Logger.Log("检查项目构建状态...");
+		Log.Print("检查项目构建状态...");
 		var csprojFiles = Directory.GetFiles(projectRoot, "*.csproj");
 		if (csprojFiles.Length == 0)
 		{
-			Logger.LogError("未找到.csproj文件");
+			Log.PrintError("未找到.csproj文件");
 			throw new InvalidOperationException("未找到 .csproj 文件");
 		}
 		var csprojPath = csprojFiles[0];
@@ -284,12 +263,12 @@ public sealed class GameClient : IDisposable
 				var latestCsModTime = csFiles.Length > 0 ? csFiles.Max(f => File.GetLastWriteTimeUtc(f)) : DateTime.MinValue;
 				if (lastBuildTime > csprojModTime && lastBuildTime > latestCsModTime)
 				{
-					Logger.Log("项目已是最新，跳过构建");
+					Log.Print("项目已是最新，跳过构建");
 					return;
 				}
 			}
 		}
-		Logger.Log($"开始构建项目: {csprojPath}");
+		Log.Print($"开始构建项目: {csprojPath}");
 		var psi = new ProcessStartInfo
 		{
 			FileName = "dotnet",
@@ -303,17 +282,17 @@ public sealed class GameClient : IDisposable
 		using var process = Process.Start(psi);
 		if (process is null)
 		{
-			Logger.LogError("无法启动dotnet build");
+			Log.PrintError("无法启动dotnet build");
 			throw new InvalidOperationException("无法启动 dotnet build");
 		}
 		process.WaitForExit();
 		if (process.ExitCode != 0)
 		{
 			var error = process.StandardError.ReadToEnd();
-			Logger.LogError($"编译失败: {error}");
+			Log.PrintError($"编译失败: {error}");
 			throw new InvalidOperationException($"编译失败: {error}");
 		}
-		Logger.Log("项目构建完成");
+		Log.Print("项目构建完成");
 	}
 	bool WaitForGameAndConnect(int port, TimeSpan timeout)
 	{
@@ -342,7 +321,7 @@ public sealed class GameClient : IDisposable
 					reader = new(stream, Encoding.UTF8, false, 1024, leaveOpen: true);
 					writer = new(stream, new UTF8Encoding(false)) { AutoFlush = true, };
 				}
-				Logger.Log($"成功连接到游戏服务器，端口: {port}");
+				Log.Print($"成功连接到游戏服务器，端口: {port}");
 				return true;
 			}
 			catch (Exception)

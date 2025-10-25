@@ -11,24 +11,24 @@ static class SystemTools
 	[McpServerTool, Description("start game"),]
 	static string start_game()
 	{
-		Logger.Log("收到启动游戏请求");
+		Log.Print("收到启动游戏请求");
 		if (Client != null)
 		{
 			var msg = $"游戏已在运行中\n端口: {Client.Port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.LogFilePath}";
-			Logger.Log($"游戏已在运行中 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}");
+			Log.Print($"游戏已在运行中 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}");
 			return msg;
 		}
 		try
 		{
-			Logger.Log("正在创建游戏客户端实例...");
+			Log.Print("正在创建游戏客户端实例...");
 			Client = new();
 			var msg = $"游戏启动成功\n端口: {Client.Port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.LogFilePath}";
-			Logger.Log($"游戏启动成功 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}, 日志: {Client.LogFilePath}");
+			Log.Print($"游戏启动成功 - 端口: {Client.Port}, 进程ID: {Client.ProcessId}, 日志: {Client.LogFilePath}");
 			return msg;
 		}
 		catch (Exception e)
 		{
-			Logger.LogError("游戏启动失败", e);
+			Log.PrintError("游戏启动失败", e);
 			Client?.Dispose();
 			Client = null;
 			return $"启动失败: {e.Message}";
@@ -37,25 +37,25 @@ static class SystemTools
 	[McpServerTool, Description("stop game"),]
 	static string stop_game()
 	{
-		Logger.Log("收到停止游戏请求");
+		Log.Print("收到停止游戏请求");
 		try
 		{
 			if (Client is null)
 			{
-				Logger.Log("游戏未运行，无需停止");
+				Log.Print("游戏未运行，无需停止");
 				return "not running";
 			}
-			Logger.Log("正在发送关闭命令到游戏...");
+			Log.Print("正在发送关闭命令到游戏...");
 			var result = Client.SendCommand("system.shutdown", 3000).GetAwaiter().GetResult();
-			Logger.Log($"游戏关闭命令已发送，结果: {result}");
+			Log.Print($"游戏关闭命令已发送，结果: {result}");
 			Client?.Dispose();
 			Client = null;
-			Logger.Log("游戏客户端已释放");
+			Log.Print("游戏客户端已释放");
 			return result;
 		}
 		catch (Exception e)
 		{
-			Logger.LogError("停止游戏时发生错误", e);
+			Log.PrintError("停止游戏时发生错误", e);
 			Client?.Dispose();
 			Client = null;
 			return $"error: {e.Message}";
