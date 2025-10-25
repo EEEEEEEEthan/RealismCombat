@@ -15,6 +15,7 @@ public partial class GameRoot : Node, IStateOwner
 				ShutdownCommand.name => new ShutdownCommand(root),
 				CheckStatusCommand.name => new CheckStatusCommand(root),
 				StartCombatCommand.name => new StartCombatCommand(root),
+				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(gameRoot: root, arguments: arguments),
 				_ => null,
 			};
 			command?.Execute();
@@ -24,6 +25,7 @@ public partial class GameRoot : Node, IStateOwner
 			yield return ShutdownCommand.name;
 			yield return CheckStatusCommand.name;
 			yield return StartCombatCommand.name;
+			yield return DebugShowNodeTreeCommand.name;
 		}
 	}
 	public class CombatState(GameRoot root) : State(root)
@@ -34,6 +36,7 @@ public partial class GameRoot : Node, IStateOwner
 			{
 				ShutdownCommand.name => new ShutdownCommand(root),
 				CheckStatusCommand.name => new CheckStatusCommand(root),
+				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(gameRoot: root, arguments: arguments),
 				_ => null,
 			};
 			command?.Execute();
@@ -42,6 +45,7 @@ public partial class GameRoot : Node, IStateOwner
 		{
 			yield return ShutdownCommand.name;
 			yield return CheckStatusCommand.name;
+			yield return DebugShowNodeTreeCommand.name;
 		}
 	}
 	static readonly IReadOnlyDictionary<string, string> arguments;
@@ -57,11 +61,11 @@ public partial class GameRoot : Node, IStateOwner
 		arguments = dict;
 	}
 	public readonly McpHandler? mcpHandler;
+	public BattlePrepareScene? battlePrepareScene;
 	State state;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
-	public BattlePrepareScene? battlePrepareScene;
 	public State State
 	{
 		get => state;

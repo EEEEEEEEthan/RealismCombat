@@ -85,3 +85,13 @@ static class GameTools
 		return SystemTools.Client.SendCommand(nameof(game_start_combat), 3000);
 	}
 }
+[McpServerToolType]
+static class DebugTools
+{
+	[McpServerTool, Description("show node tree structure in json format"),]
+	static Task<string> debug_show_node_tree(string root = "/root")
+	{
+		if (SystemTools.Client is null) return Task.FromResult("游戏未启动. 使用start_game启动游戏");
+		return SystemTools.Client.SendCommand($"{nameof(debug_show_node_tree)} root {root}", 3000);
+	}
+}
