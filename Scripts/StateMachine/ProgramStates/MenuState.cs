@@ -12,11 +12,14 @@ class MenuState : State
 		menuNode = MainMenuNode.Create(this);
 		rootNode.AddChild(menuNode);
 	}
-	private protected override void OnExit() => menuNode.QueueFree();
+	public void NewGame() => ExecuteCommand(StartNewGameCommand.name);
+	public void LoadGame() => ExecuteCommand(LoadGameCommand.name);
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>
 		{
 			[StartNewGameCommand.name] = _ => new StartNewGameCommand(rootNode),
+			[LoadGameCommand.name] = _ => new LoadGameCommand(rootNode),
 		};
+	private protected override void OnExit() => menuNode.QueueFree();
 	private protected override string GetStatus() => "主菜单";
 }

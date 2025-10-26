@@ -51,6 +51,12 @@ static class ProgramTools
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
 		return SystemTools.Client.SendCommand(nameof(program_start_new_game), 3000);
 	}
+	[McpServerTool, Description("load game"),]
+	static Task<string> program_load_game()
+	{
+		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
+		return SystemTools.Client.SendCommand(nameof(program_load_game), 3000);
+	}
 	[McpServerTool, Description("stop game"),]
 	static string program_shutdown()
 	{

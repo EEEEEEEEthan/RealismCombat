@@ -1,5 +1,4 @@
 using Godot;
-using RealismCombat.Commands.ProgramCommands;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
 partial class MainMenuNode : Node
@@ -11,11 +10,15 @@ partial class MainMenuNode : Node
 		return instance;
 	}
 	Button buttonNewGame = null!;
+	Button buttonLoadGame = null!;
 	MenuState menuState = null!;
 	public override void _Ready()
 	{
-		buttonNewGame = GetNode<Button>("Button");
-		buttonNewGame.Pressed += onClick;
+		buttonNewGame = GetNode<Button>("ButtonNewGame");
+		buttonNewGame.Pressed += OnClickNewGame;
+		buttonLoadGame = GetNode<Button>("ButtonLoadGame");
+		buttonLoadGame.Pressed += OnClickLoadGame;
 	}
-	void onClick() => menuState.ExecuteCommand(StartNewGameCommand.name);
+	void OnClickNewGame() => menuState.NewGame();
+	void OnClickLoadGame() => menuState.LoadGame();
 }
