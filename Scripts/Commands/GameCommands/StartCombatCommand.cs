@@ -17,6 +17,5 @@ class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 			{ actionPoint = Random.Shared.NextSingle().Remapped(fromMin: 0, fromMax: 1, toMin: -10, toMax: 0), });
 		_ = new CombatState(gameState: gameState, combatData: combatData);
 		gameState.Save();
-		rootNode.McpCheckPoint();
 	}
 }

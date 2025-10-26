@@ -4,6 +4,7 @@ using RealismCombat.StateMachine.CombatStates;
 namespace RealismCombat.Commands.CombatCommands;
 class AttackCommand : CombatCommand
 {
+	public const string name = "combat_attack";
 	public readonly ActionState actionState;
 	public AttackCommand(ActionState actionState, IReadOnlyDictionary<string, string>? arguments = null) :
 		base(combatState: actionState.combatState, arguments: arguments) =>
@@ -45,12 +46,12 @@ class AttackCommand : CombatCommand
 	{
 		bodyPart = partName switch
 		{
-			"头部" => actor.head,
-			"胸部" => actor.chest,
-			"左臂" => actor.leftArm,
-			"右臂" => actor.rightArm,
-			"左腿" => actor.leftLeg,
-			"右腿" => actor.rightLeg,
+			"head" => actor.head,
+			"chest" => actor.chest,
+			"leftArm" => actor.leftArm,
+			"rightArm" => actor.rightArm,
+			"leftLeg" => actor.leftLeg,
+			"rightLeg" => actor.rightLeg,
 			_ => null!,
 		};
 		return bodyPart != null;

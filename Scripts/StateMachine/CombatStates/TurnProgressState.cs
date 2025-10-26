@@ -12,14 +12,14 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	public override void Update(double dt)
 	{
-		if (combatData.characters.All(c => c is { Dead: true, team: 0, }))
+		if (combatData.characters.Where(c => c.team == 0).All(c => c.Dead))
 		{
 			Log.Print("玩家全灭，战斗失败");
 			_ = new PrepareState(combatState.gameState);
 			rootNode.McpCheckPoint();
 			return;
 		}
-		if (combatData.characters.All(c => c is { Dead: true, team: 1, }))
+		if (combatData.characters.Where(c => c.team == 1).All(c => c.Dead))
 		{
 			Log.Print("敌人全灭，战斗胜利");
 			_ = new PrepareState(combatState.gameState);
@@ -34,7 +34,7 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 			{
 				_ = new ActionState(combatState: combatState, combatData: combatData, actor: character);
 				Log.Print($"{character.name}的回合!");
-				if (character.team == 0) rootNode.McpCheckPoint();
+				if (character.PlayerControlled) rootNode.McpCheckPoint();
 				return;
 			}
 		}

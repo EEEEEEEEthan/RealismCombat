@@ -93,13 +93,26 @@ static class GameTools
 	static Task<string> game_start_combat()
 	{
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
-		return SystemTools.Client.SendCommand(nameof(game_start_combat), 3000);
+		return SystemTools.Client.SendCommand(nameof(game_start_combat), 30000);
 	}
 	[McpServerTool, Description("quit to menu"),]
 	static Task<string> game_quit_to_menu()
 	{
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
 		return SystemTools.Client.SendCommand(nameof(game_quit_to_menu), 3000);
+	}
+}
+[McpServerToolType]
+static class CombatTools
+{
+	[McpServerTool, Description("attack target with specified body parts"),]
+	static Task<string> combat_attack(
+		[Description("name of target")]string target,
+		[Description("body part of attacker to use (head/chest/leftArm/rightArm/leftLeg/rightLeg)")]string attackerPart,
+		[Description("body part of target to attack (head/chest/leftArm/rightArm/leftLeg/rightLeg)")]string targetPart)
+	{
+		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
+		return SystemTools.Client.SendCommand($"{nameof(combat_attack)} target {target} attackerPart {attackerPart} targetPart {targetPart}", 30000);
 	}
 }
 [McpServerToolType]
