@@ -11,6 +11,14 @@ offset_right = 730.0
 offset_bottom = 467.0
 script = ExtResource("1_k0fdy")
 
+[node name="SceneLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 35.0
+text = "BattlePrepareScene"
+
 [node name="ButtonNextCombat" type="Button" parent="."]
 layout_mode = 0
 offset_left = 89.0

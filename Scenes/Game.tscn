@@ -4,3 +4,10 @@
 
 [node name="Game" type="Node"]
 script = ExtResource("1_iukft")
+
+[node name="SceneLabel" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 150.0
+offset_bottom = 35.0
+text = "Game"

@@ -5,6 +5,13 @@
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_tt5f1")
 
+[node name="SceneLabel" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 150.0
+offset_bottom = 35.0
+text = "MainMenu"
+
 [node name="Button" type="Button" parent="."]
 offset_left = 116.0
 offset_top = 132.0

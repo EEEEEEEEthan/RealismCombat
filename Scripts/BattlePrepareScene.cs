@@ -14,7 +14,7 @@ partial class BattlePrepareScene : Node
 	BaseButton buttonNextCombat = null!;
 	public override void _Ready()
 	{
-		buttonNextCombat = GetChild<Button>(0);
+		buttonNextCombat = GetNode<Button>("ButtonNextCombat");
 		buttonNextCombat.Pressed += OnPressed;
 	}
 	void OnPressed() => programRoot.State.ExecuteCommand(StartCombatCommand.name);

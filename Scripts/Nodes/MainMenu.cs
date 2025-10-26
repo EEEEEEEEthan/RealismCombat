@@ -14,7 +14,7 @@ partial class MainMenu : Node
 	MenuState menuState = null!;
 	public override void _Ready()
 	{
-		buttonNewGame = GetChild<Button>(0);
+		buttonNewGame = GetNode<Button>("Button");
 		buttonNewGame.Pressed += onClick;
 	}
 	void onClick() => menuState.ExecuteCommand(StartNewGameCommand.name);
