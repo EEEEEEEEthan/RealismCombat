@@ -41,6 +41,7 @@ abstract class State
 			{
 				Log.PrintException(e);
 			}
+		Log.Print($"{owner}进入{this}状态");
 		owner.State = this;
 	}
 	public void ExecuteCommand(string command)
@@ -59,7 +60,7 @@ abstract class State
 		cmd.Execute();
 	}
 	public virtual void Update(double dt) { }
-	private protected abstract void OnExit();
 	public abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
+	private protected abstract void OnExit();
 	private protected abstract string GetStatus();
 }
