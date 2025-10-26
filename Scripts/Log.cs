@@ -60,12 +60,12 @@ public static class Log
 	public static void Print(params object[] objects)
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-		var logMessage = $"[{timestamp}] {string.Join(separator: " ", values: objects)}";
+		var logMessage = $"{string.Join(separator: " ", values: objects)}";
 		lock (logLock)
 		{
 			try
 			{
-				logWriter?.WriteLine(logMessage);
+				logWriter?.WriteLine($"[{timestamp}]{logMessage}");
 			}
 			catch
 			{
@@ -78,12 +78,12 @@ public static class Log
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 		var stackTrace = new StackTrace(skipFrames: 1, fNeedFileInfo: true);
-		var logMessage = $"[{timestamp}][ERROR] {string.Join(separator: " ", values: objects)}\n{stackTrace}";
+		var logMessage = $"[ERROR] {string.Join(separator: " ", values: objects)}\n{stackTrace}";
 		lock (logLock)
 		{
 			try
 			{
-				logWriter?.WriteLine(logMessage);
+				logWriter?.WriteLine($"[{timestamp}]{logMessage}");
 			}
 			catch
 			{
@@ -95,12 +95,12 @@ public static class Log
 	public static void PrintException(Exception e)
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-		var logMessage = $"[{timestamp}][EXCEPTION] {e.GetType()} {e.Message}\n{e.StackTrace}";
+		var logMessage = $"[EXCEPTION] {e.GetType()} {e.Message}\n{e.StackTrace}";
 		lock (logLock)
 		{
 			try
 			{
-				logWriter?.WriteLine(logMessage);
+				logWriter?.WriteLine($"[{timestamp}]{logMessage}");
 			}
 			catch
 			{
