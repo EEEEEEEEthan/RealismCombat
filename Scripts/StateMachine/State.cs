@@ -46,18 +46,26 @@ abstract class State
 	}
 	public void ExecuteCommand(string command)
 	{
-		if (Expired) throw new InvalidOperationException("状态已过期，无法执行指令");
-		var parts = command.Split(" ");
-		var name = parts[0];
-		var arguments = new Dictionary<string, string>();
-		for (var i = 1; i < parts.Length - 1; i += 2) arguments[parts[i]] = parts[i + 1];
-		var cmd = name switch
+		try
 		{
-			ShutdownCommand.name => new ShutdownCommand(rootNode),
-			DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(rootNode: rootNode, arguments: arguments),
-			_ => GetCommandGetters()[name](arguments),
-		};
-		cmd.Execute();
+			if (Expired) throw new InvalidOperationException("状态已过期，无法执行指令");
+			var parts = command.Split(" ");
+			var name = parts[0];
+			var arguments = new Dictionary<string, string>();
+			for (var i = 1; i < parts.Length - 1; i += 2) arguments[parts[i]] = parts[i + 1];
+			var cmd = name switch
+			{
+				ShutdownCommand.name => new ShutdownCommand(rootNode),
+				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(rootNode: rootNode, arguments: arguments),
+				_ => GetCommandGetters()[name](arguments),
+			};
+			cmd.Execute();
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+			rootNode.McpCheckPoint();
+		}
 	}
 	public virtual void Update(double dt) { }
 	public abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
