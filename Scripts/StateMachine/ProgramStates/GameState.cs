@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using RealismCombat.Commands;
 using RealismCombat.Commands.GameCommands;
+using RealismCombat.Data;
 using RealismCombat.Nodes;
 using RealismCombat.StateMachine.GameStates;
 namespace RealismCombat.StateMachine.ProgramStates;
 class GameState : State, IStateOwner
 {
 	public readonly GameNode gameNode;
+	readonly GameData gameData;
 	public State State { get; private set; }
 	State IStateOwner.State
 	{
@@ -16,6 +18,7 @@ class GameState : State, IStateOwner
 	}
 	public GameState(ProgramRootNode rootNode) : base(rootNode: rootNode, owner: rootNode)
 	{
+		gameData = new();
 		gameNode = GameNode.Create(this);
 		rootNode.AddChild(gameNode);
 		State = new PrepareState(this);
