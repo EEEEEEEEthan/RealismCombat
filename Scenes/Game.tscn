@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cyaej8xt24xd5"]
 
-[ext_resource type="Script" uid="uid://08ryn73l63ey" path="res://Scripts/Nodes/Game.cs" id="1_iukft"]
+[ext_resource type="Script" uid="uid://08ryn73l63ey" path="res://Scripts/Nodes/GameNode.cs" id="1_iukft"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_iukft")
@@ -11,3 +11,10 @@ offset_top = 10.0
 offset_right = 150.0
 offset_bottom = 35.0
 text = "Game"
+
+[node name="ButtonQuit" type="Button" parent="."]
+offset_left = 49.0
+offset_top = 559.0
+offset_right = 200.0
+offset_bottom = 606.0
+text = "Quit"

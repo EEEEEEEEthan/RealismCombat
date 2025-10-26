@@ -10,4 +10,11 @@ partial class GameNode : Node
 		return instance;
 	}
 	GameState gameState = null!;
+	Button buttonQuit = null!;
+	public override void _Ready()
+	{
+		buttonQuit = GetNode<Button>("ButtonQuit");
+		buttonQuit.Pressed += OnClickQuit;
+	}
+	void OnClickQuit() => gameState.Quit();
 }

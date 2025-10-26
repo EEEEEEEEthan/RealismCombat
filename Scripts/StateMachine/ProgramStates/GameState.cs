@@ -24,6 +24,7 @@ class GameState : State, IStateOwner
 				CombatState => 1,
 				_ => throw new($"unexpected state type: {state.GetType()}"),
 			};
+			Log.Print($"切换到状态:{state}({gameData.state})");
 		}
 	}
 	State IStateOwner.State
@@ -49,9 +50,10 @@ class GameState : State, IStateOwner
 			1 => new CombatState(this),
 			_ => throw new($"unexpected state id: {gameData.state}"),
 		};
-		Log.Print($"存档状态:{State}");
+		Log.Print($"存档状态:{State}({gameData.state})");
 	}
 	public void Save() => Persistant.Save(data: gameData, path: Persistant.saveDataPath);
+	public void Quit() => ExecuteCommand(QuitGameCommand.name);
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters()
 	{
 		var dict = new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters())

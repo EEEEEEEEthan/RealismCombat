@@ -4,6 +4,6 @@ class GameData
 {
 	public byte state;
 	public GameData() { }
-	public GameData(DataVersion version, BinaryReader reader) { }
-	public void Serialize(BinaryWriter writer) { }
+	public GameData(DataVersion version, BinaryReader reader) => state = reader.ReadByte();
+	public void Serialize(BinaryWriter writer) => writer.Write(state);
 }
