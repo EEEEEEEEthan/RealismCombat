@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using RealismCombat.Nodes;
 namespace RealismCombat.Commands;
 abstract class Command
 {
-	public readonly Nodes.ProgramRoot root;
+	public readonly ProgramRoot root;
 	public readonly IReadOnlyDictionary<string, string> arguments;
-	protected Command(Nodes.ProgramRoot root, IReadOnlyDictionary<string, string>? arguments = null)
+	protected Command(ProgramRoot root, IReadOnlyDictionary<string, string>? arguments = null)
 	{
 		this.root = root;
 		this.arguments = arguments ?? new Dictionary<string, string>();
 	}
-	protected Command(Nodes.ProgramRoot root, string command)
+	protected Command(ProgramRoot root, string command)
 	{
 		var parts = command.Split(" ");
 		var arguments = new Dictionary<string, string>();

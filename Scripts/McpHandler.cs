@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using RealismCombat.Extensions;
+using RealismCombat.Nodes;
 namespace RealismCombat;
 /// <summary>
 ///     简单的单客户端TCP服务器：
@@ -37,7 +38,7 @@ class McpHandler
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly object sync = new();
 	readonly object writeSync = new();
-	readonly Nodes.ProgramRoot programRoot;
+	readonly ProgramRoot programRoot;
 	TcpClient? client;
 	NetworkStream? stream;
 	BinaryReader? reader;
@@ -46,7 +47,7 @@ class McpHandler
 	CommandLifeCycle? commandLifeCycle;
 	public event Action? OnClientConnected;
 	public event Action? OnClientDisconnected;
-	public McpHandler(Nodes.ProgramRoot programRoot, int port)
+	public McpHandler(ProgramRoot programRoot, int port)
 	{
 		this.programRoot = programRoot;
 		listener = new(localaddr: IPAddress.Loopback, port: port);

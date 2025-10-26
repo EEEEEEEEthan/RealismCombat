@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
 using RealismCombat.StateMachine;
+using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
 partial class ProgramRoot : Node, IStateOwner
 {
@@ -17,7 +18,6 @@ partial class ProgramRoot : Node, IStateOwner
 		}
 		arguments = dict;
 	}
-	public BattlePrepareScene? battlePrepareScene;
 	readonly McpHandler? mcpHandler;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
@@ -46,8 +46,6 @@ partial class ProgramRoot : Node, IStateOwner
 			}
 		else
 			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
-		battlePrepareScene = BattlePrepareScene.Create(this);
-		AddChild(battlePrepareScene);
 	}
 	public void McpCheckPoint()
 	{

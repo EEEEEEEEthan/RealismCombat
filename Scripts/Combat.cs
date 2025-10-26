@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RealismCombat.Nodes;
 using RealismCombat.StateMachine;
 namespace RealismCombat;
 /// <summary>
@@ -9,7 +10,7 @@ class Combat : IStateOwner
 	/// <summary>
 	///     游戏根节点引用
 	/// </summary>
-	public readonly Nodes.ProgramRoot programRoot;
+	public readonly ProgramRoot programRoot;
 	/// <summary>
 	///     战斗中的所有角色
 	/// </summary>
@@ -27,7 +28,7 @@ class Combat : IStateOwner
 			Log.Print($"战斗进入状态:{state}");
 		}
 	}
-	public Combat(Nodes.ProgramRoot programRoot) => this.programRoot = programRoot;
+	public Combat(ProgramRoot programRoot) => this.programRoot = programRoot;
 	public void Update(double dt) => State.Update(dt);
 	/// <summary>
 	///     添加角色到战斗

@@ -9,7 +9,7 @@ class CharacterActionState(Combat combat, Character character) : State(root: com
 {
 	public readonly Character character = character;
 	private protected override void OnExit() => throw new NotImplementedException();
-	private protected override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
+	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	private protected override string GetStatus() =>
 		$"""

@@ -89,6 +89,12 @@ static class GameTools
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
 		return SystemTools.Client.SendCommand(nameof(game_start_combat), 3000);
 	}
+	[McpServerTool, Description("quit to menu"),]
+	static Task<string> game_quit_to_menu()
+	{
+		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
+		return SystemTools.Client.SendCommand(nameof(game_start_combat), 3000);
+	}
 }
 [McpServerToolType]
 static class DebugTools

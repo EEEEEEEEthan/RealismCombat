@@ -1,6 +1,6 @@
 using RealismCombat.Nodes;
-using RealismCombat.StateMachine;
-namespace RealismCombat.Commands;
+using RealismCombat.StateMachine.ProgramStates;
+namespace RealismCombat.Commands.ProgramCommands;
 class StartNewGameCommand(ProgramRoot root) : Command(root)
 {
 	public const string name = "program_start_new_game";

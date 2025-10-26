@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using RealismCombat.Commands;
+using RealismCombat.Commands.DebugCommands;
+using RealismCombat.Commands.SystemCommands;
 using RealismCombat.Nodes;
 namespace RealismCombat.StateMachine;
 interface IStateOwner
@@ -43,6 +45,7 @@ abstract class State
 	}
 	public void ExecuteCommand(string command)
 	{
+		if (Expired) throw new InvalidOperationException("状态已过期，无法执行指令");
 		var parts = command.Split(" ");
 		var name = parts[0];
 		var arguments = new Dictionary<string, string>();
@@ -57,6 +60,6 @@ abstract class State
 	}
 	public virtual void Update(double dt) { }
 	private protected abstract void OnExit();
-	private protected abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
+	public abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
 	private protected abstract string GetStatus();
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using RealismCombat.Commands;
+using RealismCombat.Commands.ProgramCommands;
 using RealismCombat.Nodes;
-namespace RealismCombat.StateMachine;
+namespace RealismCombat.StateMachine.ProgramStates;
 class MenuState : State
 {
 	readonly MainMenu menu;
@@ -12,7 +13,7 @@ class MenuState : State
 		root.AddChild(menu);
 	}
 	private protected override void OnExit() => menu.QueueFree();
-	private protected override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
+	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>
 		{
 			[StartNewGameCommand.name] = _ => new StartNewGameCommand(root),

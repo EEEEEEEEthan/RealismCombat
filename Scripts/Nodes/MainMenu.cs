@@ -1,6 +1,6 @@
 using Godot;
-using RealismCombat.Commands;
-using RealismCombat.StateMachine;
+using RealismCombat.Commands.ProgramCommands;
+using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
 partial class MainMenu : Node
 {
