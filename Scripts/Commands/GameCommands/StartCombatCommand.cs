@@ -7,10 +7,7 @@ class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 	public override void Execute()
 	{
 		Log.Print("战斗开始!");
-		if (rootNode.State is GameState gameState)
-		{
-			_ = new CombatState(gameState);
-			rootNode.McpCheckPoint();
-		}
+		_ = new CombatState(gameState);
+		rootNode.McpCheckPoint();
 	}
 }
