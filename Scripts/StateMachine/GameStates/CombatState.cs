@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RealismCombat.Commands;
 using RealismCombat.Data;
 using RealismCombat.Nodes;
@@ -8,7 +9,7 @@ using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.StateMachine.GameStates;
 class CombatState : State, IStateOwner
 {
-	readonly CombatData combatData;
+	public readonly CombatData combatData;
 	readonly GameState gameState;
 	State state;
 	public override string Name => "战斗";
@@ -40,7 +41,7 @@ class CombatState : State, IStateOwner
 		state = combatData.state switch
 		{
 			0 => new TurnProgressState(combatState: this, combatData: combatData),
-			1 => new ActionState(combatState: this, combatData: combatData),
+			1 => new ActionState(combatState: this, combatData: combatData, actor: combatData.characters.MaxBy(c => c.actionPoint)!),
 			_ => throw new($"unexpected state id: {combatData.state}"),
 		};
 		foreach (var character in combatData.characters)
