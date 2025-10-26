@@ -8,5 +8,6 @@ class StartNewGameCommand(ProgramRoot root) : Command(root)
 	{
 		Log.Print("开始新游戏");
 		_ = new GameState(root);
+		root.McpCheckPoint();
 	}
 }
