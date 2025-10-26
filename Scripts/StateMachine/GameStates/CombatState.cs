@@ -39,11 +39,15 @@ class CombatState : State, IStateOwner
 		gameState.gameNode.AddChild(CombatNode);
 		state = combatData.state switch
 		{
-			0 => new TurnProgressState(this),
-			1 => new ActionState(this),
+			0 => new TurnProgressState(combatState: this, combatData: combatData),
+			1 => new ActionState(combatState: this, combatData: combatData),
 			_ => throw new($"unexpected state id: {combatData.state}"),
 		};
-		foreach (var character in combatData.characters) CombatNode.AddCharacter(character);
+		foreach (var character in combatData.characters)
+		{
+			CombatNode.AddCharacter(character);
+			Log.Print($"{character.name}加入战斗");
+		}
 	}
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters());

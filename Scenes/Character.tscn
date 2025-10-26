@@ -2,20 +2,22 @@
 
 [ext_resource type="Script" uid="uid://5vu4muq6l6se" path="res://Scripts/Nodes/CharacterNode.cs" id="1_0y7nr"]
 
-[node name="Character" type="Control"]
+[node name="Character" type="Control" node_paths=PackedStringArray("nameLabel", "actionPointLabel")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 11.0
 offset_top = 45.0
-offset_right = -1069.0
-offset_bottom = -569.0
+offset_right = -1049.0
+offset_bottom = -548.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0y7nr")
+nameLabel = NodePath("Background/VBoxContainer/Name")
+actionPointLabel = NodePath("Background/VBoxContainer/ActionPoints")
 
-[node name="ColorRectBackground" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,11 +26,22 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="RichTextLabelName" type="RichTextLabel" parent="ColorRectBackground"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Background"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Name" type="RichTextLabel" parent="Background/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
 text = "Ethan"
+scroll_active = false
+
+[node name="ActionPoints" type="RichTextLabel" parent="Background/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "AP=-10"
+scroll_active = false

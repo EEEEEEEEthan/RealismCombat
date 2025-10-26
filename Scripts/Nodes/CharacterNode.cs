@@ -8,23 +8,13 @@ partial class CharacterNode : Control
 		var instance = GD.Load<PackedScene>(ResourceTable.characterScene).Instantiate<CharacterNode>();
 		return instance;
 	}
+	[Export] RichTextLabel nameLabel = null!;
+	[Export] RichTextLabel actionPointLabel = null!;
 	RichTextLabel richTextLabelName = null!;
-	CharacterData? characterData;
-	public CharacterData? CharacterData
+	public CharacterData? CharacterData { get; set; }
+	public override void _Process(double delta)
 	{
-		get => characterData;
-		set
-		{
-			characterData = value;
-			if (value == null) return;
-			if (richTextLabelName != null)
-				richTextLabelName.Text = value.name;
-		}
-	}
-	public override void _Ready()
-	{
-		richTextLabelName = GetNode<RichTextLabel>("ColorRectBackground/RichTextLabelName");
-		if (characterData != null)
-			richTextLabelName.Text = characterData.name;
+		nameLabel.Text = CharacterData?.name;
+		actionPointLabel.Text = $"行动点{CharacterData?.actionPoint:F0}";
 	}
 }
