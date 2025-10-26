@@ -11,6 +11,7 @@ class CombatState : State, IStateOwner
 	readonly GameState gameState;
 	readonly CombatData combatData;
 	readonly CombatNode combatNode;
+	public override string Name => "战斗";
 	public State State { get; private set; }
 	State IStateOwner.State
 	{

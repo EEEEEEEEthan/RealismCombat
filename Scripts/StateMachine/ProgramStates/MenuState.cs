@@ -7,6 +7,7 @@ namespace RealismCombat.StateMachine.ProgramStates;
 class MenuState : State
 {
 	readonly MainMenuNode menuNode;
+	public override string Name => "主菜单";
 	public MenuState(ProgramRootNode rootNode) : base(rootNode: rootNode, owner: rootNode)
 	{
 		menuNode = MainMenuNode.Create(this);

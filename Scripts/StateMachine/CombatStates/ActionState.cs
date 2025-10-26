@@ -10,6 +10,7 @@ class ActionState : State
 	{
 		this.combatState = combatState;
 	}
+	public override string Name => "进行行动";
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	private protected override void OnExit() { }

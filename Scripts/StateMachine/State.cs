@@ -26,6 +26,7 @@ abstract class State
 			return $"{GetStatus()}\n可用指令:{string.Join(separator: ", ", values: list)}";
 		}
 	}
+	public abstract string Name { get; }
 	bool Expired => owner.State != this;
 	public State(ProgramRootNode rootNode, IStateOwner owner)
 	{

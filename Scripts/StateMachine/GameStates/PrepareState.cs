@@ -9,6 +9,7 @@ class PrepareState : State
 {
 	readonly GameState gameState;
 	readonly PrepareNode prepareNode;
+	public override string Name => "准备";
 	public PrepareState(GameState gameState) : base(rootNode: gameState.rootNode, owner: gameState)
 	{
 		this.gameState = gameState;

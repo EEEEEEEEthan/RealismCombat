@@ -11,6 +11,7 @@ class GameState : State, IStateOwner
 	public readonly GameNode gameNode;
 	readonly GameData gameData;
 	State state = null!;
+	public override string Name => "游戏";
 	public State State
 	{
 		get => state;
@@ -48,6 +49,7 @@ class GameState : State, IStateOwner
 			1 => new CombatState(this),
 			_ => throw new($"unexpected state id: {gameData.state}"),
 		};
+		Log.Print($"存档状态:{State}");
 	}
 	public void Save() => Persistant.Save(data: gameData, path: Persistant.saveDataPath);
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters()
