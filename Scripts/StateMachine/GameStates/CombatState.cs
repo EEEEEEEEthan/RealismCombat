@@ -8,27 +8,28 @@ using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.StateMachine.GameStates;
 class CombatState : State, IStateOwner
 {
-	readonly GameState gameState;
 	readonly CombatData combatData;
-	readonly CombatNode combatNode;
+	readonly GameState gameState;
 	public override string Name => "战斗";
+	public CombatNode CombatNode { get; }
 	public State State { get; private set; }
 	State IStateOwner.State
 	{
 		get => State;
 		set => State = value;
 	}
-	public CombatState(GameState gameState) : base(rootNode: gameState.rootNode, owner: gameState)
+	public CombatState(GameState gameState, CombatData combatData) : base(rootNode: gameState.rootNode, owner: gameState)
 	{
 		this.gameState = gameState;
-		combatData = new();
-		combatNode = CombatNode.Create(this);
-		gameState.gameNode.AddChild(combatNode);
+		gameState.gameData.combatData = this.combatData = combatData;
+		CombatNode = CombatNode.Create(this);
+		gameState.gameNode.AddChild(CombatNode);
 		State = new TurnProgressState(this);
+		foreach (var character in combatData.characters) CombatNode.AddCharacter(character);
 	}
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters());
 	public override void Update(double dt) => State.Update(dt);
-	private protected override void OnExit() => combatNode.QueueFree();
+	private protected override void OnExit() => CombatNode.QueueFree();
 	private protected override string GetStatus() => "战斗中";
 }

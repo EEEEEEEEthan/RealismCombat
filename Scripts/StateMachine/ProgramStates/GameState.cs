@@ -9,7 +9,7 @@ namespace RealismCombat.StateMachine.ProgramStates;
 class GameState : State, IStateOwner
 {
 	public readonly GameNode gameNode;
-	readonly GameData gameData;
+	public readonly GameData gameData;
 	State state = null!;
 	public override string Name => "游戏";
 	public State State
@@ -47,7 +47,7 @@ class GameState : State, IStateOwner
 		State = gameData.state switch
 		{
 			0 => new PrepareState(this),
-			1 => new CombatState(this),
+			1 => new CombatState(gameState: this, combatData: gameData.combatData!),
 			_ => throw new($"unexpected state id: {gameData.state}"),
 		};
 		Log.Print($"存档状态:{State}({gameData.state})");

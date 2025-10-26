@@ -1,4 +1,5 @@
-﻿using RealismCombat.StateMachine.GameStates;
+﻿using RealismCombat.Data;
+using RealismCombat.StateMachine.GameStates;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Commands.GameCommands;
 class StartCombatCommand(GameState gameState) : GameCommand(gameState)
@@ -7,7 +8,10 @@ class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 	public override void Execute()
 	{
 		Log.Print("战斗开始!");
-		_ = new CombatState(gameState);
+		var combatData = new CombatData();
+		combatData.characters.Add(new(name: "ethan", team: 0));
+		combatData.characters.Add(new(name: "dove", team: 1));
+		_ = new CombatState(gameState: gameState, combatData: combatData);
 		gameState.Save();
 		rootNode.McpCheckPoint();
 	}
