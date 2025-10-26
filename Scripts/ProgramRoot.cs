@@ -1,59 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
-using RealismCombat.Commands;
 using RealismCombat.StateMachine;
 namespace RealismCombat;
 partial class ProgramRoot : Node, IStateOwner
 {
-	public class PreparerState : State
-	{
-		public readonly ProgramRoot programRoot;
-		public override string Status =>
-			$"""
-			准备阶段
-			可用指令: {CheckStatusCommand.name}, {StartCombatCommand.name}, {ShutdownCommand.name}, {DebugShowNodeTreeCommand.name}
-			""";
-		public PreparerState(ProgramRoot programRoot) : base(programRoot)
-		{
-			this.programRoot = programRoot;
-			Log.Print("准备中");
-			programRoot.mcpHandler?.McpCheckPoint();
-		}
-		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
-		{
-			Command command = name switch
-			{
-				ShutdownCommand.name => new ShutdownCommand(programRoot),
-				CheckStatusCommand.name => new CheckStatusCommand(programRoot),
-				StartCombatCommand.name => new StartCombatCommand(programRoot),
-				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(programRoot: programRoot, arguments: arguments),
-				_ => throw new ArgumentException($"当前状态无法执行{name}"),
-			};
-			command.Execute();
-		}
-	}
-	public class CombatState(ProgramRoot root) : State(root)
-	{
-		public override string Status =>
-			$"""
-			战斗阶段
-			可用指令: {CheckStatusCommand.name}, {ShutdownCommand.name}, {DebugShowNodeTreeCommand.name}
-			""";
-		public override void Update(double dt) => root.combat?.Update(dt);
-		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
-		{
-			Command command = name switch
-			{
-				ShutdownCommand.name => new ShutdownCommand(root),
-				CheckStatusCommand.name => new CheckStatusCommand(root),
-				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(programRoot: root, arguments: arguments),
-				_ => throw new ArgumentException($"当前状态无法执行{name}"),
-			};
-			command.Execute();
-		}
-	}
 	static readonly IReadOnlyDictionary<string, string> arguments;
 	static ProgramRoot()
 	{
@@ -67,7 +18,6 @@ partial class ProgramRoot : Node, IStateOwner
 		arguments = dict;
 	}
 	public BattlePrepareScene? battlePrepareScene;
-	public Combat? combat;
 	readonly McpHandler? mcpHandler;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
@@ -80,7 +30,7 @@ partial class ProgramRoot : Node, IStateOwner
 	}
 	ProgramRoot()
 	{
-		State = new PreparerState(this);
+		State = new MenuState(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (int.TryParse(s: portText, result: out var port))
 			{
@@ -99,7 +49,11 @@ partial class ProgramRoot : Node, IStateOwner
 		battlePrepareScene = BattlePrepareScene.Create(this);
 		AddChild(battlePrepareScene);
 	}
-	public void McpCheckPoint() => mcpHandler?.McpCheckPoint();
+	public void McpCheckPoint()
+	{
+		Log.Print(State.Status);
+		mcpHandler?.McpCheckPoint();
+	}
 	public override void _Process(double delta)
 	{
 		TotalTime += delta;

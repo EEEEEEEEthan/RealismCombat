@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using RealismCombat.Commands;
 using RealismCombat.StateMachine;
 namespace RealismCombat;
 /// <summary>
@@ -8,40 +6,6 @@ namespace RealismCombat;
 /// </summary>
 class Combat : IStateOwner
 {
-	/// <summary>
-	///     角色行动状态
-	/// </summary>
-	public class CharacterActionState(Combat combat, Character character) : State(combat)
-	{
-		public readonly Character character = character;
-		public override string Status =>
-			$"""
-			{character.name}的回合
-			""";
-		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments) { }
-	}
-	/// <summary>
-	///     回合进行状态
-	/// </summary>
-	public class RoundProgressState(Combat combat) : State(combat)
-	{
-		public override string Status =>
-			$"""
-			回合进行中
-			可用指令: {CheckStatusCommand.name}, {ShutdownCommand.name}, {DebugShowNodeTreeCommand.name}
-			""";
-		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
-		{
-			Command command = name switch
-			{
-				CheckStatusCommand.name => new CheckStatusCommand(combat.programRoot),
-				ShutdownCommand.name => new ShutdownCommand(combat.programRoot),
-				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(programRoot: combat.programRoot, arguments: arguments),
-				_ => throw new ArgumentException($"当前状态无法执行{name}"),
-			};
-			command.Execute();
-		}
-	}
 	/// <summary>
 	///     游戏根节点引用
 	/// </summary>
@@ -63,11 +27,7 @@ class Combat : IStateOwner
 			Log.Print($"战斗进入状态:{state}");
 		}
 	}
-	public Combat(ProgramRoot programRoot)
-	{
-		this.programRoot = programRoot;
-		state = new RoundProgressState(this);
-	}
+	public Combat(ProgramRoot programRoot) => this.programRoot = programRoot;
 	public void Update(double dt) => State.Update(dt);
 	/// <summary>
 	///     添加角色到战斗

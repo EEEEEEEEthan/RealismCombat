@@ -71,14 +71,18 @@ static class SystemTools
 	}
 }
 [McpServerToolType]
-static class GameTools
+static class ProgramTools
 {
-	[McpServerTool, Description("check current status"),]
-	static Task<string> game_check_status()
+	[McpServerTool, Description("start new game"),]
+	static Task<string> program_start_new_game()
 	{
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
-		return SystemTools.Client.SendCommand(nameof(game_check_status), 3000);
+		return SystemTools.Client.SendCommand(nameof(program_start_new_game), 3000);
 	}
+}
+[McpServerToolType]
+static class GameTools
+{
 	[McpServerTool, Description("start next combat"),]
 	static Task<string> game_start_combat()
 	{
