@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 static class Persistant
@@ -7,8 +7,8 @@ static class Persistant
 	public static void Save(GameData data, string path)
 	{
 		var snapshot = new Snapshot(data);
-		var stream = new FileStream(path: path, mode: FileMode.Create);
-		var writer = new BinaryWriter(stream);
+		using var stream = new FileStream(path: path, mode: FileMode.Create);
+		using var writer = new BinaryWriter(stream);
 		using (writer.WriteScope())
 		{
 			snapshot.Serialize(writer);
@@ -18,8 +18,8 @@ static class Persistant
 	}
 	public static Snapshot LoadSnapshot(string path)
 	{
-		var stream = new FileStream(path: path, mode: FileMode.Open);
-		var reader = new BinaryReader(stream);
+		using var stream = new FileStream(path: path, mode: FileMode.Open);
+		using var reader = new BinaryReader(stream);
 		using (reader.ReadScope())
 		{
 			return new(reader);
@@ -27,8 +27,8 @@ static class Persistant
 	}
 	public static GameData Load(string path)
 	{
-		var stream = new FileStream(path: path, mode: FileMode.Open);
-		var reader = new BinaryReader(stream);
+		using var stream = new FileStream(path: path, mode: FileMode.Open);
+		using var reader = new BinaryReader(stream);
 		Snapshot snapshot;
 		using (reader.ReadScope())
 		{
