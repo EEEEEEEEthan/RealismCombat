@@ -8,7 +8,7 @@ namespace RealismCombat.McpServer;
 static class SystemTools
 {
 	public const string tool_launch_program = nameof(system_launch_program);
-	public static GameClient? Client { get; private set; }
+	public static GameClient? Client { get; set; }
 	[McpServerTool, Description("launch program"),]
 	static string system_launch_program()
 	{
@@ -41,34 +41,6 @@ static class SystemTools
 			return builder.ToString();
 		}
 	}
-	[McpServerTool, Description("stop game"),]
-	static string system_shutdown()
-	{
-		using var _ = Log.BeginScope(out var builder);
-		Log.Print("收到停止程序请求");
-		try
-		{
-			if (Client is null)
-			{
-				Log.Print("程序未运行，无需停止");
-				return "not running";
-			}
-			Log.Print("正在发送关闭命令到程序...");
-			var result = Client.SendCommand(nameof(system_shutdown), 3000).GetAwaiter().GetResult();
-			Log.Print($"程序关闭命令已发送，结果: {result}");
-			Client.Dispose();
-			Client = null;
-			Log.Print("程序客户端已释放");
-			return builder.ToString();
-		}
-		catch (Exception e)
-		{
-			Log.PrintException(e);
-			Client?.Dispose();
-			Client = null;
-			return builder.ToString();
-		}
-	}
 }
 [McpServerToolType]
 static class ProgramTools
@@ -78,6 +50,34 @@ static class ProgramTools
 	{
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
 		return SystemTools.Client.SendCommand(nameof(program_start_new_game), 3000);
+	}
+	[McpServerTool, Description("stop game"),]
+	static string program_shutdown()
+	{
+		using var _ = Log.BeginScope(out var builder);
+		Log.Print("收到停止程序请求");
+		try
+		{
+			if (SystemTools.Client is null)
+			{
+				Log.Print("程序未运行，无需停止");
+				return "not running";
+			}
+			Log.Print("正在发送关闭命令到程序...");
+			var result = SystemTools.Client.SendCommand(nameof(program_shutdown), 3000).GetAwaiter().GetResult();
+			Log.Print($"程序关闭命令已发送，结果: {result}");
+			SystemTools.Client.Dispose();
+			SystemTools.Client = null;
+			Log.Print("程序客户端已释放");
+			return builder.ToString();
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+			SystemTools.Client?.Dispose();
+			SystemTools.Client = null;
+			return builder.ToString();
+		}
 	}
 }
 [McpServerToolType]

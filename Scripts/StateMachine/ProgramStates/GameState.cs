@@ -27,7 +27,7 @@ class GameState : State, IStateOwner
 	{
 		var dict = new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters())
 		{
-			[QuitGameCommand.name] = _ => new QuitGameCommand(rootNode),
+			[QuitGameCommand.name] = _ => new QuitGameCommand(this),
 		};
 		return dict;
 	}

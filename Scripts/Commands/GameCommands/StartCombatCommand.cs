@@ -1,8 +1,7 @@
-﻿using RealismCombat.Nodes;
-using RealismCombat.StateMachine.GameStates;
+﻿using RealismCombat.StateMachine.GameStates;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Commands.GameCommands;
-class StartCombatCommand(ProgramRootNode rootNode) : Command(rootNode)
+class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 {
 	public const string name = "game_start_combat";
 	public override void Execute()

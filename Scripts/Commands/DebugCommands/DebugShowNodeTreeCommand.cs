@@ -9,7 +9,7 @@ class DebugShowNodeTreeCommand(ProgramRootNode rootNode, IReadOnlyDictionary<str
 	public override void Execute()
 	{
 		var rootPath = arguments.GetValueOrDefault(key: "root", defaultValue: "/root");
-		var root = this.rootNode.GetNode(rootPath);
+		var root = rootNode.GetNode(rootPath);
 		if (root == null)
 		{
 			Log.PrintError($"节点路径无效: {rootPath}");

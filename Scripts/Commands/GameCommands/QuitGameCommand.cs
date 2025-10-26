@@ -1,7 +1,6 @@
-﻿using RealismCombat.Nodes;
-using RealismCombat.StateMachine.ProgramStates;
+﻿using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Commands.GameCommands;
-class QuitGameCommand(ProgramRootNode rootNode) : Command(rootNode)
+class QuitGameCommand(GameState gameState) : GameCommand(gameState)
 {
 	public const string name = "game_quit_to_menu";
 	public override void Execute()

@@ -1,8 +1,8 @@
 using RealismCombat.Nodes;
-namespace RealismCombat.Commands.SystemCommands;
+namespace RealismCombat.Commands.ProgramCommands;
 class ShutdownCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
-	public const string name = "system_shutdown";
+	public const string name = "prgram_shutdown";
 	public override void Execute()
 	{
 		rootNode.CallDeferred(ProgramRootNode.MethodName._QuitGame);
