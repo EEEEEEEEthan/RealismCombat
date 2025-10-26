@@ -6,6 +6,6 @@ public class ShutdownCommand(GameRoot gameRoot) : Command(gameRoot)
 	{
 		gameRoot.CallDeferred(GameRoot.MethodName._QuitGame);
 		Log.Print("游戏即将关闭");
-		gameRoot.mcpHandler?.McpCheckPoint();
+		gameRoot.McpCheckPoint();
 	}
 }

@@ -12,12 +12,12 @@ public class DebugShowNodeTreeCommand(GameRoot gameRoot, IReadOnlyDictionary<str
 		if (root == null)
 		{
 			Log.PrintError($"节点路径无效: {rootPath}");
-			gameRoot.mcpHandler?.McpCheckPoint();
+			gameRoot.McpCheckPoint();
 			return;
 		}
 		var json = BuildNodeTree(root);
 		Log.Print(json);
-		gameRoot.mcpHandler?.McpCheckPoint();
+		gameRoot.McpCheckPoint();
 	}
 	string BuildNodeTree(Node node)
 	{
