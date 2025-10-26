@@ -14,8 +14,8 @@ class AttackCommand : CombatCommand
 	{
 		var actor = actionState.actor;
 		var name = arguments.GetValueOrDefault(key: "target", defaultValue: "");
-		var attackPart = arguments.GetValueOrDefault(key: "attacker", defaultValue: "");
-		var targetPart = arguments.GetValueOrDefault(key: "defender", defaultValue: "");
+		var attackPart = arguments.GetValueOrDefault(key: "attackerPart", defaultValue: "");
+		var targetPart = arguments.GetValueOrDefault(key: "targetPart", defaultValue: "");
 		if (!FindCharacter(name: name, target: out var target))
 		{
 			Log.Print($"找不到名为{name}的目标");
