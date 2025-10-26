@@ -14,6 +14,7 @@ class CharacterData
 	public readonly BodyPart leftLeg = new(BodyPartCode.LeftLeg);
 	public readonly BodyPart rightLeg = new(BodyPartCode.RightLeg);
 	public double actionPoint;
+	public bool Dead => head.hp <= 0 || chest.hp <= 0;
 	public CharacterData(string name, byte team)
 	{
 		this.name = name;

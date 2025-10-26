@@ -21,8 +21,39 @@ class AttackCommand : CombatCommand
 			Log.Print($"找不到名为{name}的目标");
 			rootNode.McpCheckPoint();
 			return;
-		}攻击
-		asdf
+		}
+		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPart: out var actorPart))
+		{
+			Log.Print($"无效的攻击部位:{attackPart}");
+			rootNode.McpCheckPoint();
+			return;
+		}
+		if (!GetBodyPart(actor: target, partName: targetPart, bodyPart: out var defenderPart))
+		{
+			Log.Print($"无效的目标部位:{targetPart}");
+			rootNode.McpCheckPoint();
+			return;
+		}
+		actor.actionPoint -= 3;
+		defenderPart.hp -= 2;
+		Log.Print($"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，造成2点伤害");
+		Log.Print($"{target.name}的{targetPart}剩余生命值:{defenderPart.hp}");
+		if (target.Dead) Log.Print($"{target.name}已死亡");
+		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
+	}
+	bool GetBodyPart(CharacterData actor, string partName, out BodyPart bodyPart)
+	{
+		bodyPart = partName switch
+		{
+			"头部" => actor.head,
+			"胸部" => actor.chest,
+			"左臂" => actor.leftArm,
+			"右臂" => actor.rightArm,
+			"左腿" => actor.leftLeg,
+			"右腿" => actor.rightLeg,
+			_ => null!,
+		};
+		return bodyPart != null;
 	}
 	bool FindCharacter(string name, out CharacterData target)
 	{

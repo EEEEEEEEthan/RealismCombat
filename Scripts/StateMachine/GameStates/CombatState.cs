@@ -10,7 +10,7 @@ namespace RealismCombat.StateMachine.GameStates;
 class CombatState : State, IStateOwner
 {
 	public readonly CombatData combatData;
-	readonly GameState gameState;
+	public readonly GameState gameState;
 	State state;
 	public override string Name => "战斗";
 	public CombatNode CombatNode { get; }

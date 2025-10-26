@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RealismCombat.Commands;
 using RealismCombat.Data;
 using RealismCombat.StateMachine.GameStates;
@@ -11,8 +12,23 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	public override void Update(double dt)
 	{
+		if (combatData.characters.All(c => c is { Dead: true, team: 0, }))
+		{
+			Log.Print("玩家全灭，战斗失败");
+			_ = new PrepareState(combatState.gameState);
+			rootNode.McpCheckPoint();
+			return;
+		}
+		if (combatData.characters.All(c => c is { Dead: true, team: 1, }))
+		{
+			Log.Print("敌人全灭，战斗胜利");
+			_ = new PrepareState(combatState.gameState);
+			rootNode.McpCheckPoint();
+			return;
+		}
 		foreach (var character in combatData.characters)
 		{
+			if (character.Dead) continue;
 			character.actionPoint += dt;
 			if (character.actionPoint >= 0)
 			{
