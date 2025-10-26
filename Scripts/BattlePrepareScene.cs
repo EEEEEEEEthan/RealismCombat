@@ -3,18 +3,18 @@ using RealismCombat.Commands;
 namespace RealismCombat;
 public partial class BattlePrepareScene : Node
 {
-	public static BattlePrepareScene Create(GameRoot gameRoot)
+	public static BattlePrepareScene Create(ProgramRoot programRoot)
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.battlePrepareScene).Instantiate<BattlePrepareScene>();
-		instance.gameRoot = gameRoot;
+		instance.programRoot = programRoot;
 		return instance;
 	}
-	GameRoot gameRoot = null!;
+	ProgramRoot programRoot = null!;
 	BaseButton buttonNextCombat = null!;
 	public override void _Ready()
 	{
 		buttonNextCombat = GetChild<Button>(0);
 		buttonNextCombat.Pressed += OnPressed;
 	}
-	void OnPressed() => gameRoot.State.ExecuteCommand(StartCombatCommand.name);
+	void OnPressed() => programRoot.State.ExecuteCommand(StartCombatCommand.name);
 }

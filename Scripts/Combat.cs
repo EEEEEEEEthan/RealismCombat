@@ -34,9 +34,9 @@ public class Combat : IStateOwner
 		{
 			Command command = name switch
 			{
-				CheckStatusCommand.name => new CheckStatusCommand(combat.gameRoot),
-				ShutdownCommand.name => new ShutdownCommand(combat.gameRoot),
-				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(gameRoot: combat.gameRoot, arguments: arguments),
+				CheckStatusCommand.name => new CheckStatusCommand(combat.programRoot),
+				ShutdownCommand.name => new ShutdownCommand(combat.programRoot),
+				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(programRoot: combat.programRoot, arguments: arguments),
 				_ => throw new ArgumentException($"当前状态无法执行{name}"),
 			};
 			command.Execute();
@@ -45,7 +45,7 @@ public class Combat : IStateOwner
 	/// <summary>
 	///     游戏根节点引用
 	/// </summary>
-	public readonly GameRoot gameRoot;
+	public readonly ProgramRoot programRoot;
 	/// <summary>
 	///     战斗中的所有角色
 	/// </summary>
@@ -63,9 +63,9 @@ public class Combat : IStateOwner
 			Log.Print($"战斗进入状态:{state}");
 		}
 	}
-	public Combat(GameRoot gameRoot)
+	public Combat(ProgramRoot programRoot)
 	{
-		this.gameRoot = gameRoot;
+		this.programRoot = programRoot;
 		state = new RoundProgressState(this);
 	}
 	public void Update(double dt) => State.Update(dt);

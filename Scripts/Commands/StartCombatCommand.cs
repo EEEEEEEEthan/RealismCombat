@@ -1,22 +1,22 @@
 ﻿namespace RealismCombat.Commands;
-public class StartCombatCommand(GameRoot gameRoot) : Command(gameRoot)
+public class StartCombatCommand(ProgramRoot programRoot) : Command(programRoot)
 {
 	public const string name = "game_start_combat";
 	public override void Execute()
 	{
 		Log.Print("战斗开始!");
-		if (gameRoot.battlePrepareScene != null)
+		if (programRoot.battlePrepareScene != null)
 		{
-			gameRoot.battlePrepareScene.QueueFree();
-			gameRoot.battlePrepareScene = null;
+			programRoot.battlePrepareScene.QueueFree();
+			programRoot.battlePrepareScene = null;
 		}
-		var combat = new Combat(gameRoot);
-		gameRoot.combat = combat;
+		var combat = new Combat(programRoot);
+		programRoot.combat = combat;
 		var character1 = new Character(combat: combat, name: "角色1", team: 0);
 		combat.AddCharacter(character1);
 		var character2 = new Character(combat: combat, name: "角色2", team: 1);
 		combat.AddCharacter(character2);
-		_ = new GameRoot.CombatState(gameRoot);
-		gameRoot.McpCheckPoint();
+		_ = new ProgramRoot.CombatState(programRoot);
+		programRoot.McpCheckPoint();
 	}
 }

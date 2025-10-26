@@ -5,36 +5,36 @@ using Godot;
 using RealismCombat.Commands;
 using RealismCombat.StateMachine;
 namespace RealismCombat;
-public partial class GameRoot : Node, IStateOwner
+public partial class ProgramRoot : Node, IStateOwner
 {
 	public class PreparerState : State
 	{
-		public readonly GameRoot gameRoot;
+		public readonly ProgramRoot programRoot;
 		public override string Status =>
 			$"""
 			准备阶段
 			可用指令: {CheckStatusCommand.name}, {StartCombatCommand.name}, {ShutdownCommand.name}, {DebugShowNodeTreeCommand.name}
 			""";
-		public PreparerState(GameRoot gameRoot) : base(gameRoot)
+		public PreparerState(ProgramRoot programRoot) : base(programRoot)
 		{
-			this.gameRoot = gameRoot;
+			this.programRoot = programRoot;
 			Log.Print("准备中");
-			gameRoot.mcpHandler?.McpCheckPoint();
+			programRoot.mcpHandler?.McpCheckPoint();
 		}
 		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
 		{
 			Command command = name switch
 			{
-				ShutdownCommand.name => new ShutdownCommand(gameRoot),
-				CheckStatusCommand.name => new CheckStatusCommand(gameRoot),
-				StartCombatCommand.name => new StartCombatCommand(gameRoot),
-				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(gameRoot: gameRoot, arguments: arguments),
+				ShutdownCommand.name => new ShutdownCommand(programRoot),
+				CheckStatusCommand.name => new CheckStatusCommand(programRoot),
+				StartCombatCommand.name => new StartCombatCommand(programRoot),
+				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(programRoot: programRoot, arguments: arguments),
 				_ => throw new ArgumentException($"当前状态无法执行{name}"),
 			};
 			command.Execute();
 		}
 	}
-	public class CombatState(GameRoot root) : State(root)
+	public class CombatState(ProgramRoot root) : State(root)
 	{
 		public override string Status =>
 			$"""
@@ -48,14 +48,14 @@ public partial class GameRoot : Node, IStateOwner
 			{
 				ShutdownCommand.name => new ShutdownCommand(root),
 				CheckStatusCommand.name => new CheckStatusCommand(root),
-				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(gameRoot: root, arguments: arguments),
+				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(programRoot: root, arguments: arguments),
 				_ => throw new ArgumentException($"当前状态无法执行{name}"),
 			};
 			command.Execute();
 		}
 	}
 	static readonly IReadOnlyDictionary<string, string> arguments;
-	static GameRoot()
+	static ProgramRoot()
 	{
 		var dict = new Dictionary<string, string>();
 		var regex = new Regex(@"--(\S+)=(\S+)");
@@ -78,14 +78,14 @@ public partial class GameRoot : Node, IStateOwner
 		get => State;
 		set => State = value;
 	}
-	GameRoot()
+	ProgramRoot()
 	{
 		State = new PreparerState(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (int.TryParse(s: portText, result: out var port))
 			{
 				Log.Print($"启动服务器，端口: {port}");
-				mcpHandler = new(gameRoot: this, port: port);
+				mcpHandler = new(programRoot: this, port: port);
 				mcpHandler.OnClientConnected += OnClientConnected;
 				mcpHandler.OnClientDisconnected += OnClientDisconnected;
 				Log.Print($"服务器已启动，监听端口 {port}");
