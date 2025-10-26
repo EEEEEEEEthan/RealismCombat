@@ -10,9 +10,22 @@ class CombatState : State, IStateOwner
 {
 	readonly CombatData combatData;
 	readonly GameState gameState;
+	State state;
 	public override string Name => "战斗";
 	public CombatNode CombatNode { get; }
-	public State State { get; private set; }
+	public State State
+	{
+		get => state;
+		private set
+		{
+			state = value;
+			combatData.state = value switch
+			{
+				TurnProgressState => 0,
+				ActionState => 1,
+			};
+		}
+	}
 	State IStateOwner.State
 	{
 		get => State;
@@ -24,7 +37,12 @@ class CombatState : State, IStateOwner
 		gameState.gameData.combatData = this.combatData = combatData;
 		CombatNode = CombatNode.Create(this);
 		gameState.gameNode.AddChild(CombatNode);
-		State = new TurnProgressState(this);
+		state = combatData.state switch
+		{
+			0 => new TurnProgressState(this),
+			1 => new ActionState(this),
+			_ => throw new($"unexpected state id: {combatData.state}"),
+		};
 		foreach (var character in combatData.characters) CombatNode.AddCharacter(character);
 	}
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>

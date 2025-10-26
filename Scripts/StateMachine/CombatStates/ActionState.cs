@@ -6,14 +6,10 @@ namespace RealismCombat.StateMachine.CombatStates;
 class ActionState : State
 {
 	readonly CombatState combatState;
-	public ActionState(CombatState combatState) : base(rootNode: combatState.rootNode, owner: combatState)
-	{
-		this.combatState = combatState;
-	}
 	public override string Name => "进行行动";
+	public ActionState(CombatState combatState) : base(rootNode: combatState.rootNode, owner: combatState) => this.combatState = combatState;
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	private protected override void OnExit() { }
 	private protected override string GetStatus() => "行动中";
 }
-
