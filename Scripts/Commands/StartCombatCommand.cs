@@ -1,5 +1,5 @@
 ﻿namespace RealismCombat.Commands;
-public class StartCombatCommand(ProgramRoot programRoot) : Command(programRoot)
+class StartCombatCommand(ProgramRoot programRoot) : Command(programRoot)
 {
 	public const string name = "game_start_combat";
 	public override void Execute()

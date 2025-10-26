@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using Godot;
 namespace RealismCombat.Commands;
-public class DebugShowNodeTreeCommand(ProgramRoot programRoot, IReadOnlyDictionary<string, string> arguments) : Command(programRoot: programRoot, arguments: arguments)
+class DebugShowNodeTreeCommand(ProgramRoot programRoot, IReadOnlyDictionary<string, string> arguments) : Command(programRoot: programRoot, arguments: arguments)
 {
 	public const string name = "debug_show_node_tree";
 	public override void Execute()

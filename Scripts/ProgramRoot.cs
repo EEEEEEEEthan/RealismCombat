@@ -5,7 +5,7 @@ using Godot;
 using RealismCombat.Commands;
 using RealismCombat.StateMachine;
 namespace RealismCombat;
-public partial class ProgramRoot : Node, IStateOwner
+partial class ProgramRoot : Node, IStateOwner
 {
 	public class PreparerState : State
 	{

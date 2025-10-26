@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 namespace RealismCombat.Commands;
-public abstract class Command
+abstract class Command
 {
 	public readonly ProgramRoot programRoot;
 	public readonly IReadOnlyDictionary<string, string> arguments;

@@ -1,7 +1,7 @@
 using Godot;
 using RealismCombat.Commands;
 namespace RealismCombat;
-public partial class BattlePrepareScene : Node
+partial class BattlePrepareScene : Node
 {
 	public static BattlePrepareScene Create(ProgramRoot programRoot)
 	{

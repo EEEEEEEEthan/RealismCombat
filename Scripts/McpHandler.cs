@@ -14,7 +14,7 @@ namespace RealismCombat;
 ///     - 一次仅处理一条指令，其余直接回复"正忙"
 ///     - 客户端断开时触发事件
 /// </summary>
-public class McpHandler
+class McpHandler
 {
 	class CommandLifeCycle : IDisposable
 	{

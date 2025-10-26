@@ -1,5 +1,5 @@
 namespace RealismCombat.Commands;
-public class CheckStatusCommand(ProgramRoot programRoot) : Command(programRoot)
+class CheckStatusCommand(ProgramRoot programRoot) : Command(programRoot)
 {
 	public const string name = "game_check_status";
 	public override void Execute()

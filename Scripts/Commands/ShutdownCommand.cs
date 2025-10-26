@@ -1,5 +1,5 @@
 namespace RealismCombat.Commands;
-public class ShutdownCommand(ProgramRoot programRoot) : Command(programRoot)
+class ShutdownCommand(ProgramRoot programRoot) : Command(programRoot)
 {
 	public const string name = "system_shutdown";
 	public override void Execute()
