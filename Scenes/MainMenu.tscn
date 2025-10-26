@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://sqhxf3ps7glw"]
+
+[ext_resource type="Script" uid="uid://4favsspvgu0c" path="res://Scripts/Nodes/MainMenu.cs" id="1_tt5f1"]
+
+[node name="MainMenu" type="Node"]
+script = ExtResource("1_tt5f1")
+
+[node name="Button" type="Button" parent="."]
+offset_left = 116.0
+offset_top = 132.0
+offset_right = 296.0
+offset_bottom = 201.0
+text = "开始新游戏"

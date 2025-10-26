@@ -1,0 +1,21 @@
+using Godot;
+using RealismCombat.Commands;
+using RealismCombat.StateMachine;
+namespace RealismCombat.Nodes;
+partial class MainMenu : Node
+{
+	public static MainMenu Create(MenuState menuState)
+	{
+		var instance = GD.Load<PackedScene>(ResourceTable.menuScene).Instantiate<MainMenu>();
+		instance.menuState = menuState;
+		return instance;
+	}
+	Button buttonNewGame = null!;
+	MenuState menuState = null!;
+	public override void _Ready()
+	{
+		buttonNewGame = GetChild<Button>(0);
+		buttonNewGame.Pressed += onClick;
+	}
+	void onClick() => menuState.ExecuteCommand(StartNewGameCommand.name);
+}

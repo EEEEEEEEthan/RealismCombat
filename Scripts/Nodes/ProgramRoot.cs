@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
 using RealismCombat.StateMachine;
-namespace RealismCombat;
+namespace RealismCombat.Nodes;
 partial class ProgramRoot : Node, IStateOwner
 {
 	static readonly IReadOnlyDictionary<string, string> arguments;

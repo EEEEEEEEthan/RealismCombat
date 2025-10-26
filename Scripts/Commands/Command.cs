@@ -2,14 +2,14 @@
 namespace RealismCombat.Commands;
 abstract class Command
 {
-	public readonly ProgramRoot root;
+	public readonly Nodes.ProgramRoot root;
 	public readonly IReadOnlyDictionary<string, string> arguments;
-	protected Command(ProgramRoot root, IReadOnlyDictionary<string, string>? arguments = null)
+	protected Command(Nodes.ProgramRoot root, IReadOnlyDictionary<string, string>? arguments = null)
 	{
 		this.root = root;
 		this.arguments = arguments ?? new Dictionary<string, string>();
 	}
-	protected Command(ProgramRoot root, string command)
+	protected Command(Nodes.ProgramRoot root, string command)
 	{
 		var parts = command.Split(" ");
 		var arguments = new Dictionary<string, string>();

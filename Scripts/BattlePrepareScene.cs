@@ -3,13 +3,13 @@ using RealismCombat.Commands;
 namespace RealismCombat;
 partial class BattlePrepareScene : Node
 {
-	public static BattlePrepareScene Create(ProgramRoot programRoot)
+	public static BattlePrepareScene Create(Nodes.ProgramRoot programRoot)
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.battlePrepareScene).Instantiate<BattlePrepareScene>();
 		instance.programRoot = programRoot;
 		return instance;
 	}
-	ProgramRoot programRoot = null!;
+	Nodes.ProgramRoot programRoot = null!;
 	BaseButton buttonNextCombat = null!;
 	public override void _Ready()
 	{

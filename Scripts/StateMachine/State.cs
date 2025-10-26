@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RealismCombat.Commands;
+using RealismCombat.Nodes;
 namespace RealismCombat.StateMachine;
 interface IStateOwner
 {
@@ -28,6 +29,16 @@ abstract class State
 	{
 		this.root = root;
 		this.owner = owner;
+		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+		if (owner.State != null)
+			try
+			{
+				owner.State.OnExit();
+			}
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+			}
 		owner.State = this;
 	}
 	public void ExecuteCommand(string command)
@@ -45,6 +56,7 @@ abstract class State
 		cmd.Execute();
 	}
 	public virtual void Update(double dt) { }
+	private protected abstract void OnExit();
 	private protected abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
 	private protected abstract string GetStatus();
 }

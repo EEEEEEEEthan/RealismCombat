@@ -8,6 +8,7 @@ namespace RealismCombat.StateMachine;
 class CharacterActionState(Combat combat, Character character) : State(root: combat.programRoot, owner: combat)
 {
 	public readonly Character character = character;
+	private protected override void OnExit() => throw new NotImplementedException();
 	private protected override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	private protected override string GetStatus() =>
