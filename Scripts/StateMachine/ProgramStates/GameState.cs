@@ -16,9 +16,9 @@ class GameState : State, IStateOwner
 	}
 	public GameState(ProgramRoot root) : base(root: root, owner: root)
 	{
-		State = new PrepareState(this);
 		game = Game.Create(this);
 		root.AddChild(game);
+		State = new PrepareState(this);
 	}
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters()
 	{
