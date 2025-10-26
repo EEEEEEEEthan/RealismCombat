@@ -4,10 +4,10 @@ using Godot;
 using RealismCombat.StateMachine;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
-partial class ProgramRoot : Node, IStateOwner
+partial class ProgramRootNode : Node, IStateOwner
 {
 	static readonly IReadOnlyDictionary<string, string> arguments;
-	static ProgramRoot()
+	static ProgramRootNode()
 	{
 		var dict = new Dictionary<string, string>();
 		var regex = new Regex(@"--(\S+)=(\S+)");
@@ -28,14 +28,14 @@ partial class ProgramRoot : Node, IStateOwner
 		get => State;
 		set => State = value;
 	}
-	ProgramRoot()
+	ProgramRootNode()
 	{
 		State = new MenuState(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (int.TryParse(s: portText, result: out var port))
 			{
 				Log.Print($"启动服务器，端口: {port}");
-				mcpHandler = new(programRoot: this, port: port);
+				mcpHandler = new(programRootNode: this, port: port);
 				mcpHandler.OnClientConnected += OnClientConnected;
 				mcpHandler.OnClientDisconnected += OnClientDisconnected;
 				Log.Print($"服务器已启动，监听端口 {port}");

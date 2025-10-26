@@ -1,12 +1,12 @@
 ﻿using RealismCombat.Nodes;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Commands.GameCommands;
-class QuitGameCommand(ProgramRoot root) : Command(root)
+class QuitGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
 	public const string name = "game_quit_to_menu";
 	public override void Execute()
 	{
-		_ = new MenuState(root);
-		root.McpCheckPoint();
+		_ = new MenuState(rootNode);
+		rootNode.McpCheckPoint();
 	}
 }

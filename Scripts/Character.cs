@@ -7,7 +7,7 @@ class Character
 	/// <summary>
 	///     所属战斗引用
 	/// </summary>
-	public readonly Nodes.Combat combat;
+	public readonly Nodes.CombatNode combatNode;
 	/// <summary>
 	///     角色名字
 	/// </summary>
@@ -16,9 +16,9 @@ class Character
 	///     角色队伍
 	/// </summary>
 	public readonly byte team;
-	public Character(Nodes.Combat combat, string name, byte team)
+	public Character(Nodes.CombatNode combatNode, string name, byte team)
 	{
-		this.combat = combat;
+		this.combatNode = combatNode;
 		this.name = name;
 		this.team = team;
 	}

@@ -7,18 +7,18 @@ namespace RealismCombat.StateMachine.GameStates;
 class PrepareState : State
 {
 	readonly GameState gameState;
-	readonly BattlePrepareScene prepareScene;
-	public PrepareState(GameState gameState) : base(root: gameState.root, owner: gameState)
+	readonly Nodes.PrepareNode prepareNode;
+	public PrepareState(GameState gameState) : base(rootNode: gameState.rootNode, owner: gameState)
 	{
 		this.gameState = gameState;
-		prepareScene = BattlePrepareScene.Create(gameState.root);
-		gameState.game.AddChild(prepareScene);
+		prepareNode = Nodes.PrepareNode.Create(gameState.rootNode);
+		gameState.gameNode.AddChild(prepareNode);
 	}
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>
 		{
-			[StartCombatCommand.name] = _ => new StartCombatCommand(root),
+			[StartCombatCommand.name] = _ => new StartCombatCommand(rootNode),
 		};
-	private protected override void OnExit() => prepareScene.QueueFree();
+	private protected override void OnExit() => prepareNode.QueueFree();
 	private protected override string GetStatus() => "准备状态";
 }

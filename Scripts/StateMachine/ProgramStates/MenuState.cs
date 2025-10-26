@@ -6,17 +6,17 @@ using RealismCombat.Nodes;
 namespace RealismCombat.StateMachine.ProgramStates;
 class MenuState : State
 {
-	readonly MainMenu menu;
-	public MenuState(ProgramRoot root) : base(root: root, owner: root)
+	readonly MainMenuNode menuNode;
+	public MenuState(ProgramRootNode rootNode) : base(rootNode: rootNode, owner: rootNode)
 	{
-		menu = MainMenu.Create(this);
-		root.AddChild(menu);
+		menuNode = MainMenuNode.Create(this);
+		rootNode.AddChild(menuNode);
 	}
-	private protected override void OnExit() => menu.QueueFree();
+	private protected override void OnExit() => menuNode.QueueFree();
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>
 		{
-			[StartNewGameCommand.name] = _ => new StartNewGameCommand(root),
+			[StartNewGameCommand.name] = _ => new StartNewGameCommand(rootNode),
 		};
 	private protected override string GetStatus() => "主菜单";
 }

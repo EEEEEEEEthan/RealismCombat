@@ -7,15 +7,15 @@ namespace RealismCombat.StateMachine.GameStates;
 class CombatState : State
 {
 	readonly GameState gameState;
-	readonly Combat combat;
-	public CombatState(GameState gameState) : base(root: gameState.root, owner: gameState)
+	readonly CombatNode combatNode;
+	public CombatState(GameState gameState) : base(rootNode: gameState.rootNode, owner: gameState)
 	{
 		this.gameState = gameState;
-		combat = Combat.Create(this);
-		gameState.game.AddChild(combat);
+		combatNode = CombatNode.Create(this);
+		gameState.gameNode.AddChild(combatNode);
 	}
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
-	private protected override void OnExit() => combat.QueueFree();
+	private protected override void OnExit() => combatNode.QueueFree();
 	private protected override string GetStatus() => "战斗中";
 }

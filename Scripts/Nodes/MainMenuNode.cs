@@ -2,11 +2,11 @@ using Godot;
 using RealismCombat.Commands.ProgramCommands;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
-partial class MainMenu : Node
+partial class MainMenuNode : Node
 {
-	public static MainMenu Create(MenuState menuState)
+	public static MainMenuNode Create(MenuState menuState)
 	{
-		var instance = GD.Load<PackedScene>(ResourceTable.menuScene).Instantiate<MainMenu>();
+		var instance = GD.Load<PackedScene>(ResourceTable.menuScene).Instantiate<MainMenuNode>();
 		instance.menuState = menuState;
 		return instance;
 	}

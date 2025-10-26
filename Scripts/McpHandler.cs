@@ -38,7 +38,7 @@ class McpHandler
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly object sync = new();
 	readonly object writeSync = new();
-	readonly ProgramRoot programRoot;
+	readonly ProgramRootNode programRootNode;
 	TcpClient? client;
 	NetworkStream? stream;
 	BinaryReader? reader;
@@ -47,9 +47,9 @@ class McpHandler
 	CommandLifeCycle? commandLifeCycle;
 	public event Action? OnClientConnected;
 	public event Action? OnClientDisconnected;
-	public McpHandler(ProgramRoot programRoot, int port)
+	public McpHandler(ProgramRootNode programRootNode, int port)
 	{
-		this.programRoot = programRoot;
+		this.programRootNode = programRootNode;
 		listener = new(localaddr: IPAddress.Loopback, port: port);
 		listener.Start();
 		Task.Run(AcceptLoopAsync);
@@ -73,7 +73,7 @@ class McpHandler
 			if (commandLifeCycle == null)
 			{
 				commandLifeCycle = new();
-				programRoot.State.ExecuteCommand(pendingCommand);
+				programRootNode.State.ExecuteCommand(pendingCommand);
 			}
 	}
 	void Respond(string response)

@@ -11,7 +11,7 @@ interface IStateOwner
 }
 abstract class State
 {
-	public readonly ProgramRoot root;
+	public readonly ProgramRootNode rootNode;
 	public readonly IStateOwner owner;
 	public string Status
 	{
@@ -27,9 +27,9 @@ abstract class State
 		}
 	}
 	bool Expired => owner.State != this;
-	public State(ProgramRoot root, IStateOwner owner)
+	public State(ProgramRootNode rootNode, IStateOwner owner)
 	{
-		this.root = root;
+		this.rootNode = rootNode;
 		this.owner = owner;
 		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 		if (owner.State != null)
@@ -52,8 +52,8 @@ abstract class State
 		for (var i = 1; i < parts.Length - 1; i += 2) arguments[parts[i]] = parts[i + 1];
 		var cmd = name switch
 		{
-			ShutdownCommand.name => new ShutdownCommand(root),
-			DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(root: root, arguments: arguments),
+			ShutdownCommand.name => new ShutdownCommand(rootNode),
+			DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(rootNode: rootNode, arguments: arguments),
 			_ => GetCommandGetters()[name](arguments),
 		};
 		cmd.Execute();
