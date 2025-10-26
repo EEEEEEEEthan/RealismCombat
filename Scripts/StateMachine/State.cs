@@ -42,7 +42,7 @@ abstract class State
 			{
 				Log.PrintException(e);
 			}
-		Log.Print($"{owner}进入{this}状态");
+		Log.Print($"{owner}进入{Name}状态");
 		owner.State = this;
 	}
 	public void ExecuteCommand(string command)
