@@ -1,5 +1,7 @@
 # test
 
+你不需要自己编译游戏.mcp工具system_start_game会完成编译任务
+
 1. 使用mcp工具启动游戏(system_start_game).
 2. 进行相关内容测试
 3. 如果遇到问题, 查看`.logs/`对应文件定位问题

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 namespace RealismCombat.StateMachine;
 public interface IStateOwner
 {
@@ -23,5 +22,6 @@ public abstract class State
 		for (var i = 1; i < parts.Length - 1; i += 2) arguments[parts[i]] = parts[i + 1];
 		ExecuteCommand(name: name, arguments: arguments);
 	}
+	public virtual void Update(double dt) { }
 	protected abstract void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments);
 }

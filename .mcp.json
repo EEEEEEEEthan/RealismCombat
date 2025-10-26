@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "RealismCombatMcp": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "-c",
+        "Release",
+        "--project",
+        ".McpServer",
+        "--"
+      ],
+      "env": {}
+    }
+  }
+}

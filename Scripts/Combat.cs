@@ -49,7 +49,7 @@ public class Combat : IStateOwner
 	/// <summary>
 	///     战斗中的所有角色
 	/// </summary>
-	public readonly List<Character> characters = new();
+	public readonly List<Character> characters = [];
 	State state;
 	/// <summary>
 	///     当前战斗状态
@@ -68,6 +68,7 @@ public class Combat : IStateOwner
 		this.gameRoot = gameRoot;
 		state = new RoundProgressState(this);
 	}
+	public void Update(double dt) => State.Update(dt);
 	/// <summary>
 	///     添加角色到战斗
 	/// </summary>

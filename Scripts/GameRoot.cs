@@ -38,9 +38,10 @@ public partial class GameRoot : Node, IStateOwner
 	{
 		public override string Status =>
 			$"""
-		战斗阶段
-		可用指令: {CheckStatusCommand.name}, {ShutdownCommand.name}, {DebugShowNodeTreeCommand.name}
-		""";
+			战斗阶段
+			可用指令: {CheckStatusCommand.name}, {ShutdownCommand.name}, {DebugShowNodeTreeCommand.name}
+			""";
+		public override void Update(double dt) => root.combat?.Update(dt);
 		protected override void ExecuteCommand(string name, IReadOnlyDictionary<string, string> arguments)
 		{
 			Command command = name switch
@@ -104,6 +105,7 @@ public partial class GameRoot : Node, IStateOwner
 		TotalTime += delta;
 		FrameCount++;
 		mcpHandler?.Update();
+		State.Update(delta);
 	}
 	void _QuitGame() => GetTree().Quit();
 	void OnClientConnected() => HadClientConnected = true;
