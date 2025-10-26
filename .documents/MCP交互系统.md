@@ -37,25 +37,29 @@ MCP(Model Context Protocol)交互系统允许外部工具通过TCP连接控制�
 - 提供统一的执行接口
 
 **已实现的指令：**
-- `system_shutdown` - 关闭游戏 (`Scripts/Commands/ShutdownCommand.cs`)
-- `game_check_status` - 查询当前状态和可用指令 (`Scripts/Commands/CheckStatusCommand.cs`)
-- `game_start_combat` - 开始战斗 (`Scripts/Commands/StartCombatCommand.cs`)
-- `debug_show_node_tree` - 显示节点树结构 (`Scripts/Commands/DebugShowNodeTreeCommand.cs`)
+- `system_shutdown` - 关闭游戏 (`Scripts/Commands/SystemCommands/ShutdownCommand.cs`)
+- `program_start_new_game` - 开始新游戏 (`Scripts/Commands/ProgramCommands/StartNewGameCommand.cs`)
+- `game_start_combat` - 开始战斗 (`Scripts/Commands/GameCommands/StartCombatCommand.cs`)
+- `game_quit_to_menu` - 退出到主菜单 (`Scripts/Commands/GameCommands/QuitGameCommand.cs`)
+- `debug_show_node_tree` - 显示节点树结构 (`Scripts/Commands/DebugCommands/DebugShowNodeTreeCommand.cs`)
 
 ### 3. 状态机集成
-位于 `Scripts/StateMachine/State.cs` 和 `Scripts/GameRoot.cs`
+位于 `Scripts/StateMachine/State.cs` 和 `Scripts/Nodes/ProgramRoot.cs`
 
 **职责：**
 - 每个状态定义自己支持的指令集
 - 根据指令名称创建对应的Command对象并执行
 - 状态切换时自动触发检查点，将日志回复给MCP客户端
+- 所有状态默认支持 `system_shutdown` 和 `debug_show_node_tree` 指令
 
 **状态与指令映射：**
-- `PreparerState`（准备状态）：支持 `system_shutdown`, `game_check_status`, `game_start_combat`, `debug_show_node_tree`
-- `CombatState`（战斗状态）：支持 `system_shutdown`, `game_check_status`, `debug_show_node_tree`
+- `MenuState`（主菜单状态）：支持 `program_start_new_game`
+- `PrepareState`（准备状态）：支持 `game_start_combat`
+- `GameState`（游戏状态）：支持子状态的所有指令 + `game_quit_to_menu`
+- `CombatState`（战斗状态）：无额外指令
 
-### 4. GameRoot集成
-位于 `Scripts/GameRoot.cs`
+### 4. ProgramRoot集成
+位于 `Scripts/Nodes/ProgramRoot.cs`
 
 **启动流程：**
 1. 从命令行参数读取 `--port=端口号`
