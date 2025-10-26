@@ -5,6 +5,7 @@ class QuitGameCommand(GameState gameState) : GameCommand(gameState)
 	public const string name = "game_quit_to_menu";
 	public override void Execute()
 	{
+		gameState.Save();
 		_ = new MenuState(rootNode);
 		rootNode.McpCheckPoint();
 	}

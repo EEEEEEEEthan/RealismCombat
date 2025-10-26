@@ -8,6 +8,7 @@ class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 	{
 		Log.Print("战斗开始!");
 		_ = new CombatState(gameState);
+		gameState.Save();
 		rootNode.McpCheckPoint();
 	}
 }

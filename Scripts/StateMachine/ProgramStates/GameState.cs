@@ -49,6 +49,7 @@ class GameState : State, IStateOwner
 			_ => throw new($"unexpected state id: {gameData.state}"),
 		};
 	}
+	public void Save() => Persistant.Save(data: gameData, path: Persistant.saveDataPath);
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters()
 	{
 		var dict = new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters())
