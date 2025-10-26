@@ -4,10 +4,10 @@
       "command": "dotnet",
       "args": [
         "run",
-        "-c",
-        "Release",
-        "--project",
-        ".McpServer",
+        "-c", "Release",
+        "--project", ".McpServer",
+        "-p:BaseOutputPath=bin/cursor/",
+        "-p:BaseIntermediateOutputPath=bin/cursor/",
         "--"
       ],
       "env": {}
