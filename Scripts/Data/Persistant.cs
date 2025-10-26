@@ -14,6 +14,7 @@ static class Persistant
 			snapshot.Serialize(writer);
 		}
 		data.Serialize(writer);
+		Log.Print("游戏已储存");
 	}
 	public static Snapshot LoadSnapshot(string path)
 	{
