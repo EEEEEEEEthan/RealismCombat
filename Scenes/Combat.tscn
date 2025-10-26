@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0ar0vjvme5k0"]
+
+[ext_resource type="Script" path="res://Scripts/Nodes/Combat.cs" id="1_885kv"]
+
+[node name="Combat" type="Node"]
+script = ExtResource("1_885kv")
