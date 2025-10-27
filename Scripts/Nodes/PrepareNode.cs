@@ -16,5 +16,5 @@ partial class PrepareNode : Node
 		buttonNextCombat = GetNode<Button>("ButtonNextCombat");
 		buttonNextCombat.Pressed += OnPressed;
 	}
-    void OnPressed() => _ = programRootNode.State.ExecuteCommand(StartCombatCommand.name);
+    void OnPressed() => _ = programRootNode.State.ExecuteCommandTask(StartCombatCommand.name);
 }

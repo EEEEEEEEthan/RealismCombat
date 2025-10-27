@@ -45,7 +45,7 @@ abstract class State
 			}
 		owner.State = this;
 	}
-    public Task ExecuteCommand(string command)
+    public Task ExecuteCommandTask(string command)
 	{
 		try
 		{

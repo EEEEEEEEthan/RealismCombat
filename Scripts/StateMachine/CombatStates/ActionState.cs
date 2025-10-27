@@ -69,7 +69,7 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 		if (executing) throw new("指令正在执行");
 		combatData.tempData[key] = command;
 		combatState.gameState.Save();
-		ExecuteCommand(command);
+		ExecuteCommandTask(command);
 		executing = true;
 		combatData.tempData.Remove(key);
 	}
