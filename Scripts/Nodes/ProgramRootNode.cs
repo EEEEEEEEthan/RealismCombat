@@ -92,7 +92,7 @@ partial class ProgramRootNode : Node, IStateOwner
 		var noOptionsProvided = options == null || options.Length == 0;
 		var effectiveOptions = noOptionsProvided ? new[] { "继续" } : options;
 		var effectiveTimeout = timeout;
-		if (noOptionsProvided && mcpHandler != null) effectiveTimeout = 0.5f;
+		if (noOptionsProvided && mcpHandler != null) effectiveTimeout = 3f;
 		Timer? timeoutTimer = null;
 		var dialogue = ShowDialogue(text: text, callback: i =>
 		{
