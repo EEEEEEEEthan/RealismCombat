@@ -24,7 +24,6 @@ class GameState : State, IStateOwner
 				CombatState => 1,
 				_ => throw new($"unexpected state type: {state.GetType()}"),
 			};
-			Log.Print($"切换到状态:{state}({gameData.state})");
 		}
 	}
 	State IStateOwner.State

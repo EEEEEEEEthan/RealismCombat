@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 namespace RealismCombat.Data;
 /// <summary>
@@ -16,6 +17,18 @@ class CharacterData
 	public double actionPoint;
 	public bool PlayerControlled => team == 0;
 	public bool Dead => head.hp <= 0 || chest.hp <= 0;
+	public IEnumerable<BodyPartData> BodyParts
+	{
+		get
+		{
+			yield return head;
+			yield return chest;
+			yield return leftArm;
+			yield return rightArm;
+			yield return leftLeg;
+			yield return rightLeg;
+		}
+	}
 	public CharacterData(string name, byte team)
 	{
 		this.name = name;
@@ -44,6 +57,7 @@ class CharacterData
 		leftLeg.Serialize(writer);
 		rightLeg.Serialize(writer);
 	}
+	public override string ToString() => $"{nameof(CharacterData)}({nameof(name)}={name}, {nameof(team)}={team}, {nameof(actionPoint)}={actionPoint}, {nameof(head)}={head}, {nameof(chest)}={chest}, {nameof(leftArm)}={leftArm}, {nameof(rightArm)}={rightArm}, {nameof(leftLeg)}={leftLeg}, {nameof(rightLeg)}={rightLeg})";
 }
 public enum BodyPartCode
 {
@@ -72,4 +86,5 @@ class BodyPartData
 		writer.Write(hp);
 		writer.Write(maxHp);
 	}
+	public override string ToString() => $"{nameof(BodyPartData)}({nameof(bodyPart)}={bodyPart}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp})";
 }

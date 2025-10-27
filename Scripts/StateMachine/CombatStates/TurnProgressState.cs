@@ -32,13 +32,12 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 			character.actionPoint += dt;
 			if (character.actionPoint >= 0)
 			{
-				_ = new ActionState(combatState: combatState, combatData: combatData, actor: character);
 				Log.Print($"{character.name}的回合!");
-				if (character.PlayerControlled) rootNode.McpCheckPoint();
+				_ = new ActionState(combatState: combatState, combatData: combatData, actor: character);
 				return;
 			}
 		}
 	}
-	private protected override void OnExit() { }
 	public override string GetStatus() => "回合进行中";
+	private protected override void OnExit() { }
 }

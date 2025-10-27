@@ -38,7 +38,16 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 	}
 	void Human()
 	{
+		foreach (var c in combatData.characters)
+		{
+			Log.Print($"{c.name}(team={c.team}):");
+			foreach (var part in c.BodyParts)
+			{
+				Log.Print($"  {part.bodyPart}({part.hp}/{part.maxHp})");
+			}
+		}
 		dialogueNode = rootNode.ShowDialogue(text: "请选择行动指令", callback: onSelected, options: ["攻击",]);
+		rootNode.McpCheckPoint();
 		return;
 		void onSelected(int index)
 		{
