@@ -1,15 +1,15 @@
 using System;
 using Godot;
 namespace RealismCombat.Nodes;
-using Dialogue = DialogueNode;
 partial class DialogueNode : Control
 {
-	public static Dialogue Show(string label, params (string, Action)[] options)
+	public static DialogueNode Show(string label, params (string, Action)[] options)
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.dialogueScene).Instantiate<DialogueNode>();
 		instance.SetDialogue(text: label, options: options);
 		return instance;
 	}
+	[Export] public Container childrenContainer = null!;
 	[Export] Label label = null!;
 	[Export] Container options = null!;
 	[Export] float typewriterSpeed = 0.05f;
@@ -18,6 +18,12 @@ partial class DialogueNode : Control
 	float typewriterTimer;
 	(string, Action)[]? optionData;
 	bool isTyping = true;
+	public DialogueNode ShowChild(string label, params (string, Action)[] options)
+	{
+		var child = Show(label: label, options: options);
+		childrenContainer.AddChild(child);
+		return child;
+	}
 	public override void _Process(double delta)
 	{
 		if (!isTyping) return;
@@ -38,7 +44,7 @@ partial class DialogueNode : Control
 	void SetDialogue(string text, (string, Action)[] options)
 	{
 		fullText = text;
-		this.optionData = options;
+		optionData = options;
 		label.Text = "";
 		label.VisibleCharacters = 0;
 	}
@@ -48,15 +54,11 @@ partial class DialogueNode : Control
 		for (var i = 0; i < optionData.Length; i++)
 		{
 			var index = i;
-			var (optionText, action) = optionData[index];
+			(var optionText, var action) = optionData[index];
 			var button = new ButtonNode(text: optionText,
-				onClick: () =>
-				{
-					action();
-					QueueFree();
-				});
+				onClick: () => { action(); });
 			if (i == 0) button.CallDeferred("grab_focus");
-			this.options.AddChild(button);
+			options.AddChild(button);
 		}
 	}
 }

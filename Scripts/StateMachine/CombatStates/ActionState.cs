@@ -45,22 +45,34 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 			Log.Print($"{c.name}(team={c.team}):");
 			foreach (var part in c.BodyParts) Log.Print($"  {part.bodyPart}({part.hp}/{part.maxHp})");
 		}
-		dialogueNode = rootNode.ShowDialogue(text: "请选择行动指令", callback: onSelected, options: ["攻击",]);
-		rootNode.McpCheckPoint();
-		return;
-		void onSelected(int index)
-		{
-			if (index == 0)
+		var target = "";
+		dialogueNode = rootNode.ShowDialogue(text: "请选择行动指令",
+			options: ("攻击", () =>
 			{
-				var enemies = combatData.characters.Where(c => c.team != actor.team && !c.Dead).ToList();
-				var target = enemies[Random.Shared.Next(enemies.Count)];
-				var bodyParts = new[] { "head", "chest", "leftArm", "rightArm", "leftLeg", "rightLeg", };
-				var attackPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
-				var targetPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
-				var command = $"{AttackCommand.name} target {target.name} attackerPart {attackPart} targetPart {targetPart}";
-				Execute(command);
-			}
-		}
+				if (dialogueNode is null) throw new("dialogueNode为空");
+				DialogueNode child = null!;
+				var options = new List<(string, Action)>();
+				foreach (var c in combatData.characters)
+					if (c.team != actor.team && !c.Dead)
+					{
+						var copied = c;
+						options.Add((copied.name, () =>
+						{
+							target = copied.name;
+							var bodyParts = new[] { "head", "chest", "leftArm", "rightArm", "leftLeg", "rightLeg", };
+							var attackPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
+							var targetPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
+							var command = $"{AttackCommand.name} target {target} attackerPart {attackPart} targetPart {targetPart}";
+							Execute(command);
+							dialogueNode.QueueFree();
+						}));
+					}
+				options.Add(("返回", () => {
+					child.QueueFree();
+				}));
+				child = dialogueNode.ShowChild(label: "攻击目标", options: options.ToArray());
+			}));
+		rootNode.McpCheckPoint();
 	}
 	void AI()
 	{

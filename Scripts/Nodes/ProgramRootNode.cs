@@ -63,30 +63,21 @@ partial class ProgramRootNode : Node, IStateOwner
 		State.Update(delta);
 		MoveChild(childNode: dialogues, toIndex: GetChildCount() - 1);
 	}
-	public DialogueNode ShowDialogue(string text, Action<int> callback, params string[] options)
+	public DialogueNode ShowDialogue(string text, params (string, Action)[] options)
 	{
-		var optionTuples = new (string, Action)[options.Length];
-		for (var i = 0; i < options.Length; i++)
-		{
-			var index = i;
-			optionTuples[i] = (options[i], () => callback(index));
-		}
-		var dialogue = DialogueNode.Show(label: text, options: optionTuples);
+		var dialogue = DialogueNode.Show(label: text, options: options);
 		dialogues.AddChild(dialogue);
 		return dialogue;
 	}
 	/// <summary>
-	/// 显示对话并异步返回所选项的索引。
+	///     显示对话并异步返回所选项的索引。
 	/// </summary>
 	/// <param name="text">对话文本</param>
 	/// <param name="options">选项文本</param>
 	/// <returns>所选项索引的任务</returns>
-	public Task<int> ShowDialogue(string text, params string[] options)
-	{
-		return ShowDialogue(text: text, timeout: null, options: options);
-	}
+	public Task<int> ShowDialogue(string text, params string[] options) => ShowDialogue(text: text, timeout: null, options: options);
 	/// <summary>
-	/// 显示对话并异步返回所选项的索引，支持可选超时。
+	///     显示对话并异步返回所选项的索引，支持可选超时。
 	/// </summary>
 	/// <param name="text">对话文本</param>
 	/// <param name="timeout">超时时间（秒）。为 null 表示不使用超时</param>
@@ -96,17 +87,24 @@ partial class ProgramRootNode : Node, IStateOwner
 	{
 		var tcs = new TaskCompletionSource<int>();
 		var noOptionsProvided = options == null || options.Length == 0;
-		var effectiveOptions = noOptionsProvided ? new[] { "继续" } : options;
+		var effectiveOptions = noOptionsProvided ? new[] { "继续", } : options!;
 		var effectiveTimeout = timeout;
 		if (noOptionsProvided && mcpHandler != null) effectiveTimeout = 3f;
 		Timer? timeoutTimer = null;
-		var dialogue = ShowDialogue(text: text, callback: i =>
+		var optionTuples = new (string, Action)[effectiveOptions.Length];
+		DialogueNode dialogue = null;
+		for (var i = 0; i < effectiveOptions.Length; i++)
 		{
-			if (tcs.TrySetResult(i))
+			var index = i;
+			optionTuples[i] = (effectiveOptions[i], () =>
 			{
-				if (timeoutTimer != null && GodotObject.IsInstanceValid(timeoutTimer)) timeoutTimer.QueueFree();
-			}
-		}, options: effectiveOptions);
+				dialogue.QueueFree();
+				if (tcs.TrySetResult(index))
+					if (timeoutTimer != null && IsInstanceValid(timeoutTimer))
+						timeoutTimer.QueueFree();
+			});
+		}
+		dialogue = ShowDialogue(text: text, options: optionTuples);
 		if (effectiveTimeout != null)
 		{
 			var seconds = (double)effectiveTimeout.Value;
@@ -114,18 +112,18 @@ partial class ProgramRootNode : Node, IStateOwner
 			{
 				// 立即选择第一个
 				if (tcs.TrySetResult(0))
-					if (GodotObject.IsInstanceValid(dialogue)) dialogue.QueueFree();
+					if (IsInstanceValid(dialogue))
+						dialogue.QueueFree();
 			}
 			else
 			{
-				timeoutTimer = new Timer { OneShot = true, Autostart = true, WaitTime = seconds };
+				timeoutTimer = new() { OneShot = true, Autostart = true, WaitTime = seconds, };
 				AddChild(timeoutTimer);
 				timeoutTimer.Timeout += () =>
 				{
 					if (tcs.TrySetResult(0))
-					{
-						if (GodotObject.IsInstanceValid(dialogue)) dialogue.QueueFree();
-					}
+						if (IsInstanceValid(dialogue))
+							dialogue.QueueFree();
 					timeoutTimer.QueueFree();
 				};
 			}
