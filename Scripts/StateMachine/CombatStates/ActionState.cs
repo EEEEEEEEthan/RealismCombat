@@ -21,10 +21,11 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 		};
 	public override void Update(double dt)
 	{
+		if (executing) return;
 		if (combatData.tempData.TryGetValue(key: key, value: out var command))
 		{
-			if (executing) return; // 指令正在执行(播放执行动画)
 			Execute(command); // 读档
+			return;
 		}
 		if (actor.PlayerControlled)
 		{
