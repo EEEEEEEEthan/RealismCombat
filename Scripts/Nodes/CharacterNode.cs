@@ -9,26 +9,31 @@ partial class CharacterNode : Control
 		return instance;
 	}
 	[Export] Label nameLabel = null!;
-	[Export] Label actionPointLabel = null!;
-	[Export] BodyPartNode head = null!;
-	[Export] BodyPartNode chest = null!;
-	[Export] BodyPartNode rightArm = null!;
-	[Export] BodyPartNode leftArm = null!;
-	[Export] BodyPartNode rightLeg = null!;
-	[Export] BodyPartNode leftLeg = null!;
+	[Export] PropertyDrawerNode actionPoint = null!;
+	[Export] PropertyDrawerNode head = null!;
+	[Export] PropertyDrawerNode chest = null!;
+	[Export] PropertyDrawerNode rightArm = null!;
+	[Export] PropertyDrawerNode leftArm = null!;
+	[Export] PropertyDrawerNode rightLeg = null!;
+	[Export] PropertyDrawerNode leftLeg = null!;
 	public CharacterData? CharacterData { get; set; }
 	public override void _Process(double delta)
 	{
-		nameLabel.Text = CharacterData?.name;
-		actionPointLabel.Text = $"行动点{CharacterData?.actionPoint:F0}";
-		if (CharacterData != null)
-		{
-			head.bodyPartData = CharacterData.head;
-			chest.bodyPartData = CharacterData.chest;
-			rightArm.bodyPartData = CharacterData.rightArm;
-			leftArm.bodyPartData = CharacterData.leftArm;
-			rightLeg.bodyPartData = CharacterData.rightLeg;
-			leftLeg.bodyPartData = CharacterData.leftLeg;
-		}
+		if (CharacterData == null) return;
+		nameLabel.Text = CharacterData.name;
+		actionPoint.property = ((int)CharacterData.actionPoint + 10, 10);
+		head.property = (CharacterData.head.hp, CharacterData.head.maxHp);
+		chest.property = (CharacterData.chest.hp, CharacterData.chest.maxHp);
+		rightArm.property = (CharacterData.rightArm.hp, CharacterData.rightArm.maxHp);
+		leftArm.property = (CharacterData.leftArm.hp, CharacterData.leftArm.maxHp);
+		rightLeg.property = (CharacterData.rightLeg.hp, CharacterData.rightLeg.maxHp);
+		leftLeg.property = (CharacterData.leftLeg.hp, CharacterData.leftLeg.maxHp);
+		actionPoint.title = "行动";
+		head.title = "头部";
+		chest.title = "胸部";
+		rightArm.title = "右臂";
+		leftArm.title = "左臂";
+		rightLeg.title = "右腿";
+		leftLeg.title = "左腿";
 	}
 }

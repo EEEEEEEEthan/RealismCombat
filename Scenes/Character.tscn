@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://5vu4muq6l6se" path="res://Scripts/Nodes/CharacterNode.cs" id="1_0y7nr"]
 [ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="2_jo2ib"]
-[ext_resource type="PackedScene" uid="uid://bsr6jng6vgk8j" path="res://Scenes/BodyPart.tscn" id="3_677pu"]
+[ext_resource type="PackedScene" uid="uid://bsr6jng6vgk8j" path="res://Scenes/PropertyDrawer.tscn" id="3_677pu"]
 
-[node name="Character" type="Control" node_paths=PackedStringArray("nameLabel", "actionPointLabel", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
+[node name="Character" type="Control" node_paths=PackedStringArray("nameLabel", "actionPoint", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
 custom_minimum_size = Vector2(200, 220)
 layout_mode = 3
 anchors_preset = 15
@@ -18,7 +18,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0y7nr")
 nameLabel = NodePath("Background/VBoxContainer/Name")
-actionPointLabel = NodePath("Background/VBoxContainer/ActionPoints")
+actionPoint = NodePath("Background/VBoxContainer/ActionPoint")
 head = NodePath("Background/VBoxContainer/Head")
 chest = NodePath("Background/VBoxContainer/Chest")
 rightArm = NodePath("Background/VBoxContainer/RightArm")
@@ -67,8 +67,5 @@ layout_mode = 2
 [node name="LeftLeg" parent="Background/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
 
-[node name="ActionPoints" type="Label" parent="Background/VBoxContainer"]
+[node name="ActionPoint" parent="Background/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-size_flags_vertical = 3
-theme = ExtResource("2_jo2ib")
-text = "AP=-10"
