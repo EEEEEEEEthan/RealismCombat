@@ -72,5 +72,5 @@ abstract class State
 	public virtual void Update(double dt) { }
 	public abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
 	private protected abstract void OnExit();
-	private protected abstract string GetStatus();
+	public abstract string GetStatus();
 }

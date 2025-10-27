@@ -24,6 +24,7 @@ class CombatState : State, IStateOwner
 			{
 				TurnProgressState => 0,
 				ActionState => 1,
+				_ => throw new($"unexpected state type: {state.GetType()}"),
 			};
 		}
 	}
@@ -53,6 +54,6 @@ class CombatState : State, IStateOwner
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters());
 	public override void Update(double dt) => State.Update(dt);
+	public override string GetStatus() => $"战斗中.{State.GetStatus()}";
 	private protected override void OnExit() => CombatNode.QueueFree();
-	private protected override string GetStatus() => "战斗中";
 }

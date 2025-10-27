@@ -53,7 +53,7 @@ class GameState : State, IStateOwner
 		Log.Print($"存档状态:{State}({gameData.state})");
 	}
 	public void Save() => Persistant.Save(data: gameData, path: Persistant.saveDataPath);
-    public void Quit() => _ = ExecuteCommandTask(QuitGameCommand.name);
+	public void Quit() => _ = ExecuteCommandTask(QuitGameCommand.name);
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters()
 	{
 		var dict = new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>(State.GetCommandGetters())
@@ -63,6 +63,6 @@ class GameState : State, IStateOwner
 		return dict;
 	}
 	public override void Update(double dt) => State.Update(dt);
+	public override string GetStatus() => $"游戏中,{State.GetStatus()}";
 	private protected override void OnExit() => gameNode.QueueFree();
-	private protected override string GetStatus() => "游戏中";
 }

@@ -40,5 +40,5 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 		}
 	}
 	private protected override void OnExit() { }
-	private protected override string GetStatus() => "回合进行中";
+	public override string GetStatus() => "回合进行中";
 }

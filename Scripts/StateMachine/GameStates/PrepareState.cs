@@ -22,5 +22,5 @@ class PrepareState : State
 			[StartCombatCommand.name] = _ => new StartCombatCommand(gameState),
 		};
 	private protected override void OnExit() => prepareNode.QueueFree();
-	private protected override string GetStatus() => "准备状态";
+	public override string GetStatus() => "准备状态";
 }

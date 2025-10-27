@@ -22,5 +22,5 @@ class MenuState : State
 			[LoadGameCommand.name] = _ => new LoadGameCommand(rootNode),
 		};
 	private protected override void OnExit() => menuNode.QueueFree();
-	private protected override string GetStatus() => "主菜单";
+	public override string GetStatus() => "主菜单";
 }

@@ -81,5 +81,5 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 			dialogueNode = null;
 		}
 	}
-	private protected override string GetStatus() => "行动中";
+	public override string GetStatus() => "行动中";
 }
