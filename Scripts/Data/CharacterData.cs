@@ -7,12 +7,12 @@ class CharacterData
 {
 	public readonly string name;
 	public readonly byte team;
-	public readonly BodyPart head = new(BodyPartCode.Head);
-	public readonly BodyPart chest = new(BodyPartCode.Chest);
-	public readonly BodyPart leftArm = new(BodyPartCode.LeftArm);
-	public readonly BodyPart rightArm = new(BodyPartCode.RightArm);
-	public readonly BodyPart leftLeg = new(BodyPartCode.LeftLeg);
-	public readonly BodyPart rightLeg = new(BodyPartCode.RightLeg);
+	public readonly BodyPartData head = new(BodyPartCode.Head);
+	public readonly BodyPartData chest = new(BodyPartCode.Chest);
+	public readonly BodyPartData leftArm = new(BodyPartCode.LeftArm);
+	public readonly BodyPartData rightArm = new(BodyPartCode.RightArm);
+	public readonly BodyPartData leftLeg = new(BodyPartCode.LeftLeg);
+	public readonly BodyPartData rightLeg = new(BodyPartCode.RightLeg);
 	public double actionPoint;
 	public bool PlayerControlled => team == 0;
 	public bool Dead => head.hp <= 0 || chest.hp <= 0;
@@ -54,19 +54,22 @@ public enum BodyPartCode
 	LeftLeg,
 	RightLeg,
 }
-class BodyPart
+class BodyPartData
 {
 	public readonly BodyPartCode bodyPart;
 	public int hp = 10;
-	public BodyPart(BodyPartCode bodyPart) => this.bodyPart = bodyPart;
-	public BodyPart(DataVersion version, BinaryReader reader)
+	public int maxHp = 10;
+	public BodyPartData(BodyPartCode bodyPart) => this.bodyPart = bodyPart;
+	public BodyPartData(DataVersion version, BinaryReader reader)
 	{
 		bodyPart = (BodyPartCode)reader.ReadByte();
 		hp = reader.ReadByte();
+		maxHp = reader.ReadByte();
 	}
 	public void Serialize(BinaryWriter writer)
 	{
 		writer.Write((byte)bodyPart);
 		writer.Write(hp);
+		writer.Write(maxHp);
 	}
 }

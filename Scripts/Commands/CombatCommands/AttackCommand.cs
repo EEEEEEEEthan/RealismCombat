@@ -6,9 +6,9 @@ namespace RealismCombat.Commands.CombatCommands;
 class AttackCommand : CombatCommand
 {
 	public const string name = "combat_attack";
-	static bool GetBodyPart(CharacterData actor, string partName, out BodyPart bodyPart)
+	static bool GetBodyPart(CharacterData actor, string partName, out BodyPartData bodyPartData)
 	{
-		bodyPart = partName switch
+		bodyPartData = partName switch
 		{
 			"head" => actor.head,
 			"chest" => actor.chest,
@@ -19,7 +19,7 @@ class AttackCommand : CombatCommand
 			_ => null!,
 		};
 		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-		return bodyPart != null;
+		return bodyPartData != null;
 	}
 	public readonly ActionState actionState;
 	public AttackCommand(ActionState actionState, IReadOnlyDictionary<string, string>? arguments = null) :
@@ -39,13 +39,13 @@ class AttackCommand : CombatCommand
 			rootNode.McpCheckPoint();
             return Task.CompletedTask;
 		}
-		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPart: out _))
+		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPartData: out _))
 		{
 			Log.Print($"无效的攻击部位:{attackPart}");
 			rootNode.McpCheckPoint();
             return Task.CompletedTask;
 		}
-		if (!GetBodyPart(actor: target, partName: targetPart, bodyPart: out var defenderPart))
+		if (!GetBodyPart(actor: target, partName: targetPart, bodyPartData: out var defenderPart))
 		{
 			Log.Print($"无效的目标部位:{targetPart}");
 			rootNode.McpCheckPoint();
