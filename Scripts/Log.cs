@@ -41,14 +41,14 @@ public static class Log
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 		var stackTrace = new StackTrace(skipFrames: 1, fNeedFileInfo: true);
 		var logMessage = $"[ERROR] {string.Join(separator: " ", values: objects)}\n{stackTrace}";
-		GD.Print($"[{timestamp}]{logMessage}");
+		GD.PrintErr($"[{timestamp}]{logMessage}");
 		OnError?.TryInvoke<string>(logMessage);
 	}
 	public static void PrintException(Exception e)
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 		var logMessage = $"[EXCEPTION] {e.GetType()} {e.Message}\n{e.StackTrace}";
-		GD.Print($"[{timestamp}]{logMessage}");
+		GD.PrintErr($"[{timestamp}]{logMessage}");
 		OnError?.TryInvoke<string>(logMessage);
 	}
 }
