@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using RealismCombat.Data;
 using System.Threading.Tasks;
+using RealismCombat.Nodes;
 using RealismCombat.StateMachine.CombatStates;
 namespace RealismCombat.Commands.CombatCommands;
 class AttackCommand : CombatCommand
@@ -53,8 +54,8 @@ class AttackCommand : CombatCommand
 		}
 		actor.actionPoint -= 3;
 		defenderPart.hp -= 2;
-		Log.Print($"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，造成2点伤害");
-		Log.Print($"{target.name}的{targetPart}剩余生命值:{defenderPart.hp}");
+		var messsage = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，造成2点伤害\n{target.name}的{targetPart}剩余生命值:{defenderPart.hp}";
+		Log.Print(messsage);
 		if (target.Dead) Log.Print($"{target.name}已死亡");
 		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
         return Task.CompletedTask;
