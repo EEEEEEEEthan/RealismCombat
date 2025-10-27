@@ -1,4 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(where dotnet:*)",
+      "Read(*)",
+      "mcp__RealismCombatMcp__*"
+    ],
+    "deny": [],
+    "ask": []
+  },
   "enabledMcpjsonServers": [
     "RealismCombatMcp"
   ],
