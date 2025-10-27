@@ -14,7 +14,6 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 	public override string Name => "进行行动";
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters()
 	{
-		if (!actor.PlayerControlled || executing) return new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 		return new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>
 		{
 			{ AttackCommand.name, arguments => new AttackCommand(actionState: this, arguments: arguments) },
@@ -41,8 +40,8 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 		if (executing) throw new("指令正在执行");
 		combatData.tempData[key] = command;
 		combatState.gameState.Save();
-		executing = true;
 		ExecuteCommand(command);
+		executing = true;
 		combatData.tempData.Remove(key);
 	}
 	private protected override void OnExit() { }
