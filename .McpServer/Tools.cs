@@ -1,7 +1,9 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Local
+using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using ModelContextProtocol.Server;
 namespace RealismCombat.McpServer;
 [McpServerToolType]

@@ -1,3 +1,4 @@
+using System;
 namespace RealismCombat.McpServer.Extensions;
 public static partial class Extensions
 {

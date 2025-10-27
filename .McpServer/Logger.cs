@@ -1,4 +1,6 @@
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using RealismCombat.McpServer.Extensions;
 namespace RealismCombat.McpServer;
