@@ -1,12 +1,13 @@
 using System;
 using Godot;
 namespace RealismCombat.Nodes;
+using Dialogue = DialogueNode;
 partial class DialogueNode : Control
 {
-	public static DialogueNode ShowDialogue(string text, Action<int> callback, params string[] options)
+	public static Dialogue Show(string label, params (string, Action)[] options)
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.dialogueScene).Instantiate<DialogueNode>();
-		instance.SetDialogue(text: text, callback: callback, optionTexts: options);
+		instance.SetDialogue(text: label, options: options);
 		return instance;
 	}
 	[Export] Label label = null!;
@@ -15,8 +16,7 @@ partial class DialogueNode : Control
 	string fullText = "";
 	int currentCharIndex;
 	float typewriterTimer;
-	Action<int>? callback;
-	string[]? optionTexts;
+	(string, Action)[]? optionData;
 	bool isTyping = true;
 	public override void _Process(double delta)
 	{
@@ -35,28 +35,28 @@ partial class DialogueNode : Control
 			}
 		}
 	}
-	void SetDialogue(string text, Action<int> callback, string[] optionTexts)
+	void SetDialogue(string text, (string, Action)[] options)
 	{
 		fullText = text;
-		this.callback = callback;
-		this.optionTexts = optionTexts;
+		this.optionData = options;
 		label.Text = "";
 		label.VisibleCharacters = 0;
 	}
 	void ShowOptions()
 	{
-		if (optionTexts == null || callback == null) return;
-		for (var i = 0; i < optionTexts.Length; i++)
+		if (optionData == null) return;
+		for (var i = 0; i < optionData.Length; i++)
 		{
 			var index = i;
-			var button = new ButtonNode(text: optionTexts[index],
+			var (optionText, action) = optionData[index];
+			var button = new ButtonNode(text: optionText,
 				onClick: () =>
 				{
-					callback(index);
+					action();
 					QueueFree();
 				});
 			if (i == 0) button.CallDeferred("grab_focus");
-			options.AddChild(button);
+			this.options.AddChild(button);
 		}
 	}
 }

@@ -65,7 +65,13 @@ partial class ProgramRootNode : Node, IStateOwner
 	}
 	public DialogueNode ShowDialogue(string text, Action<int> callback, params string[] options)
 	{
-		var dialogue = DialogueNode.ShowDialogue(text: text, callback: callback, options: options);
+		var optionTuples = new (string, Action)[options.Length];
+		for (var i = 0; i < options.Length; i++)
+		{
+			var index = i;
+			optionTuples[i] = (options[i], () => callback(index));
+		}
+		var dialogue = DialogueNode.Show(label: text, options: optionTuples);
 		dialogues.AddChild(dialogue);
 		return dialogue;
 	}
