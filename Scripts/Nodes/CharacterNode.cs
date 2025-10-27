@@ -8,15 +8,14 @@ partial class CharacterNode : Control
 		var instance = GD.Load<PackedScene>(ResourceTable.characterScene).Instantiate<CharacterNode>();
 		return instance;
 	}
-	[Export] RichTextLabel nameLabel = null!;
-	[Export] RichTextLabel actionPointLabel = null!;
+	[Export] Label nameLabel = null!;
+	[Export] Label actionPointLabel = null!;
 	[Export] BodyPartNode head = null!;
 	[Export] BodyPartNode chest = null!;
 	[Export] BodyPartNode rightArm = null!;
 	[Export] BodyPartNode leftArm = null!;
 	[Export] BodyPartNode rightLeg = null!;
 	[Export] BodyPartNode leftLeg = null!;
-	RichTextLabel richTextLabelName = null!;
 	public CharacterData? CharacterData { get; set; }
 	public override void _Process(double delta)
 	{

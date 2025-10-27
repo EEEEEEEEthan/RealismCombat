@@ -5,14 +5,15 @@
 [ext_resource type="PackedScene" uid="uid://bsr6jng6vgk8j" path="res://Scenes/BodyPart.tscn" id="3_677pu"]
 
 [node name="Character" type="Control" node_paths=PackedStringArray("nameLabel", "actionPointLabel", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
+custom_minimum_size = Vector2(200, 220)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 11.0
 offset_top = 45.0
-offset_right = -860.0
-offset_bottom = -342.0
+offset_right = -941.0
+offset_bottom = -383.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0y7nr")
@@ -42,12 +43,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Name" type="RichTextLabel" parent="Background/VBoxContainer"]
+[node name="Name" type="Label" parent="Background/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme = ExtResource("2_jo2ib")
 text = "Ethan"
-scroll_active = false
 
 [node name="Head" parent="Background/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
@@ -67,9 +67,8 @@ layout_mode = 2
 [node name="LeftLeg" parent="Background/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
 
-[node name="ActionPoints" type="RichTextLabel" parent="Background/VBoxContainer"]
+[node name="ActionPoints" type="Label" parent="Background/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme = ExtResource("2_jo2ib")
 text = "AP=-10"
-scroll_active = false

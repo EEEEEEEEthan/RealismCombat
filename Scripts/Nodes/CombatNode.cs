@@ -24,10 +24,10 @@ partial class CombatNode : Node
 	}
 	void PlaceCharacter(CharacterNode node, byte team)
 	{
-		const float width = 220f;
-		const float height = 120f;
+		const float width = 320f;
+		const float height = 360f;
 		const float margin = 50f;
-		const float top = 260f;
+		const float top = 80f;
 		if (team == 0)
 		{
 			node.AnchorLeft = 0f;

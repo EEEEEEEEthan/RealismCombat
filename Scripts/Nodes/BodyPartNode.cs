@@ -23,5 +23,6 @@ partial class BodyPartNode : Node
 		var builder = new StringBuilder();
 		for (var i = 0; i < bodyPartData.hp; i++) builder.Append("▮");
 		for (var i = bodyPartData.hp; i < bodyPartData.maxHp; i++) builder.Append("▯");
+		hitPoint.Text = builder.ToString();
 	}
 }
