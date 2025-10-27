@@ -2,7 +2,8 @@
 /.idea/
 /.McpServer/bin/
 /.McpServer/obj/
+/.McpServer/.idea/
 /.local.settings
 /.logs/
 /.vs/
-save.dat
+/save.dat
