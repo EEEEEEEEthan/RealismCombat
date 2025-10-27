@@ -1,7 +1,7 @@
+using System.Threading.Tasks;
 using RealismCombat.Data;
 using RealismCombat.Nodes;
 using RealismCombat.StateMachine.ProgramStates;
-using System.Threading.Tasks;
 namespace RealismCombat.Commands.ProgramCommands;
 class LoadGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
@@ -11,12 +11,12 @@ class LoadGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 		error = "";
 		return true;
 	}
-    public override Task Execute()
+	public override Task Execute()
 	{
 		Log.Print("读取游戏");
 		var data = Persistant.Load(Persistant.saveDataPath);
 		_ = new GameState(rootNode: rootNode, gameData: data);
 		rootNode.McpCheckPoint();
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 }

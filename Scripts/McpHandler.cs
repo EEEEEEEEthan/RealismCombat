@@ -73,7 +73,7 @@ class McpHandler
 			if (commandLifeCycle == null)
 			{
 				commandLifeCycle = new();
-                _ = programRootNode.State.ExecuteCommandTask(pendingCommand);
+				_ = programRootNode.State.ExecuteCommandTask(pendingCommand);
 			}
 	}
 	void Respond(string response)

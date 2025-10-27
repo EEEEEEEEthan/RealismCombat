@@ -1,5 +1,5 @@
-using RealismCombat.Nodes;
 using System.Threading.Tasks;
+using RealismCombat.Nodes;
 namespace RealismCombat.Commands.ProgramCommands;
 class ShutdownCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
@@ -9,11 +9,11 @@ class ShutdownCommand(ProgramRootNode rootNode) : Command(rootNode)
 		error = "";
 		return true;
 	}
-    public override Task Execute()
+	public override Task Execute()
 	{
 		rootNode.CallDeferred(ProgramRootNode.MethodName._QuitGame);
 		Log.Print("游戏即将关闭");
 		rootNode.McpCheckPoint();
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 }

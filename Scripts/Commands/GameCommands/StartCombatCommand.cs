@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using RealismCombat.Data;
 using RealismCombat.Extensions;
 using RealismCombat.StateMachine.GameStates;
 using RealismCombat.StateMachine.ProgramStates;
-using System.Threading.Tasks;
 namespace RealismCombat.Commands.GameCommands;
 class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 {
@@ -13,7 +13,7 @@ class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 		error = "";
 		return true;
 	}
-    public override Task Execute()
+	public override Task Execute()
 	{
 		Log.Print("战斗开始!");
 		var combatData = new CombatData();
@@ -23,6 +23,6 @@ class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 			{ actionPoint = Random.Shared.NextSingle().Remapped(fromMin: 0, fromMax: 1, toMin: -10, toMax: 0), });
 		_ = new CombatState(gameState: gameState, combatData: combatData);
 		gameState.Save();
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 }

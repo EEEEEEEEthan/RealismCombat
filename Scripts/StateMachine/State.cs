@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using RealismCombat.Commands;
 using System.Threading.Tasks;
+using RealismCombat.Commands;
 using RealismCombat.Commands.DebugCommands;
 using RealismCombat.Commands.ProgramCommands;
 using RealismCombat.Nodes;
@@ -45,7 +45,7 @@ abstract class State
 			}
 		owner.State = this;
 	}
-    public Task ExecuteCommandTask(string command)
+	public Task ExecuteCommandTask(string command)
 	{
 		try
 		{
@@ -60,17 +60,17 @@ abstract class State
 				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(rootNode: rootNode, arguments: arguments),
 				_ => GetCommandGetters()[name](arguments),
 			};
-            return cmd.Execute();
+			return cmd.Execute();
 		}
 		catch (Exception e)
 		{
 			Log.PrintException(e);
 			rootNode.McpCheckPoint();
-            return Task.CompletedTask;
+			return Task.CompletedTask;
 		}
 	}
 	public virtual void Update(double dt) { }
 	public abstract IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters();
-	private protected abstract void OnExit();
 	public abstract string GetStatus();
+	private protected abstract void OnExit();
 }

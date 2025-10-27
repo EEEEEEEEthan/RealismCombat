@@ -80,32 +80,29 @@ class AttackCommand : CombatCommand
 			rootNode.McpCheckPoint();
 			return;
 		}
-	const int actionPoints = 3;
-	var roll = Random.Shared.NextSingle();
-	var hit = roll < defaultHitChance;
-	var rollPercent = (int)(roll * 100);
-	const int requiredPercent = (int)(defaultHitChance * 100);
-	const int damage = 2;
-	string message;
-	if (hit)
-	{
-		var remainingHp = defenderPart.hp - damage;
-		message =
-			$"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，命中！({rollPercent}/{requiredPercent})\n造成{damage}点伤害，{target.name}的{targetPart}剩余生命值:{remainingHp}";
-	}
-	else
-	{
-		message = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，未命中 ({rollPercent}/{requiredPercent})";
-	}
-	await rootNode.ShowDialogue(text: message, timeout: null);
-	actor.actionPoint -= actionPoints;
-	if (hit)
-	{
-		defenderPart.hp -= damage;
-	}
-	Log.Print(message);
-	if (target.Dead) Log.Print($"{target.name}已死亡");
-	_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
+		const int actionPoints = 3;
+		var roll = Random.Shared.NextSingle();
+		var hit = roll < defaultHitChance;
+		var rollPercent = (int)(roll * 100);
+		const int requiredPercent = (int)(defaultHitChance * 100);
+		const int damage = 2;
+		string message;
+		if (hit)
+		{
+			var remainingHp = defenderPart.hp - damage;
+			message =
+				$"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，命中！({rollPercent}/{requiredPercent})\n造成{damage}点伤害，{target.name}的{targetPart}剩余生命值:{remainingHp}";
+		}
+		else
+		{
+			message = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，未命中 ({rollPercent}/{requiredPercent})";
+		}
+		await rootNode.ShowDialogue(text: message, timeout: null);
+		actor.actionPoint -= actionPoints;
+		if (hit) defenderPart.hp -= damage;
+		Log.Print(message);
+		if (target.Dead) Log.Print($"{target.name}已死亡");
+		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
 	}
 	bool FindCharacter(string name, out CharacterData target)
 	{

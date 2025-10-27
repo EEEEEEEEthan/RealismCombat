@@ -20,5 +20,5 @@ abstract class Command
 		this.arguments = arguments;
 	}
 	public abstract bool Validate(out string error);
-    public abstract Task Execute();
+	public abstract Task Execute();
 }

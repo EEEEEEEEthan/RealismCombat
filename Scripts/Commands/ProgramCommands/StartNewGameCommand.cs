@@ -1,6 +1,6 @@
+using System.Threading.Tasks;
 using RealismCombat.Nodes;
 using RealismCombat.StateMachine.ProgramStates;
-using System.Threading.Tasks;
 namespace RealismCombat.Commands.ProgramCommands;
 class StartNewGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
@@ -10,11 +10,11 @@ class StartNewGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 		error = "";
 		return true;
 	}
-    public override Task Execute()
+	public override Task Execute()
 	{
 		Log.Print("开始新游戏");
 		_ = new GameState(rootNode);
 		rootNode.McpCheckPoint();
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 }

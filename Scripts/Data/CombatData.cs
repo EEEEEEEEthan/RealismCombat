@@ -25,7 +25,7 @@ class CombatData
 		writer.Write((byte)characters.Count);
 		foreach (var character in characters) character.Serialize(writer);
 		writer.Write(tempData.Count);
-		foreach (var (key, value) in tempData)
+		foreach ((var key, var value) in tempData)
 		{
 			writer.Write(key);
 			writer.Write(value);
