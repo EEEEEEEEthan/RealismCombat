@@ -1,5 +1,7 @@
 # test
 
+使用RealismCombatMcp工具进行测试.如果这个Mcp工具无法使用(或者不存在),你应该提醒用户
+
 你不需要自己编译游戏.mcp工具system_start_game会完成编译任务
 
 1. 使用mcp工具启动游戏(system_start_game).如果偶游戏正在运行,先关闭游戏(system_shut_down)
