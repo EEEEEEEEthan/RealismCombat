@@ -17,7 +17,7 @@ partial class ButtonNode : Button
 		Alignment = HorizontalAlignment.Left;
 		FocusEntered += OnFocusEntered;
 		FocusExited += OnFocusExited;
-		Icon = null;
+		Icon = GD.Load<Texture2D>(ResourceTable.emptyIcon);
 	}
 	void OnFocusEntered() => Icon = null;
 	void OnFocusExited() => Icon = GD.Load<Texture2D>(ResourceTable.emptyIcon);

@@ -67,9 +67,7 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 							dialogueNode.QueueFree();
 						}));
 					}
-				options.Add(("返回", () => {
-					child.QueueFree();
-				}));
+				options.Add(("返回", () => { child.QueueFree(); }));
 				child = dialogueNode.ShowChild(label: "攻击目标", options: options.ToArray());
 			}));
 		rootNode.McpCheckPoint();
