@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Text;
 using Godot;
 using RealismCombat.Extensions;
 namespace RealismCombat;
@@ -9,26 +8,8 @@ namespace RealismCombat;
 /// </summary>
 public static class Log
 {
-	readonly struct Scope : IDisposable
-	{
-		readonly Action<string> onLog;
-		public Scope(out StringBuilder builder)
-		{
-			builder = new();
-			var copiedBuilder = builder;
-			onLog = msg => copiedBuilder.AppendLine(msg);
-			OnLog += onLog;
-			OnError += onLog;
-		}
-		void IDisposable.Dispose()
-		{
-			OnError -= onLog;
-			OnLog -= onLog;
-		}
-	}
 	public static event Action<string>? OnLog;
 	public static event Action<string>? OnError;
-	public static IDisposable BeginScope(out StringBuilder builder) => new Scope(out builder);
 	public static void Print(params object[] objects)
 	{
 		var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
