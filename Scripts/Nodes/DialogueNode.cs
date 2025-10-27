@@ -11,9 +11,41 @@ partial class DialogueNode : Control
 	}
 	[Export] Label label = null!;
 	[Export] Container options = null!;
+	[Export] float typewriterSpeed = 0.05f;
+	string fullText = "";
+	int currentCharIndex = 0;
+	float typewriterTimer = 0f;
+	Action<int>? callback;
+	string[]? optionTexts;
+	bool isTyping = true;
 	void SetDialogue(string text, Action<int> callback, string[] optionTexts)
 	{
-		label.Text = text;
+		this.fullText = text;
+		this.callback = callback;
+		this.optionTexts = optionTexts;
+		label.Text = "";
+		label.VisibleCharacters = 0;
+	}
+	public override void _Process(double delta)
+	{
+		if (!isTyping) return;
+		typewriterTimer += (float)delta;
+		if (typewriterTimer >= typewriterSpeed)
+		{
+			typewriterTimer = 0f;
+			currentCharIndex++;
+			label.VisibleCharacters = currentCharIndex;
+			label.Text = fullText.Substring(0, currentCharIndex);
+			if (currentCharIndex >= fullText.Length)
+			{
+				isTyping = false;
+				ShowOptions();
+			}
+		}
+	}
+	void ShowOptions()
+	{
+		if (optionTexts == null || callback == null) return;
 		for (var i = 0; i < optionTexts.Length; i++)
 		{
 			var index = i;
