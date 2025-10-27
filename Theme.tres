@@ -1,6 +1,5 @@
-[gd_resource type="Theme" load_steps=9 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=8 format=3 uid="uid://bpxr1w3o076bd"]
 
-[ext_resource type="Texture2D" uid="uid://3mb8pgw6pc6n" path="res://IconAtlas.tres" id="1_23v3e"]
 [ext_resource type="FontFile" uid="uid://y38w7w8xmw6g" path="res://Fonts/缝合像素字体/日语/比例模式/fusion-pixel-10px-proportional-ja.otf" id="1_yd3fu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_23v3e"]
@@ -24,7 +23,7 @@ bg_color = Color(0, 0, 0, 1)
 [resource]
 default_font = ExtResource("1_yd3fu")
 default_font_size = 20
-Button/icons/icon = ExtResource("1_23v3e")
+Button/icons/icon = null
 Button/styles/disabled = SubResource("StyleBoxFlat_23v3e")
 Button/styles/focus = SubResource("StyleBoxFlat_k1aya")
 Button/styles/hover = SubResource("StyleBoxFlat_j4jqe")

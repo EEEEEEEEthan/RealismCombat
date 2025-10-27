@@ -1,17 +1,30 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
 namespace RealismCombat.Nodes;
 partial class DialogueNode : Control
 {
-	public Task ShowDialogue(string text, params (string optionText, Action onSelected)[] options)
+	public static DialogueNode ShowDialogue(string text, Action<int> callback, params string[] options)
 	{
+		var instance = GD.Load<PackedScene>(ResourceTable.dialogueScene).Instantiate<DialogueNode>();
+		instance.SetDialogue(text: text, callback: callback, optionTexts: options);
+		return instance;
 	}
 	[Export] Label label = null!;
 	[Export] Container options = null!;
-	void SetDialogue(string text, params (string optionText, Action onSelected)[] options)
+	void SetDialogue(string text, Action<int> callback, string[] optionTexts)
 	{
 		label.Text = text;
-		foreach ((var txt, var callback) in options) this.options.AddChild(new ButtonNode(text: txt, onClick: callback));
+		for (var i = 0; i < optionTexts.Length; i++)
+		{
+			var index = i;
+			var button = new ButtonNode(text: optionTexts[index],
+				onClick: () =>
+				{
+					callback(index);
+					QueueFree();
+				});
+			if (i == 0) button.GrabFocus();
+			options.AddChild(button);
+		}
 	}
 }

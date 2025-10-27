@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
@@ -58,6 +59,12 @@ partial class ProgramRootNode : Node, IStateOwner
 		FrameCount++;
 		mcpHandler?.Update();
 		State.Update(delta);
+	}
+	public DialogueNode ShowDialogue(string text, Action<int> callback, params string[] options)
+	{
+		var dialogue = DialogueNode.ShowDialogue(text: text, callback: callback, options: options);
+		AddChild(dialogue);
+		return dialogue;
 	}
 	void _QuitGame() => GetTree().Quit();
 	void OnClientConnected() => HadClientConnected = true;
