@@ -1,7 +1,11 @@
-[gd_resource type="Theme" load_steps=2 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://bpxr1w3o076bd"]
 
-[ext_resource type="FontFile" uid="uid://c1vkl27xkrllx" path="res://Fonts/pixel-12px.ttf" id="1_yd3fu"]
+[ext_resource type="FontFile" uid="uid://y38w7w8xmw6g" path="res://Fonts/缝合像素字体/日语/比例模式/fusion-pixel-10px-proportional-ja.otf" id="1_yd3fu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yd3fu"]
+bg_color = Color(0, 0, 0, 1)
 
 [resource]
 default_font = ExtResource("1_yd3fu")
-default_font_size = 24
+default_font_size = 20
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_yd3fu")
