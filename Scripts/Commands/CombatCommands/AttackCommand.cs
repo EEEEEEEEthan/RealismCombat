@@ -5,6 +5,21 @@ namespace RealismCombat.Commands.CombatCommands;
 class AttackCommand : CombatCommand
 {
 	public const string name = "combat_attack";
+	static bool GetBodyPart(CharacterData actor, string partName, out BodyPart bodyPart)
+	{
+		bodyPart = partName switch
+		{
+			"head" => actor.head,
+			"chest" => actor.chest,
+			"leftArm" => actor.leftArm,
+			"rightArm" => actor.rightArm,
+			"leftLeg" => actor.leftLeg,
+			"rightLeg" => actor.rightLeg,
+			_ => null!,
+		};
+		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+		return bodyPart != null;
+	}
 	public readonly ActionState actionState;
 	public AttackCommand(ActionState actionState, IReadOnlyDictionary<string, string>? arguments = null) :
 		base(combatState: actionState.combatState, arguments: arguments) =>
@@ -23,7 +38,7 @@ class AttackCommand : CombatCommand
 			rootNode.McpCheckPoint();
 			return;
 		}
-		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPart: out var actorPart))
+		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPart: out _))
 		{
 			Log.Print($"无效的攻击部位:{attackPart}");
 			rootNode.McpCheckPoint();
@@ -41,20 +56,6 @@ class AttackCommand : CombatCommand
 		Log.Print($"{target.name}的{targetPart}剩余生命值:{defenderPart.hp}");
 		if (target.Dead) Log.Print($"{target.name}已死亡");
 		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
-	}
-	bool GetBodyPart(CharacterData actor, string partName, out BodyPart bodyPart)
-	{
-		bodyPart = partName switch
-		{
-			"head" => actor.head,
-			"chest" => actor.chest,
-			"leftArm" => actor.leftArm,
-			"rightArm" => actor.rightArm,
-			"leftLeg" => actor.leftLeg,
-			"rightLeg" => actor.rightLeg,
-			_ => null!,
-		};
-		return bodyPart != null;
 	}
 	bool FindCharacter(string name, out CharacterData target)
 	{
