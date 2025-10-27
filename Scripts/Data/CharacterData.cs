@@ -70,21 +70,21 @@ public enum BodyPartCode
 }
 class BodyPartData
 {
-	public readonly BodyPartCode bodyPart;
+	public readonly BodyPartCode id;
 	public int hp = 10;
 	public int maxHp = 10;
-	public BodyPartData(BodyPartCode bodyPart) => this.bodyPart = bodyPart;
+	public BodyPartData(BodyPartCode id) => this.id = id;
 	public BodyPartData(DataVersion version, BinaryReader reader)
 	{
-		bodyPart = (BodyPartCode)reader.ReadByte();
+		id = (BodyPartCode)reader.ReadByte();
 		hp = reader.ReadByte();
 		maxHp = reader.ReadByte();
 	}
 	public void Serialize(BinaryWriter writer)
 	{
-		writer.Write((byte)bodyPart);
+		writer.Write((byte)id);
 		writer.Write(hp);
 		writer.Write(maxHp);
 	}
-	public override string ToString() => $"{nameof(BodyPartData)}({nameof(bodyPart)}={bodyPart}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp})";
+	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp})";
 }

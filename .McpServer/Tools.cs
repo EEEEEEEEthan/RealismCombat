@@ -110,8 +110,8 @@ static class CombatTools
 	[McpServerTool, Description("attack target with specified body parts"),]
 	static Task<string> combat_attack(
 		[Description("name of target")]string target,
-		[Description("body part of attacker to use (head/chest/leftArm/rightArm/leftLeg/rightLeg)")]string attackerPart,
-		[Description("body part of target to attack (head/chest/leftArm/rightArm/leftLeg/rightLeg)")]string targetPart)
+		[Description("body part of attacker to use (Head/Chest/LeftArm/RightArm/LeftLeg/RightLeg)")]string attackerPart,
+		[Description("body part of target to attack (Head/Chest/LeftArm/RightArm/LeftLeg/RightLeg)")]string targetPart)
 	{
 		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
 		return SystemTools.Client.SendCommand($"{nameof(combat_attack)} target {target} attackerPart {attackerPart} targetPart {targetPart}", 30000);

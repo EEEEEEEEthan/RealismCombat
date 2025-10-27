@@ -11,6 +11,7 @@ namespace RealismCombat.StateMachine.CombatStates;
 class ActionState(CombatState combatState, CombatData combatData, CharacterData actor) : CombatChildState(combatState: combatState, combatData: combatData)
 {
 	const string key = "ActionCommand";
+	internal static readonly string[] bodyParts = Enum.GetNames(typeof(BodyPartCode));
 	public readonly CharacterData actor = actor;
 	DialogueNode? dialogueNode;
 	bool executing;
@@ -43,40 +44,56 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 		foreach (var c in combatData.characters)
 		{
 			Log.Print($"{c.name}(team={c.team}):");
-			foreach (var part in c.BodyParts) Log.Print($"  {part.bodyPart}({part.hp}/{part.maxHp})");
+			foreach (var part in c.BodyParts) Log.Print($"  {part.id}({part.hp}/{part.maxHp})");
 		}
-		var target = "";
-		dialogueNode = rootNode.ShowDialogue(text: "请选择行动指令",
-			options: ("攻击", () =>
+		var targetName = "";
+		dialogueNode = rootNode.CreateDialogue("请选择行动指令");
+		dialogueNode.AddOption(option: "攻击",
+			onClick: () =>
 			{
-				if (dialogueNode is null) throw new("dialogueNode为空");
-				DialogueNode child = null!;
-				var options = new List<(string, Action)>();
-				foreach (var c in combatData.characters)
-					if (c.team != actor.team && !c.Dead)
-					{
-						var copied = c;
-						options.Add((copied.name, () =>
+				var dialogSelectBodyPart = dialogueNode.CreateChild("用什么部位发动攻击");
+				foreach (var bodyPart in actor.BodyParts)
+				{
+					var selectedAttackerBodyPart = bodyPart;
+					dialogSelectBodyPart.AddOption(option: selectedAttackerBodyPart.id.ToString(),
+						onClick: () =>
 						{
-							target = copied.name;
-							var bodyParts = new[] { "head", "chest", "leftArm", "rightArm", "leftLeg", "rightLeg", };
-							var attackPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
-							var targetPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
-							var command = $"{AttackCommand.name} target {target} attackerPart {attackPart} targetPart {targetPart}";
-							Execute(command);
-							dialogueNode.QueueFree();
-						}));
-					}
-				options.Add(("返回", () => { child.QueueFree(); }));
-				child = dialogueNode.ShowChild(label: "攻击目标", options: options.ToArray());
-			}));
+							var dialogSelectDefender = dialogSelectBodyPart.CreateChild("攻击谁");
+							foreach (var c in combatData.characters)
+								if (c.team != actor.team && !c.Dead)
+								{
+									var selectedDefender = c;
+									dialogSelectDefender.AddOption(option: selectedDefender.name,
+										onClick: () =>
+										{
+											var dialogSelectBodyPart = dialogSelectDefender.CreateChild($"攻击{selectedDefender.name}的什么部位");
+											foreach (var bodyPart in selectedDefender.BodyParts)
+											{
+												var selectedDefenderBodyPart = bodyPart;
+												dialogSelectBodyPart.AddOption(option: selectedDefenderBodyPart.id.ToString(),
+													onClick: () =>
+													{
+														targetName = selectedDefender.name;
+														var command =
+															$"{AttackCommand.name} target {targetName} attackerPart {selectedAttackerBodyPart.id} targetPart {selectedDefenderBodyPart.id}";
+														Execute(command);
+														dialogueNode.QueueFree();
+													});
+											}
+											dialogSelectBodyPart.AddOption(option: "返回", onClick: () => { dialogSelectBodyPart.QueueFree(); });
+										});
+								}
+							dialogSelectDefender.AddOption(option: "返回", onClick: () => { dialogSelectDefender.QueueFree(); });
+						});
+				}
+				dialogSelectBodyPart.AddOption(option: "返回", onClick: () => { dialogSelectBodyPart.QueueFree(); });
+			});
 		rootNode.McpCheckPoint();
 	}
 	void AI()
 	{
 		var enemies = combatData.characters.Where(c => c.team != actor.team && !c.Dead).ToList();
 		var target = enemies[Random.Shared.Next(enemies.Count)];
-		var bodyParts = new[] { "head", "chest", "leftArm", "rightArm", "leftLeg", "rightLeg", };
 		var attackPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
 		var targetPart = bodyParts[Random.Shared.Next(bodyParts.Length)];
 		var command = $"{AttackCommand.name} target {target.name} attackerPart {attackPart} targetPart {targetPart}";

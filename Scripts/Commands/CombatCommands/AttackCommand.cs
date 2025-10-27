@@ -10,23 +10,23 @@ class AttackCommand : CombatCommand
 	/// <summary>
 	///     默认命中率（0-1）
 	/// </summary>
-	const float DefaultHitChance = 0.8f;
+	const float defaultHitChance = 0.8f;
 	static bool GetBodyPart(CharacterData actor, string partName, out BodyPartData bodyPartData)
 	{
 		bodyPartData = partName switch
 		{
-			"head" => actor.head,
-			"chest" => actor.chest,
-			"leftArm" => actor.leftArm,
-			"rightArm" => actor.rightArm,
-			"leftLeg" => actor.leftLeg,
-			"rightLeg" => actor.rightLeg,
+			nameof(BodyPartCode.Head) => actor.head,
+			nameof(BodyPartCode.Chest) => actor.chest,
+			nameof(BodyPartCode.LeftArm) => actor.leftArm,
+			nameof(BodyPartCode.RightArm) => actor.rightArm,
+			nameof(BodyPartCode.LeftLeg) => actor.leftLeg,
+			nameof(BodyPartCode.RightLeg) => actor.rightLeg,
 			_ => null!,
 		};
 		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 		return bodyPartData != null;
 	}
-	public readonly ActionState actionState;
+	readonly ActionState actionState;
 	public AttackCommand(ActionState actionState, IReadOnlyDictionary<string, string>? arguments = null) :
 		base(combatState: actionState.combatState, arguments: arguments) =>
 		this.actionState = actionState;
@@ -58,9 +58,9 @@ class AttackCommand : CombatCommand
 		}
 		actor.actionPoint -= 3;
 		var roll = Random.Shared.NextSingle();
-		var isHit = roll < DefaultHitChance;
+		var isHit = roll < defaultHitChance;
 		var rollPercent = (int)(roll * 100);
-		var requiredPercent = (int)(DefaultHitChance * 100);
+		const int requiredPercent = (int)(defaultHitChance * 100);
 		string message;
 		if (isHit)
 		{

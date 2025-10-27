@@ -63,26 +63,20 @@ partial class ProgramRootNode : Node, IStateOwner
 		State.Update(delta);
 		MoveChild(childNode: dialogues, toIndex: GetChildCount() - 1);
 	}
+	public DialogueNode CreateDialogue(string text)
+	{
+		var dialogue = DialogueNode.Create(label: text);
+		dialogues.AddChild(dialogue);
+		return dialogue;
+	}
+	[Obsolete]
 	public DialogueNode ShowDialogue(string text, params (string, Action)[] options)
 	{
 		var dialogue = DialogueNode.Show(label: text, options: options);
 		dialogues.AddChild(dialogue);
 		return dialogue;
 	}
-	/// <summary>
-	///     显示对话并异步返回所选项的索引。
-	/// </summary>
-	/// <param name="text">对话文本</param>
-	/// <param name="options">选项文本</param>
-	/// <returns>所选项索引的任务</returns>
-	public Task<int> ShowDialogue(string text, params string[] options) => ShowDialogue(text: text, timeout: null, options: options);
-	/// <summary>
-	///     显示对话并异步返回所选项的索引，支持可选超时。
-	/// </summary>
-	/// <param name="text">对话文本</param>
-	/// <param name="timeout">超时时间（秒）。为 null 表示不使用超时</param>
-	/// <param name="options">选项文本</param>
-	/// <returns>所选项索引的任务</returns>
+	[Obsolete]
 	public Task<int> ShowDialogue(string text, float? timeout, params string[] options)
 	{
 		var tcs = new TaskCompletionSource<int>();
