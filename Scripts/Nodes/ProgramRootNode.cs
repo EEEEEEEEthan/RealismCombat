@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Godot;
 using RealismCombat.StateMachine;
 using RealismCombat.StateMachine.ProgramStates;
@@ -67,6 +68,63 @@ partial class ProgramRootNode : Node, IStateOwner
 		var dialogue = DialogueNode.ShowDialogue(text: text, callback: callback, options: options);
 		dialogues.AddChild(dialogue);
 		return dialogue;
+	}
+	/// <summary>
+	/// 显示对话并异步返回所选项的索引。
+	/// </summary>
+	/// <param name="text">对话文本</param>
+	/// <param name="options">选项文本</param>
+	/// <returns>所选项索引的任务</returns>
+	public Task<int> ShowDialogue(string text, params string[] options)
+	{
+		return ShowDialogue(text: text, timeout: null, options: options);
+	}
+	/// <summary>
+	/// 显示对话并异步返回所选项的索引，支持可选超时。
+	/// </summary>
+	/// <param name="text">对话文本</param>
+	/// <param name="timeout">超时时间（秒）。为 null 表示不使用超时</param>
+	/// <param name="options">选项文本</param>
+	/// <returns>所选项索引的任务</returns>
+	public Task<int> ShowDialogue(string text, float? timeout, params string[] options)
+	{
+		var tcs = new TaskCompletionSource<int>();
+		var noOptionsProvided = options == null || options.Length == 0;
+		var effectiveOptions = noOptionsProvided ? new[] { "继续" } : options;
+		var effectiveTimeout = timeout;
+		if (noOptionsProvided && mcpHandler != null) effectiveTimeout = 0.5f;
+		Timer? timeoutTimer = null;
+		var dialogue = ShowDialogue(text: text, callback: i =>
+		{
+			if (tcs.TrySetResult(i))
+			{
+				if (timeoutTimer != null && GodotObject.IsInstanceValid(timeoutTimer)) timeoutTimer.QueueFree();
+			}
+		}, options: effectiveOptions);
+		if (effectiveTimeout != null)
+		{
+			var seconds = (double)effectiveTimeout.Value;
+			if (seconds <= 0)
+			{
+				// 立即选择第一个
+				if (tcs.TrySetResult(0))
+					if (GodotObject.IsInstanceValid(dialogue)) dialogue.QueueFree();
+			}
+			else
+			{
+				timeoutTimer = new Timer { OneShot = true, Autostart = true, WaitTime = seconds };
+				AddChild(timeoutTimer);
+				timeoutTimer.Timeout += () =>
+				{
+					if (tcs.TrySetResult(0))
+					{
+						if (GodotObject.IsInstanceValid(dialogue)) dialogue.QueueFree();
+					}
+					timeoutTimer.QueueFree();
+				};
+			}
+		}
+		return tcs.Task;
 	}
 	void _QuitGame() => GetTree().Quit();
 	void OnClientConnected() => HadClientConnected = true;
