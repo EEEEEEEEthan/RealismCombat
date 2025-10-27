@@ -5,6 +5,11 @@ namespace RealismCombat.Commands.ProgramCommands;
 class StartNewGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
 	public const string name = "program_start_new_game";
+	public override bool Validate(out string error)
+	{
+		error = "";
+		return true;
+	}
     public override Task Execute()
 	{
 		Log.Print("开始新游戏");

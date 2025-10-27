@@ -6,6 +6,11 @@ namespace RealismCombat.Commands.ProgramCommands;
 class LoadGameCommand(ProgramRootNode rootNode) : Command(rootNode)
 {
 	public const string name = "program_load_game";
+	public override bool Validate(out string error)
+	{
+		error = "";
+		return true;
+	}
     public override Task Execute()
 	{
 		Log.Print("读取游戏");

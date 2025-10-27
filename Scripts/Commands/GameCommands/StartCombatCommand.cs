@@ -8,6 +8,11 @@ namespace RealismCombat.Commands.GameCommands;
 class StartCombatCommand(GameState gameState) : GameCommand(gameState)
 {
 	public const string name = "game_start_combat";
+	public override bool Validate(out string error)
+	{
+		error = "";
+		return true;
+	}
     public override Task Execute()
 	{
 		Log.Print("战斗开始!");

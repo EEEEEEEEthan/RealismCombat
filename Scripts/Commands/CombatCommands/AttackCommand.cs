@@ -32,6 +32,30 @@ class AttackCommand : CombatCommand
 		this.actionState = actionState;
 	public AttackCommand(ActionState actionState, string command) : base(combatState: actionState.combatState, command: command) =>
 		this.actionState = actionState;
+	public override bool Validate(out string error)
+	{
+		var actor = actionState.actor;
+		var name = arguments.GetValueOrDefault(key: "target", defaultValue: "");
+		var attackPart = arguments.GetValueOrDefault(key: "attackerPart", defaultValue: "");
+		var targetPart = arguments.GetValueOrDefault(key: "targetPart", defaultValue: "");
+		if (!FindCharacter(name: name, target: out var target))
+		{
+			error = $"找不到名为{name}的目标";
+			return false;
+		}
+		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPartData: out _))
+		{
+			error = $"无效的攻击部位:{attackPart}";
+			return false;
+		}
+		if (!GetBodyPart(actor: target, partName: targetPart, bodyPartData: out _))
+		{
+			error = $"无效的目标部位:{targetPart}";
+			return false;
+		}
+		error = "";
+		return true;
+	}
 	public override async Task Execute()
 	{
 		var actor = actionState.actor;

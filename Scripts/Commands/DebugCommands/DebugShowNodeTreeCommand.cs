@@ -7,6 +7,18 @@ namespace RealismCombat.Commands.DebugCommands;
 class DebugShowNodeTreeCommand(ProgramRootNode rootNode, IReadOnlyDictionary<string, string> arguments) : Command(rootNode: rootNode, arguments: arguments)
 {
 	public const string name = "debug_show_node_tree";
+	public override bool Validate(out string error)
+	{
+		var rootPath = arguments.GetValueOrDefault(key: "root", defaultValue: "/root");
+		var root = rootNode.GetNode(rootPath);
+		if (root == null)
+		{
+			error = $"节点路径无效: {rootPath}";
+			return false;
+		}
+		error = "";
+		return true;
+	}
     public override Task Execute()
 	{
 		var rootPath = arguments.GetValueOrDefault(key: "root", defaultValue: "/root");

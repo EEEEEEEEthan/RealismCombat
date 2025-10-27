@@ -19,5 +19,6 @@ abstract class Command
 		this.rootNode = rootNode;
 		this.arguments = arguments;
 	}
+	public abstract bool Validate(out string error);
     public abstract Task Execute();
 }
