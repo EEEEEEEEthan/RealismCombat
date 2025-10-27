@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using RealismCombat.Data;
 using System.Threading.Tasks;
 using RealismCombat.Nodes;
@@ -7,6 +8,10 @@ namespace RealismCombat.Commands.CombatCommands;
 class AttackCommand : CombatCommand
 {
 	public const string name = "combat_attack";
+	/// <summary>
+	/// 	默认命中率（0-1）
+	/// </summary>
+	private const float DefaultHitChance = 0.8f;
 	static bool GetBodyPart(CharacterData actor, string partName, out BodyPartData bodyPartData)
 	{
 		bodyPartData = partName switch
@@ -53,11 +58,23 @@ class AttackCommand : CombatCommand
             return;
 		}
 		actor.actionPoint -= 3;
-		defenderPart.hp -= 2;
-		var messsage = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，造成2点伤害\n{target.name}的{targetPart}剩余生命值:{defenderPart.hp}";
-		Log.Print(messsage);
+		var roll = Random.Shared.NextSingle();
+		var isHit = roll < DefaultHitChance;
+		var rollPercent = (int)(roll * 100);
+		var requiredPercent = (int)(DefaultHitChance * 100);
+		string message;
+		if (isHit)
+		{
+			defenderPart.hp -= 2;
+			message = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，命中！({rollPercent}/{requiredPercent})\n造成2点伤害，{target.name}的{targetPart}剩余生命值:{defenderPart.hp}";
+		}
+		else
+		{
+			message = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，未命中 ({rollPercent}/{requiredPercent})";
+		}
+		Log.Print(message);
 		if (target.Dead) Log.Print($"{target.name}已死亡");
-		await rootNode.ShowDialogue(messsage);
+		await rootNode.ShowDialogue(message);
 		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
         return;
     }
