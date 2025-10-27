@@ -4,6 +4,7 @@ using System.Linq;
 using RealismCombat.Commands;
 using RealismCombat.Commands.CombatCommands;
 using RealismCombat.Data;
+using RealismCombat.Extensions;
 using RealismCombat.Nodes;
 using RealismCombat.StateMachine.GameStates;
 namespace RealismCombat.StateMachine.CombatStates;
@@ -36,15 +37,13 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 			AI();
 		}
 	}
+	public override string GetStatus() => "行动中";
 	void Human()
 	{
 		foreach (var c in combatData.characters)
 		{
 			Log.Print($"{c.name}(team={c.team}):");
-			foreach (var part in c.BodyParts)
-			{
-				Log.Print($"  {part.bodyPart}({part.hp}/{part.maxHp})");
-			}
+			foreach (var part in c.BodyParts) Log.Print($"  {part.bodyPart}({part.hp}/{part.maxHp})");
 		}
 		dialogueNode = rootNode.ShowDialogue(text: "请选择行动指令", callback: onSelected, options: ["攻击",]);
 		rootNode.McpCheckPoint();
@@ -84,11 +83,10 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 	}
 	private protected override void OnExit()
 	{
-		if (dialogueNode is not null)
+		if (dialogueNode != null && dialogueNode.Valid())
 		{
 			dialogueNode.QueueFree();
 			dialogueNode = null;
 		}
 	}
-	public override string GetStatus() => "行动中";
 }
