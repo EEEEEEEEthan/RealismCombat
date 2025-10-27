@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://dt0wb8giv7q2g"]
+[gd_scene load_steps=2 format=3 uid="uid://dyo86kwvghlkc"]
 
 [ext_resource type="Script" uid="uid://cq2ugya2pq8ok" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_jh2ti"]
 
-[node name="ProgramRoot" type="Node"]
+[node name="ProgramRoot" type="Node" node_paths=PackedStringArray("dialogues")]
 script = ExtResource("1_jh2ti")
+dialogues = NodePath("Dialogues")
+
+[node name="Dialogues" type="HBoxContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -200.0
+grow_horizontal = 2
+grow_vertical = 0

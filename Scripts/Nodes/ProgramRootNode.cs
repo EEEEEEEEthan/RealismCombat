@@ -20,6 +20,7 @@ partial class ProgramRootNode : Node, IStateOwner
 		arguments = dict;
 	}
 	readonly McpHandler? mcpHandler;
+	[Export] Container dialogues = null!;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
@@ -59,11 +60,12 @@ partial class ProgramRootNode : Node, IStateOwner
 		FrameCount++;
 		mcpHandler?.Update();
 		State.Update(delta);
+		MoveChild(childNode: dialogues, toIndex: GetChildCount() - 1);
 	}
 	public DialogueNode ShowDialogue(string text, Action<int> callback, params string[] options)
 	{
 		var dialogue = DialogueNode.ShowDialogue(text: text, callback: callback, options: options);
-		AddChild(dialogue);
+		dialogues.AddChild(dialogue);
 		return dialogue;
 	}
 	void _QuitGame() => GetTree().Quit();

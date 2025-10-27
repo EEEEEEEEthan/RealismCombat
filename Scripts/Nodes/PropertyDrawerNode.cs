@@ -11,8 +11,8 @@ partial class PropertyDrawerNode : Node
 	{
 		name.Text = title;
 		var builder = new StringBuilder();
-		for (var i = 0; i < property.value; i++) builder.Append("▮");
-		for (var i = property.value; i < property.max; i++) builder.Append("▯");
+		for (var i = 0; i < property.value; i++) builder.Append('I');
+		for (var i = property.value; i < property.max; i++) builder.Append('.');
 		value.Text = builder.ToString();
 	}
 }

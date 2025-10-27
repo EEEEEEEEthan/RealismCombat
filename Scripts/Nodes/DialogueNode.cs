@@ -23,7 +23,7 @@ partial class DialogueNode : Control
 					callback(index);
 					QueueFree();
 				});
-			if (i == 0) button.GrabFocus();
+			if (i == 0) button.CallDeferred("grab_focus");
 			options.AddChild(button);
 		}
 	}

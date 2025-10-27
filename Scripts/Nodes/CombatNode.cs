@@ -13,13 +13,14 @@ partial class CombatNode : Node
 		instance.combatState = combatState;
 		return instance;
 	}
+	[Export] Container characterContainer = null!;
 	CombatState combatState = null!;
 	public CharacterNode AddCharacter(CharacterData data)
 	{
 		var characterNode = CharacterNode.Create();
 		characterNode.CharacterData = data;
-		AddChild(characterNode);
-		PlaceCharacter(characterNode, data.team);
+		characterContainer.AddChild(characterNode);
+		PlaceCharacter(node: characterNode, team: data.team);
 		return characterNode;
 	}
 	void PlaceCharacter(CharacterNode node, byte team)

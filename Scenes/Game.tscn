@@ -1,11 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://cyaej8xt24xd5"]
+[gd_scene load_steps=2 format=3 uid="uid://c7hmvxn4qm0vm"]
 
 [ext_resource type="Script" uid="uid://08ryn73l63ey" path="res://Scripts/Nodes/GameNode.cs" id="1_iukft"]
 
-[node name="Game" type="Node"]
+[node name="Game" type="Control"]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("1_iukft")
 
 [node name="SceneLabel" type="Label" parent="."]
+layout_mode = 0
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 150.0
@@ -13,6 +16,7 @@ offset_bottom = 35.0
 text = "Game"
 
 [node name="ButtonQuit" type="Button" parent="."]
+layout_mode = 0
 offset_left = 49.0
 offset_top = 559.0
 offset_right = 200.0
