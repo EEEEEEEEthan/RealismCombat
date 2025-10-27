@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.Text;
 using Godot;
 using RealismCombat.Nodes;
+using System.Threading.Tasks;
 namespace RealismCombat.Commands.DebugCommands;
 class DebugShowNodeTreeCommand(ProgramRootNode rootNode, IReadOnlyDictionary<string, string> arguments) : Command(rootNode: rootNode, arguments: arguments)
 {
 	public const string name = "debug_show_node_tree";
-	public override void Execute()
+    public override Task Execute()
 	{
 		var rootPath = arguments.GetValueOrDefault(key: "root", defaultValue: "/root");
 		var root = rootNode.GetNode(rootPath);
@@ -14,12 +15,13 @@ class DebugShowNodeTreeCommand(ProgramRootNode rootNode, IReadOnlyDictionary<str
 		{
 			Log.PrintError($"节点路径无效: {rootPath}");
 			this.rootNode.McpCheckPoint();
-			return;
+            return Task.CompletedTask;
 		}
 		var json = BuildNodeTree(root);
 		Log.Print(json);
 		this.rootNode.McpCheckPoint();
-	}
+        return Task.CompletedTask;
+    }
 	string BuildNodeTree(Node node)
 	{
 		var sb = new StringBuilder();

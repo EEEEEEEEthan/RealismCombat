@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RealismCombat.Commands;
+using System.Threading.Tasks;
 using RealismCombat.Commands.DebugCommands;
 using RealismCombat.Commands.ProgramCommands;
 using RealismCombat.Nodes;
@@ -45,7 +46,7 @@ abstract class State
 		Log.Print($"{owner}进入{Name}状态");
 		owner.State = this;
 	}
-	public void ExecuteCommand(string command)
+    public Task ExecuteCommand(string command)
 	{
 		try
 		{
@@ -60,12 +61,13 @@ abstract class State
 				DebugShowNodeTreeCommand.name => new DebugShowNodeTreeCommand(rootNode: rootNode, arguments: arguments),
 				_ => GetCommandGetters()[name](arguments),
 			};
-			cmd.Execute();
+            return cmd.Execute();
 		}
 		catch (Exception e)
 		{
 			Log.PrintException(e);
 			rootNode.McpCheckPoint();
+            return Task.CompletedTask;
 		}
 	}
 	public virtual void Update(double dt) { }

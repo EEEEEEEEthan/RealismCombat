@@ -13,8 +13,8 @@ class MenuState : State
 		menuNode = MainMenuNode.Create(this);
 		rootNode.AddChild(menuNode);
 	}
-	public void NewGame() => ExecuteCommand(StartNewGameCommand.name);
-	public void LoadGame() => ExecuteCommand(LoadGameCommand.name);
+    public void NewGame() => _ = ExecuteCommand(StartNewGameCommand.name);
+    public void LoadGame() => _ = ExecuteCommand(LoadGameCommand.name);
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>
 		{

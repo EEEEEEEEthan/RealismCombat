@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using RealismCombat.Nodes;
 namespace RealismCombat.Commands;
 abstract class Command
@@ -18,5 +19,5 @@ abstract class Command
 		this.rootNode = rootNode;
 		this.arguments = arguments;
 	}
-	public abstract void Execute();
+    public abstract Task Execute();
 }

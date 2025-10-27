@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using RealismCombat.Data;
+using System.Threading.Tasks;
 using RealismCombat.StateMachine.CombatStates;
 namespace RealismCombat.Commands.CombatCommands;
 class AttackCommand : CombatCommand
@@ -26,7 +27,7 @@ class AttackCommand : CombatCommand
 		this.actionState = actionState;
 	public AttackCommand(ActionState actionState, string command) : base(combatState: actionState.combatState, command: command) =>
 		this.actionState = actionState;
-	public override void Execute()
+    public override Task Execute()
 	{
 		var actor = actionState.actor;
 		var name = arguments.GetValueOrDefault(key: "target", defaultValue: "");
@@ -36,19 +37,19 @@ class AttackCommand : CombatCommand
 		{
 			Log.Print($"找不到名为{name}的目标");
 			rootNode.McpCheckPoint();
-			return;
+            return Task.CompletedTask;
 		}
 		if (!GetBodyPart(actor: actor, partName: attackPart, bodyPart: out _))
 		{
 			Log.Print($"无效的攻击部位:{attackPart}");
 			rootNode.McpCheckPoint();
-			return;
+            return Task.CompletedTask;
 		}
 		if (!GetBodyPart(actor: target, partName: targetPart, bodyPart: out var defenderPart))
 		{
 			Log.Print($"无效的目标部位:{targetPart}");
 			rootNode.McpCheckPoint();
-			return;
+            return Task.CompletedTask;
 		}
 		actor.actionPoint -= 3;
 		defenderPart.hp -= 2;
@@ -56,7 +57,8 @@ class AttackCommand : CombatCommand
 		Log.Print($"{target.name}的{targetPart}剩余生命值:{defenderPart.hp}");
 		if (target.Dead) Log.Print($"{target.name}已死亡");
 		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
-	}
+        return Task.CompletedTask;
+    }
 	bool FindCharacter(string name, out CharacterData target)
 	{
 		foreach (var character in combatState.combatData.characters)
