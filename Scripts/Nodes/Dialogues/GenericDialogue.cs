@@ -18,12 +18,25 @@ partial class GenericDialogue : Control
 	public override void _Process(double delta)
 	{
 		time += delta;
-		if (HasFocus()) printer.speedUp = Input.IsAnythingPressed();
 		if (printer.Printing)
 		{
 			triangle.Visible = true;
 			triangle.Position = Vector2.Down * ((int)time % 2);
 			continueTimer = 0;
+			if (HasFocus())
+			{
+				if (Input.IsAnythingPressed())
+				{
+					printer.speedUp = true;
+					triangle.Position = Vector2.Down;
+					triangle.SelfModulate = GameColors.activeControl;
+				}
+				else
+				{
+					printer.speedUp = false;
+					triangle.SelfModulate = GameColors.normalControl;
+				}
+			}
 			return;
 		}
 		if (autoContinue > 0)
@@ -34,7 +47,8 @@ partial class GenericDialogue : Control
 			return;
 		}
 		triangle.Visible = true;
-		triangle.Position = Vector2.Down * ((int)time % 2);
+		triangle.SelfModulate = GameColors.normalControl;
+		triangle.Position = default;
 		anyKeyToContinue = true;
 	}
 }
