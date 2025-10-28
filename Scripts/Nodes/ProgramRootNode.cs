@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Godot;
+using RealismCombat.Nodes.Dialogues;
 using RealismCombat.StateMachine;
 using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
@@ -22,6 +23,7 @@ partial class ProgramRootNode : Node, IStateOwner
 	}
 	readonly McpHandler? mcpHandler;
 	[Export] Container dialogues = null!;
+	GenericDialogue? dialogue;
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
@@ -63,6 +65,22 @@ partial class ProgramRootNode : Node, IStateOwner
 		State.Update(delta);
 		MoveChild(childNode: dialogues, toIndex: GetChildCount() - 1);
 	}
+	public GenericDialogue Chat(string text)
+	{
+		dialogue = GenericDialogue.Create();
+		AddChild(dialogue);
+		dialogue.AnchorTop = 0.5f;
+		dialogue.AnchorLeft = 0;
+		dialogue.AnchorRight = 1;
+		dialogue.AnchorBottom = 1;
+		dialogue.OffsetTop = 16;
+		dialogue.OffsetLeft = 32;
+		dialogue.OffsetRight = -32;
+		dialogue.OffsetBottom = -32;
+		dialogue.Text = text;
+		return dialogue;
+	}
+	[Obsolete]
 	public DialogueNode CreateDialogue(string text)
 	{
 		var dialogue = DialogueNode.Create(label: text);

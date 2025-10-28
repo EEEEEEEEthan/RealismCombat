@@ -1,7 +1,7 @@
 using System;
-using Godot;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Godot;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
@@ -14,12 +14,12 @@ partial class GenericDialogue : Control
 	}
 	[Export(hint: PropertyHint.Range, hintString: "0,5")]
 	public float autoContinue;
+	readonly TaskCompletionSource<object?> completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 	[Export] PrinterLabelNode printer = null!;
 	[Export] TextureRect triangle = null!;
 	double continueTimer;
 	bool anyKeyToContinue;
 	double time;
-	readonly TaskCompletionSource<object?> completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 	bool completed;
 	public string Text
 	{
@@ -30,10 +30,7 @@ partial class GenericDialogue : Control
 	public override void _Ready() => GrabFocus();
 	public override void _Input(InputEvent @event)
 	{
-		if (anyKeyToContinue && HasFocus() && @event.IsPressed() && !@event.IsEcho())
-		{
-			RequestClose();
-		}
+		if (anyKeyToContinue && HasFocus() && @event.IsPressed() && !@event.IsEcho()) RequestClose();
 	}
 	public override void _Process(double delta)
 	{
@@ -68,10 +65,7 @@ partial class GenericDialogue : Control
 		{
 			triangle.Visible = false;
 			continueTimer += delta;
-			if (continueTimer > autoContinue)
-			{
-				RequestClose();
-			}
+			if (continueTimer > autoContinue) RequestClose();
 			return;
 		}
 		triangle.Visible = true;
@@ -84,8 +78,7 @@ partial class GenericDialogue : Control
 		Complete();
 		base._ExitTree();
 	}
-	public TaskAwaiter GetAwaiter() => completionSource.Task.GetAwaiter();
-	public Task AsTask() => completionSource.Task;
+	public TaskAwaiter<object?> GetAwaiter() => completionSource.Task.GetAwaiter();
 	void RequestClose()
 	{
 		if (IsQueuedForDeletion())

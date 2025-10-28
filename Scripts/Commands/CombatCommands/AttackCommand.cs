@@ -84,26 +84,26 @@ class AttackCommand : CombatCommand
 		const int damage = 2;
 		actor.actionPoint -= actionPoints;
 		var attackMessage = $"{actor.name}用{attackPart}对{target.name}的{targetPart}发动攻击!";
-		await rootNode.ShowDialogue(text: attackMessage, timeout: null);
+		await rootNode.Chat(attackMessage);
 		Log.Print(attackMessage);
 		var roll = Random.Shared.NextSingle();
 		var hit = roll < defaultHitChance;
 		if (!hit)
 		{
-			var missMessage = "未命中!";
-			await rootNode.ShowDialogue(text: missMessage, timeout: null);
+			const string missMessage = "未命中!";
+			await rootNode.Chat(missMessage);
 			Log.Print(missMessage);
 		}
 		else
 		{
 			defenderPart.hp -= damage;
 			var damageMessage = $"{target.name}的{targetPart}受到{damage}点伤害!";
-			await rootNode.ShowDialogue(text: damageMessage, timeout: null);
+			await rootNode.Chat(damageMessage);
 			Log.Print(damageMessage);
 			if (target.Dead)
 			{
 				var deathMessage = $"{target.name}死了!";
-				await rootNode.ShowDialogue(text: deathMessage, timeout: null);
+				await rootNode.Chat(deathMessage);
 				Log.Print(deathMessage);
 			}
 		}
