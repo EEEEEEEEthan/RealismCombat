@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dlnvwc7q1ag83"]
+[gd_scene load_steps=3 format=3 uid="uid://dlnvwc7q1ag83"]
 
 [ext_resource type="Script" uid="uid://bxx3gsll4kmpc" path="res://Scripts/Nodes/Dialogues/ActionDialogue.cs" id="1_8svrh"]
+[ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="2_wyrvv"]
 
 [node name="ActionDialogue" type="Control"]
 layout_mode = 3
@@ -17,6 +18,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -84.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = -4
@@ -58,6 +60,7 @@ layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/BodyPart2"]
 layout_mode = 2
+theme = ExtResource("2_wyrvv")
 
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/BodyPart2/VBoxContainer"]
 layout_mode = 2
