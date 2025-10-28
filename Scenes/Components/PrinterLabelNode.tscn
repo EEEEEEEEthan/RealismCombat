@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://d06s0atub252e"]
+
+[ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="1_t1p4n"]
+[ext_resource type="Script" uid="uid://binvmfphag4cf" path="res://Scripts/Nodes/Components/PrinterLabelNode.cs" id="2_4sk4j"]
+
+[node name="PrinterLabel" type="RichTextLabel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -977.0
+offset_bottom = -586.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_t1p4n")
+text = "这是一个会自动换行,自动翻页的打字机"
+scroll_active = false
+scroll_following = true
+scroll_following_visible_characters = true
+autowrap_mode = 1
+script = ExtResource("2_4sk4j")
