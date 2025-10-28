@@ -18,3 +18,11 @@ config/icon="res://icon.svg"
 [dotnet]
 
 project/assembly_name="RealismCombat"
+
+[gui]
+
+theme/custom="res://Theme.tres"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
