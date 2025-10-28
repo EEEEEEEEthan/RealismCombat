@@ -1,0 +1,71 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlnvwc7q1ag83"]
+
+[ext_resource type="Script" uid="uid://bxx3gsll4kmpc" path="res://Scripts/Nodes/Dialogues/ActionDialogue.cs" id="1_8svrh"]
+
+[node name="ActionDialogue" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_8svrh")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = -4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_constants/separation = -20
+
+[node name="Action" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(98, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/Action"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/Action/VBoxContainer"]
+layout_mode = 2
+text = "行动部位"
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/Action/VBoxContainer"]
+layout_mode = 2
+text = "行动"
+
+[node name="BodyPart" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(98, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/BodyPart"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/BodyPart/VBoxContainer"]
+layout_mode = 2
+text = "行动"
+
+[node name="BodyPart2" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(98, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/BodyPart2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/BodyPart2/VBoxContainer"]
+layout_mode = 2
+text = "目标部位"
+
+[node name="Preview" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/Preview"]
+layout_mode = 2
+text = "Ethan用右手攻击Dove的头部"
