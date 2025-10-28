@@ -5,9 +5,11 @@ partial class GenericDialogue : Control
 {
 	[Export] PrinterLabelNode printer = null!;
 	[Export] TextureRect triangle = null!;
-	[Export] bool autoContinue;
+	[Export(hint: PropertyHint.Range, hintString: "0,5")]
+	float autoContinue;
 	double continueTimer;
 	bool anyKeyToContinue;
+	double time;
 	public override void _Ready() => GrabFocus();
 	public override void _Input(InputEvent @event)
 	{
@@ -15,24 +17,24 @@ partial class GenericDialogue : Control
 	}
 	public override void _Process(double delta)
 	{
+		time += delta;
 		if (HasFocus()) printer.speedUp = Input.IsAnythingPressed();
 		if (printer.Printing)
 		{
 			triangle.Visible = true;
+			triangle.Position = Vector2.Down * ((int)time % 2);
 			continueTimer = 0;
+			return;
 		}
-		else
+		if (autoContinue > 0)
 		{
-			if (autoContinue)
-			{
-				triangle.Visible = false;
-				continueTimer += delta;
-			}
-			else
-			{
-				triangle.Visible = true;
-				anyKeyToContinue = true;
-			}
+			triangle.Visible = false;
+			continueTimer += delta;
+			if (continueTimer > autoContinue) QueueFree();
+			return;
 		}
+		triangle.Visible = true;
+		triangle.Position = Vector2.Down * ((int)time % 2);
+		anyKeyToContinue = true;
 	}
 }

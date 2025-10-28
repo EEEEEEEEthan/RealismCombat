@@ -6,7 +6,7 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jt81l"]
 atlas = ExtResource("3_41es8")
-region = Rect2(32, 0, 16, 16)
+region = Rect2(35, 6, 10, 5)
 
 [node name="GenericDialogue" type="PanelContainer" node_paths=PackedStringArray("printer", "triangle")]
 anchors_preset = 15
@@ -18,10 +18,14 @@ grow_horizontal = 2
 grow_vertical = 2
 focus_mode = 3
 script = ExtResource("1_rpeto")
-printer = NodePath("PrinterLabel")
-triangle = NodePath("PrinterLabel/TextureRect")
+printer = NodePath("MarginContainer/PrinterLabel")
+triangle = NodePath("Control/Anchor/Arrow")
 
-[node name="PrinterLabel" parent="." instance=ExtResource("1_hvtxv")]
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_bottom = 5
+
+[node name="PrinterLabel" parent="MarginContainer" instance=ExtResource("1_hvtxv")]
 layout_mode = 2
 focus_mode = 0
 focus_behavior_recursive = 1
@@ -29,13 +33,37 @@ text = "这是一个会自动换行,自动翻页的打字机
 这是一个会自动换行,自动翻页的打字机
 这是一个会自动换行,自动翻页的打字机
 这是一个会自动换行,自动翻页的打字机
-这是一个会自动换行,自动翻页的打字机"
+这是一个会自动换行,自动翻页的打字"
 
-[node name="TextureRect" type="TextureRect" parent="PrinterLabel"]
-layout_mode = 0
-offset_left = 74.0
-offset_top = 29.0
-offset_right = 90.0
-offset_bottom = 45.0
+[node name="Control" type="Control" parent="."]
+layout_mode = 2
+
+[node name="Anchor" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Arrow" type="TextureRect" parent="Control/Anchor"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 8
+size_flags_vertical = 8
 focus_behavior_recursive = 1
 texture = SubResource("AtlasTexture_jt81l")
