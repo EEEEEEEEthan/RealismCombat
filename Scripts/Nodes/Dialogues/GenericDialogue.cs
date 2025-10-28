@@ -1,5 +1,7 @@
 using System;
 using Godot;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
@@ -17,6 +19,8 @@ partial class GenericDialogue : Control
 	double continueTimer;
 	bool anyKeyToContinue;
 	double time;
+	readonly TaskCompletionSource<object?> completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
+	bool completed;
 	public string Text
 	{
 		get => printer.Text;
@@ -26,7 +30,10 @@ partial class GenericDialogue : Control
 	public override void _Ready() => GrabFocus();
 	public override void _Input(InputEvent @event)
 	{
-		if (anyKeyToContinue && HasFocus() && @event.IsPressed() && !@event.IsEcho()) QueueFree();
+		if (anyKeyToContinue && HasFocus() && @event.IsPressed() && !@event.IsEcho())
+		{
+			RequestClose();
+		}
 	}
 	public override void _Process(double delta)
 	{
@@ -63,8 +70,7 @@ partial class GenericDialogue : Control
 			continueTimer += delta;
 			if (continueTimer > autoContinue)
 			{
-				QueueFree();
-				OnDestroy?.TryInvoke();
+				RequestClose();
 			}
 			return;
 		}
@@ -72,5 +78,29 @@ partial class GenericDialogue : Control
 		triangle.SelfModulate = GameColors.normalControl;
 		triangle.Position = default;
 		anyKeyToContinue = true;
+	}
+	public override void _ExitTree()
+	{
+		Complete();
+		base._ExitTree();
+	}
+	public TaskAwaiter GetAwaiter() => completionSource.Task.GetAwaiter();
+	public Task AsTask() => completionSource.Task;
+	void RequestClose()
+	{
+		if (IsQueuedForDeletion())
+		{
+			Complete();
+			return;
+		}
+		Complete();
+		QueueFree();
+	}
+	void Complete()
+	{
+		if (completed) return;
+		completed = true;
+		OnDestroy?.TryInvoke();
+		completionSource.TrySetResult(null);
 	}
 }
