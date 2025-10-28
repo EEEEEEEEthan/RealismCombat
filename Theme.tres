@@ -1,7 +1,8 @@
-[gd_resource type="Theme" load_steps=10 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=12 format=3 uid="uid://bpxr1w3o076bd"]
 
 [ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icons.png" id="1_23v3e"]
 [ext_resource type="FontFile" uid="uid://y38w7w8xmw6g" path="res://Fonts/缝合像素字体/日语/比例模式/fusion-pixel-10px-proportional-ja.otf" id="1_yd3fu"]
+[ext_resource type="Texture2D" uid="uid://btyud6kopkj6b" path="res://Textures/UserInterface.png" id="2_k1aya"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k1aya"]
 atlas = ExtResource("1_23v3e")
@@ -22,16 +23,24 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t6dyh"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yd3fu"]
-bg_color = Color(0, 0, 0, 1)
+[sub_resource type="AtlasTexture" id="AtlasTexture_j4jqe"]
+atlas = ExtResource("2_k1aya")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_c6xh3"]
+texture = SubResource("AtlasTexture_j4jqe")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
 
 [resource]
 default_font = ExtResource("1_yd3fu")
-default_font_size = 20
+default_font_size = 10
 Button/icons/icon = SubResource("AtlasTexture_k1aya")
 Button/styles/disabled = SubResource("StyleBoxFlat_23v3e")
 Button/styles/focus = SubResource("StyleBoxFlat_k1aya")
 Button/styles/hover = SubResource("StyleBoxFlat_j4jqe")
 Button/styles/normal = SubResource("StyleBoxFlat_c6xh3")
 Button/styles/pressed = SubResource("StyleBoxFlat_t6dyh")
-PanelContainer/styles/panel = SubResource("StyleBoxFlat_yd3fu")
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")

@@ -1,9 +1,15 @@
-[gd_scene format=3 uid="uid://dbl7schd7ljxh"]
+[gd_scene load_steps=2 format=3 uid="uid://dbl7schd7ljxh"]
 
-[node name="GenericDialogue" type="Control"]
-layout_mode = 3
-anchors_preset = 15
+[sub_resource type="Theme" id="Theme_rpeto"]
+
+[node name="GenericDialogue" type="PanelContainer"]
+anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 51.0
+offset_top = 40.0
+offset_right = -1061.0
+offset_bottom = -590.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_rpeto")
