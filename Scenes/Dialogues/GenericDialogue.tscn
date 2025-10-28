@@ -1,15 +1,41 @@
-[gd_scene load_steps=2 format=3 uid="uid://dbl7schd7ljxh"]
+[gd_scene load_steps=5 format=3 uid="uid://dbl7schd7ljxh"]
 
-[sub_resource type="Theme" id="Theme_rpeto"]
+[ext_resource type="PackedScene" uid="uid://d06s0atub252e" path="res://Scenes/Components/PrinterLabelNode.tscn" id="1_hvtxv"]
+[ext_resource type="Script" uid="uid://exjr77kkxrl4" path="res://Scripts/Nodes/Dialogues/GenericDialogue.cs" id="1_rpeto"]
+[ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icons.png" id="3_41es8"]
 
-[node name="GenericDialogue" type="PanelContainer"]
-anchors_preset = -1
+[sub_resource type="AtlasTexture" id="AtlasTexture_jt81l"]
+atlas = ExtResource("3_41es8")
+region = Rect2(32, 0, 16, 16)
+
+[node name="GenericDialogue" type="PanelContainer" node_paths=PackedStringArray("printer", "triangle")]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 51.0
-offset_top = 40.0
-offset_right = -1061.0
-offset_bottom = -590.0
+offset_right = -1054.0
+offset_bottom = -595.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_rpeto")
+focus_mode = 3
+script = ExtResource("1_rpeto")
+printer = NodePath("PrinterLabel")
+triangle = NodePath("PrinterLabel/TextureRect")
+
+[node name="PrinterLabel" parent="." instance=ExtResource("1_hvtxv")]
+layout_mode = 2
+focus_mode = 0
+focus_behavior_recursive = 1
+text = "这是一个会自动换行,自动翻页的打字机
+这是一个会自动换行,自动翻页的打字机
+这是一个会自动换行,自动翻页的打字机
+这是一个会自动换行,自动翻页的打字机
+这是一个会自动换行,自动翻页的打字机"
+
+[node name="TextureRect" type="TextureRect" parent="PrinterLabel"]
+layout_mode = 0
+offset_left = 74.0
+offset_top = 29.0
+offset_right = 90.0
+offset_bottom = 45.0
+focus_behavior_recursive = 1
+texture = SubResource("AtlasTexture_jt81l")
