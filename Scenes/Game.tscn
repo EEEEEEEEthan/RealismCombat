@@ -17,8 +17,8 @@ text = "Game"
 
 [node name="ButtonQuit" type="Button" parent="."]
 layout_mode = 0
-offset_left = 49.0
-offset_top = 559.0
-offset_right = 200.0
-offset_bottom = 606.0
+offset_left = 3.0
+offset_top = 205.0
+offset_right = 43.0
+offset_bottom = 221.0
 text = "Quit"

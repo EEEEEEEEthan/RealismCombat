@@ -9,14 +9,12 @@ partial class MainMenuNode : Node
 		instance.menuState = menuState;
 		return instance;
 	}
-	Button buttonNewGame = null!;
-	Button buttonLoadGame = null!;
+	[Export] Button buttonNewGame = null!;
+	[Export] Button buttonLoadGame = null!;
 	MenuState menuState = null!;
 	public override void _Ready()
 	{
-		buttonNewGame = GetNode<Button>("ButtonNewGame");
 		buttonNewGame.Pressed += OnClickNewGame;
-		buttonLoadGame = GetNode<Button>("ButtonLoadGame");
 		buttonLoadGame.Pressed += OnClickLoadGame;
 	}
 	void OnClickNewGame() => menuState.NewGame();

@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://blpbsbmcjhuen"]
+[gd_scene load_steps=3 format=3 uid="uid://c0ar0vjvme5k0"]
 
 [ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="1_5y3t8"]
 [ext_resource type="Script" uid="uid://b5fq00qpu6gwg" path="res://Scripts/Nodes/CombatNode.cs" id="1_885kv"]

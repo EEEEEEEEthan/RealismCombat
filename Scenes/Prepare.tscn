@@ -5,10 +5,10 @@
 [node name="Prepare" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 396.0
-offset_top = 156.0
-offset_right = 730.0
-offset_bottom = 467.0
+offset_left = 7.0
+offset_top = 4.0
+offset_right = 341.0
+offset_bottom = 315.0
 script = ExtResource("1_qtpec")
 
 [node name="SceneLabel" type="Label" parent="."]
