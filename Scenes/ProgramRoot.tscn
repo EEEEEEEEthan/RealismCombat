@@ -2,11 +2,29 @@
 
 [ext_resource type="Script" uid="uid://cq2ugya2pq8ok" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_jh2ti"]
 
-[node name="ProgramRoot" type="Node" node_paths=PackedStringArray("dialogues")]
+[node name="ProgramRoot" type="Control" node_paths=PackedStringArray("dialogues")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_jh2ti")
 dialogues = NodePath("Dialogues")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+z_index = -4096
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
 [node name="Dialogues" type="HBoxContainer" parent="."]
+layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
