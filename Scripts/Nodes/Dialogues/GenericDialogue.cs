@@ -1,15 +1,28 @@
+using System;
 using Godot;
+using RealismCombat.Extensions;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
 partial class GenericDialogue : Control
 {
+	public static GenericDialogue Create()
+	{
+		var instance = GD.Load<PackedScene>(ResourceTable.dialoguesGenericdialogue).Instantiate<GenericDialogue>();
+		return instance;
+	}
+	[Export(hint: PropertyHint.Range, hintString: "0,5")]
+	public float autoContinue;
 	[Export] PrinterLabelNode printer = null!;
 	[Export] TextureRect triangle = null!;
-	[Export(hint: PropertyHint.Range, hintString: "0,5")]
-	float autoContinue;
 	double continueTimer;
 	bool anyKeyToContinue;
 	double time;
+	public string Text
+	{
+		get => printer.Text;
+		set => printer.Text = value;
+	}
+	public event Action OnDestroy;
 	public override void _Ready() => GrabFocus();
 	public override void _Input(InputEvent @event)
 	{
@@ -48,7 +61,11 @@ partial class GenericDialogue : Control
 		{
 			triangle.Visible = false;
 			continueTimer += delta;
-			if (continueTimer > autoContinue) QueueFree();
+			if (continueTimer > autoContinue)
+			{
+				QueueFree();
+				OnDestroy?.TryInvoke();
+			}
 			return;
 		}
 		triangle.Visible = true;
