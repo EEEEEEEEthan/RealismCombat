@@ -12,6 +12,13 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 		new Dictionary<string, Func<IReadOnlyDictionary<string, string>, Command>>();
 	public override void Update(double dt)
 	{
+		combatData.tickTimer += dt;
+		if (combatData.tickTimer >= 2.0)
+		{
+			combatData.tickTimer -= 2.0;
+			combatData.tickCount++;
+			Log.Print("过去了1tick");
+		}
 		if (combatData.characters.Where(c => c.team == 0).All(c => c.Dead))
 		{
 			Log.Print("玩家全灭，战斗失败");
