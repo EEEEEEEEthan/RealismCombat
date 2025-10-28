@@ -81,27 +81,32 @@ class AttackCommand : CombatCommand
 			return;
 		}
 		const int actionPoints = 3;
+		const int damage = 2;
+		actor.actionPoint -= actionPoints;
+		var attackMessage = $"{actor.name}用{attackPart}对{target.name}的{targetPart}发动攻击!";
+		await rootNode.ShowDialogue(text: attackMessage, timeout: null);
+		Log.Print(attackMessage);
 		var roll = Random.Shared.NextSingle();
 		var hit = roll < defaultHitChance;
-		var rollPercent = (int)(roll * 100);
-		const int requiredPercent = (int)(defaultHitChance * 100);
-		const int damage = 2;
-		string message;
-		if (hit)
+		if (!hit)
 		{
-			var remainingHp = defenderPart.hp - damage;
-			message =
-				$"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，命中！({rollPercent}/{requiredPercent})\n造成{damage}点伤害，{target.name}的{targetPart}剩余生命值:{remainingHp}";
+			var missMessage = "未命中!";
+			await rootNode.ShowDialogue(text: missMessage, timeout: null);
+			Log.Print(missMessage);
 		}
 		else
 		{
-			message = $"{actor.name}用{attackPart}攻击{target.name}的{targetPart}，未命中 ({rollPercent}/{requiredPercent})";
+			defenderPart.hp -= damage;
+			var damageMessage = $"{target.name}的{targetPart}受到{damage}点伤害!";
+			await rootNode.ShowDialogue(text: damageMessage, timeout: null);
+			Log.Print(damageMessage);
+			if (target.Dead)
+			{
+				var deathMessage = $"{target.name}死了!";
+				await rootNode.ShowDialogue(text: deathMessage, timeout: null);
+				Log.Print(deathMessage);
+			}
 		}
-		await rootNode.ShowDialogue(text: message, timeout: null);
-		actor.actionPoint -= actionPoints;
-		if (hit) defenderPart.hp -= damage;
-		Log.Print(message);
-		if (target.Dead) Log.Print($"{target.name}已死亡");
 		_ = new TurnProgressState(combatState: combatState, combatData: combatState.combatData);
 	}
 	bool FindCharacter(string name, out CharacterData target)

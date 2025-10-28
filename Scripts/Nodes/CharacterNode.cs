@@ -10,6 +10,7 @@ partial class CharacterNode : Control
 	}
 	[Export] Label nameLabel = null!;
 	[Export] PropertyDrawerNode actionPoint = null!;
+	[Export] PropertyDrawerNode speed = null!;
 	[Export] PropertyDrawerNode head = null!;
 	[Export] PropertyDrawerNode chest = null!;
 	[Export] PropertyDrawerNode rightArm = null!;
@@ -22,6 +23,7 @@ partial class CharacterNode : Control
 		if (CharacterData == null) return;
 		nameLabel.Text = CharacterData.name;
 		actionPoint.property = ((int)CharacterData.actionPoint + 10, 10);
+		speed.property = ((int)CharacterData.speed, 10);
 		head.property = (CharacterData.head.hp, CharacterData.head.maxHp);
 		chest.property = (CharacterData.chest.hp, CharacterData.chest.maxHp);
 		rightArm.property = (CharacterData.rightArm.hp, CharacterData.rightArm.maxHp);
@@ -29,6 +31,7 @@ partial class CharacterNode : Control
 		rightLeg.property = (CharacterData.rightLeg.hp, CharacterData.rightLeg.maxHp);
 		leftLeg.property = (CharacterData.leftLeg.hp, CharacterData.leftLeg.maxHp);
 		actionPoint.title = "行动";
+		speed.title = "速度";
 		head.title = "头部";
 		chest.title = "胸部";
 		rightArm.title = "右臂";

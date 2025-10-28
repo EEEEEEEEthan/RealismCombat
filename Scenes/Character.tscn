@@ -10,7 +10,7 @@ bg_color = Color(0, 0, 0, 1)
 [sub_resource type="Theme" id="Theme_677pu"]
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_677pu")
 
-[node name="Character" type="PanelContainer" node_paths=PackedStringArray("nameLabel", "actionPoint", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
+[node name="Character" type="PanelContainer" node_paths=PackedStringArray("nameLabel", "actionPoint", "speed", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
 custom_minimum_size = Vector2(200, 220)
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,6 +25,7 @@ theme = SubResource("Theme_677pu")
 script = ExtResource("1_0y7nr")
 nameLabel = NodePath("VBoxContainer/Name")
 actionPoint = NodePath("VBoxContainer/ActionPoint")
+speed = NodePath("VBoxContainer/Speed")
 head = NodePath("VBoxContainer/Head")
 chest = NodePath("VBoxContainer/Chest")
 rightArm = NodePath("VBoxContainer/RightArm")
@@ -60,4 +61,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="ActionPoint" parent="VBoxContainer" instance=ExtResource("3_677pu")]
+layout_mode = 2
+
+[node name="Speed" parent="VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
