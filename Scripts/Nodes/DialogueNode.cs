@@ -1,6 +1,7 @@
 using System;
 using Godot;
 namespace RealismCombat.Nodes;
+[Obsolete]
 partial class DialogueNode : HBoxContainer
 {
 	[Obsolete]
