@@ -5,14 +5,13 @@
 [ext_resource type="PackedScene" uid="uid://bsr6jng6vgk8j" path="res://Scenes/PropertyDrawer.tscn" id="3_677pu"]
 
 [node name="Character" type="PanelContainer" node_paths=PackedStringArray("nameLabel", "actionPoint", "speed", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
-custom_minimum_size = Vector2(100, 100)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 7.0
 offset_top = 14.0
-offset_right = -131.0
-offset_bottom = -56.0
+offset_right = -173.0
+offset_bottom = -74.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0y7nr")
@@ -59,5 +58,5 @@ layout_mode = 2
 
 [node name="Speed" parent="VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 0
 size_flags_vertical = 4
