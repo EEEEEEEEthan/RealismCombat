@@ -15,9 +15,19 @@ run/main_scene="res://Scenes/ProgramRoot.tscn"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=256
+window/size/viewport_height=224
+window/stretch/scale_mode="integer"
+
 [dotnet]
 
 project/assembly_name="RealismCombat"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/resource_table_exporter/plugin.cfg")
 
 [gui]
 
