@@ -23,33 +23,6 @@ partial class CombatNode : Node
 		PlaceCharacter(node: characterNode, team: data.team);
 		return characterNode;
 	}
-	void PlaceCharacter(CharacterNode node, byte team)
-	{
-		const float width = 320f;
-		const float height = 360f;
-		const float margin = 50f;
-		const float top = 80f;
-		if (team == 0)
-		{
-			node.AnchorLeft = 0f;
-			node.AnchorRight = 0f;
-			node.AnchorTop = 0f;
-			node.AnchorBottom = 0f;
-			node.OffsetLeft = margin;
-			node.OffsetTop = top;
-			node.OffsetRight = node.OffsetLeft + width;
-			node.OffsetBottom = node.OffsetTop + height;
-		}
-		else
-		{
-			node.AnchorLeft = 1f;
-			node.AnchorRight = 1f;
-			node.AnchorTop = 0f;
-			node.AnchorBottom = 0f;
-			node.OffsetRight = -margin;
-			node.OffsetLeft = node.OffsetRight - width;
-			node.OffsetTop = top;
-			node.OffsetBottom = node.OffsetTop + height;
-		}
-	}
+	void PlaceCharacter(CharacterNode node, byte team) =>
+		node.SetAnchorsAndOffsetsPreset(team == 0 ? Control.LayoutPreset.CenterLeft : Control.LayoutPreset.CenterRight);
 }
