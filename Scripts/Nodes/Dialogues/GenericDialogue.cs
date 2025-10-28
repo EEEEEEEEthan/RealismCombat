@@ -21,7 +21,6 @@ partial class GenericDialogue : Control
 		if (printer.Printing)
 		{
 			triangle.Visible = true;
-			triangle.Position = Vector2.Down * ((int)time % 2);
 			continueTimer = 0;
 			if (HasFocus())
 			{
@@ -34,8 +33,14 @@ partial class GenericDialogue : Control
 				else
 				{
 					printer.speedUp = false;
+					triangle.Position = default;
 					triangle.SelfModulate = GameColors.normalControl;
 				}
+			}
+			else
+			{
+				triangle.Position = default;
+				triangle.SelfModulate = GameColors.normalControl;
 			}
 			return;
 		}
