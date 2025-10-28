@@ -36,7 +36,7 @@ class TurnProgressState(CombatState combatState, CombatData combatData) : Combat
 		foreach (var character in combatData.characters)
 		{
 			if (character.Dead) continue;
-			character.actionPoint += dt;
+			character.actionPoint += dt * character.speed;
 			if (character.actionPoint >= 0)
 			{
 				Log.Print($"{character.name}的回合!");

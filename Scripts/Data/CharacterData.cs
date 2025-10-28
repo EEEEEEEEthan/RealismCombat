@@ -15,6 +15,7 @@ class CharacterData
 	public readonly BodyPartData leftLeg = new(BodyPartCode.LeftLeg);
 	public readonly BodyPartData rightLeg = new(BodyPartCode.RightLeg);
 	public double actionPoint;
+	public double speed = 5;
 	public bool PlayerControlled => team == 0;
 	public bool Dead => head.hp <= 0 || chest.hp <= 0;
 	public IEnumerable<BodyPartData> BodyParts
@@ -39,6 +40,7 @@ class CharacterData
 		name = reader.ReadString();
 		team = reader.ReadByte();
 		actionPoint = reader.ReadDouble();
+		speed = reader.ReadDouble();
 		head = new(version: version, reader: reader);
 		chest = new(version: version, reader: reader);
 		leftArm = new(version: version, reader: reader);
@@ -50,6 +52,7 @@ class CharacterData
 		writer.Write(name);
 		writer.Write(team);
 		writer.Write(actionPoint);
+		writer.Write(speed);
 		head.Serialize(writer);
 		chest.Serialize(writer);
 		leftArm.Serialize(writer);
@@ -58,7 +61,7 @@ class CharacterData
 		rightLeg.Serialize(writer);
 	}
 	public override string ToString() =>
-		$"{nameof(CharacterData)}({nameof(name)}={name}, {nameof(team)}={team}, {nameof(actionPoint)}={actionPoint}, {nameof(head)}={head}, {nameof(chest)}={chest}, {nameof(leftArm)}={leftArm}, {nameof(rightArm)}={rightArm}, {nameof(leftLeg)}={leftLeg}, {nameof(rightLeg)}={rightLeg})";
+		$"{nameof(CharacterData)}({nameof(name)}={name}, {nameof(team)}={team}, {nameof(actionPoint)}={actionPoint}, {nameof(speed)}={speed}, {nameof(head)}={head}, {nameof(chest)}={chest}, {nameof(leftArm)}={leftArm}, {nameof(rightArm)}={rightArm}, {nameof(leftLeg)}={leftLeg}, {nameof(rightLeg)}={rightLeg})";
 }
 public enum BodyPartCode
 {
