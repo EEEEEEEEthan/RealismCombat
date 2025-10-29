@@ -87,7 +87,6 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
-			Log.Print($"进入 CharacterTurnState: {character.name}");
 			HandleCharacterTurn(combatNode: combatNode, character: character, characterIndex: characterIndex);
 		}
 		public override void Update(double deltaTime) { }
@@ -151,7 +150,6 @@ public partial class CombatNode : Node
 		{
 			this.action = action;
 			combatNode.CurrentState = this;
-			Log.Print("进入 CharacterTurnActionState");
 			Run();
 		}
 		public override void Update(double deltaTime) { }

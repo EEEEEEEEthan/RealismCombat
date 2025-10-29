@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__RealismCombatMcp__system_launch_program",
+      "mcp__RealismCombatMcp__game_select_option"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
