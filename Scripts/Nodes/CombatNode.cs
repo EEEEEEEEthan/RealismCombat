@@ -162,8 +162,6 @@ public partial class CombatNode : Node
 			{
 				var attacker = combatNode.combatData.characters[action.attackerIndex];
 				var defender = combatNode.combatData.characters[action.defenderIndex];
-				attacker.actionPoint -= 5;
-				await combatNode.gameNode.Root.PopMessage($"{attacker.name} 消耗行动力 5");
 				var targetBodyPart = action.defenderBody switch
 				{
 					BodyPartCode.Head => defender.head,
@@ -174,18 +172,11 @@ public partial class CombatNode : Node
 					BodyPartCode.RightLeg => defender.rightLeg,
 					_ => throw new ArgumentOutOfRangeException(),
 				};
-				var bodyPartName = action.defenderBody switch
-				{
-					BodyPartCode.Head => "头部",
-					BodyPartCode.Chest => "胸部",
-					BodyPartCode.LeftArm => "左臂",
-					BodyPartCode.RightArm => "右臂",
-					BodyPartCode.LeftLeg => "左腿",
-					BodyPartCode.RightLeg => "右腿",
-					_ => throw new ArgumentOutOfRangeException(),
-				};
-				targetBodyPart.hp -= 2;
-				await combatNode.gameNode.Root.PopMessage($"{attacker.name} 攻击 {defender.name} 的{bodyPartName}，造成 2 点伤害，{bodyPartName}剩余血量: {targetBodyPart.hp}/{targetBodyPart.maxHp}");
+				await combatNode.gameNode.Root.PopMessage(
+					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
+				const int damage = 2;
+				targetBodyPart.hp -= damage;
+				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
 				if (defender.Dead)
 				{
 					await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
@@ -200,6 +191,9 @@ public partial class CombatNode : Node
 						return;
 					}
 				}
+				const int actionPoint = 5;
+				attacker.actionPoint -= actionPoint;
+				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
 				_ = new RoundInProgressState(combatNode);
 			}
 			catch (Exception e)
