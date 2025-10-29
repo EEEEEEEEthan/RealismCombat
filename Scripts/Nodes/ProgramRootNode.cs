@@ -135,7 +135,7 @@ public partial class ProgramRootNode : Node
 				Log.PrintError($"端口号非法: {port}");
 			}
 		else
-			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
+			Log.Print("[GameRoot] 未提供 --port 参数，服务器未启动");
 	}
 	public void McpRespond() => mcpHandler?.McpRespond();
 	public void OnMcpRequest(string command)
