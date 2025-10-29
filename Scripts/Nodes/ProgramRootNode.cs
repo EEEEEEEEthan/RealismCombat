@@ -118,7 +118,13 @@ public partial class ProgramRootNode : Node
 				mcpHandler.OnClientConnected += onClientConnected;
 				mcpHandler.OnClientDisconnected += onClientDisconnected;
 				Log.Print($"服务器已启动，监听端口 {port}");
-				void onClientConnected() => HadClientConnected = true;
+				void onClientConnected()
+				{
+					HadClientConnected = true;
+					// 如果当前有弹窗且未设置自动继续，在工具连接后启用自动继续
+					if (currentPopMessage != null && currentPopMessage.autoContinue <= 0)
+						currentPopMessage.autoContinue = 1.5f;
+				}
 				void onClientDisconnected()
 				{
 					if (HadClientConnected) GetTree().Quit();
@@ -186,9 +192,10 @@ public partial class ProgramRootNode : Node
 		}
 		var dialogue = GenericDialogue.Create();
 		dialogue.Text = message;
-		dialogue.autoContinue = 1.5f;
+		// 仅当 MCP 工具已连接后才自动继续，否则需按键继续
+		dialogue.autoContinue = HadClientConnected ? 1.5f : 0f;
 		currentPopMessage = dialogue;
-		currentPopMessage = null;
+		dialogue.OnDestroy += () => currentPopMessage = null;
 		AddChild(dialogue);
 		return dialogue;
 	}
