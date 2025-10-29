@@ -1,7 +1,6 @@
 using System;
 using Godot;
 using RealismCombat.Data;
-using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class CombatNode : Node
 {
@@ -16,7 +15,7 @@ public partial class CombatNode : Node
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
 				CharacterTurnState.serializeId => new CharacterTurnState(combatNode: combatNode,
 					character: combatData.characters[combatData.currentCharacterIndex]),
-                CharacterTurnActionState.serializeId => new CharacterTurnActionState(combatNode: combatNode, action: combatData.lastAction!),
+				CharacterTurnActionState.serializeId => new CharacterTurnActionState(combatNode: combatNode, action: combatData.lastAction!),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
@@ -50,7 +49,11 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
-
+			HandleCharacterTurn(combatNode: combatNode, character: character, characterIndex: characterIndex);
+		}
+		public override void Update(double deltaTime) { }
+		void HandleCharacterTurn(CombatNode combatNode, CharacterData character, byte characterIndex)
+		{
 			if (character.PlayerControlled)
 			{
 				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
@@ -68,7 +71,6 @@ public partial class CombatNode : Node
 							{
 								var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
 								if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
-								
 								var attackerIndex = characterIndex;
 								var action = new ActionData(
 									attackerIndex: attackerIndex,
@@ -76,7 +78,6 @@ public partial class CombatNode : Node
 									defenderIndex: targetIndex,
 									defenderBody: BodyPartCode.Head
 								);
-								
 								combatNode.combatData.lastAction = action;
 								combatNode.state = new CharacterTurnActionState(combatNode: combatNode, action: action);
 								dialogue.QueueFree();
@@ -91,7 +92,6 @@ public partial class CombatNode : Node
 			{
 				var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
 				if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
-				
 				var attackerIndex = characterIndex;
 				var action = new ActionData(
 					attackerIndex: attackerIndex,
@@ -99,12 +99,10 @@ public partial class CombatNode : Node
 					defenderIndex: targetIndex,
 					defenderBody: BodyPartCode.Head
 				);
-				
 				combatNode.combatData.lastAction = action;
 				combatNode.state = new CharacterTurnActionState(combatNode: combatNode, action: action);
 			}
 		}
-		public override void Update(double deltaTime) { }
 	}
 	public class CharacterTurnActionState : State
 	{
@@ -114,6 +112,11 @@ public partial class CombatNode : Node
 		{
 			this.action = action;
 			combatNode.CurrentState = this;
+			Run();
+		}
+		void Run()
+		{
+			
 		}
 		public override void Update(double deltaTime) { }
 	}
@@ -139,7 +142,7 @@ public partial class CombatNode : Node
 			{
 				RoundInProgressState => RoundInProgressState.serializeId,
 				CharacterTurnState => CharacterTurnState.serializeId,
-                CharacterTurnActionState => CharacterTurnActionState.serializeId,
+				CharacterTurnActionState => CharacterTurnActionState.serializeId,
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
