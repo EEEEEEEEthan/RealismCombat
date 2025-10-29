@@ -18,7 +18,7 @@ public record DialogueOptionData
 	public Action onConfirm = null!;
 	public bool available;
 }
-public partial class MenuDialogue : Control
+public partial class MenuDialogue : PanelContainer
 {
 	public static MenuDialogue Create(ProgramRootNode programRoot)
 	{
@@ -63,6 +63,7 @@ public partial class MenuDialogue : Control
 	}
 	public override void _Input(InputEvent @event)
 	{
+		if (!Active) return;
 		if (container.GetChildCount() == 0) return;
 		var moveUp = Input.IsActionJustPressed("ui_up");
 		var moveDown = Input.IsActionJustPressed("ui_down");
@@ -77,7 +78,7 @@ public partial class MenuDialogue : Control
 	{
 		if (container.GetChildCount() == 0) return;
 		arrow.Position = container.GetChild<Control>(index).Position with { X = -6, };
-		arrow.SelfModulate = Input.IsAnythingPressed() ? GameColors.activeControl : GameColors.normalControl;
+		arrow.SelfModulate = Input.IsAnythingPressed() && Active ? GameColors.activeControl : GameColors.normalControl;
 	}
 	public override void _ExitTree()
 	{

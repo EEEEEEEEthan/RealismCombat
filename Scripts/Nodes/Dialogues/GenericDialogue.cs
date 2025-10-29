@@ -24,7 +24,11 @@ public partial class GenericDialogue : Control
 	public string Text
 	{
 		get => printer.Text;
-		set => printer.Text = value;
+		set
+		{
+			printer.Text = value;
+			Log.Print(value);
+		}
 	}
 	public event Action? OnDestroy;
 	public override void _Ready() => GrabFocus();

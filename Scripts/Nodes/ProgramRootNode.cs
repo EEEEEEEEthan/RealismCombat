@@ -164,18 +164,21 @@ public partial class ProgramRootNode : Node
 	public override void _Process(double delta)
 	{
 		mcpHandler?.Update();
-		if (dialogues.GetChildCount() > 1) dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = true;
+		var count = dialogues.GetChildCount();
+		for (var i = count; i-- > 0;)
+		{
+			var node = dialogues.GetChild(i);
+			if (node is MenuDialogue dialogue) dialogue.Active = i == count - 1;
+		}
 	}
 	public MenuDialogue CreateDialogue()
 	{
 		var dialogue = MenuDialogue.Create(this);
-		if (dialogues.GetChildCount() > 1) dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = false;
 		dialogues.AddChild(dialogue);
 		return dialogue;
 	}
 	public GenericDialogue PopMessage(string message)
 	{
-		Log.Print(message);
 		if (currentPopMessage != null)
 		{
 			currentPopMessage.QueueFree();
@@ -185,8 +188,8 @@ public partial class ProgramRootNode : Node
 		dialogue.Text = message;
 		dialogue.autoContinue = 1.5f;
 		currentPopMessage = dialogue;
-		dialogues.AddChild(dialogue);
 		currentPopMessage = null;
+		AddChild(dialogue);
 		return dialogue;
 	}
 	public override void _Ready() => state = new IdleState(this);

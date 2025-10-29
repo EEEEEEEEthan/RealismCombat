@@ -91,58 +91,99 @@ public partial class CombatNode : Node
 			HandleCharacterTurn(combatNode: combatNode, character: character, characterIndex: characterIndex);
 		}
 		public override void Update(double deltaTime) { }
+		static int GetBodyPartHp(CharacterData character, BodyPartCode bodyPart) => bodyPart switch
+		{
+			BodyPartCode.Head => character.head.hp,
+			BodyPartCode.Chest => character.chest.hp,
+			BodyPartCode.LeftArm => character.leftArm.hp,
+			BodyPartCode.RightArm => character.rightArm.hp,
+			BodyPartCode.LeftLeg => character.leftLeg.hp,
+			BodyPartCode.RightLeg => character.rightLeg.hp,
+			_ => throw new ArgumentOutOfRangeException(nameof(bodyPart), bodyPart, null)
+		};
 		void HandleCharacterTurn(CombatNode combatNode, CharacterData character, byte characterIndex)
 		{
 			if (character.PlayerControlled)
 			{
 				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
 				var dialogue = programRoot.CreateDialogue();
+
+				// Step 1: Select your own body part
+				var bodyParts = new[]
+				{
+					new { Code = BodyPartCode.Head, Name = "头部" },
+					new { Code = BodyPartCode.Chest, Name = "胸部" },
+					new { Code = BodyPartCode.LeftArm, Name = "左臂" },
+					new { Code = BodyPartCode.RightArm, Name = "右臂" },
+					new { Code = BodyPartCode.LeftLeg, Name = "左腿" },
+					new { Code = BodyPartCode.RightLeg, Name = "右腿" },
+				};
+
 				dialogue.Initialize(new()
 				{
-					title = $"{character.name}的回合",
-					options =
-					[
-						new()
+					title = $"{character.name}的回合 - 选择使用的身体部位",
+					options = bodyParts.Select(part => new DialogueOptionData
+					{
+						option = part.Name,
+						description = $"使用{part.Name}进行行动",
+						onConfirm = () =>
 						{
-							option = "攻击",
-							description = "对敌人发起攻击",
-							onConfirm = () =>
+							var attackerBody = part.Code;
+
+							// Step 2: Select "Attack" action
+							var actionDialogue = programRoot.CreateDialogue();
+							actionDialogue.Initialize(new()
 							{
-								var enemies = combatNode.combatData.characters
-									.Select((c, i) => new { Character = c, Index = i })
-									.Where(x => x.Character.team != character.team)
-									.ToList();
-								if (enemies.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
-								
-								var targetDialogue = programRoot.CreateDialogue();
-								targetDialogue.Initialize(new()
-								{
-									title = "选择攻击目标",
-									options = enemies.Select(enemy => new DialogueOptionData
+								title = "选择行动",
+								options =
+								[
+									new()
 									{
-										option = enemy.Character.name,
-										description = $"生命值: 头部{enemy.Character.head.hp}/胸部{enemy.Character.chest.hp}",
+										option = "攻击",
+										description = "对敌人发起攻击",
 										onConfirm = () =>
 										{
-											var attackerIndex = characterIndex;
-											var action = new ActionData(
-												attackerIndex: attackerIndex,
-												attackerBody: BodyPartCode.RightArm,
-												defenderIndex: (byte)enemy.Index,
-												defenderBody: BodyPartCode.Head
-											);
-											combatNode.combatData.lastAction = action;
-											_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
-											targetDialogue.QueueFree();
-											dialogue.QueueFree();
+											var enemies = combatNode.combatData.characters
+												.Select((c, i) => new { Character = c, Index = i })
+												.Where(x => x.Character.team != character.team)
+												.ToList();
+											if (enemies.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
+
+											// Step 3: Select enemy's body part
+											var enemyDialogue = programRoot.CreateDialogue();
+											enemyDialogue.Initialize(new()
+											{
+												title = "选择攻击目标",
+												options = enemies.SelectMany(enemy => bodyParts.Select(targetPart => new DialogueOptionData
+												{
+													option = $"{enemy.Character.name} - {targetPart.Name}",
+													description = $"攻击{enemy.Character.name}的{targetPart.Name} (生命值: {GetBodyPartHp(enemy.Character, targetPart.Code)})",
+													onConfirm = () =>
+													{
+														var attackerIndex = characterIndex;
+														var action = new ActionData(
+															attackerIndex: attackerIndex,
+															attackerBody: attackerBody,
+															defenderIndex: (byte)enemy.Index,
+															defenderBody: targetPart.Code
+														);
+														combatNode.combatData.lastAction = action;
+														_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
+														enemyDialogue.QueueFree();
+														actionDialogue.QueueFree();
+														dialogue.QueueFree();
+													},
+													available = true,
+												})).ToArray(),
+											});
 										},
 										available = true,
-									}).ToArray(),
-								});
-							},
-							available = true,
+									},
+								],
+							});
 						},
-					],
+						available = true,
+					}).ToArray(),
 				});
 			}
 			else
