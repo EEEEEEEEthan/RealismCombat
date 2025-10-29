@@ -65,7 +65,7 @@ partial class ProgramRootNode : Node, IStateOwner
 		State.Update(delta);
 		MoveChild(childNode: dialogues, toIndex: GetChildCount() - 1);
 	}
-	public GenericDialogue Chat(string text)
+	public GenericDialogue Chat(string text, bool autoContinue = true)
 	{
 		dialogue = GenericDialogue.Create();
 		AddChild(dialogue);
@@ -78,6 +78,7 @@ partial class ProgramRootNode : Node, IStateOwner
 		dialogue.OffsetRight = -32;
 		dialogue.OffsetBottom = -32;
 		dialogue.Text = text;
+		dialogue.autoContinue = autoContinue ? 2 : 0;
 		return dialogue;
 	}
 	[Obsolete]
