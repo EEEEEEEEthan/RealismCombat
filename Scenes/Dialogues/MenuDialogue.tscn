@@ -27,7 +27,6 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 focus_behavior_recursive = 1
-script = ExtResource("1_mceob")
 
 [node name="Arrow" type="TextureRect" parent="Control"]
 layout_mode = 0

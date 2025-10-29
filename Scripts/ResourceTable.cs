@@ -11,9 +11,12 @@ public static class ResourceTable
 	#region autogen_scenes
 	public const string character = "res://Scenes/Character.tscn";
 	public const string combat = "res://Scenes/Combat.tscn";
-	public const string componentsPrinterlabelnode = "res://Scenes/Components/PrinterLabelNode.tscn";
+	public const string componentsOption = "res://Scenes/Components/Option.tscn";
+	public const string componentsPrinterlabel = "res://Scenes/Components/PrinterLabel.tscn";
 	public const string dialogue = "res://Scenes/Dialogue.tscn";
+	public const string dialoguesActiondialogue = "res://Scenes/Dialogues/ActionDialogue.tscn";
 	public const string dialoguesGenericdialogue = "res://Scenes/Dialogues/GenericDialogue.tscn";
+	public const string dialoguesMenudialogue = "res://Scenes/Dialogues/MenuDialogue.tscn";
 	public const string game = "res://Scenes/Game.tscn";
 	public const string mainmenu = "res://Scenes/MainMenu.tscn";
 	public const string prepare = "res://Scenes/Prepare.tscn";

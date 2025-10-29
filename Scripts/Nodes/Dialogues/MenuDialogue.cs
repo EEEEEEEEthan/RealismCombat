@@ -5,6 +5,11 @@ using RealismCombat.Extensions;
 namespace RealismCombat.Nodes.Dialogues;
 partial class MenuDialogue : Node
 {
+	public static MenuDialogue Create()
+	{
+		var scene = GD.Load<PackedScene>(ResourceTable.dialoguesMenudialogue);
+		return scene.Instantiate<MenuDialogue>();
+	}
 	readonly List<Action> callbacks = [];
 	[Export] Container container = null!;
 	[Export] TextureRect arrow = null!;
@@ -16,17 +21,10 @@ partial class MenuDialogue : Node
 		var moveDown = Input.IsActionJustPressed("ui_down");
 		var accept = Input.IsActionJustPressed("ui_accept");
 		if (moveUp)
-		{
 			index = (index - 1 + container.GetChildCount()) % container.GetChildCount();
-		}
 		else if (moveDown)
-		{
 			index = (index + 1) % container.GetChildCount();
-		}
-		else if (accept)
-		{
-			callbacks[index]();
-		}
+		else if (accept) callbacks[index]();
 	}
 	public override void _Process(double delta)
 	{
