@@ -8,7 +8,7 @@
 atlas = ExtResource("1_j11dv")
 region = Rect2(8, 0, 8, 8)
 
-[node name="MenuDialogue" type="PanelContainer" node_paths=PackedStringArray("container", "arrow", "title", "description")]
+[node name="MenuDialogue" type="PanelContainer" node_paths=PackedStringArray("container", "arrow", "title", "description", "titleControl")]
 offset_left = 41.0
 offset_top = 55.0
 offset_right = 53.0
@@ -19,6 +19,7 @@ container = NodePath("MarginContainer/VBoxContainer")
 arrow = NodePath("Control/Arrow")
 title = NodePath("Control/PanelContainer/HBoxContainer/Title")
 description = NodePath("Control/PanelContainer/HBoxContainer/OptionDetail")
+titleControl = NodePath("Control/PanelContainer")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2

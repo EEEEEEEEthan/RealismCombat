@@ -60,6 +60,7 @@ class McpHandler
 		{
 			var state = commandLifeCycle;
 			commandLifeCycle = null;
+			Log.Print(nameof(McpRespond));
 			Respond(state.Message);
 			state.Dispose();
 		}
@@ -72,6 +73,7 @@ class McpHandler
 				commandLifeCycle = new();
 				try
 				{
+					Log.Print($"McpRequest {pendingCommand}");
 					programRootNode.OnMcpRequest(pendingCommand);
 				}
 				catch (Exception e)
