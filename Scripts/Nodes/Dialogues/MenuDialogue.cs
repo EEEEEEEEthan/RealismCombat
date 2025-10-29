@@ -64,6 +64,7 @@ partial class MenuDialogue : Control
 	{
 		container.AddChild(new Label { Text = option, });
 		options.Add((description, callback));
+		if (options.Count == 1) this.description.Show(options[index].desc);
 	}
 	public void ClearOptions() => container.DestroyChildren();
 	void Complete()

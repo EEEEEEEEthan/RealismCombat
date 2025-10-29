@@ -54,10 +54,7 @@ class McpHandler
 		listener.Start();
 		Task.Run(AcceptLoopAsync);
 	}
-	/// <summary>
-	///     标记Mcp检查点.Mcp请求会在此时将日志打包回复
-	/// </summary>
-	public void McpCheckPoint()
+	public void McpRespond()
 	{
 		if (commandLifeCycle != null)
 		{
@@ -73,7 +70,15 @@ class McpHandler
 			if (commandLifeCycle == null)
 			{
 				commandLifeCycle = new();
-				_ = programRootNode.State.ExecuteCommandTask(pendingCommand);
+				try
+				{
+					programRootNode.McpRequest(pendingCommand);
+				}
+				catch (Exception e)
+				{
+					Log.PrintException(e);
+					McpRespond();
+				}
 			}
 	}
 	void Respond(string response)

@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Godot;
 using RealismCombat.Nodes.Dialogues;
-using RealismCombat.StateMachine;
-using RealismCombat.StateMachine.ProgramStates;
 namespace RealismCombat.Nodes;
-partial class ProgramRootNode : Node, IStateOwner
+partial class ProgramRootNode : Node
 {
 	static readonly IReadOnlyDictionary<string, string> arguments;
 	static ProgramRootNode()
@@ -27,15 +23,8 @@ partial class ProgramRootNode : Node, IStateOwner
 	public bool HadClientConnected { get; private set; }
 	public double TotalTime { get; private set; }
 	public int FrameCount { get; private set; }
-	public State State { get; private set; }
-	State IStateOwner.State
-	{
-		get => State;
-		set => State = value;
-	}
 	ProgramRootNode()
 	{
-		State = new MenuState(this);
 		if (arguments.TryGetValue(key: "port", value: out var portText))
 			if (int.TryParse(s: portText, result: out var port))
 			{
@@ -52,97 +41,9 @@ partial class ProgramRootNode : Node, IStateOwner
 		else
 			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
 	}
-	public void McpCheckPoint()
-	{
-		Log.Print(State.Status);
-		mcpHandler?.McpCheckPoint();
-	}
-	public override void _Process(double delta)
-	{
-		TotalTime += delta;
-		FrameCount++;
-		mcpHandler?.Update();
-		State.Update(delta);
-		MoveChild(childNode: dialogues, toIndex: GetChildCount() - 1);
-	}
-	public GenericDialogue Chat(string text, bool autoContinue = true)
-	{
-		dialogue = GenericDialogue.Create();
-		AddChild(dialogue);
-		dialogue.AnchorTop = 0.5f;
-		dialogue.AnchorLeft = 0;
-		dialogue.AnchorRight = 1;
-		dialogue.AnchorBottom = 1;
-		dialogue.OffsetTop = 16;
-		dialogue.OffsetLeft = 32;
-		dialogue.OffsetRight = -32;
-		dialogue.OffsetBottom = -32;
-		dialogue.Text = text;
-		dialogue.autoContinue = autoContinue ? 2 : 0;
-		return dialogue;
-	}
-	[Obsolete]
-	public DialogueNode CreateDialogue(string text)
-	{
-		var dialogue = DialogueNode.Create(label: text);
-		dialogues.AddChild(dialogue);
-		return dialogue;
-	}
-	[Obsolete]
-	public DialogueNode ShowDialogue(string text, params (string, Action)[] options)
-	{
-		var dialogue = DialogueNode.Show(label: text, options: options);
-		dialogues.AddChild(dialogue);
-		return dialogue;
-	}
-	[Obsolete]
-	public Task<int> ShowDialogue(string text, float? timeout, params string[] options)
-	{
-		var tcs = new TaskCompletionSource<int>();
-		var noOptionsProvided = options == null || options.Length == 0;
-		var effectiveOptions = noOptionsProvided ? new[] { "继续", } : options!;
-		var effectiveTimeout = timeout;
-		if (noOptionsProvided && mcpHandler != null) effectiveTimeout = 3f;
-		Timer? timeoutTimer = null;
-		var optionTuples = new (string, Action)[effectiveOptions.Length];
-		DialogueNode dialogue = null;
-		for (var i = 0; i < effectiveOptions.Length; i++)
-		{
-			var index = i;
-			optionTuples[i] = (effectiveOptions[i], () =>
-			{
-				dialogue.QueueFree();
-				if (tcs.TrySetResult(index))
-					if (timeoutTimer != null && IsInstanceValid(timeoutTimer))
-						timeoutTimer.QueueFree();
-			});
-		}
-		dialogue = ShowDialogue(text: text, options: optionTuples);
-		if (effectiveTimeout != null)
-		{
-			var seconds = (double)effectiveTimeout.Value;
-			if (seconds <= 0)
-			{
-				// 立即选择第一个
-				if (tcs.TrySetResult(0))
-					if (IsInstanceValid(dialogue))
-						dialogue.QueueFree();
-			}
-			else
-			{
-				timeoutTimer = new() { OneShot = true, Autostart = true, WaitTime = seconds, };
-				AddChild(timeoutTimer);
-				timeoutTimer.Timeout += () =>
-				{
-					if (tcs.TrySetResult(0))
-						if (IsInstanceValid(dialogue))
-							dialogue.QueueFree();
-					timeoutTimer.QueueFree();
-				};
-			}
-		}
-		return tcs.Task;
-	}
+	public void McpRespond() => mcpHandler?.McpRespond();
+	public override void _Process(double delta) { }
+	public void McpRequest(string command) { }
 	void _QuitGame() => GetTree().Quit();
 	void OnClientConnected() => HadClientConnected = true;
 	void OnClientDisconnected()
