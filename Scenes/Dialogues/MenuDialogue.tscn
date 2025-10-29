@@ -1,19 +1,24 @@
-[gd_scene load_steps=4 format=3 uid="uid://cbceeux1xek85"]
+[gd_scene load_steps=5 format=3 uid="uid://cbceeux1xek85"]
 
 [ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icons.png" id="1_j11dv"]
 [ext_resource type="Script" uid="uid://drff735vc40xb" path="res://Scripts/Nodes/Dialogues/MenuDialogue.cs" id="1_mceob"]
+[ext_resource type="PackedScene" uid="uid://d06s0atub252e" path="res://Scenes/Components/PrinterLabel.tscn" id="3_qi3qq"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ec0hb"]
 atlas = ExtResource("1_j11dv")
 region = Rect2(8, 0, 8, 8)
 
-[node name="MenuDialogue" type="PanelContainer" node_paths=PackedStringArray("container", "arrow")]
-offset_right = 12.0
-offset_bottom = 18.0
+[node name="MenuDialogue" type="PanelContainer" node_paths=PackedStringArray("container", "arrow", "title", "description")]
+offset_left = 41.0
+offset_top = 55.0
+offset_right = 53.0
+offset_bottom = 73.0
 focus_mode = 2
 script = ExtResource("1_mceob")
 container = NodePath("MarginContainer/VBoxContainer")
 arrow = NodePath("Control/Arrow")
+title = NodePath("Control/PanelContainer/HBoxContainer/Title")
+description = NodePath("Control/PanelContainer/HBoxContainer/OptionDetail")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -34,3 +39,26 @@ offset_left = -6.0
 offset_right = 2.0
 offset_bottom = 8.0
 texture = SubResource("AtlasTexture_ec0hb")
+
+[node name="PanelContainer" type="PanelContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+offset_top = -26.0
+offset_right = 96.0
+pivot_offset = Vector2(0, 26)
+
+[node name="HBoxContainer" type="VBoxContainer" parent="Control/PanelContainer"]
+layout_mode = 2
+
+[node name="Title" parent="Control/PanelContainer/HBoxContainer" instance=ExtResource("3_qi3qq")]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "请选择"
+fit_content = true
+autowrap_mode = 0
+
+[node name="OptionDetail" parent="Control/PanelContainer/HBoxContainer" instance=ExtResource("3_qi3qq")]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "选项介绍"
+fit_content = true
