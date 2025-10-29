@@ -41,6 +41,19 @@ public partial class GameNode : Node
 						},
 						available = true,
 					},
+					new()
+					{
+						option = "退出",
+						description = "返回主菜单",
+						onPreview = () => { },
+						onConfirm = () =>
+						{
+							dialogue.QueueFree();
+							gameNode.QueueFree();
+							gameNode.root.state = new ProgramRootNode.IdleState(gameNode.root);
+						},
+						available = true,
+					},
 				],
 			});
 		}

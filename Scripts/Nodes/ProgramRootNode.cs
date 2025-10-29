@@ -105,7 +105,7 @@ public partial class ProgramRootNode : Node
 			sb.AppendLine($"{indent}}}");
 		}
 	}
-	State state = null!;
+	public State state = null!;
 	readonly McpHandler? mcpHandler;
 	[Export] public Container dialogues = null!;
 	public bool HadClientConnected { get; private set; }
