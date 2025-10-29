@@ -89,6 +89,7 @@ partial class MenuDialogue : Control
 		Select(index);
 		var option = data.options[index];
 		if (!option.available) throw new InvalidOperationException("选项不可用，无法确认");
+		Log.Print($"选择了{index},{option.option}");
 		option.onConfirm();
 		Complete();
 	}
