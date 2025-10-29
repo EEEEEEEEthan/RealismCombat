@@ -96,18 +96,20 @@ partial class ProgramRootNode : Node
 			title = "主菜单",
 			options =
 			[
-				new()
+			new()
+			{
+				option = "开始游戏",
+				description = "开始新游戏",
+				onPreview = () => { },
+				onConfirm = () =>
 				{
-					option = "开始游戏",
-					description = "开始新游戏",
-					onPreview = () => { },
-					onConfirm = () =>
-					{
-						dialogue.QueueFree();
-						McpRespond();
-					},
-					available = true,
+					dialogue.QueueFree();
+					var gameNode = GameNode.FromNew();
+					AddChild(gameNode);
+					McpRespond();
 				},
+				available = true,
+			},
 				new()
 				{
 					option = "退出",
