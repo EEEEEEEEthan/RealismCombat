@@ -44,4 +44,5 @@ public partial class CombatNode : Node
 	State state = null!;
 	CombatData combatData = null!;
 	GameNode gameNode = null!;
+	[Export] Container characterContainer = null!;
 }

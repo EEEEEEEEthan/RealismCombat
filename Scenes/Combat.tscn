@@ -1,7 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://bxj6k8yv2dq3h"]
+[gd_scene load_steps=2 format=3 uid="uid://d2dfbrg7d6tli"]
 
-[ext_resource type="Script" path="res://Scripts/Nodes/CombatNode.cs" id="1_combat"]
+[ext_resource type="Script" uid="uid://ba7gvnx3qm8tj" path="res://Scripts/Nodes/CombatNode.cs" id="1_combat"]
 
-[node name="Combat" type="Node"]
+[node name="Combat" type="Node" node_paths=PackedStringArray("characterContainer")]
 script = ExtResource("1_combat")
+characterContainer = NodePath("HBoxContainer")
 
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 95.0
+grow_horizontal = 2
+grow_vertical = 2
