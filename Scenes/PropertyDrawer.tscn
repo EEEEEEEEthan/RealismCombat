@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://bsr6jng6vgk8j"]
+
+[ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="1_0k2da"]
+[ext_resource type="Script" uid="uid://cnse8sg5d07nm" path="res://Scripts/Nodes/PropertyDrawerNode.cs" id="2_nght4"]
+
+[node name="Head" type="HBoxContainer" node_paths=PackedStringArray("name", "value")]
+offset_right = 80.0
+offset_bottom = 14.0
+mouse_filter = 2
+theme = ExtResource("1_0k2da")
+script = ExtResource("2_nght4")
+name = NodePath("Name")
+value = NodePath("HitPoint")
+
+[node name="Name" type="Label" parent="."]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 1
+text = "头部"
+
+[node name="HitPoint" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "|||||"

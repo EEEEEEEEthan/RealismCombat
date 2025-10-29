@@ -3,6 +3,7 @@ public static class ResourceTable
 {
 	public const string emptyIcon = "res://Textures/EmptyIcon.png";
 	#region autogen_scenes
+	public const string character = "res://Scenes/Character.tscn";
 	public const string combat = "res://Scenes/Combat.tscn";
 	public const string componentsOption = "res://Scenes/Components/Option.tscn";
 	public const string componentsPrinterlabel = "res://Scenes/Components/PrinterLabel.tscn";
@@ -10,5 +11,6 @@ public static class ResourceTable
 	public const string dialoguesMenudialogue = "res://Scenes/Dialogues/MenuDialogue.tscn";
 	public const string game = "res://Scenes/Game.tscn";
 	public const string programroot = "res://Scenes/ProgramRoot.tscn";
+	public const string propertydrawer = "res://Scenes/PropertyDrawer.tscn";
 	#endregion autogen_scenes
 }
