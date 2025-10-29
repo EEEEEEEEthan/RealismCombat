@@ -9,8 +9,25 @@ partial class MenuDialogue : Node
 	[Export] Container container = null!;
 	[Export] TextureRect arrow = null!;
 	int index;
-	public override void _Input(InputEvent @event) { }
-	public override void _Ready() { }
+	public override void _Input(InputEvent @event)
+	{
+		if (container.GetChildCount() == 0) return;
+		var moveUp = Input.IsActionJustPressed("ui_up");
+		var moveDown = Input.IsActionJustPressed("ui_down");
+		var accept = Input.IsActionJustPressed("ui_accept");
+		if (moveUp)
+		{
+			index = (index - 1 + container.GetChildCount()) % container.GetChildCount();
+		}
+		else if (moveDown)
+		{
+			index = (index + 1) % container.GetChildCount();
+		}
+		else if (accept)
+		{
+			callbacks[index]();
+		}
+	}
 	public override void _Process(double delta)
 	{
 		if (container.GetChildCount() == 0) return;
