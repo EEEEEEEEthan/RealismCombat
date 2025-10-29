@@ -144,21 +144,19 @@ class McpHandler
 				var command = await Task.Run(function: () => reader!.ReadString(), cancellationToken: token).ConfigureAwait(false);
 				var trimmed = command.Trim();
 				if (trimmed.Length == 0) continue;
-				bool isQuitCommand = trimmed.StartsWith("game_quit");
+				var isQuitCommand = trimmed.StartsWith("game_quit");
 				bool isBusy;
 				lock (sync)
 				{
 					isBusy = pendingCommand is not null;
-					if (!isBusy || isQuitCommand) 
+					if (!isBusy || isQuitCommand)
 					{
 						if (isQuitCommand && isBusy)
-						{
 							if (commandLifeCycle != null)
 							{
 								commandLifeCycle.Dispose();
 								commandLifeCycle = null;
 							}
-						}
 						pendingCommand = trimmed;
 					}
 				}

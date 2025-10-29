@@ -74,9 +74,8 @@ public enum BodyPartCode
 }
 public static class BodyPartCodeExtensions
 {
-	public static string GetName(this BodyPartCode part)
-	{
-		return part switch
+	public static string GetName(this BodyPartCode part) =>
+		part switch
 		{
 			BodyPartCode.Head => "头部",
 			BodyPartCode.Chest => "胸部",
@@ -86,9 +85,7 @@ public static class BodyPartCodeExtensions
 			BodyPartCode.RightLeg => "右腿",
 			_ => "未知部位",
 		};
-	}
 }
-
 public class BodyPartData
 {
 	public readonly BodyPartCode id;
