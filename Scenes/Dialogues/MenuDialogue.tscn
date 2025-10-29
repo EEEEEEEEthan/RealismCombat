@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://cbceeux1xek85"]
+
+[ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icons.png" id="1_j11dv"]
+[ext_resource type="Script" uid="uid://drff735vc40xb" path="res://Scripts/Nodes/Dialogues/MenuDialogue.cs" id="1_mceob"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ec0hb"]
+atlas = ExtResource("1_j11dv")
+region = Rect2(8, 0, 8, 8)
+
+[node name="MenuDialogue" type="PanelContainer" node_paths=PackedStringArray("container", "arrow")]
+offset_right = 12.0
+offset_bottom = 18.0
+focus_mode = 2
+script = ExtResource("1_mceob")
+container = NodePath("MarginContainer/VBoxContainer")
+arrow = NodePath("Control/Arrow")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+focus_behavior_recursive = 1
+theme_override_constants/margin_left = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+focus_behavior_recursive = 1
+script = ExtResource("1_mceob")
+
+[node name="Arrow" type="TextureRect" parent="Control"]
+layout_mode = 0
+offset_left = -6.0
+offset_right = 2.0
+offset_bottom = 8.0
+texture = SubResource("AtlasTexture_ec0hb")

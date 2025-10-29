@@ -1,6 +1,8 @@
-using Godot;
 using System;
-
-public partial class ActionDialogue : Node
+using Godot;
+using RealismCombat.Nodes.Components;
+namespace RealismCombat.Nodes.Dialogues;
+partial class ActionDialogue : Node
 {
+	[Export] PrinterLabelNode preview;
 }
