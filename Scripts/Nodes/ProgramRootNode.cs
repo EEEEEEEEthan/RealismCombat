@@ -47,6 +47,14 @@ partial class ProgramRootNode : Node
 	public void McpRespond() => mcpHandler?.McpRespond();
 	public void OnMcpRequest(string command)
 	{
+		// system_launch_program
+		if (new Regex(@"system_launch_program").TryMatch(text: command, match: out _))
+		{
+			// 发送最新的dialogue信息
+			var dialogue = dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1);
+			dialogue.Active = false;
+			dialogue.Active = true;
+		}
 		if (new Regex(@"game_select_option (\d+)").TryMatch(text: command, match: out var match))
 		{
 			var optionId = int.Parse(match.Groups[1].ToString());

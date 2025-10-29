@@ -8,9 +8,9 @@ namespace RealismCombat.McpServer;
 static class SystemTools
 {
 	public const string tool_launch_program = nameof(system_launch_program);
-	public static GameClient? Client { get; set; }
+	public static GameClient? Client { get; private set; }
 	[McpServerTool, Description("launch program"),]
-	static string system_launch_program()
+	static async Task<string> system_launch_program()
 	{
 		using var _ = Log.BeginScope(out var builder);
 		Log.Print("收到启动程序请求");
@@ -31,6 +31,7 @@ static class SystemTools
 			};
 			Client = client;
 			Log.Print($"程序启动成功\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}");
+			builder.AppendLine(await Client.SendCommand("system_launch_program", 3000));
 			return builder.ToString();
 		}
 		catch (Exception e)

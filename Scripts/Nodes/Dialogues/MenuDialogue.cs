@@ -48,13 +48,13 @@ partial class MenuDialogue : Control
 			{
 				var builder = new StringBuilder();
 				builder.AppendLine(data.title);
+				builder.AppendLine("请做出选择(game_select_option):");
 				for (var i = 0; i < data.options.Length; i++)
 				{
 					var option = data.options[i];
 					if (!option.available) builder.AppendLine($"{i}. (not available) {option.option} {option.description}");
 					builder.AppendLine($"{i}. {option.option} {option.description}");
 				}
-				builder.AppendLine("请做出选择(game_select_option)");
 				Log.Print(builder.ToString());
 				root.McpRespond();
 			}
