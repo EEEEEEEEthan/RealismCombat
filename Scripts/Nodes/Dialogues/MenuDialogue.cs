@@ -20,11 +20,9 @@ public struct DialogueOptionData
 }
 partial class MenuDialogue : Control
 {
-	public static MenuDialogue Create(DialogueData data)
+	public static MenuDialogue Create()
 	{
-		if (data.options.Length < 1) throw new ArgumentException("至少需要一个选项才能创建菜单对话框");
 		var instance = GD.Load<PackedScene>(ResourceTable.dialoguesMenudialogue).Instantiate<MenuDialogue>();
-		foreach (var optionData in data.options) instance.AddOption(optionData);
 		return instance;
 	}
 	readonly List<DialogueOptionData> options = [];
@@ -69,6 +67,12 @@ partial class MenuDialogue : Control
 		base._ExitTree();
 	}
 	public TaskAwaiter<int> GetAwaiter() => completionSource.Task.GetAwaiter();
+	public void Show(DialogueData data)
+	{
+		if (data.options.Length < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
+		title.Show(data.title);
+		foreach (var optionData in data.options) AddOption(optionData);
+	}
 	void AddOption(DialogueOptionData data)
 	{
 		container.AddChild(new Label { Text = data.option, });

@@ -52,6 +52,29 @@ partial class ProgramRootNode : Node
 	public override void _Ready()
 	{
 		var dialogue = CreateDialogue();
+		dialogue.Show(new DialogueData
+		{
+			title = "主菜单",
+			options = new[]
+			{
+				new DialogueOptionData
+				{
+					option = "开始游戏",
+					description = "开始新游戏",
+					onPreview = () => { },
+					onConfirm = () => { },
+					available = true
+				},
+				new DialogueOptionData
+				{
+					option = "退出",
+					description = "退出游戏",
+					onPreview = () => { },
+					onConfirm = _QuitGame,
+					available = true
+				}
+			}
+		});
 	}
 	public MenuDialogue CreateDialogue()
 	{

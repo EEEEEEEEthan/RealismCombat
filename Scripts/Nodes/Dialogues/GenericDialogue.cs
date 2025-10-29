@@ -26,7 +26,7 @@ partial class GenericDialogue : Control
 		get => printer.Text;
 		set => printer.Text = value;
 	}
-	public event Action OnDestroy;
+	public event Action? OnDestroy;
 	public override void _Ready() => GrabFocus();
 	public override void _Input(InputEvent @event)
 	{
