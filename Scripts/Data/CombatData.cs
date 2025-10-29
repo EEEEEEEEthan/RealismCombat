@@ -6,11 +6,13 @@ public class CombatData
 	public readonly List<CharacterData> characters = [];
 	public readonly Dictionary<string, string> tempData = new();
 	public byte state;
+	public byte currentCharacterIndex;
 	public double tickTimer;
 	public long tickCount;
 	public CombatData(DataVersion version, BinaryReader reader)
 	{
 		state = reader.ReadByte();
+		currentCharacterIndex = reader.ReadByte();
 		tickTimer = reader.ReadDouble();
 		tickCount = reader.ReadInt64();
 		{
@@ -26,6 +28,7 @@ public class CombatData
 	public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(state);
+		writer.Write(currentCharacterIndex);
 		writer.Write(tickTimer);
 		writer.Write(tickCount);
 		writer.Write((byte)characters.Count);

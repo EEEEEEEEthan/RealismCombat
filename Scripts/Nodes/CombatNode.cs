@@ -11,24 +11,35 @@ public partial class CombatNode : Node
 		{
 			var combatData = combatNode.combatData;
 			if (combatData.characters.Count == 0) throw new InvalidOperationException("战斗数据中没有角色");
-			switch(combatNode
+			return combatData.state switch
+			{
+				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
+				CharacterTurnState.serializeId => new CharacterTurnState(combatNode, combatData.characters[combatData.currentCharacterIndex]),
+				_ => throw new ArgumentOutOfRangeException(),
+			};
 		}
 		public readonly CombatNode combatNode = combatNode;
 	}
 	public class RoundInProgressState : State
 	{
+		public const byte serializeId = 0;
 		public RoundInProgressState(CombatNode combatNode) : base(combatNode)
 		{
 			combatNode.state = this;
+			combatNode.combatData.state = serializeId;
 		}
 	}
 	public class CharacterTurnState : State
 	{
+		public const byte serializeId = 1;
 		public readonly CharacterData character;
 		public CharacterTurnState(CombatNode combatNode, CharacterData character) : base(combatNode)
 		{
 			combatNode.state = this;
+			combatNode.combatData.state = serializeId;
 			this.character = character;
+			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
+			combatNode.combatData.currentCharacterIndex = characterIndex;
 			Log.Print($"现在是 {character.name} 的回合");
 		}
 	}
