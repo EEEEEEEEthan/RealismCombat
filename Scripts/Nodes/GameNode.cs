@@ -53,11 +53,14 @@ public partial class GameNode : Node
 	{
 		var gameNode = GD.Load<PackedScene>(ResourceTable.game).Instantiate<GameNode>();
 		gameNode.gameData = gameData;
-		gameNode.state = State.Create(gameNode);
 		return gameNode;
 	}
 	State state = null!;
 	GameData gameData = null!;
 	ProgramRootNode root = null!;
-	public override void _Ready() => root = GetParent<ProgramRootNode>();
+	public override void _Ready()
+	{
+		root = GetParent<ProgramRootNode>();
+		state = State.Create(gameNode: this);
+	}
 }

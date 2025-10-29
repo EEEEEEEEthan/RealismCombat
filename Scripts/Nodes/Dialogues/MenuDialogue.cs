@@ -18,7 +18,7 @@ public record DialogueOptionData
 	public Action onConfirm = null!;
 	public bool available;
 }
-partial class MenuDialogue : Control
+public partial class MenuDialogue : Control
 {
 	public static MenuDialogue Create(ProgramRootNode programRoot)
 	{

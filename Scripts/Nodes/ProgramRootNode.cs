@@ -1,12 +1,64 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Godot;
+using RealismCombat.Data;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
-partial class ProgramRootNode : Node
+public partial class ProgramRootNode : Node
 {
+	abstract class State(ProgramRootNode programRootNode)
+	{
+		public readonly ProgramRootNode programRootNode = programRootNode;
+	}
+	class IdleState : State
+	{
+		public IdleState(ProgramRootNode programRootNode) : base(programRootNode)
+		{
+			programRootNode.state = this;
+			var dialogue = programRootNode.CreateDialogue();
+			dialogue.Initialize(new()
+			{
+				title = "主菜单",
+				options =
+				[
+					new()
+					{
+						option = "开始游戏",
+						description = "开始新游戏",
+						onPreview = () => { },
+						onConfirm = () =>
+						{
+							programRootNode.state = new GameState(programRootNode);
+							dialogue.QueueFree();
+							var gameNode = GameNode.Create(new());
+							programRootNode.AddChild(gameNode);
+							programRootNode.McpRespond();
+						},
+						available = true,
+					},
+					new()
+					{
+						option = "退出",
+						description = "退出游戏",
+						onPreview = () => { },
+						onConfirm = () =>
+						{
+							programRootNode.McpRespond();
+							programRootNode.GetTree().Quit();
+						},
+						available = true,
+					},
+				],
+			});
+		}
+	}
+	class GameState : State
+	{
+		public GameState(ProgramRootNode programRootNode) : base(programRootNode) => programRootNode.state = this;
+	}
 	static readonly IReadOnlyDictionary<string, string> arguments;
 	static ProgramRootNode()
 	{
@@ -51,8 +103,9 @@ partial class ProgramRootNode : Node
 			sb.AppendLine($"{indent}}}");
 		}
 	}
+	State state = null!;
 	readonly McpHandler? mcpHandler;
-	[Export] Container dialogues = null!;
+	[Export] public Container dialogues = null!;
 	public bool HadClientConnected { get; private set; }
 	ProgramRootNode()
 	{
@@ -119,43 +172,5 @@ partial class ProgramRootNode : Node
 		dialogues.AddChild(dialogue);
 		return dialogue;
 	}
-	public override void _Ready()
-	{
-		var dialogue = MenuDialogue.Create(this);
-		if (dialogues.GetChildCount() > 1) dialogue.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = false;
-		dialogues.AddChild(dialogue);
-		dialogue.Initialize(new()
-		{
-			title = "主菜单",
-			options =
-			[
-				new()
-				{
-					option = "开始游戏",
-					description = "开始新游戏",
-					onPreview = () => { },
-					onConfirm = () =>
-					{
-						dialogue.QueueFree();
-						var gameNode = GameNode.Create(new());
-						AddChild(gameNode);
-						McpRespond();
-					},
-					available = true,
-				},
-				new()
-				{
-					option = "退出",
-					description = "退出游戏",
-					onPreview = () => { },
-					onConfirm = () =>
-					{
-						McpRespond();
-						GetTree().Quit();
-					},
-					available = true,
-				},
-			],
-		});
-	}
+	public override void _Ready() => state = new IdleState(this);
 }
