@@ -7,11 +7,15 @@ public partial class GameNode : Node
 
 	public static GameNode FromLoad(GameData gameData)
 	{
-		
+		var gameNode = Create();
+		gameNode.gameData = gameData;
+		return gameNode;
 	}
 	public static GameNode FromNew()
 	{
-		
+		var gameNode = Create();
+		gameNode.gameData = new();
+		return gameNode;
 	}
 	static GameNode Create()
 	{
