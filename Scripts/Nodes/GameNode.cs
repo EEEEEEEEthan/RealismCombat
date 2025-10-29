@@ -47,11 +47,19 @@ public partial class GameNode : Node
 					onConfirm = () =>
 					{
 						dialogue.QueueFree();
+						EnterCombat();
 						root.McpRespond();
 					},
 					available = true,
 				},
 			],
 		});
+	}
+
+	void EnterCombat()
+	{
+		var combatData = new CombatData();
+		var combatNode = CombatNode.Create(this, combatData);
+		AddChild(combatNode);
 	}
 }
