@@ -132,31 +132,33 @@ public partial class CombatNode : Node
 
 							// Step 2: Select "Attack" action
 							var actionDialogue = programRoot.CreateDialogue();
-							actionDialogue.Initialize(new()
+							var actionOptions = new[]
 							{
-								title = "选择行动",
-								options =
-								[
-									new()
+								new DialogueOptionData
+								{
+									option = "攻击",
+									description = "对敌人发起攻击",
+									onConfirm = () =>
 									{
-										option = "攻击",
-										description = "对敌人发起攻击",
-										onConfirm = () =>
-										{
-											var enemies = combatNode.combatData.characters
-												.Select((c, i) => new { Character = c, Index = i })
-												.Where(x => x.Character.team != character.team)
-												.ToList();
-											if (enemies.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
+										var enemies = combatNode.combatData.characters
+											.Select((c, i) => new { Character = c, Index = i })
+											.Where(x => x.Character.team != character.team)
+											.ToList();
+										if (enemies.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
 
-											// Step 3: Select enemy's body part
-											var enemyDialogue = programRoot.CreateDialogue();
-											enemyDialogue.Initialize(new()
+										// Step 3: Select enemy
+										var enemyDialogue = programRoot.CreateDialogue();
+										var enemyOptions = enemies.Select(enemy => new DialogueOptionData
+										{
+											option = enemy.Character.name,
+											description = $"选择攻击 {enemy.Character.name}",
+											onConfirm = () =>
 											{
-												title = "选择攻击目标",
-												options = enemies.SelectMany(enemy => bodyParts.Select(targetPart => new DialogueOptionData
+												// Step 4: Select enemy's body part
+												var bodyPartDialogue = programRoot.CreateDialogue();
+												var bodyPartOptions = bodyParts.Select(targetPart => new DialogueOptionData
 												{
-													option = $"{enemy.Character.name} - {targetPart.Name}",
+													option = targetPart.Name,
 													description = $"攻击{enemy.Character.name}的{targetPart.Name} (生命值: {GetBodyPartHp(enemy.Character, targetPart.Code)})",
 													onConfirm = () =>
 													{
@@ -169,17 +171,74 @@ public partial class CombatNode : Node
 														);
 														combatNode.combatData.lastAction = action;
 														_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
+														bodyPartDialogue.QueueFree();
 														enemyDialogue.QueueFree();
 														actionDialogue.QueueFree();
 														dialogue.QueueFree();
 													},
 													available = true,
-												})).ToArray(),
-											});
-										},
-										available = true,
+												}).ToList();
+
+												// Add back button for body part selection
+												bodyPartOptions.Add(new DialogueOptionData
+												{
+													option = "返回",
+													description = "返回选择敌人",
+													onConfirm = () =>
+													{
+														bodyPartDialogue.QueueFree();
+													},
+													available = true,
+												});
+
+												bodyPartDialogue.Initialize(new()
+												{
+													title = $"选择攻击 {enemy.Character.name} 的部位",
+													options = bodyPartOptions.ToArray(),
+												});
+											},
+											available = true,
+										}).ToList();
+
+										// Add back button for enemy selection
+										enemyOptions.Add(new DialogueOptionData
+										{
+											option = "返回",
+											description = "返回选择行动",
+											onConfirm = () =>
+											{
+												enemyDialogue.QueueFree();
+											},
+											available = true,
+										});
+
+										enemyDialogue.Initialize(new()
+										{
+											title = "选择攻击目标",
+											options = enemyOptions.ToArray(),
+										});
 									},
-								],
+									available = true,
+								},
+							};
+
+							// Add back button for action selection
+							var actionOptionsList = actionOptions.ToList();
+							actionOptionsList.Add(new DialogueOptionData
+							{
+								option = "返回",
+								description = "返回选择身体部位",
+								onConfirm = () =>
+								{
+									actionDialogue.QueueFree();
+								},
+								available = true,
+							});
+
+							actionDialogue.Initialize(new()
+							{
+								title = "选择行动",
+								options = actionOptionsList.ToArray(),
 							});
 						},
 						available = true,
