@@ -68,6 +68,12 @@ public partial class GameNode : Node
 			gameNode.gameData.combatData = combatData;
 			var combatNode = CombatNode.Create(gameNode: gameNode, combatData: combatData);
 			gameNode.AddChild(combatNode);
+			WaitForCombatEnd(gameNode, combatNode);
+		}
+		async void WaitForCombatEnd(GameNode gameNode, CombatNode combatNode)
+		{
+			await combatNode;
+			gameNode.CurrentState = new IdleState(gameNode);
 		}
 	}
 	public static GameNode Create(GameData gameData)

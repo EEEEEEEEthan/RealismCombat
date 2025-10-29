@@ -1,9 +1,29 @@
 using System;
+using System.Runtime.CompilerServices;
 using Godot;
 using RealismCombat.Data;
 namespace RealismCombat.Nodes;
 public partial class CombatNode : Node
 {
+	public class CombatNodeAwaiter : INotifyCompletion
+	{
+		readonly CombatNode combatNode;
+		Action? continuation;
+		public CombatNodeAwaiter(CombatNode combatNode)
+		{
+			this.combatNode = combatNode;
+			combatNode.TreeExiting += OnTreeExiting;
+		}
+		void OnTreeExiting()
+		{
+			combatNode.TreeExiting -= OnTreeExiting;
+			continuation?.Invoke();
+		}
+		public bool IsCompleted => !GodotObject.IsInstanceValid(combatNode) || !combatNode.IsInsideTree();
+		public void OnCompleted(Action continuation) => this.continuation = continuation;
+		public void GetResult() { }
+	}
+	public CombatNodeAwaiter GetAwaiter() => new(this);
 	public abstract class State(CombatNode combatNode)
 	{
 		public static State Create(CombatNode combatNode)
