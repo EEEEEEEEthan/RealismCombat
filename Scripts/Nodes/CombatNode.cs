@@ -73,7 +73,7 @@ public partial class CombatNode : Node
 			foreach (var character in combatNode.combatData.characters)
 				if (character.actionPoint >= 0)
 				{
-					combatNode.CurrentState = new CharacterTurnState(combatNode: combatNode, character: character);
+					_ = new CharacterTurnState(combatNode: combatNode, character: character);
 					return;
 				}
 		}
@@ -109,6 +109,7 @@ public partial class CombatNode : Node
 							description = "对敌人发起攻击",
 							onConfirm = () =>
 							{
+								Log.Print("confirm");
 								var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
 								if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
 								var attackerIndex = characterIndex;
@@ -119,9 +120,8 @@ public partial class CombatNode : Node
 									defenderBody: BodyPartCode.Head
 								);
 								combatNode.combatData.lastAction = action;
-								combatNode.CurrentState = new CharacterTurnActionState(combatNode: combatNode, action: action);
+								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 								dialogue.QueueFree();
-								programRoot.McpRespond();
 							},
 							available = true,
 						},
@@ -140,9 +140,7 @@ public partial class CombatNode : Node
 					defenderBody: BodyPartCode.Head
 				);
 				combatNode.combatData.lastAction = action;
-				combatNode.CurrentState = new CharacterTurnActionState(combatNode: combatNode, action: action);
-				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
-				programRoot.McpRespond();
+				_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 			}
 		}
 	}
@@ -200,7 +198,7 @@ public partial class CombatNode : Node
 					return;
 				}
 			}
-			combatNode.CurrentState = new RoundInProgressState(combatNode);
+			_ = new RoundInProgressState(combatNode);
 		}
 	}
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
@@ -208,7 +206,7 @@ public partial class CombatNode : Node
 		var combatNode = GD.Load<PackedScene>(ResourceTable.combat).Instantiate<CombatNode>();
 		combatNode.gameNode = gameNode;
 		combatNode.combatData = combatData;
-		combatNode.CurrentState = State.Create(combatNode: combatNode);
+		_ = State.Create(combatNode: combatNode);
 		return combatNode;
 	}
 	State state = null!;

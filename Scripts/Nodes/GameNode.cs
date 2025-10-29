@@ -38,7 +38,7 @@ public partial class GameNode : Node
 							var combatData = new CombatData();
 							combatData.characters.Add(new(name: "ethan", team: 0) { actionPoint = 0, });
 							combatData.characters.Add(new(name: "dove", team: 1) { actionPoint = 0, });
-							gameNode.CurrentState = new CombatState(gameNode: gameNode, combatData: combatData);
+							_ = new CombatState(gameNode: gameNode, combatData: combatData);
 						},
 						available = true,
 					},
@@ -73,7 +73,7 @@ public partial class GameNode : Node
 		async void WaitForCombatEnd(GameNode gameNode, CombatNode combatNode)
 		{
 			await combatNode;
-			gameNode.CurrentState = new IdleState(gameNode);
+			_ = new IdleState(gameNode);
 		}
 	}
 	public static GameNode Create(GameData gameData)
@@ -102,6 +102,6 @@ public partial class GameNode : Node
 	public override void _Ready()
 	{
 		root = GetParent<ProgramRootNode>();
-		CurrentState = State.Create(gameNode: this);
+		_ = State.Create(gameNode: this);
 	}
 }
