@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Godot;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Components;
@@ -12,11 +14,13 @@ partial class MenuDialogue : Node
 		return scene.Instantiate<MenuDialogue>();
 	}
 	readonly List<(string desc, Action callback)> options = [];
+	readonly TaskCompletionSource<int> completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 	[Export] Container container = null!;
 	[Export] TextureRect arrow = null!;
 	[Export] PrinterLabelNode title = null!;
 	[Export] PrinterLabelNode description = null!;
 	int index;
+	bool completed;
 	public string Title
 	{
 		get => title.Text;
@@ -41,6 +45,7 @@ partial class MenuDialogue : Node
 		else if (accept)
 		{
 			options[index].callback();
+			Complete();
 		}
 	}
 	public override void _Process(double delta)
@@ -49,10 +54,22 @@ partial class MenuDialogue : Node
 		arrow.Position = container.GetChild<Control>(index).Position with { X = -6, };
 		arrow.SelfModulate = Input.IsAnythingPressed() ? GameColors.activeControl : GameColors.normalControl;
 	}
+	public override void _ExitTree()
+	{
+		Complete();
+		base._ExitTree();
+	}
+	public TaskAwaiter<int> GetAwaiter() => completionSource.Task.GetAwaiter();
 	public void AddOption(string option, string description, Action callback)
 	{
 		container.AddChild(new Label { Text = option, });
 		options.Add((description, callback));
 	}
 	public void ClearOptions() => container.DestroyChildren();
+	void Complete()
+	{
+		if (completed) return;
+		completed = true;
+		completionSource.TrySetResult(index);
+	}
 }
