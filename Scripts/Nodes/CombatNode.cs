@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using RealismCombat.Data;
+using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class CombatNode : Node
 {
@@ -15,7 +16,7 @@ public partial class CombatNode : Node
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
 				CharacterTurnState.serializeId => new CharacterTurnState(combatNode: combatNode,
 					character: combatData.characters[combatData.currentCharacterIndex]),
-                CharacterTurnActionState.serializeId => new CharacterTurnActionState(combatNode: combatNode, combatData.lastAction),
+                CharacterTurnActionState.serializeId => new CharacterTurnActionState(combatNode: combatNode, action: combatData.lastAction!),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
@@ -50,15 +51,69 @@ public partial class CombatNode : Node
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
 
+			if (character.PlayerControlled)
+			{
+				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
+				var dialogue = programRoot.CreateDialogue();
+				dialogue.Initialize(new()
+				{
+					title = $"{character.name}的回合",
+					options =
+					[
+						new()
+						{
+							option = "攻击",
+							description = "对敌人发起攻击",
+							onConfirm = () =>
+							{
+								var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
+								if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
+								
+								var attackerIndex = characterIndex;
+								var action = new ActionData(
+									attackerIndex: attackerIndex,
+									attackerBody: BodyPartCode.RightArm,
+									defenderIndex: targetIndex,
+									defenderBody: BodyPartCode.Head
+								);
+								
+								combatNode.combatData.lastAction = action;
+								combatNode.state = new CharacterTurnActionState(combatNode: combatNode, action: action);
+								dialogue.QueueFree();
+								programRoot.McpRespond();
+							},
+							available = true,
+						},
+					],
+				});
+			}
+			else
+			{
+				var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
+				if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
+				
+				var attackerIndex = characterIndex;
+				var action = new ActionData(
+					attackerIndex: attackerIndex,
+					attackerBody: BodyPartCode.RightArm,
+					defenderIndex: targetIndex,
+					defenderBody: BodyPartCode.Head
+				);
+				
+				combatNode.combatData.lastAction = action;
+				combatNode.state = new CharacterTurnActionState(combatNode: combatNode, action: action);
+			}
 		}
 		public override void Update(double deltaTime) { }
 	}
 	public class CharacterTurnActionState : State
 	{
 		public const byte serializeId = 2;
-		public readonly CharacterData character;
-		public CharacterTurnActionState(CombatNode combatNode, CharacterData character, ActionData actionData) : base(combatNode)
+		public readonly ActionData action;
+		public CharacterTurnActionState(CombatNode combatNode, ActionData action) : base(combatNode)
 		{
+			this.action = action;
+			combatNode.CurrentState = this;
 		}
 		public override void Update(double deltaTime) { }
 	}
