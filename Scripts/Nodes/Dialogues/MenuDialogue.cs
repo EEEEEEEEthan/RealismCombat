@@ -3,17 +3,31 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat.Extensions;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
+public struct DialogueData
+{
+	public string title;
+	public DialogueOptionData[] options;
+}
+public struct DialogueOptionData
+{
+	public string option;
+	public string description;
+	public Action onPreview;
+	public Action onConfirm;
+	public bool available;
+}
 partial class MenuDialogue : Control
 {
-	public static MenuDialogue Create()
+	public static MenuDialogue Create(DialogueData data)
 	{
-		var scene = GD.Load<PackedScene>(ResourceTable.dialoguesMenudialogue);
-		return scene.Instantiate<MenuDialogue>();
+		if (data.options.Length < 1) throw new ArgumentException("至少需要一个选项才能创建菜单对话框");
+		var instance = GD.Load<PackedScene>(ResourceTable.dialoguesMenudialogue).Instantiate<MenuDialogue>();
+		foreach (var optionData in data.options) instance.AddOption(optionData);
+		return instance;
 	}
-	readonly List<(string desc, Action callback)> options = [];
+	readonly List<DialogueOptionData> options = [];
 	readonly TaskCompletionSource<int> completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 	[Export] Container container = null!;
 	[Export] TextureRect arrow = null!;
@@ -21,11 +35,6 @@ partial class MenuDialogue : Control
 	[Export] PrinterLabelNode description = null!;
 	int index;
 	bool completed;
-	public string Title
-	{
-		get => title.Text;
-		set => title.Show(value);
-	}
 	public override void _Input(InputEvent @event)
 	{
 		if (container.GetChildCount() == 0) return;
@@ -35,16 +44,16 @@ partial class MenuDialogue : Control
 		if (moveUp)
 		{
 			index = (index - 1 + container.GetChildCount()) % container.GetChildCount();
-			description.Show(options[index].desc);
+			description.Show(options[index].description);
 		}
 		else if (moveDown)
 		{
 			index = (index + 1) % container.GetChildCount();
-			description.Show(options[index].desc);
+			description.Show(options[index].description);
 		}
 		else if (accept)
 		{
-			options[index].callback();
+			options[index].onConfirm();
 			Complete();
 		}
 	}
@@ -60,13 +69,12 @@ partial class MenuDialogue : Control
 		base._ExitTree();
 	}
 	public TaskAwaiter<int> GetAwaiter() => completionSource.Task.GetAwaiter();
-	public void AddOption(string option, string description, Action callback)
+	void AddOption(DialogueOptionData data)
 	{
-		container.AddChild(new Label { Text = option, });
-		options.Add((description, callback));
-		if (options.Count == 1) this.description.Show(options[index].desc);
+		container.AddChild(new Label { Text = data.option, });
+		options.Add(data);
+		if (options.Count == 1) description.Show(options[index].description);
 	}
-	public void ClearOptions() => container.DestroyChildren();
 	void Complete()
 	{
 		if (completed) return;
