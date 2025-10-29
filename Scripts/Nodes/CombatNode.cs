@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Godot;
 using RealismCombat.Data;
@@ -9,21 +10,20 @@ public partial class CombatNode : Node
 	{
 		readonly CombatNode combatNode;
 		Action? continuation;
+		public bool IsCompleted => !IsInstanceValid(combatNode) || !combatNode.IsInsideTree();
 		public CombatNodeAwaiter(CombatNode combatNode)
 		{
 			this.combatNode = combatNode;
 			combatNode.TreeExiting += OnTreeExiting;
 		}
+		public void OnCompleted(Action continuation) => this.continuation = continuation;
+		public void GetResult() { }
 		void OnTreeExiting()
 		{
 			combatNode.TreeExiting -= OnTreeExiting;
 			continuation?.Invoke();
 		}
-		public bool IsCompleted => !GodotObject.IsInstanceValid(combatNode) || !combatNode.IsInsideTree();
-		public void OnCompleted(Action continuation) => this.continuation = continuation;
-		public void GetResult() { }
 	}
-	public CombatNodeAwaiter GetAwaiter() => new(this);
 	public abstract class State(CombatNode combatNode)
 	{
 		public static State Create(CombatNode combatNode)
@@ -45,18 +45,37 @@ public partial class CombatNode : Node
 	public class RoundInProgressState : State
 	{
 		public const byte serializeId = 0;
-		public RoundInProgressState(CombatNode combatNode) : base(combatNode) => combatNode.CurrentState = this;
+		bool firstUpdate = true;
+		public RoundInProgressState(CombatNode combatNode) : base(combatNode)
+		{
+			combatNode.CurrentState = this;
+			var allActionPoints = string.Join(separator: ", ", values: combatNode.combatData.characters.Select(c => $"{c.name}:{c.actionPoint:F2}"));
+			Log.Print($"进入 RoundInProgressState - 当前行动力: {allActionPoints}");
+		}
 		public override void Update(double deltaTime)
 		{
+			if (firstUpdate)
+			{
+				firstUpdate = false;
+				CheckForReadyCharacter();
+				return;
+			}
 			foreach (var character in combatNode.combatData.characters)
 			{
+				var oldActionPoint = character.actionPoint;
 				character.actionPoint += character.speed * deltaTime;
-				if (character.actionPoint == 0)
-				{
-					combatNode.state = new CharacterTurnState(combatNode: combatNode, character: character);
-					break;
-				}
+				if (oldActionPoint < 0 && character.actionPoint >= 0) Log.Print($"{character.name} 行动力恢复到 {character.actionPoint:F2}");
 			}
+			CheckForReadyCharacter();
+		}
+		void CheckForReadyCharacter()
+		{
+			foreach (var character in combatNode.combatData.characters)
+				if (character.actionPoint >= 0)
+				{
+					combatNode.CurrentState = new CharacterTurnState(combatNode: combatNode, character: character);
+					return;
+				}
 		}
 	}
 	public class CharacterTurnState : State
@@ -69,6 +88,7 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
+			Log.Print($"进入 CharacterTurnState: {character.name}");
 			HandleCharacterTurn(combatNode: combatNode, character: character, characterIndex: characterIndex);
 		}
 		public override void Update(double deltaTime) { }
@@ -99,7 +119,7 @@ public partial class CombatNode : Node
 									defenderBody: BodyPartCode.Head
 								);
 								combatNode.combatData.lastAction = action;
-								combatNode.state = new CharacterTurnActionState(combatNode: combatNode, action: action);
+								combatNode.CurrentState = new CharacterTurnActionState(combatNode: combatNode, action: action);
 								dialogue.QueueFree();
 								programRoot.McpRespond();
 							},
@@ -120,7 +140,9 @@ public partial class CombatNode : Node
 					defenderBody: BodyPartCode.Head
 				);
 				combatNode.combatData.lastAction = action;
-				combatNode.state = new CharacterTurnActionState(combatNode: combatNode, action: action);
+				combatNode.CurrentState = new CharacterTurnActionState(combatNode: combatNode, action: action);
+				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
+				programRoot.McpRespond();
 			}
 		}
 	}
@@ -132,13 +154,54 @@ public partial class CombatNode : Node
 		{
 			this.action = action;
 			combatNode.CurrentState = this;
+			Log.Print("进入 CharacterTurnActionState");
 			Run();
 		}
+		public override void Update(double deltaTime) { }
 		void Run()
 		{
-			
+			var attacker = combatNode.combatData.characters[action.attackerIndex];
+			var defender = combatNode.combatData.characters[action.defenderIndex];
+			attacker.actionPoint -= 5;
+			Log.Print($"{attacker.name} 消耗行动力 5，剩余行动力: {attacker.actionPoint}");
+			var targetBodyPart = action.defenderBody switch
+			{
+				BodyPartCode.Head => defender.head,
+				BodyPartCode.Chest => defender.chest,
+				BodyPartCode.LeftArm => defender.leftArm,
+				BodyPartCode.RightArm => defender.rightArm,
+				BodyPartCode.LeftLeg => defender.leftLeg,
+				BodyPartCode.RightLeg => defender.rightLeg,
+				_ => throw new ArgumentOutOfRangeException(),
+			};
+			var bodyPartName = action.defenderBody switch
+			{
+				BodyPartCode.Head => "头部",
+				BodyPartCode.Chest => "胸部",
+				BodyPartCode.LeftArm => "左臂",
+				BodyPartCode.RightArm => "右臂",
+				BodyPartCode.LeftLeg => "左腿",
+				BodyPartCode.RightLeg => "右腿",
+				_ => throw new ArgumentOutOfRangeException(),
+			};
+			targetBodyPart.hp -= 2;
+			Log.Print($"{attacker.name} 攻击 {defender.name} 的{bodyPartName}，造成 2 点伤害，{bodyPartName}剩余血量: {targetBodyPart.hp}/{targetBodyPart.maxHp}");
+			if (defender.Dead)
+			{
+				Log.Print($"{defender.name} 死亡");
+				combatNode.combatData.characters.RemoveAt(action.defenderIndex);
+				var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
+				var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
+				if (!team0Alive || !team1Alive)
+				{
+					var winner = team0Alive ? "玩家" : "敌人";
+					Log.Print($"战斗结束，{winner}获胜");
+					combatNode.QueueFree();
+					return;
+				}
+			}
+			combatNode.CurrentState = new RoundInProgressState(combatNode);
 		}
-		public override void Update(double deltaTime) { }
 	}
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
 	{
@@ -167,6 +230,7 @@ public partial class CombatNode : Node
 			};
 		}
 	}
+	public CombatNodeAwaiter GetAwaiter() => new(this);
 	public override void _Ready()
 	{
 		foreach (var character in combatData.characters)
