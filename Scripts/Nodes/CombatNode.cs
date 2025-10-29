@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Godot;
 using RealismCombat.Data;
 namespace RealismCombat.Nodes;
@@ -14,7 +13,8 @@ public partial class CombatNode : Node
 			return combatData.state switch
 			{
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
-				CharacterTurnState.serializeId => new CharacterTurnState(combatNode, combatData.characters[combatData.currentCharacterIndex]),
+				CharacterTurnState.serializeId => new CharacterTurnState(combatNode: combatNode,
+					character: combatData.characters[combatData.currentCharacterIndex]),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
@@ -24,12 +24,18 @@ public partial class CombatNode : Node
 	public class RoundInProgressState : State
 	{
 		public const byte serializeId = 0;
-		public RoundInProgressState(CombatNode combatNode) : base(combatNode)
-		{
-			combatNode.CurrentState = this;
-		}
+		public RoundInProgressState(CombatNode combatNode) : base(combatNode) => combatNode.CurrentState = this;
 		public override void Update(double deltaTime)
 		{
+			foreach (var character in combatNode.combatData.characters)
+			{
+				character.actionPoint += character.speed * deltaTime;
+				if (character.actionPoint == 0)
+				{
+					combatNode.state = new CharacterTurnState(combatNode: combatNode, character: character);
+					break;
+				}
+			}
 		}
 	}
 	public class CharacterTurnState : State
@@ -44,9 +50,21 @@ public partial class CombatNode : Node
 			combatNode.CurrentState = this;
 			Log.Print($"现在是 {character.name} 的回合");
 		}
-		public override void Update(double deltaTime)
+		public override void Update(double deltaTime) { }
+	}
+	public class CharacterTurnAction : State
+	{
+		public const byte serializeId = 1;
+		public readonly CharacterData character;
+		public CharacterTurnAction(CombatNode combatNode, CharacterData character, ActionData actionData) : base(combatNode)
 		{
+			this.character = character;
+			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
+			combatNode.combatData.currentCharacterIndex = characterIndex;
+			combatNode.CurrentState = this;
+			Log.Print($"现在是 {character.name} 的回合");
 		}
+		public override void Update(double deltaTime) { }
 	}
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
 	{
@@ -83,8 +101,5 @@ public partial class CombatNode : Node
 			characterContainer.AddChild(characterNode);
 		}
 	}
-	public override void _Process(double delta)
-	{
-		CurrentState.Update(delta);
-	}
+	public override void _Process(double delta) => CurrentState.Update(delta);
 }

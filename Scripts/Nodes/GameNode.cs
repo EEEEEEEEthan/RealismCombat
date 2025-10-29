@@ -20,8 +20,7 @@ public partial class GameNode : Node
 		public const int serializeId = 0;
 		public IdleState(GameNode gameNode) : base(gameNode)
 		{
-			gameNode.state = this;
-			gameNode.gameData.state = serializeId;
+			gameNode.CurrentState = this;
 			var dialogue = gameNode.root.CreateDialogue();
 			dialogue.Initialize(new()
 			{
@@ -35,7 +34,7 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							gameNode.state = new CombatState(gameNode: gameNode);
+							gameNode.CurrentState = new CombatState(gameNode: gameNode);
 							dialogue.QueueFree();
 							var combatData = new CombatData();
 							combatData.characters.Add(new(name: "ethan", team: 0) { actionPoint = 0, });
@@ -67,8 +66,7 @@ public partial class GameNode : Node
 		public const int serializeId = 1;
 		public CombatState(GameNode gameNode) : base(gameNode)
 		{
-			gameNode.state = this;
-			gameNode.gameData.state = serializeId;
+			gameNode.CurrentState = this;
 		}
 	}
 	public static GameNode Create(GameData gameData)
@@ -80,9 +78,23 @@ public partial class GameNode : Node
 	State state = null!;
 	GameData gameData = null!;
 	ProgramRootNode root = null!;
+	State CurrentState
+	{
+		get => state;
+		set
+		{
+			state = value;
+			gameData.state = value switch
+			{
+				IdleState => IdleState.serializeId,
+				CombatState => CombatState.serializeId,
+				_ => throw new ArgumentOutOfRangeException(),
+			};
+		}
+	}
 	public override void _Ready()
 	{
 		root = GetParent<ProgramRootNode>();
-		state = State.Create(gameNode: this);
+		CurrentState = State.Create(gameNode: this);
 	}
 }
