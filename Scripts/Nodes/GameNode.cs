@@ -36,6 +36,9 @@ public partial class GameNode : Node
 							gameNode.state = new CombatState(gameNode: gameNode);
 							dialogue.QueueFree();
 							var combatData = new CombatData();
+							combatData.characters.Add(new(name: "玩家", team: 0) { actionPoint = 10 });
+							combatData.characters.Add(new(name: "敌人A", team: 1) { actionPoint = 8 });
+							combatData.characters.Add(new(name: "敌人B", team: 1) { actionPoint = 6 });
 							var combatNode = CombatNode.Create(gameNode: this.gameNode, combatData: combatData);
 							gameNode.AddChild(combatNode);
 						},
