@@ -9,17 +9,19 @@ public partial class GameNode : Node
 		public static State Create(GameNode gameNode) =>
 			gameNode.gameData.state switch
 			{
-				0 => new IdleState(gameNode),
-				1 => new CombatState(gameNode),
+				IdleState.serializeId => new IdleState(gameNode),
+				CombatState.serializeId => new CombatState(gameNode),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		public readonly GameNode gameNode = gameNode;
 	}
 	public class IdleState : State
 	{
+		public const int serializeId = 0;
 		public IdleState(GameNode gameNode) : base(gameNode)
 		{
 			gameNode.state = this;
+			gameNode.gameData.state = serializeId;
 			var dialogue = gameNode.root.CreateDialogue();
 			dialogue.Initialize(new()
 			{
@@ -36,9 +38,8 @@ public partial class GameNode : Node
 							gameNode.state = new CombatState(gameNode: gameNode);
 							dialogue.QueueFree();
 							var combatData = new CombatData();
-							combatData.characters.Add(new(name: "玩家", team: 0) { actionPoint = 10 });
-							combatData.characters.Add(new(name: "敌人A", team: 1) { actionPoint = 8 });
-							combatData.characters.Add(new(name: "敌人B", team: 1) { actionPoint = 6 });
+							combatData.characters.Add(new(name: "ethan", team: 0) { actionPoint = 0, });
+							combatData.characters.Add(new(name: "dove", team: 1) { actionPoint = 0, });
 							var combatNode = CombatNode.Create(gameNode: this.gameNode, combatData: combatData);
 							gameNode.AddChild(combatNode);
 						},
@@ -63,7 +64,12 @@ public partial class GameNode : Node
 	}
 	public class CombatState : State
 	{
-		public CombatState(GameNode gameNode) : base(gameNode) => gameNode.state = this;
+		public const int serializeId = 1;
+		public CombatState(GameNode gameNode) : base(gameNode)
+		{
+			gameNode.state = this;
+			gameNode.gameData.state = serializeId;
+		}
 	}
 	public static GameNode Create(GameData gameData)
 	{

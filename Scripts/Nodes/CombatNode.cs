@@ -11,8 +11,7 @@ public partial class CombatNode : Node
 		{
 			var combatData = combatNode.combatData;
 			if (combatData.characters.Count == 0) throw new InvalidOperationException("战斗数据中没有角色");
-			var currentCharacter = combatData.characters.OrderByDescending(c => c.actionPoint).First();
-			return new CharacterTurnState(combatNode: combatNode, character: currentCharacter);
+			switch(combatNode
 		}
 		public readonly CombatNode combatNode = combatNode;
 	}
@@ -45,4 +44,13 @@ public partial class CombatNode : Node
 	CombatData combatData = null!;
 	GameNode gameNode = null!;
 	[Export] Container characterContainer = null!;
+	public override void _Ready()
+	{
+		foreach (var character in combatData.characters)
+		{
+			var characterNode = CharacterNode.Create();
+			characterNode.CharacterData = character;
+			characterContainer.AddChild(characterNode);
+		}
+	}
 }
