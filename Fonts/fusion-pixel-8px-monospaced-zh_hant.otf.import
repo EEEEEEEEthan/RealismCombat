@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dn8m3qtf0duwn"
-path="res://.godot/imported/fusion-pixel-8px-monospaced-latin.otf-a3d00bac5915632589d2a88e641b4103.fontdata"
+uid="uid://bepbhrp0yisid"
+path="res://.godot/imported/fusion-pixel-8px-monospaced-zh_hant.otf-fb078e64dfb6e8f22a724a6c51d048d2.fontdata"
 
 [deps]
 
-source_file="res://Fonts/缝合像素字体/拉丁语/等宽模式/fusion-pixel-8px-monospaced-latin.otf"
-dest_files=["res://.godot/imported/fusion-pixel-8px-monospaced-latin.otf-a3d00bac5915632589d2a88e641b4103.fontdata"]
+source_file="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf"
+dest_files=["res://.godot/imported/fusion-pixel-8px-monospaced-zh_hant.otf-fb078e64dfb6e8f22a724a6c51d048d2.fontdata"]
 
 [params]
 

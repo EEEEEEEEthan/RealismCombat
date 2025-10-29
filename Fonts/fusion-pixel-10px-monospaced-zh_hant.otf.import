@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://bodj4fv3565wo"
-path="res://.godot/imported/BoutiqueBitmap9x9_Bold_1.9（粗体）.ttf-60a6707640b728e72f63ecb538a5014b.fontdata"
+uid="uid://j6vtrus55j64"
+path="res://.godot/imported/fusion-pixel-10px-monospaced-zh_hant.otf-3b3370c20289b06a20261bc8cd3b10c1.fontdata"
 
 [deps]
 
-source_file="res://Fonts/精品点阵体9×9/BoutiqueBitmap9x9_Bold_1.9（粗体）.ttf"
-dest_files=["res://.godot/imported/BoutiqueBitmap9x9_Bold_1.9（粗体）.ttf-60a6707640b728e72f63ecb538a5014b.fontdata"]
+source_file="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf"
+dest_files=["res://.godot/imported/fusion-pixel-10px-monospaced-zh_hant.otf-3b3370c20289b06a20261bc8cd3b10c1.fontdata"]
 
 [params]
 

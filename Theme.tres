@@ -1,8 +1,8 @@
 [gd_resource type="Theme" load_steps=7 format=3 uid="uid://bpxr1w3o076bd"]
 
-[ext_resource type="FontFile" uid="uid://dfnf4scy74tcj" path="res://Fonts/缝合像素字体/日语/等宽模式/fusion-pixel-12px-monospaced-ja.otf" id="1_c6xh3"]
-[ext_resource type="FontFile" uid="uid://ptg6cimhd6nx" path="res://Fonts/缝合像素字体/日语/等宽模式/fusion-pixel-10px-monospaced-ja.otf" id="1_k1aya"]
-[ext_resource type="FontFile" uid="uid://y38w7w8xmw6g" path="res://Fonts/缝合像素字体/日语/比例模式/fusion-pixel-10px-proportional-ja.otf" id="1_yd3fu"]
+[ext_resource type="FontFile" uid="uid://cwaryh10sp0rr" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
+[ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
+[ext_resource type="FontFile" uid="uid://bepbhrp0yisid" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
 [ext_resource type="Texture2D" uid="uid://btyud6kopkj6b" path="res://Textures/UserInterface.png" id="2_k1aya"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j4jqe"]
@@ -17,14 +17,14 @@ texture_margin_right = 5.0
 texture_margin_bottom = 5.0
 
 [resource]
-default_font = ExtResource("1_yd3fu")
+default_font = ExtResource("2_23v3e")
 default_font_size = 8
 HBoxContainer/constants/separation = 0
 HeaderLarge/font_sizes/font_size = 12
-HeaderLarge/fonts/font = ExtResource("1_c6xh3")
+HeaderLarge/fonts/font = ExtResource("1_j4jqe")
 HeaderMedium/base_type = &"Label"
 HeaderMedium/font_sizes/font_size = 12
-HeaderMedium/fonts/font = ExtResource("1_c6xh3")
+HeaderMedium/fonts/font = ExtResource("1_j4jqe")
 HeaderSmall/font_sizes/font_size = 10
 HeaderSmall/fonts/font = ExtResource("1_k1aya")
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
