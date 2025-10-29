@@ -9,11 +9,11 @@ using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class ProgramRootNode : Node
 {
-	abstract class State(ProgramRootNode programRootNode)
+	public abstract class State(ProgramRootNode programRootNode)
 	{
 		public readonly ProgramRootNode programRootNode = programRootNode;
 	}
-	class IdleState : State
+	public class IdleState : State
 	{
 		public IdleState(ProgramRootNode programRootNode) : base(programRootNode)
 		{
@@ -55,7 +55,7 @@ public partial class ProgramRootNode : Node
 			});
 		}
 	}
-	class GameState : State
+	public class GameState : State
 	{
 		public GameState(ProgramRootNode programRootNode) : base(programRootNode) => programRootNode.state = this;
 	}

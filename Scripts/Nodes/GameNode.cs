@@ -4,7 +4,7 @@ using RealismCombat.Data;
 namespace RealismCombat.Nodes;
 public partial class GameNode : Node
 {
-	abstract class State(GameNode gameNode)
+	public abstract class State(GameNode gameNode)
 	{
 		public static State Create(GameNode gameNode) =>
 			gameNode.gameData.state switch
@@ -15,7 +15,7 @@ public partial class GameNode : Node
 			};
 		public readonly GameNode gameNode = gameNode;
 	}
-	class IdleState : State
+	public class IdleState : State
 	{
 		public IdleState(GameNode gameNode) : base(gameNode)
 		{
@@ -45,7 +45,7 @@ public partial class GameNode : Node
 			});
 		}
 	}
-	class CombatState : State
+	public class CombatState : State
 	{
 		public CombatState(GameNode gameNode) : base(gameNode) => gameNode.state = this;
 	}
