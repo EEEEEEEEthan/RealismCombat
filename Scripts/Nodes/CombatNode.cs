@@ -107,7 +107,6 @@ public partial class CombatNode : Node
 							description = "对敌人发起攻击",
 							onConfirm = () =>
 							{
-								Log.Print("confirm");
 								var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
 								if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
 								var attackerIndex = characterIndex;
