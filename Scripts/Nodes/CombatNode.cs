@@ -1,15 +1,8 @@
 using Godot;
-using RealismCombat;
 using RealismCombat.Data;
-
 namespace RealismCombat.Nodes;
-
 public partial class CombatNode : Node
 {
-	CombatData combatData = null!;
-	ProgramRootNode root = null!;
-	GameNode gameNode = null!;
-
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
 	{
 		var combatNode = GD.Load<PackedScene>(ResourceTable.combat).Instantiate<CombatNode>();
@@ -17,10 +10,8 @@ public partial class CombatNode : Node
 		combatNode.combatData = combatData;
 		return combatNode;
 	}
-
-	public override void _Ready()
-	{
-		root = GetParent().GetParent<ProgramRootNode>();
-	}
+	CombatData combatData = null!;
+	ProgramRootNode root = null!;
+	GameNode gameNode = null!;
+	public override void _Ready() => root = GetParent().GetParent<ProgramRootNode>();
 }
-

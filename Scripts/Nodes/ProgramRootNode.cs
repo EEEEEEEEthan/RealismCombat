@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using Godot;
 using RealismCombat.Extensions;
@@ -17,6 +18,38 @@ partial class ProgramRootNode : Node
 			if (match.Success) dict[match.Groups[1].ToString()] = match.Groups[2].ToString();
 		}
 		arguments = dict;
+	}
+	static string BuildNodeTree(Node root)
+	{
+		var sb = new StringBuilder();
+		BuildNodeTreeRecursive(node: root, sb: sb, depth: 0);
+		return sb.ToString();
+	}
+	static void BuildNodeTreeRecursive(Node node, StringBuilder sb, int depth)
+	{
+		var indent = new string(c: ' ', count: depth * 4);
+		var nodeName = node.Name;
+		var nodeType = node.GetType().Name;
+		var childCount = node.GetChildCount();
+		if (childCount == 0)
+		{
+			sb.AppendLine($"{indent}\"{nodeName}({nodeType})\"");
+		}
+		else
+		{
+			sb.AppendLine($"{indent}\"{nodeName}({nodeType})\": {{");
+			for (var i = 0; i < childCount; i++)
+			{
+				var child = node.GetChild(i);
+				BuildNodeTreeRecursive(node: child, sb: sb, depth: depth + 1);
+				if (i < childCount - 1)
+				{
+					sb.Remove(startIndex: sb.Length - 1, length: 1);
+					sb.AppendLine(",");
+				}
+			}
+			sb.AppendLine($"{indent}}}");
+		}
 	}
 	readonly McpHandler? mcpHandler;
 	[Export] Container dialogues = null!;
@@ -96,20 +129,20 @@ partial class ProgramRootNode : Node
 			title = "主菜单",
 			options =
 			[
-			new()
-			{
-				option = "开始游戏",
-				description = "开始新游戏",
-				onPreview = () => { },
-				onConfirm = () =>
+				new()
 				{
-					dialogue.QueueFree();
-					var gameNode = GameNode.FromNew();
-					AddChild(gameNode);
-					McpRespond();
+					option = "开始游戏",
+					description = "开始新游戏",
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						dialogue.QueueFree();
+						var gameNode = GameNode.Create(new());
+						AddChild(gameNode);
+						McpRespond();
+					},
+					available = true,
 				},
-				available = true,
-			},
 				new()
 				{
 					option = "退出",
@@ -124,37 +157,5 @@ partial class ProgramRootNode : Node
 				},
 			],
 		});
-	}
-	static string BuildNodeTree(Node root)
-	{
-		var sb = new System.Text.StringBuilder();
-		BuildNodeTreeRecursive(root, sb, 0);
-		return sb.ToString();
-	}
-	static void BuildNodeTreeRecursive(Node node, System.Text.StringBuilder sb, int depth)
-	{
-		var indent = new string(' ', depth * 4);
-		var nodeName = node.Name;
-		var nodeType = node.GetType().Name;
-		var childCount = node.GetChildCount();
-		if (childCount == 0)
-		{
-			sb.AppendLine($"{indent}\"{nodeName}({nodeType})\"");
-		}
-		else
-		{
-			sb.AppendLine($"{indent}\"{nodeName}({nodeType})\": {{");
-			for (int i = 0; i < childCount; i++)
-			{
-				var child = node.GetChild(i);
-				BuildNodeTreeRecursive(child, sb, depth + 1);
-				if (i < childCount - 1)
-				{
-					sb.Remove(sb.Length - 1, 1);
-					sb.AppendLine(",");
-				}
-			}
-			sb.AppendLine($"{indent}}}");
-		}
 	}
 }
