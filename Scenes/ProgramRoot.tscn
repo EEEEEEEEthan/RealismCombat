@@ -2,5 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cq2ugya2pq8ok" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_jh2ti"]
 
-[node name="ProgramRoot" type="Node"]
+[node name="ProgramRoot" type="Node" node_paths=PackedStringArray("dialogues")]
 script = ExtResource("1_jh2ti")
+dialogues = NodePath("HBoxContainer")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+offset_left = 8.0
+offset_top = 24.0
+offset_right = 8.0
+offset_bottom = 24.0
