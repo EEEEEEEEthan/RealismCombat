@@ -62,6 +62,12 @@ partial class ProgramRootNode : Node
 			var currentDialogue = dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1);
 			currentDialogue.Confirm(optionId);
 		}
+		else if (new Regex(@"show_node_tree").TryMatch(text: command, match: out _))
+		{
+			var tree = BuildNodeTree(this);
+			Log.Print(tree);
+			McpRespond();
+		}
 		else if (new Regex(@"game_quit").TryMatch(text: command, match: out _))
 		{
 			McpRespond();
@@ -116,5 +122,37 @@ partial class ProgramRootNode : Node
 				},
 			],
 		});
+	}
+	static string BuildNodeTree(Node root)
+	{
+		var sb = new System.Text.StringBuilder();
+		BuildNodeTreeRecursive(root, sb, 0);
+		return sb.ToString();
+	}
+	static void BuildNodeTreeRecursive(Node node, System.Text.StringBuilder sb, int depth)
+	{
+		var indent = new string(' ', depth * 4);
+		var nodeName = node.Name;
+		var nodeType = node.GetType().Name;
+		var childCount = node.GetChildCount();
+		if (childCount == 0)
+		{
+			sb.AppendLine($"{indent}\"{nodeName}({nodeType})\"");
+		}
+		else
+		{
+			sb.AppendLine($"{indent}\"{nodeName}({nodeType})\": {{");
+			for (int i = 0; i < childCount; i++)
+			{
+				var child = node.GetChild(i);
+				BuildNodeTreeRecursive(child, sb, depth + 1);
+				if (i < childCount - 1)
+				{
+					sb.Remove(sb.Length - 1, 1);
+					sb.AppendLine(",");
+				}
+			}
+			sb.AppendLine($"{indent}}}");
+		}
 	}
 }
