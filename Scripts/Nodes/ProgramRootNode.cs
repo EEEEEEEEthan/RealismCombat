@@ -35,6 +35,7 @@ public partial class ProgramRootNode : Node
 							dialogue.QueueFree();
 							var gameNode = GameNode.Create(new());
 							programRootNode.AddChild(gameNode);
+							Log.Print("开始游戏,但是功能还没做");
 							programRootNode.McpRespond();
 						},
 						available = true,
@@ -46,6 +47,7 @@ public partial class ProgramRootNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
+							Log.Print("游戏即将退出...");
 							programRootNode.McpRespond();
 							programRootNode.GetTree().Quit();
 						},
