@@ -48,21 +48,16 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
-			Log.Print($"现在是 {character.name} 的回合");
+
 		}
 		public override void Update(double deltaTime) { }
 	}
 	public class CharacterTurnAction : State
 	{
-		public const byte serializeId = 1;
+		public const byte serializeId = 2;
 		public readonly CharacterData character;
 		public CharacterTurnAction(CombatNode combatNode, CharacterData character, ActionData actionData) : base(combatNode)
 		{
-			this.character = character;
-			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
-			combatNode.combatData.currentCharacterIndex = characterIndex;
-			combatNode.CurrentState = this;
-			Log.Print($"现在是 {character.name} 的回合");
 		}
 		public override void Update(double deltaTime) { }
 	}
