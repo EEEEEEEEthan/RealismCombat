@@ -59,3 +59,13 @@ static class GameTools
 		return SystemTools.Client.SendCommand($"{nameof(game_quit)}", 3000);
 	}
 }
+[McpServerToolType]
+static class DebugTools
+{
+	[McpServerTool, Description("show node tree"),]
+	static Task<string> show_node_tree()
+	{
+		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
+		return SystemTools.Client.SendCommand($"{nameof(show_node_tree)}", 30000);
+	}
+}
