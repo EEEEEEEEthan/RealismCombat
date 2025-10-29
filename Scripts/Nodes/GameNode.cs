@@ -10,7 +10,7 @@ public partial class GameNode : Node
 			gameNode.gameData.state switch
 			{
 				IdleState.serializeId => new IdleState(gameNode),
-				CombatState.serializeId => new CombatState(gameNode),
+				CombatState.serializeId => new CombatState(gameNode, gameNode.gameData.combatData ?? throw new InvalidOperationException("战斗数据为空")),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		public readonly GameNode gameNode = gameNode;
@@ -34,13 +34,11 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							gameNode.CurrentState = new CombatState(gameNode: gameNode);
 							dialogue.QueueFree();
 							var combatData = new CombatData();
 							combatData.characters.Add(new(name: "ethan", team: 0) { actionPoint = 0, });
 							combatData.characters.Add(new(name: "dove", team: 1) { actionPoint = 0, });
-							var combatNode = CombatNode.Create(gameNode: this.gameNode, combatData: combatData);
-							gameNode.AddChild(combatNode);
+							gameNode.CurrentState = new CombatState(gameNode: gameNode, combatData: combatData);
 						},
 						available = true,
 					},
@@ -64,9 +62,12 @@ public partial class GameNode : Node
 	public class CombatState : State
 	{
 		public const int serializeId = 1;
-		public CombatState(GameNode gameNode) : base(gameNode)
+		public CombatState(GameNode gameNode, CombatData combatData) : base(gameNode)
 		{
 			gameNode.CurrentState = this;
+			gameNode.gameData.combatData = combatData;
+			var combatNode = CombatNode.Create(gameNode: gameNode, combatData: combatData);
+			gameNode.AddChild(combatNode);
 		}
 	}
 	public static GameNode Create(GameData gameData)
