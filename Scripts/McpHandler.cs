@@ -72,7 +72,7 @@ class McpHandler
 				commandLifeCycle = new();
 				try
 				{
-					programRootNode.McpRequest(pendingCommand);
+					programRootNode.OnMcpRequest(pendingCommand);
 				}
 				catch (Exception e)
 				{

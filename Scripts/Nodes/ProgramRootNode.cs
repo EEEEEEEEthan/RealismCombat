@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
-using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 partial class ProgramRootNode : Node
@@ -21,7 +19,6 @@ partial class ProgramRootNode : Node
 	}
 	readonly McpHandler? mcpHandler;
 	[Export] Container dialogues = null!;
-	MenuDialogue? dialogue;
 	public bool HadClientConnected { get; private set; }
 	ProgramRootNode()
 	{
@@ -47,40 +44,54 @@ partial class ProgramRootNode : Node
 			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
 	}
 	public void McpRespond() => mcpHandler?.McpRespond();
-	public override void _Process(double delta) { }
-	public void McpRequest(string command) { }
+	public void OnMcpRequest(string command) { }
+	public override void _Process(double delta)
+	{
+		mcpHandler?.Update();
+		if (dialogues.GetChildCount() > 1) dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = true;
+	}
+	public MenuDialogue CreateDialogue()
+	{
+		var dialogue = MenuDialogue.Create(this);
+		if (dialogues.GetChildCount() > 1) dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = false;
+		dialogues.AddChild(dialogue);
+		return dialogue;
+	}
 	public override void _Ready()
 	{
-		var dialogue = CreateDialogue();
-		dialogue.Show(new DialogueData
+		var dialogue = MenuDialogue.Create(this);
+		if (dialogues.GetChildCount() > 1) dialogue.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = false;
+		dialogues.AddChild(dialogue);
+		dialogue.Initialize(new()
 		{
 			title = "主菜单",
-			options = new[]
-			{
-				new DialogueOptionData
+			options =
+			[
+				new()
 				{
 					option = "开始游戏",
 					description = "开始新游戏",
 					onPreview = () => { },
-					onConfirm = () => { },
-					available = true
+					onConfirm = () =>
+					{
+						dialogue.QueueFree();
+						McpRespond();
+					},
+					available = true,
 				},
-				new DialogueOptionData
+				new()
 				{
 					option = "退出",
 					description = "退出游戏",
 					onPreview = () => { },
-					onConfirm = _QuitGame,
-					available = true
-				}
-			}
+					onConfirm = () =>
+					{
+						McpRespond();
+						GetTree().Quit();
+					},
+					available = true,
+				},
+			],
 		});
 	}
-	public MenuDialogue CreateDialogue()
-	{
-		if (dialogue?.Valid() == true) throw new InvalidOperationException("当前没有活动对话框，无法设置标题");
-		dialogue = MenuDialogue.Create();
-		return dialogue;
-	}
-	void _QuitGame() => GetTree().Quit();
 }
