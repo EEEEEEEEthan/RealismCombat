@@ -1,6 +1,6 @@
 ﻿using System.IO;
 namespace RealismCombat.Data;
-class GameData
+public class GameData
 {
 	public byte state;
 	public CombatData? combatData;

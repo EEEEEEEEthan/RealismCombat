@@ -4,7 +4,7 @@ namespace RealismCombat.Data;
 /// <summary>
 ///     角色类（占位），承载角色的基本信息
 /// </summary>
-class CharacterData
+public class CharacterData
 {
 	public readonly string name;
 	public readonly byte team;
@@ -72,7 +72,7 @@ public enum BodyPartCode
 	LeftLeg,
 	RightLeg,
 }
-class BodyPartData
+public class BodyPartData
 {
 	public readonly BodyPartCode id;
 	public int hp = 10;

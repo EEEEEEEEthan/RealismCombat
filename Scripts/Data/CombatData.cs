@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 namespace RealismCombat.Data;
-class CombatData
+public class CombatData
 {
 	public readonly List<CharacterData> characters = [];
 	public readonly Dictionary<string, string> tempData = new();
