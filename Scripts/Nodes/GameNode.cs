@@ -10,7 +10,8 @@ public partial class GameNode : Node
 			gameNode.gameData.state switch
 			{
 				IdleState.serializeId => new IdleState(gameNode),
-				CombatState.serializeId => new CombatState(gameNode, gameNode.gameData.combatData ?? throw new InvalidOperationException("战斗数据为空")),
+				CombatState.serializeId => new CombatState(gameNode: gameNode,
+					combatData: gameNode.gameData.combatData ?? throw new InvalidOperationException("战斗数据为空")),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		public readonly GameNode gameNode = gameNode;
@@ -21,7 +22,7 @@ public partial class GameNode : Node
 		public IdleState(GameNode gameNode) : base(gameNode)
 		{
 			gameNode.CurrentState = this;
-			var dialogue = gameNode.root.CreateDialogue();
+			var dialogue = gameNode.Root.CreateDialogue();
 			dialogue.Initialize(new()
 			{
 				title = "游戏菜单",
@@ -51,7 +52,7 @@ public partial class GameNode : Node
 						{
 							dialogue.QueueFree();
 							gameNode.QueueFree();
-							gameNode.root.state = new ProgramRootNode.IdleState(gameNode.root);
+							gameNode.Root.state = new ProgramRootNode.IdleState(gameNode.Root);
 						},
 						available = true,
 					},
@@ -68,7 +69,7 @@ public partial class GameNode : Node
 			gameNode.gameData.combatData = combatData;
 			var combatNode = CombatNode.Create(gameNode: gameNode, combatData: combatData);
 			gameNode.AddChild(combatNode);
-			WaitForCombatEnd(gameNode, combatNode);
+			WaitForCombatEnd(gameNode: gameNode, combatNode: combatNode);
 		}
 		async void WaitForCombatEnd(GameNode gameNode, CombatNode combatNode)
 		{
@@ -84,7 +85,7 @@ public partial class GameNode : Node
 	}
 	State state = null!;
 	GameData gameData = null!;
-	ProgramRootNode root = null!;
+	public ProgramRootNode Root { get; private set; } = null!;
 	State CurrentState
 	{
 		get => state;
@@ -101,7 +102,7 @@ public partial class GameNode : Node
 	}
 	public override void _Ready()
 	{
-		root = GetParent<ProgramRootNode>();
+		Root = GetParent<ProgramRootNode>();
 		_ = State.Create(gameNode: this);
 	}
 }

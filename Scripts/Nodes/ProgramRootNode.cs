@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Godot;
-using RealismCombat.Data;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
@@ -106,8 +104,9 @@ public partial class ProgramRootNode : Node
 		}
 	}
 	public State state = null!;
-	readonly McpHandler? mcpHandler;
 	[Export] public Container dialogues = null!;
+	readonly McpHandler? mcpHandler;
+	GenericDialogue? currentPopMessage;
 	public bool HadClientConnected { get; private set; }
 	ProgramRootNode()
 	{
@@ -172,6 +171,22 @@ public partial class ProgramRootNode : Node
 		var dialogue = MenuDialogue.Create(this);
 		if (dialogues.GetChildCount() > 1) dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1).Active = false;
 		dialogues.AddChild(dialogue);
+		return dialogue;
+	}
+	public GenericDialogue PopMessage(string message)
+	{
+		Log.Print(message);
+		if (currentPopMessage != null)
+		{
+			currentPopMessage.QueueFree();
+			currentPopMessage = null;
+		}
+		var dialogue = GenericDialogue.Create();
+		dialogue.Text = message;
+		dialogue.autoContinue = 1.5f;
+		currentPopMessage = dialogue;
+		dialogues.AddChild(dialogue);
+		currentPopMessage = null;
 		return dialogue;
 	}
 	public override void _Ready() => state = new IdleState(this);

@@ -156,49 +156,57 @@ public partial class CombatNode : Node
 			Run();
 		}
 		public override void Update(double deltaTime) { }
-		void Run()
+		async void Run()
 		{
-			var attacker = combatNode.combatData.characters[action.attackerIndex];
-			var defender = combatNode.combatData.characters[action.defenderIndex];
-			attacker.actionPoint -= 5;
-			Log.Print($"{attacker.name} 消耗行动力 5，剩余行动力: {attacker.actionPoint}");
-			var targetBodyPart = action.defenderBody switch
+			try
 			{
-				BodyPartCode.Head => defender.head,
-				BodyPartCode.Chest => defender.chest,
-				BodyPartCode.LeftArm => defender.leftArm,
-				BodyPartCode.RightArm => defender.rightArm,
-				BodyPartCode.LeftLeg => defender.leftLeg,
-				BodyPartCode.RightLeg => defender.rightLeg,
-				_ => throw new ArgumentOutOfRangeException(),
-			};
-			var bodyPartName = action.defenderBody switch
-			{
-				BodyPartCode.Head => "头部",
-				BodyPartCode.Chest => "胸部",
-				BodyPartCode.LeftArm => "左臂",
-				BodyPartCode.RightArm => "右臂",
-				BodyPartCode.LeftLeg => "左腿",
-				BodyPartCode.RightLeg => "右腿",
-				_ => throw new ArgumentOutOfRangeException(),
-			};
-			targetBodyPart.hp -= 2;
-			Log.Print($"{attacker.name} 攻击 {defender.name} 的{bodyPartName}，造成 2 点伤害，{bodyPartName}剩余血量: {targetBodyPart.hp}/{targetBodyPart.maxHp}");
-			if (defender.Dead)
-			{
-				Log.Print($"{defender.name} 死亡");
-				combatNode.combatData.characters.RemoveAt(action.defenderIndex);
-				var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
-				var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
-				if (!team0Alive || !team1Alive)
+				var attacker = combatNode.combatData.characters[action.attackerIndex];
+				var defender = combatNode.combatData.characters[action.defenderIndex];
+				attacker.actionPoint -= 5;
+				await combatNode.gameNode.Root.PopMessage($"{attacker.name} 消耗行动力 5");
+				var targetBodyPart = action.defenderBody switch
 				{
-					var winner = team0Alive ? "玩家" : "敌人";
-					Log.Print($"战斗结束，{winner}获胜");
-					combatNode.QueueFree();
-					return;
+					BodyPartCode.Head => defender.head,
+					BodyPartCode.Chest => defender.chest,
+					BodyPartCode.LeftArm => defender.leftArm,
+					BodyPartCode.RightArm => defender.rightArm,
+					BodyPartCode.LeftLeg => defender.leftLeg,
+					BodyPartCode.RightLeg => defender.rightLeg,
+					_ => throw new ArgumentOutOfRangeException(),
+				};
+				var bodyPartName = action.defenderBody switch
+				{
+					BodyPartCode.Head => "头部",
+					BodyPartCode.Chest => "胸部",
+					BodyPartCode.LeftArm => "左臂",
+					BodyPartCode.RightArm => "右臂",
+					BodyPartCode.LeftLeg => "左腿",
+					BodyPartCode.RightLeg => "右腿",
+					_ => throw new ArgumentOutOfRangeException(),
+				};
+				targetBodyPart.hp -= 2;
+				await combatNode.gameNode.Root.PopMessage($"{attacker.name} 攻击 {defender.name} 的{bodyPartName}，造成 2 点伤害，{bodyPartName}剩余血量: {targetBodyPart.hp}/{targetBodyPart.maxHp}");
+				if (defender.Dead)
+				{
+					await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
+					combatNode.combatData.characters.RemoveAt(action.defenderIndex);
+					var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
+					var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
+					if (!team0Alive || !team1Alive)
+					{
+						var winner = team0Alive ? "玩家" : "敌人";
+						Log.Print($"战斗结束，{winner}获胜");
+						combatNode.QueueFree();
+						return;
+					}
 				}
+				_ = new RoundInProgressState(combatNode);
 			}
-			_ = new RoundInProgressState(combatNode);
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+				combatNode.gameNode.Root.McpRespond();
+			}
 		}
 	}
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
