@@ -42,3 +42,13 @@ static class SystemTools
 		}
 	}
 }
+[McpServerToolType]
+static class GameTools
+{
+	[McpServerTool, Description("select an option"),]
+	static Task<string> game_select_option(int option_index)
+	{
+		if (SystemTools.Client is null) return Task.FromResult($"程序未启动. 使用{nameof(SystemTools.tool_launch_program)}启动程序");
+		return SystemTools.Client.SendCommand($"{nameof(game_select_option)} {option_index}", 30000);
+	}
+}

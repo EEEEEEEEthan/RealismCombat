@@ -10,8 +10,10 @@ region = Rect2(17, 3, 6, 3)
 
 [node name="GenericDialogue" type="PanelContainer" node_paths=PackedStringArray("printer", "triangle")]
 custom_minimum_size = Vector2(80, 44)
-offset_right = 80.0
-offset_bottom = 44.0
+offset_left = 90.0
+offset_top = 142.5
+offset_right = 219.0
+offset_bottom = 186.5
 focus_mode = 3
 script = ExtResource("1_rpeto")
 printer = NodePath("MarginContainer/PrinterLabel")

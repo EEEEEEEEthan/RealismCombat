@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
+using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 partial class ProgramRootNode : Node
@@ -19,10 +21,8 @@ partial class ProgramRootNode : Node
 	}
 	readonly McpHandler? mcpHandler;
 	[Export] Container dialogues = null!;
-	GenericDialogue? dialogue;
+	MenuDialogue? dialogue;
 	public bool HadClientConnected { get; private set; }
-	public double TotalTime { get; private set; }
-	public int FrameCount { get; private set; }
 	ProgramRootNode()
 	{
 		if (arguments.TryGetValue(key: "port", value: out var portText))
@@ -30,9 +30,14 @@ partial class ProgramRootNode : Node
 			{
 				Log.Print($"启动服务器，端口: {port}");
 				mcpHandler = new(programRootNode: this, port: port);
-				mcpHandler.OnClientConnected += OnClientConnected;
-				mcpHandler.OnClientDisconnected += OnClientDisconnected;
+				mcpHandler.OnClientConnected += onClientConnected;
+				mcpHandler.OnClientDisconnected += onClientDisconnected;
 				Log.Print($"服务器已启动，监听端口 {port}");
+				void onClientConnected() => HadClientConnected = true;
+				void onClientDisconnected()
+				{
+					if (HadClientConnected) GetTree().Quit();
+				}
 			}
 			else
 			{
@@ -44,10 +49,15 @@ partial class ProgramRootNode : Node
 	public void McpRespond() => mcpHandler?.McpRespond();
 	public override void _Process(double delta) { }
 	public void McpRequest(string command) { }
-	void _QuitGame() => GetTree().Quit();
-	void OnClientConnected() => HadClientConnected = true;
-	void OnClientDisconnected()
+	public override void _Ready()
 	{
-		if (HadClientConnected) GetTree().Quit();
+		var dialogue = CreateDialogue();
 	}
+	public MenuDialogue CreateDialogue()
+	{
+		if (dialogue?.Valid() == true) throw new InvalidOperationException("当前没有活动对话框，无法设置标题");
+		dialogue = MenuDialogue.Create();
+		return dialogue;
+	}
+	void _QuitGame() => GetTree().Quit();
 }
