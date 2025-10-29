@@ -50,7 +50,6 @@ public partial class CombatNode : Node
 		{
 			combatNode.CurrentState = this;
 			var allActionPoints = string.Join(separator: ", ", values: combatNode.combatData.characters.Select(c => $"{c.name}:{c.actionPoint:F2}"));
-			Log.Print($"进入 RoundInProgressState - 当前行动力: {allActionPoints}");
 		}
 		public override void Update(double deltaTime)
 		{
