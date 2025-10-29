@@ -54,6 +54,8 @@ partial class MenuDialogue : Control
 					if (!option.available) builder.AppendLine($"{i}. (not available) {option.option} {option.description}");
 					builder.AppendLine($"{i}. {option.option} {option.description}");
 				}
+				builder.AppendLine("请做出选择(game_select_option)");
+				Log.Print(builder.ToString());
 				root.McpRespond();
 			}
 			UpdateTitleControl();
@@ -66,18 +68,10 @@ partial class MenuDialogue : Control
 		var moveDown = Input.IsActionJustPressed("ui_down");
 		var accept = Input.IsActionJustPressed("ui_accept");
 		if (moveUp)
-		{
 			Select((index - 1 + container.GetChildCount()) % container.GetChildCount());
-		}
 		else if (moveDown)
-		{
 			Select((index + 1) % container.GetChildCount());
-		}
-		else if (accept)
-		{
-			data.options[index].onConfirm();
-			Complete();
-		}
+		else if (accept) Confirm(index);
 	}
 	public override void _Process(double delta)
 	{
@@ -96,6 +90,7 @@ partial class MenuDialogue : Control
 		var option = data.options[index];
 		if (!option.available) throw new InvalidOperationException("选项不可用，无法确认");
 		option.onConfirm();
+		Complete();
 	}
 	public void Select(int index)
 	{

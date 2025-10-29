@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
+using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 partial class ProgramRootNode : Node
@@ -44,7 +45,21 @@ partial class ProgramRootNode : Node
 			GD.PrintErr("[GameRoot] 未提供 --port 参数，服务器未启动");
 	}
 	public void McpRespond() => mcpHandler?.McpRespond();
-	public void OnMcpRequest(string command) { }
+	public void OnMcpRequest(string command)
+	{
+		if (new Regex(@"game_select_option (\d+)").TryMatch(text: command, match: out var match))
+		{
+			var optionId = int.Parse(match.Groups[1].ToString());
+			if (dialogues.GetChildCount() == 0) throw new("No dialogues available to select option from.");
+			var currentDialogue = dialogues.GetChild<MenuDialogue>(dialogues.GetChildCount() - 1);
+			currentDialogue.Confirm(optionId);
+		}
+		else if (new Regex(@"game_quit").TryMatch(text: command, match: out _))
+		{
+			McpRespond();
+			GetTree().Quit();
+		}
+	}
 	public override void _Process(double delta)
 	{
 		mcpHandler?.Update();
