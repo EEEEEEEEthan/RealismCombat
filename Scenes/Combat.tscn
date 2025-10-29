@@ -3,7 +3,7 @@
 [ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="1_5y3t8"]
 [ext_resource type="Script" uid="uid://b5fq00qpu6gwg" path="res://Scripts/Nodes/CombatNode.cs" id="1_885kv"]
 
-[node name="Combat" type="Control" node_paths=PackedStringArray("characterContainer")]
+[node name="Combat" type="Control" node_paths=PackedStringArray("characterContainer", "actionDialogueContainer")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,6 +14,7 @@ mouse_filter = 2
 theme = ExtResource("1_5y3t8")
 script = ExtResource("1_885kv")
 characterContainer = NodePath("Characters")
+actionDialogueContainer = NodePath("ActionDialogueContainer")
 
 [node name="SceneLabel" type="Label" parent="."]
 layout_mode = 0
@@ -38,3 +39,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 alignment = 1
+
+[node name="ActionDialogueContainer" type="Container" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

@@ -6,6 +6,7 @@ using RealismCombat.Commands.CombatCommands;
 using RealismCombat.Data;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes;
+using RealismCombat.Nodes.Dialogues;
 using RealismCombat.StateMachine.GameStates;
 namespace RealismCombat.StateMachine.CombatStates;
 class ActionState(CombatState combatState, CombatData combatData, CharacterData actor) : CombatChildState(combatState: combatState, combatData: combatData)
@@ -13,7 +14,7 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 	const string key = "ActionCommand";
 	internal static readonly string[] bodyParts = Enum.GetNames(typeof(BodyPartCode));
 	public readonly CharacterData actor = actor;
-	DialogueNode? dialogueNode;
+	ActionDialogue? actionDialogue;
 	bool executing;
 	public override string Name => "进行行动";
 	public override IReadOnlyDictionary<string, Func<IReadOnlyDictionary<string, string>, Command>> GetCommandGetters() =>
@@ -26,12 +27,12 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 		if (executing) return;
 		if (combatData.tempData.TryGetValue(key: key, value: out var command))
 		{
-			Execute(command); // 读档
+			Execute(command);
 			return;
 		}
 		if (actor.PlayerControlled)
 		{
-			if (dialogueNode is null) Human();
+			if (actionDialogue is null) Human();
 		}
 		else
 		{
@@ -46,48 +47,17 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 			Log.Print($"{c.name}(team={c.team}):");
 			foreach (var part in c.BodyParts) Log.Print($"  {part.id}({part.hp}/{part.maxHp})");
 		}
-		var targetName = "";
-		dialogueNode = rootNode.CreateDialogue("请选择行动指令");
-		dialogueNode.AddOption(option: "攻击",
-			onClick: () =>
+		actionDialogue = ActionDialogue.Create(combatData: combatData, actor: actor);
+		combatState.CombatNode.AddActionDialogue(actionDialogue);
+		actionDialogue.Start(command =>
+		{
+			Execute(command);
+			if (actionDialogue != null && actionDialogue.Valid())
 			{
-				var dialogSelectBodyPart = dialogueNode.CreateChild("用什么部位发动攻击");
-				foreach (var bodyPart in actor.BodyParts)
-				{
-					var selectedAttackerBodyPart = bodyPart;
-					dialogSelectBodyPart.AddOption(option: selectedAttackerBodyPart.id.ToString(),
-						onClick: () =>
-						{
-							var dialogSelectDefender = dialogSelectBodyPart.CreateChild("攻击谁");
-							foreach (var c in combatData.characters)
-								if (c.team != actor.team && !c.Dead)
-								{
-									var selectedDefender = c;
-									dialogSelectDefender.AddOption(option: selectedDefender.name,
-										onClick: () =>
-										{
-											var dialogSelectBodyPart = dialogSelectDefender.CreateChild($"攻击{selectedDefender.name}的什么部位");
-											foreach (var bodyPart in selectedDefender.BodyParts)
-											{
-												var selectedDefenderBodyPart = bodyPart;
-												dialogSelectBodyPart.AddOption(option: selectedDefenderBodyPart.id.ToString(),
-													onClick: () =>
-													{
-														targetName = selectedDefender.name;
-														var command =
-															$"{AttackCommand.name} target {targetName} attackerPart {selectedAttackerBodyPart.id} targetPart {selectedDefenderBodyPart.id}";
-														Execute(command);
-														dialogueNode.QueueFree();
-													});
-											}
-											dialogSelectBodyPart.AddOption(option: "返回", onClick: () => { dialogSelectBodyPart.QueueFree(); });
-										});
-								}
-							dialogSelectDefender.AddOption(option: "返回", onClick: () => { dialogSelectDefender.QueueFree(); });
-						});
-				}
-				dialogSelectBodyPart.AddOption(option: "返回", onClick: () => { dialogSelectBodyPart.QueueFree(); });
-			});
+				actionDialogue.QueueFree();
+				actionDialogue = null;
+			}
+		});
 		rootNode.McpCheckPoint();
 	}
 	void AI()
@@ -110,10 +80,10 @@ class ActionState(CombatState combatState, CombatData combatData, CharacterData 
 	}
 	private protected override void OnExit()
 	{
-		if (dialogueNode != null && dialogueNode.Valid())
+		if (actionDialogue != null && actionDialogue.Valid())
 		{
-			dialogueNode.QueueFree();
-			dialogueNode = null;
+			actionDialogue.QueueFree();
+			actionDialogue = null;
 		}
 	}
 }

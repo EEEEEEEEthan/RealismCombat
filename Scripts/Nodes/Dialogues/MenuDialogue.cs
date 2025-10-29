@@ -6,7 +6,7 @@ using Godot;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
-partial class MenuDialogue : Node
+partial class MenuDialogue : Control
 {
 	public static MenuDialogue Create()
 	{

@@ -1,5 +1,6 @@
 using Godot;
 using RealismCombat.Data;
+using RealismCombat.Nodes.Dialogues;
 using RealismCombat.StateMachine.GameStates;
 namespace RealismCombat.Nodes;
 /// <summary>
@@ -14,6 +15,7 @@ partial class CombatNode : Node
 		return instance;
 	}
 	[Export] Container characterContainer = null!;
+	[Export] Container actionDialogueContainer = null!;
 	CombatState combatState = null!;
 	public CharacterNode AddCharacter(CharacterData data)
 	{
@@ -22,6 +24,10 @@ partial class CombatNode : Node
 		characterContainer.AddChild(characterNode);
 		PlaceCharacter(node: characterNode, team: data.team);
 		return characterNode;
+	}
+	public void AddActionDialogue(ActionDialogue actionDialogue)
+	{
+		actionDialogueContainer.AddChild(actionDialogue);
 	}
 	void PlaceCharacter(CharacterNode node, byte team) =>
 		node.SetAnchorsAndOffsetsPreset(team == 0 ? Control.LayoutPreset.CenterLeft : Control.LayoutPreset.CenterRight);
