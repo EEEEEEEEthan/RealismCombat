@@ -15,6 +15,7 @@ public partial class CombatNode : Node
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
 				CharacterTurnState.serializeId => new CharacterTurnState(combatNode: combatNode,
 					character: combatData.characters[combatData.currentCharacterIndex]),
+                CharacterTurnActionState.serializeId => new CharacterTurnActionState(combatNode: combatNode, combatData.lastAction),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
@@ -52,11 +53,11 @@ public partial class CombatNode : Node
 		}
 		public override void Update(double deltaTime) { }
 	}
-	public class CharacterTurnAction : State
+	public class CharacterTurnActionState : State
 	{
 		public const byte serializeId = 2;
 		public readonly CharacterData character;
-		public CharacterTurnAction(CombatNode combatNode, CharacterData character, ActionData actionData) : base(combatNode)
+		public CharacterTurnActionState(CombatNode combatNode, CharacterData character, ActionData actionData) : base(combatNode)
 		{
 		}
 		public override void Update(double deltaTime) { }
@@ -83,6 +84,7 @@ public partial class CombatNode : Node
 			{
 				RoundInProgressState => RoundInProgressState.serializeId,
 				CharacterTurnState => CharacterTurnState.serializeId,
+                CharacterTurnActionState => CharacterTurnActionState.serializeId,
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
