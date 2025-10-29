@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Godot;
 using RealismCombat.Data;
+using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class CombatNode : Node
 {
@@ -107,18 +108,37 @@ public partial class CombatNode : Node
 							description = "对敌人发起攻击",
 							onConfirm = () =>
 							{
-								var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
-								if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
-								var attackerIndex = characterIndex;
-								var action = new ActionData(
-									attackerIndex: attackerIndex,
-									attackerBody: BodyPartCode.RightArm,
-									defenderIndex: targetIndex,
-									defenderBody: BodyPartCode.Head
-								);
-								combatNode.combatData.lastAction = action;
-								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
-								dialogue.QueueFree();
+								var enemies = combatNode.combatData.characters
+									.Select((c, i) => new { Character = c, Index = i })
+									.Where(x => x.Character.team != character.team)
+									.ToList();
+								if (enemies.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
+								
+								var targetDialogue = programRoot.CreateDialogue();
+								targetDialogue.Initialize(new()
+								{
+									title = "选择攻击目标",
+									options = enemies.Select(enemy => new DialogueOptionData
+									{
+										option = enemy.Character.name,
+										description = $"生命值: 头部{enemy.Character.head.hp}/胸部{enemy.Character.chest.hp}",
+										onConfirm = () =>
+										{
+											var attackerIndex = characterIndex;
+											var action = new ActionData(
+												attackerIndex: attackerIndex,
+												attackerBody: BodyPartCode.RightArm,
+												defenderIndex: (byte)enemy.Index,
+												defenderBody: BodyPartCode.Head
+											);
+											combatNode.combatData.lastAction = action;
+											_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
+											targetDialogue.QueueFree();
+											dialogue.QueueFree();
+										},
+										available = true,
+									}).ToArray(),
+								});
 							},
 							available = true,
 						},
