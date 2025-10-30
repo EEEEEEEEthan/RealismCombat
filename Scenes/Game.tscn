@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://cyaej8xt24xd5"]
+[gd_scene load_steps=3 format=3 uid="uid://rayhdabswh8m"]
 
 [ext_resource type="Script" uid="uid://ce6x2ck4fwyxn" path="res://Scripts/Nodes/GameNode.cs" id="1_iukft"]
+[ext_resource type="AudioStream" uid="uid://bx1nmhm8u1tib" path="res://Audios/arpegio01_loop-45094.mp3" id="2_gl6un"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_iukft")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_gl6un")
+autoplay = true

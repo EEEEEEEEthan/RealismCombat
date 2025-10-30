@@ -14,3 +14,9 @@ public static class ResourceTable
 	public const string propertydrawer = "res://Scenes/PropertyDrawer.tscn";
 	#endregion autogen_scenes
 }
+
+public static class AudioTable
+{
+	#region  #region autogen_audios
+	#endregion autogen_audios
+}
