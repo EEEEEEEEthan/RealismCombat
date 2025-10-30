@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace RealismCombat.Nodes.Dialogues;
 public record DialogueData
 {
 	public string? title;
-	public DialogueOptionData[] options = null!;
+	public IReadOnlyList<DialogueOptionData> options = null!;
 }
 public record DialogueOptionData
 {
@@ -49,7 +50,7 @@ public partial class MenuDialogue : PanelContainer
 				var builder = new StringBuilder();
 				builder.AppendLine(data.title?.Trim());
 				builder.AppendLine("请做出选择(game_select_option):");
-				for (var i = 0; i < data.options.Length; i++)
+				for (var i = 0; i < data.options.Count; i++)
 				{
 					var option = data.options[i];
 					//if (!option.available) builder.AppendLine($"{i}. (not available) {option.option?.Trim()} {option.description?.Trim()}");
@@ -105,7 +106,7 @@ public partial class MenuDialogue : PanelContainer
 	public void Initialize(DialogueData data, bool active = true)
 	{
 		this.data = data;
-		if (data.options.Length < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
+		if (data.options.Count < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
 		if (data.title != null) title.Show(data.title);
 		foreach (var optionData in data.options) AddOption(optionData);
 		UpdateTitleControl();

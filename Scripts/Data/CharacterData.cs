@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 namespace RealismCombat.Data;
@@ -16,26 +17,15 @@ public class CharacterData
 	public readonly BodyPartData rightLeg = new(BodyPartCode.RightLeg);
 	public double actionPoint;
 	public double speed = 5;
+	public IReadOnlyList<BodyPartData> bodyParts;
 	public bool PlayerControlled => team == 0;
 	public bool Dead => head.hp <= 0 || chest.hp <= 0;
-	public IEnumerable<BodyPartData> BodyParts
-	{
-		get
-		{
-			yield return head;
-			yield return chest;
-			yield return leftArm;
-			yield return rightArm;
-			yield return leftLeg;
-			yield return rightLeg;
-		}
-	}
-	public CharacterData(string name, byte team)
+	public CharacterData(string name, byte team) : this()
 	{
 		this.name = name;
 		this.team = team;
 	}
-	public CharacterData(DataVersion version, BinaryReader reader)
+	public CharacterData(DataVersion version, BinaryReader reader) : this()
 	{
 		name = reader.ReadString();
 		team = reader.ReadByte();
@@ -47,6 +37,11 @@ public class CharacterData
 		rightArm = new(version: version, reader: reader);
 		leftLeg = new(version: version, reader: reader);
 	}
+	CharacterData() =>
+		bodyParts = new List<BodyPartData>
+		{
+			head, chest, leftArm, rightArm, leftLeg, rightLeg,
+		};
 	public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(name);
@@ -88,6 +83,7 @@ public static class BodyPartCodeExtensions
 }
 public class BodyPartData
 {
+	public static readonly IReadOnlyList<BodyPartCode> allBodyParts = Enum.GetValues<BodyPartCode>();
 	public readonly BodyPartCode id;
 	public int hp = 10;
 	public int maxHp = 10;

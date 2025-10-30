@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Godot;
@@ -7,6 +8,31 @@ using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class CombatNode : Node
 {
+	public class ActionSimulate(CombatData combatData)
+	{
+		public readonly CombatData combatData = combatData;
+		public int? attackerIndex;
+		public BodyPartCode? attackerBodyPart;
+		public BodyPartCode? defenderBodyPart;
+		CharacterData Attacker
+		{
+			get
+			{
+				if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
+				return combatData.characters[attackerIndex.Value];
+			}
+		}
+		public bool ValidAttackerBodyPart(BodyPartCode bodyPart, out string error)
+		{
+			if (Attacker.bodyParts[(int)bodyPart].hp <= 0)
+			{
+				error = $"{Attacker.name}的{bodyPart.GetName()}已失去战斗能力";
+				return false;
+			}
+			error = null!;
+			return true;
+		}
+	}
 	public class CombatNodeAwaiter : INotifyCompletion
 	{
 		readonly CombatNode combatNode;
@@ -99,154 +125,60 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
-			HandleCharacterTurn(combatNode: combatNode, character: character, characterIndex: characterIndex);
+			HandleCharacterTurn(combatNode: combatNode, character: character, attackerIndex: characterIndex);
 		}
 		public override void Update(double deltaTime) { }
-		void HandleCharacterTurn(CombatNode combatNode, CharacterData character, byte characterIndex)
+		void HandleCharacterTurn(CombatNode combatNode, CharacterData character, byte attackerIndex)
 		{
 			if (character.PlayerControlled)
 			{
 				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
-				var dialogue = programRoot.CreateDialogue();
-
-				// Step 1: Select your own body part
-				var bodyParts = new[]
+				var simulate = new ActionSimulate(this.combatNode.combatData)
 				{
-					new { Code = BodyPartCode.Head, Name = "头部", },
-					new { Code = BodyPartCode.Chest, Name = "胸部", },
-					new { Code = BodyPartCode.LeftArm, Name = "左臂", },
-					new { Code = BodyPartCode.RightArm, Name = "右臂", },
-					new { Code = BodyPartCode.LeftLeg, Name = "左腿", },
-					new { Code = BodyPartCode.RightLeg, Name = "右腿", },
+					attackerIndex = attackerIndex,
 				};
-				dialogue.Initialize(new()
 				{
-					title = $"{character.name}的回合 - 选择使用的身体部位",
-					options = bodyParts
-						.Select(part => new DialogueOptionData
+					// select attacker body
+					var dialogue = programRoot.CreateDialogue();
+					var dialogueData = new DialogueData
+					{
+						title = $"{character.name}的回合-选择身体部位",
+					};
+					var options = new List<DialogueOptionData>();
+					dialogueData.options = options;
+					foreach (var b in BodyPartData.allBodyParts)
+					{
+						var bodyPart = b;
+						var available = simulate.ValidAttackerBodyPart(bodyPart: bodyPart, error: out var error);
+						options.Add(new()
 						{
-							option = part.Name,
-							description = $"使用{part.Name}进行行动",
+							available = available,
+							description = available ? $"使用{bodyPart.GetName()}进行行动" : error,
 							onConfirm = () =>
 							{
-								var attackerBody = part.Code;
-
-								// Step 2: Select "Attack" action
-								var actionDialogue = programRoot.CreateDialogue();
-								var actionOptions = new[]
-								{
-									new DialogueOptionData
-									{
-										option = "攻击",
-										description = "对敌人发起攻击",
-										onConfirm = () =>
-										{
-											var enemies = combatNode
-												.combatData.characters
-												.Select((c, i) => new { Character = c, Index = i, })
-												.Where(x => x.Character.team != character.team)
-												.ToList();
-											if (enemies.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
-
-											// Step 3: Select enemy
-											var enemyDialogue = programRoot.CreateDialogue();
-											var enemyOptions = enemies
-												.Select(enemy => new DialogueOptionData
-												{
-													option = enemy.Character.name,
-													description = $"选择攻击 {enemy.Character.name}",
-													onConfirm = () =>
-													{
-														// Step 4: Select enemy's body part
-														var bodyPartDialogue = programRoot.CreateDialogue();
-														var bodyPartOptions = bodyParts
-															.Select(targetPart => new DialogueOptionData
-															{
-																option = targetPart.Name,
-																description =
-																	$"攻击{enemy.Character.name}的{targetPart.Name} (生命值: {GetBodyPartHp(character: enemy.Character, bodyPart: targetPart.Code)})",
-																onConfirm = () =>
-																{
-																	var attackerIndex = characterIndex;
-																	var action = new ActionData(
-																		attackerIndex: attackerIndex,
-																		attackerBody: attackerBody,
-																		defenderIndex: (byte)enemy.Index,
-																		defenderBody: targetPart.Code
-																	);
-																	combatNode.combatData.lastAction = action;
-																	_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
-																	bodyPartDialogue.QueueFree();
-																	enemyDialogue.QueueFree();
-																	actionDialogue.QueueFree();
-																	dialogue.QueueFree();
-																},
-																available = true,
-															})
-															.ToList();
-
-														// Add back button for body part selection
-														bodyPartOptions.Add(new()
-														{
-															option = "返回",
-															description = "返回选择敌人",
-															onConfirm = () => { bodyPartDialogue.QueueFree(); },
-															available = true,
-														});
-														bodyPartDialogue.Initialize(new()
-														{
-															title = $"选择攻击 {enemy.Character.name} 的部位",
-															options = bodyPartOptions.ToArray(),
-														});
-													},
-													available = true,
-												})
-												.ToList();
-
-											// Add back button for enemy selection
-											enemyOptions.Add(new()
-											{
-												option = "返回",
-												description = "返回选择行动",
-												onConfirm = () => { enemyDialogue.QueueFree(); },
-												available = true,
-											});
-											enemyDialogue.Initialize(new()
-											{
-												title = "选择攻击目标",
-												options = enemyOptions.ToArray(),
-											});
-										},
-										available = true,
-									},
-								};
-
-								// Add back button for action selection
-								var actionOptionsList = actionOptions.ToList();
-								actionOptionsList.Add(new()
-								{
-									option = "返回",
-									description = "返回选择身体部位",
-									onConfirm = () => { actionDialogue.QueueFree(); },
-									available = true,
-								});
-								actionDialogue.Initialize(new()
-								{
-									title = "选择行动",
-									options = actionOptionsList.ToArray(),
-								});
+								dialogue.QueueFree();
+								simulate.attackerBodyPart = bodyPart;
+								var action = new ActionData(
+									attackerIndex: attackerIndex,
+									attackerBody: simulate.attackerBodyPart.Value,
+									defenderIndex: 1,
+									defenderBody: BodyPartCode.Head
+								);
+								combatNode.combatData.lastAction = action;
+								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 							},
-							available = true,
-						})
-						.ToArray(),
-				});
+							option = $"{bodyPart.GetName()}",
+						});
+					}
+					dialogue.Initialize(dialogueData);
+				}
 			}
 			else
 			{
 				var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
 				if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
 				var action = new ActionData(
-					attackerIndex: characterIndex,
+					attackerIndex: attackerIndex,
 					attackerBody: BodyPartCode.RightArm,
 					defenderIndex: targetIndex,
 					defenderBody: BodyPartCode.Head
