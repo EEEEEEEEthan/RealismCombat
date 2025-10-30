@@ -82,12 +82,12 @@ partial class CharacterNode : Control
 		leftLeg.Value = (float)CharacterData.leftLeg.hp / CharacterData.leftLeg.maxHp;
 		actionPoint.Title = "行动";
 		speed.Title = "速度";
-		head.Title = "头部";
-		chest.Title = "胸部";
-		rightArm.Title = "右臂";
-		leftArm.Title = "左臂";
-		rightLeg.Title = "右腿";
-		leftLeg.Title = "左腿";
+		head.Title = BodyPartCode.Head.GetName();
+		chest.Title = BodyPartCode.Chest.GetName();
+		rightArm.Title = BodyPartCode.RightArm.GetName();
+		leftArm.Title = BodyPartCode.LeftArm.GetName();
+		rightLeg.Title = BodyPartCode.RightLeg.GetName();
+		leftLeg.Title = BodyPartCode.LeftLeg.GetName();
 		float targetVerticalOffset = 0.0f;
 		if (isActing)
 		{
