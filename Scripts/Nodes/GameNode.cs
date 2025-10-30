@@ -73,8 +73,16 @@ public partial class GameNode : Node
 		}
 		async void WaitForCombatEnd(GameNode gameNode, CombatNode combatNode)
 		{
-			await combatNode;
-			_ = new IdleState(gameNode);
+			try
+			{
+				await combatNode;
+				_ = new IdleState(gameNode);
+			}
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+				gameNode.Root.McpRespond();
+			}
 		}
 	}
 	public static GameNode Create(GameData gameData)
