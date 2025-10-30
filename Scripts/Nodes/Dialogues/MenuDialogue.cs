@@ -47,13 +47,13 @@ public partial class MenuDialogue : PanelContainer
 			if (active)
 			{
 				var builder = new StringBuilder();
-				builder.AppendLine(data.title);
+				builder.AppendLine(data.title?.Trim());
 				builder.AppendLine("请做出选择(game_select_option):");
 				for (var i = 0; i < data.options.Length; i++)
 				{
 					var option = data.options[i];
-					if (!option.available) builder.AppendLine($"{i}. (not available) {option.option} {option.description}");
-					builder.AppendLine($"{i}. {option.option} {option.description}");
+					//if (!option.available) builder.AppendLine($"{i}. (not available) {option.option?.Trim()} {option.description?.Trim()}");
+					builder.AppendLine($"{i}. {option.option?.Trim()} {option.description?.Trim()}");
 				}
 				Log.Print(builder.ToString());
 				root.McpRespond();
@@ -96,7 +96,8 @@ public partial class MenuDialogue : PanelContainer
 	}
 	public void Select(int index)
 	{
-		description.Show(data.options[index].description);
+		var text = data.options[index].description;
+		if (text != null) description.Show(text);
 		data.options[index].onPreview?.Invoke();
 		this.index = index;
 	}
@@ -105,7 +106,7 @@ public partial class MenuDialogue : PanelContainer
 	{
 		this.data = data;
 		if (data.options.Length < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
-		title.Show(data.title);
+		if (data.title != null) title.Show(data.title);
 		foreach (var optionData in data.options) AddOption(optionData);
 		UpdateTitleControl();
 		Active = active;
@@ -114,7 +115,11 @@ public partial class MenuDialogue : PanelContainer
 	void AddOption(DialogueOptionData data)
 	{
 		container.AddChild(new Label { Text = data.option, });
-		if (container.GetChildCount() == 1) description.Show(this.data.options[0].description);
+		if (container.GetChildCount() == 1)
+		{
+			var text = this.data.options[0].description;
+			if (text != null) description.Show(text);
+		}
 	}
 	void Complete()
 	{
