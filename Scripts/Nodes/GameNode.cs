@@ -108,7 +108,7 @@ public partial class GameNode : Node
 				{
 					options.Add(new()
 					{
-						option = $"{item.name} x{item.count}",
+						option = $"物品{item.itemId} x{item.count}",
 						description = null,
 						onPreview = () => { },
 						onConfirm = () => { },

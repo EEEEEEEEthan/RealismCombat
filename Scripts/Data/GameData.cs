@@ -9,7 +9,7 @@ public class GameData
 	public readonly List<ItemData> items = [];
 	public GameData()
 	{
-		items.Add(new(name: "第纳尔", count: 100));
+		items.Add(new(itemId: 0, count: 100));
 	}
 	public GameData(DataVersion version, BinaryReader reader)
 	{
