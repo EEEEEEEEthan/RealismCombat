@@ -8,6 +8,8 @@ partial class PropertyDrawerNode : Node
 	string title = "属性";
 	Label? titleControl;
 	Control? valueControl;
+	float currentWidth;
+	float targetWidth;
 	[Export]
 	public string Title
 	{
@@ -16,7 +18,7 @@ partial class PropertyDrawerNode : Node
 		{
 			if (title == value) return;
 			title = value;
-			UpdateProperties();
+			UpdateTitle();
 		}
 	}
 	[Export(hint: PropertyHint.Range, hintString: "0,1")]
@@ -27,20 +29,47 @@ partial class PropertyDrawerNode : Node
 		{
 			if (this.value == value) return;
 			this.value = value;
-			UpdateProperties();
+			UpdateTargetWidth();
 		}
 	}
 	Label? TitleControl => titleControl ??= FindChild("Title") as Label;
 	Control? ValueControl => valueControl ??= FindChild("Value") as Control;
-	public override void _Ready() => UpdateProperties();
-	public override void _Process(double delta) => UpdateProperties();
-	void UpdateProperties()
+	public override void _Ready()
+	{
+		UpdateTitle();
+		UpdateTargetWidth();
+		currentWidth = 0;
+		if (ValueControl?.Valid() == true)
+		{
+			ValueControl.CustomMinimumSize = ValueControl.CustomMinimumSize with { X = 0, };
+		}
+	}
+	public override void _Process(double delta)
+	{
+		const float lerpSpeed = 10.0f;
+		if (Mathf.Abs(currentWidth - targetWidth) > 0.1f)
+		{
+			currentWidth = Mathf.Lerp(currentWidth, targetWidth, (float)delta * lerpSpeed);
+			UpdateValueWidth();
+		}
+	}
+	void UpdateTitle()
 	{
 		if (TitleControl?.Valid() != true) return;
-		if (ValueControl?.Valid() != true) return;
 		TitleControl.Text = Title;
-		var width = (int)value.Remapped(fromMin: 0, fromMax: 1, toMin: 0, toMax: 20);
+	}
+	void UpdateTargetWidth()
+	{
+		var width = value.Remapped(fromMin: 0, fromMax: 1, toMin: 0, toMax: 20);
 		if (width % 2 == 0) width -= 1;
+		targetWidth = width;
+	}
+	void UpdateValueWidth()
+	{
+		if (ValueControl?.Valid() != true) return;
+		var width = (int)Mathf.Round(currentWidth);
+		if (width > 0 && width % 2 == 0) width -= 1;
+		if (width < 0) width = 0;
 		ValueControl.CustomMinimumSize = ValueControl.CustomMinimumSize with { X = width, };
 	}
 }
