@@ -109,7 +109,8 @@ public partial class ProgramRootNode : Node
 	GenericDialogue? currentPopMessage;
 	public bool HadClientConnected { get; private set; }
 	AudioStreamPlayer bgmPlayer = null!;
-	AudioStreamPlayer soundEffectPlayer = null!;
+	readonly List<AudioStreamPlayer> soundEffectPlayers = new();
+	const int MaxSoundEffectPlayers = 16;
 	ProgramRootNode()
 	{
 		if (arguments.TryGetValue(key: "port", value: out var portText))
@@ -204,7 +205,8 @@ public partial class ProgramRootNode : Node
 	public override void _Ready()
 	{
 		bgmPlayer = GetNode<AudioStreamPlayer>("BgmPlayer");
-		soundEffectPlayer = GetNode<AudioStreamPlayer>("SoundEffectPlayer");
+		var initialSoundEffectPlayer = GetNode<AudioStreamPlayer>("SoundEffectPlayer");
+		soundEffectPlayers.Add(initialSoundEffectPlayer);
 		state = new IdleState(this);
 	}
 	public void PlayMusic(string audioPath)
@@ -224,7 +226,26 @@ public partial class ProgramRootNode : Node
 	public void PlaySoundEffect(string audioPath)
 	{
 		var audioStream = GD.Load<AudioStream>(audioPath);
-		soundEffectPlayer.Stream = audioStream;
-		soundEffectPlayer.Play();
+		var player = GetAvailableSoundEffectPlayer();
+		player.Stream = audioStream;
+		player.Play();
+	}
+	AudioStreamPlayer GetAvailableSoundEffectPlayer()
+	{
+		foreach (var player in soundEffectPlayers)
+		{
+			if (!player.Playing)
+			{
+				return player;
+			}
+		}
+		if (soundEffectPlayers.Count < MaxSoundEffectPlayers)
+		{
+			var newPlayer = new AudioStreamPlayer();
+			AddChild(newPlayer);
+			soundEffectPlayers.Add(newPlayer);
+			return newPlayer;
+		}
+		return soundEffectPlayers[0];
 	}
 }
