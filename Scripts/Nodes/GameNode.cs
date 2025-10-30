@@ -119,6 +119,33 @@ public partial class GameNode : Node
 			gameNode.gameData.combatData.characters.Add(playerCharacter);
 			return playerCharacter;
 		}
+		static string GetItemName(uint itemId)
+		{
+			return ItemConfig.Configs.TryGetValue(itemId, out var config) ? config.name : $"物品{itemId}";
+		}
+		static bool CanStack(ItemData item1, ItemData item2)
+		{
+			if (item1.itemId != item2.itemId) return false;
+			if (item1.slots.Length != item2.slots.Length) return false;
+			return item1.slots.All(slot => slot == null) && item2.slots.All(slot => slot == null);
+		}
+		static void AddItemToInventory(GameNode gameNode, ItemData item)
+		{
+			if (item.slots.Length > 0 && item.slots.Any(slot => slot != null))
+			{
+				gameNode.gameData.items.Add(item);
+				return;
+			}
+			foreach (var existingItem in gameNode.gameData.items)
+			{
+				if (CanStack(existingItem, item))
+				{
+					existingItem.count += item.count;
+					return;
+				}
+			}
+			gameNode.gameData.items.Add(item);
+		}
 		static void ShowInventoryMenu(GameNode gameNode)
 		{
 			var inventoryDialogue = gameNode.Root.CreateDialogue();
@@ -138,9 +165,10 @@ public partial class GameNode : Node
 			{
 				foreach (var item in gameNode.gameData.items)
 				{
+					var itemName = GetItemName(item.itemId);
 					options.Add(new()
 					{
-						option = $"物品{item.itemId} x{item.count}",
+						option = $"{itemName} x{item.count}",
 						description = null,
 						onPreview = () => { },
 						onConfirm = () => { },
@@ -173,7 +201,7 @@ public partial class GameNode : Node
 			foreach (var bodyPart in character.bodyParts)
 			{
 				var partName = bodyPart.id.GetName();
-				var optionText = bodyPart.slot == null ? partName : $"{partName}[{bodyPart.slot.itemId}]";
+				var optionText = bodyPart.slot == null ? partName : $"{partName}[{GetItemName(bodyPart.slot.itemId)}]";
 				options.Add(new()
 				{
 					option = optionText,
@@ -234,9 +262,10 @@ public partial class GameNode : Node
 				foreach (var item in gameNode.gameData.items)
 				{
 					var itemId = item.itemId;
+					var itemName = GetItemName(itemId);
 					options.Add(new()
 					{
-						option = $"物品{itemId} x{item.count}",
+						option = $"{itemName} x{item.count}",
 						description = null,
 						onPreview = () => { },
 						onConfirm = () =>
@@ -285,7 +314,7 @@ public partial class GameNode : Node
 				{
 					var slotIndex = i;
 					var slotItem = item.slots[i];
-					var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : $"槽位{slotIndex + 1}[{slotItem.itemId}]";
+					var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : $"槽位{slotIndex + 1}[{GetItemName(slotItem.itemId)}]";
 					options.Add(new()
 					{
 						option = optionText,
@@ -329,7 +358,7 @@ public partial class GameNode : Node
 					{
 						if (bodyPart.slot != null)
 						{
-							gameNode.gameData.items.Add(bodyPart.slot);
+							AddItemToInventory(gameNode: gameNode, item: bodyPart.slot);
 							bodyPart.slot = null;
 							gameNode.Save();
 						}
@@ -341,7 +370,7 @@ public partial class GameNode : Node
 			}
 			slotDialogue.Initialize(new()
 			{
-				title = $"{bodyPart.id.GetName()} - {item.itemId}",
+				title = $"{bodyPart.id.GetName()} - {GetItemName(item.itemId)}",
 				options = options,
 			});
 		}
@@ -365,9 +394,10 @@ public partial class GameNode : Node
 				foreach (var inventoryItem in gameNode.gameData.items)
 				{
 					var itemId = inventoryItem.itemId;
+					var itemName = GetItemName(itemId);
 					options.Add(new()
 					{
-						option = $"物品{itemId} x{inventoryItem.count}",
+						option = $"{itemName} x{inventoryItem.count}",
 						description = null,
 						onPreview = () => { },
 						onConfirm = () =>
@@ -416,7 +446,7 @@ public partial class GameNode : Node
 				{
 					var nestedSlotIndex = i;
 					var nestedSlotItem = slotItem.slots[i];
-					var optionText = nestedSlotItem == null ? $"槽位{nestedSlotIndex + 1}(空)" : $"槽位{nestedSlotIndex + 1}[{nestedSlotItem.itemId}]";
+					var optionText = nestedSlotItem == null ? $"槽位{nestedSlotIndex + 1}(空)" : $"槽位{nestedSlotIndex + 1}[{GetItemName(nestedSlotItem.itemId)}]";
 					options.Add(new()
 					{
 						option = optionText,
@@ -458,7 +488,7 @@ public partial class GameNode : Node
 					onPreview = () => { },
 					onConfirm = () =>
 					{
-						gameNode.gameData.items.Add(slotItem);
+						AddItemToInventory(gameNode: gameNode, item: slotItem);
 						item.slots[slotIndex] = null;
 						gameNode.Save();
 						itemSlotDialogue?.QueueFree();
@@ -470,7 +500,7 @@ public partial class GameNode : Node
 			}
 			itemSlotDialogue.Initialize(new()
 			{
-				title = $"槽位{slotIndex + 1} - {slotItem.itemId}",
+				title = $"槽位{slotIndex + 1} - {GetItemName(slotItem.itemId)}",
 				options = options,
 			});
 		}
