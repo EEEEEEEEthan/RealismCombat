@@ -190,16 +190,45 @@ public partial class CombatNode : Node
 							{
 								dialogue.QueueFree();
 								simulate.defenderIndex = index;
+								selectDefenderBody();
+							},
+							option = $"{defender.name}",
+						});
+					}
+					dialogue.Initialize(dialogueData);
+				}
+				void selectDefenderBody()
+				{
+					var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
+					var dialogue = programRoot.CreateDialogue();
+					var dialogueData = new DialogueData
+					{
+						title = $"{attacker.name}的回合-选择目标身体部位",
+					};
+					var options = new List<DialogueOptionData>();
+					dialogueData.options = options;
+					foreach (var b in BodyPartData.allBodyParts)
+					{
+						var bodyPart = b;
+						var available = defender.bodyParts[(int)bodyPart].hp > 0;
+						options.Add(new()
+						{
+							available = available,
+							description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : $"{defender.name}的{bodyPart.GetName()}已失去战斗能力",
+							onConfirm = () =>
+							{
+								simulate.defenderBodyPart = bodyPart;
+								dialogue.QueueFree();
 								var action = new ActionData(
 									attackerIndex: attackerIndex,
 									attackerBody: simulate.attackerBodyPart.Value,
 									defenderIndex: simulate.defenderIndex.Value,
-									defenderBody: BodyPartCode.Head
+									defenderBody: simulate.defenderBodyPart.Value
 								);
 								combatNode.combatData.lastAction = action;
 								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 							},
-							option = $"{defender.name}",
+							option = $"{bodyPart.GetName()}",
 						});
 					}
 					dialogue.Initialize(dialogueData);
