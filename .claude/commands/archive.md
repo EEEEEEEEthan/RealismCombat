@@ -4,6 +4,9 @@
 
 2. 更新文档
    - 检查 `git diff --cached` 查看所有已暂存的变更
+   - **重要：`.documents` 是隐藏目录（以点开头），必须使用 PowerShell 命令检查其是否存在：**
+     - `Test-Path ".documents"` 或 `Get-ChildItem -Force -Directory | Where-Object { $_.Name -like "*doc*" }`
+     - 不要仅依赖 `list_dir` 工具，因为它可能不显示隐藏目录
    - 如果有设计概念层面的变更，更新 `根目录/.documents/` 目录下的相关文档
    - 只记录设计概念，不记录更新历史或实现细节
    - 如果没有值得记录的内容，跳过此步骤
