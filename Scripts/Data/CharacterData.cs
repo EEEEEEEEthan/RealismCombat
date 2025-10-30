@@ -8,6 +8,7 @@ namespace RealismCombat.Data;
 /// </summary>
 public class CharacterData
 {
+	public static readonly (double min, double max) InitialActionPointRange = (-10, 0);
 	public readonly string name;
 	public readonly byte team;
 	public readonly BodyPartData head = new(BodyPartCode.Head);
@@ -27,7 +28,7 @@ public class CharacterData
 		set
 		{
 			actionPoint = value;
-			actionPoint = actionPoint.Clamped(min: 0, max: 10);
+			actionPoint = actionPoint.Clamped(min: InitialActionPointRange.min, max: InitialActionPointRange.max);
 		}
 	}
 	public CharacterData(string name, byte team)
