@@ -296,6 +296,11 @@ public partial class CombatNode : Node
 			{
 				var attacker = combatNode.combatData.characters[action.attackerIndex];
 				var defender = combatNode.combatData.characters[action.defenderIndex];
+				var defenderNode = combatNode.GetCharacterNode(defender);
+				if (defenderNode != null)
+				{
+					defenderNode.IsActing = true;
+				}
 				var targetBodyPart = action.defenderBody switch
 				{
 					BodyPartCode.Head => defender.head,
@@ -311,7 +316,6 @@ public partial class CombatNode : Node
 				const int damage = 2;
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
-				var defenderNode = combatNode.GetCharacterNode(defender);
 				if (defenderNode != null)
 				{
 					defenderNode.Shake();
@@ -319,6 +323,10 @@ public partial class CombatNode : Node
 					if (bodyPartDrawer != null) bodyPartDrawer.Flash();
 				}
 				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
+				if (defenderNode != null)
+				{
+					defenderNode.IsActing = false;
+				}
 				if (defender.Dead)
 				{
 					await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
