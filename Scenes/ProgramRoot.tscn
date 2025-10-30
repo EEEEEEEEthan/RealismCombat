@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7hmvxn4qm0vm"]
+[gd_scene load_steps=2 format=3 uid="uid://dyo86kwvghlkc"]
 
 [ext_resource type="Script" uid="uid://cq2ugya2pq8ok" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_jh2ti"]
 
@@ -11,9 +11,8 @@ offset_left = 8.0
 offset_top = 24.0
 offset_right = 8.0
 offset_bottom = 24.0
+theme_override_constants/separation = -8
 
 [node name="BgmPlayer" type="AudioStreamPlayer" parent="."]
-autoplay = false
 
 [node name="SoundEffectPlayer" type="AudioStreamPlayer" parent="."]
-autoplay = false

@@ -57,8 +57,13 @@ public partial class MenuDialogue : PanelContainer
 					var option = data.options[i];
 					builder.Append($"{i}. {option.option?.Trim()} {option.description?.Trim()}\n");
 				}
+				Modulate = Colors.White;
 				Log.Print(builder.ToString());
 				root.McpRespond();
+			}
+			else
+			{
+				Modulate = GameColors.inactiveControl;
 			}
 			UpdateTitleControl();
 		}
@@ -148,7 +153,7 @@ public partial class MenuDialogue : PanelContainer
 	void AddOption(DialogueOptionData data)
 	{
 		var label = new Label { Text = data.option, };
-		if (!data.available) label.Modulate = GameColors.unavailableOption;
+		if (!data.available) label.Modulate = GameColors.inactiveControl;
 		container.AddChild(label);
 		if (container.GetChildCount() == 1)
 		{

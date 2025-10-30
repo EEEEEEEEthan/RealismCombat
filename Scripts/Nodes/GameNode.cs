@@ -62,7 +62,6 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							dialogue?.QueueFree();
 							ShowInventoryMenu(gameNode: gameNode);
 						},
 						available = true,
@@ -124,7 +123,6 @@ public partial class GameNode : Node
 				onConfirm = () =>
 				{
 					inventoryDialogue?.QueueFree();
-					_ = new IdleState(gameNode);
 				},
 				available = true,
 			});
