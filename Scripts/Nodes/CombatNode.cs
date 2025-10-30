@@ -135,7 +135,11 @@ public partial class CombatNode : Node
 	{
 		public const byte serializeId = 0;
 		bool firstUpdate = true;
-		public RoundInProgressState(CombatNode combatNode) : base(combatNode) => combatNode.CurrentState = this;
+		public RoundInProgressState(CombatNode combatNode) : base(combatNode)
+		{
+			combatNode.CurrentState = this;
+			combatNode.gameNode.Save();
+		}
 		public override void Update(double deltaTime)
 		{
 			if (!combatNode.AreAllEntryAnimationsFinished()) return;
@@ -175,6 +179,7 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
+			combatNode.gameNode.Save();
 			var attackerNode = combatNode.GetCharacterNode(character);
 			if (attackerNode != null) attackerNode.IsActing = true;
 			if (character.PlayerControlled)
@@ -185,7 +190,7 @@ public partial class CombatNode : Node
 		public override void Update(double deltaTime) { }
 		void HandlePlayerTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
 		{
-			var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
+			var programRoot = combatNode.gameNode.Root;
 			var simulate = new ActionSimulate(this.combatNode.combatData)
 			{
 				attackerIndex = attackerIndex,
