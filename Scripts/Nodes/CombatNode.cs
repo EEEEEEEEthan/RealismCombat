@@ -153,72 +153,72 @@ public partial class CombatNode : Node
 						});
 					}
 					dialogue.Initialize(dialogueData);
-				}
-				void selectDefender()
-				{
-					var dialogue = programRoot.CreateDialogue();
-					var dialogueData = new DialogueData
+					void selectDefender()
 					{
-						title = $"{attacker.name}的回合-选择目标角色",
-					};
-					var options = new List<DialogueOptionData>();
-					dialogueData.options = options;
-					for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
-					{
-						var index = i;
-						var c = this.combatNode.combatData.characters[i];
-						var defender = c;
-						if (c.team == attacker.team) continue;
-						options.Add(new()
+						var dialogue = programRoot.CreateDialogue();
+						var dialogueData = new DialogueData
 						{
-							available = true,
-							description = $"以{defender.name}为目标",
-							onConfirm = () =>
-							{
-								dialogue.QueueFree();
-								simulate.defenderIndex = index;
-								selectDefenderBody();
-							},
-							option = $"{defender.name}",
-						});
-					}
-					dialogue.Initialize(dialogueData);
-				}
-				void selectDefenderBody()
-				{
-					var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
-					var dialogue = programRoot.CreateDialogue();
-					var dialogueData = new DialogueData
-					{
-						title = $"{attacker.name}的回合-选择目标身体部位",
-					};
-					var options = new List<DialogueOptionData>();
-					dialogueData.options = options;
-					foreach (var b in BodyPartData.allBodyParts)
-					{
-						var bodyPart = b;
-						var available = defender.bodyParts[(int)bodyPart].hp > 0;
-						options.Add(new()
+							title = $"{attacker.name}的回合-选择目标角色",
+						};
+						var options = new List<DialogueOptionData>();
+						dialogueData.options = options;
+						for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
 						{
-							available = available,
-							description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : $"{defender.name}的{bodyPart.GetName()}已失去战斗能力",
-							onConfirm = () =>
+							var index = i;
+							var c = this.combatNode.combatData.characters[i];
+							var defender = c;
+							if (c.team == attacker.team) continue;
+							options.Add(new()
 							{
-								simulate.defenderBodyPart = bodyPart;
-								dialogue.QueueFree();
-								var action = new ActionData(
-									attackerIndex: attackerIndex,
-									attackerBody: simulate.attackerBodyPart.Value,
-									defenderIndex: simulate.defenderIndex.Value,
-									defenderBody: simulate.defenderBodyPart.Value
-								);
-								combatNode.combatData.lastAction = action;
-								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
-							},
-							option = $"{bodyPart.GetName()}",
-						});
+								available = true,
+								description = $"以{defender.name}为目标",
+								onConfirm = () =>
+								{
+									dialogue.QueueFree();
+									simulate.defenderIndex = index;
+									selectDefenderBody();
+								},
+								option = $"{defender.name}",
+							});
+						}
+						dialogue.Initialize(dialogueData);
 					}
-					dialogue.Initialize(dialogueData);
+					void selectDefenderBody()
+					{
+						var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
+						var dialogue = programRoot.CreateDialogue();
+						var dialogueData = new DialogueData
+						{
+							title = $"{attacker.name}的回合-选择目标身体部位",
+						};
+						var options = new List<DialogueOptionData>();
+						dialogueData.options = options;
+						foreach (var b in BodyPartData.allBodyParts)
+						{
+							var bodyPart = b;
+							var available = defender.bodyParts[(int)bodyPart].hp > 0;
+							options.Add(new()
+							{
+								available = available,
+								description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : $"{defender.name}的{bodyPart.GetName()}已失去战斗能力",
+								onConfirm = () =>
+								{
+									simulate.defenderBodyPart = bodyPart;
+									dialogue.QueueFree();
+									var action = new ActionData(
+										attackerIndex: attackerIndex,
+										attackerBody: simulate.attackerBodyPart.Value,
+										defenderIndex: simulate.defenderIndex.Value,
+										defenderBody: simulate.defenderBodyPart.Value
+									);
+									combatNode.combatData.lastAction = action;
+									_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
+								},
+								option = $"{bodyPart.GetName()}",
+							});
+						}
+						dialogue.Initialize(dialogueData);
+					}
 				}
 			}
 			else
@@ -312,12 +312,12 @@ public partial class CombatNode : Node
 		_ = State.Create(combatNode: combatNode);
 		return combatNode;
 	}
+	readonly Dictionary<CharacterData, CharacterNode> characterNodes = new();
 	State state = null!;
 	CombatData combatData = null!;
 	GameNode gameNode = null!;
 	[Export] Container team0 = null!;
 	[Export] Container team1 = null!;
-	Dictionary<CharacterData, CharacterNode> characterNodes = new();
 	State CurrentState
 	{
 		get => state;
@@ -345,9 +345,6 @@ public partial class CombatNode : Node
 			characterNodes[character] = characterNode;
 		}
 	}
-	CharacterNode? GetCharacterNode(CharacterData character)
-	{
-		return characterNodes.TryGetValue(character, out var node) ? node : null;
-	}
 	public override void _Process(double delta) => CurrentState.Update(delta);
+	CharacterNode? GetCharacterNode(CharacterData character) => characterNodes.TryGetValue(key: character, value: out var node) ? node : null;
 }
