@@ -23,7 +23,6 @@ public class GameData
 		using (writer.WriteScope())
 		{
 			writer.Write(state);
-			writer.Write(true);
 			if (combatData is not null)
 			{
 				writer.Write(true);
