@@ -108,6 +108,10 @@ public partial class GameNode : Node
 		}
 		audioStreamPlayer.Stream = audioStream;
 		audioStreamPlayer.Play();
+		if (audioPath == AudioTable.wizardattack26801)
+		{
+			audioStreamPlayer.Seek(2.0f);
+		}
 	}
 	State CurrentState
 	{
