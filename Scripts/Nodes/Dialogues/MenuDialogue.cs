@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Godot;
+using RealismCombat;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
 public record DialogueData
@@ -38,6 +39,8 @@ public partial class MenuDialogue : PanelContainer
 	bool completed;
 	DialogueData data = null!;
 	bool active;
+	Tween? shakeTween;
+	Vector2? titleControlOriginalPosition;
 	public bool Active
 	{
 		get => active;
@@ -90,11 +93,46 @@ public partial class MenuDialogue : PanelContainer
 	{
 		Select(index);
 		var option = data.options[index];
-		if (!option.available) throw new InvalidOperationException("选项不可用，无法确认");
+		if (!option.available)
+		{
+			Log.Print($"选项不可用:{option.description}");
+			ShakeTitleControl();
+			root.McpRespond();
+			return;
+		}
 		Log.Print($"选择了{index},{option.option}");
 		root.PlaySoundEffect(AudioTable.gameboypluck41265);
 		option.onConfirm();
 		Complete();
+	}
+	void ShakeTitleControl()
+	{
+		if (titleControl == null) return;
+		if (shakeTween != null)
+		{
+			shakeTween.Kill();
+			if (titleControlOriginalPosition.HasValue)
+			{
+				titleControl.Position = titleControlOriginalPosition.Value;
+			}
+		}
+		if (titleControlOriginalPosition == null)
+		{
+			titleControlOriginalPosition = titleControl.Position;
+		}
+		var originalPosition = titleControlOriginalPosition.Value;
+		shakeTween = CreateTween();
+		const float shakeDistance = 8.0f;
+		const float shakeDuration = 0.1f;
+		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X + shakeDistance, shakeDuration);
+		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X - shakeDistance, shakeDuration);
+		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X + shakeDistance, shakeDuration);
+		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X, shakeDuration);
+		shakeTween.Finished += () =>
+		{
+			titleControl.Position = originalPosition;
+			shakeTween = null;
+		};
 	}
 	public void Select(int index)
 	{
@@ -120,7 +158,12 @@ public partial class MenuDialogue : PanelContainer
 	void UpdateTitleControl() => titleControl.Visible = Active && !string.IsNullOrEmpty(data.title);
 	void AddOption(DialogueOptionData data)
 	{
-		container.AddChild(new Label { Text = data.option, });
+		var label = new Label { Text = data.option, };
+		if (!data.available)
+		{
+			label.Modulate = GameColors.unavailableOption;
+		}
+		container.AddChild(label);
 		if (container.GetChildCount() == 1)
 		{
 			var text = this.data.options[0].description;
