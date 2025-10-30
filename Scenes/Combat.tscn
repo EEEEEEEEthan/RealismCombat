@@ -1,15 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2dfbrg7d6tli"]
+[gd_scene load_steps=2 format=3 uid="uid://4q30s1blx4lm"]
 
 [ext_resource type="Script" uid="uid://ba7gvnx3qm8tj" path="res://Scripts/Nodes/CombatNode.cs" id="1_combat"]
 
-[node name="Combat" type="Node" node_paths=PackedStringArray("characterContainer")]
+[node name="Combat" type="Node" node_paths=PackedStringArray("team0", "team1")]
 script = ExtResource("1_combat")
-characterContainer = NodePath("HBoxContainer")
+team0 = NodePath("Team0")
+team1 = NodePath("Team1")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-anchors_preset = 15
+[node name="Team0" type="HBoxContainer" parent="."]
+anchors_preset = -1
+anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Team1" type="HBoxContainer" parent="."]
+layout_direction = 3
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2

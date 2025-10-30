@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using Godot;
 using RealismCombat.Data;
@@ -74,11 +73,7 @@ public partial class CombatNode : Node
 	{
 		public const byte serializeId = 0;
 		bool firstUpdate = true;
-		public RoundInProgressState(CombatNode combatNode) : base(combatNode)
-		{
-			combatNode.CurrentState = this;
-			var allActionPoints = string.Join(separator: ", ", values: combatNode.combatData.characters.Select(c => $"{c.name}:{c.actionPoint:F2}"));
-		}
+		public RoundInProgressState(CombatNode combatNode) : base(combatNode) => combatNode.CurrentState = this;
 		public override void Update(double deltaTime)
 		{
 			if (firstUpdate)
@@ -108,17 +103,6 @@ public partial class CombatNode : Node
 	public class CharacterTurnState : State
 	{
 		public const byte serializeId = 1;
-		static int GetBodyPartHp(CharacterData character, BodyPartCode bodyPart) =>
-			bodyPart switch
-			{
-				BodyPartCode.Head => character.head.hp,
-				BodyPartCode.Chest => character.chest.hp,
-				BodyPartCode.LeftArm => character.leftArm.hp,
-				BodyPartCode.RightArm => character.rightArm.hp,
-				BodyPartCode.LeftLeg => character.leftLeg.hp,
-				BodyPartCode.RightLeg => character.rightLeg.hp,
-				_ => throw new ArgumentOutOfRangeException(paramName: nameof(bodyPart), actualValue: bodyPart, message: null),
-			};
 		public readonly CharacterData character;
 		public CharacterTurnState(CombatNode combatNode, CharacterData character) : base(combatNode)
 		{
@@ -318,7 +302,8 @@ public partial class CombatNode : Node
 	State state = null!;
 	CombatData combatData = null!;
 	GameNode gameNode = null!;
-	[Export] Container characterContainer = null!;
+	[Export] Container team0 = null!;
+	[Export] Container team1 = null!;
 	State CurrentState
 	{
 		get => state;
@@ -341,7 +326,8 @@ public partial class CombatNode : Node
 		{
 			var characterNode = CharacterNode.Create();
 			characterNode.CharacterData = character;
-			characterContainer.AddChild(characterNode);
+			var targetTeam = character.team == 0 ? team0 : team1;
+			targetTeam.AddChild(characterNode);
 		}
 	}
 	public override void _Process(double delta) => CurrentState.Update(delta);
