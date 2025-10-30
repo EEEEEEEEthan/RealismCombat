@@ -29,9 +29,18 @@ public class ItemData
 	}
 	public override string ToString() => $"{nameof(ItemData)}({nameof(itemId)}={itemId}, {nameof(count)}={count})";
 }
-public record ItemConfig
+public class ItemConfig
 {
 	public static readonly Dictionary<uint, ItemConfig> Configs = new();
-	public uint itemId;
-	public required string name;
+	public uint itemId { get; private set; }
+	public string name { get; private set; }
+	private ItemConfig(uint itemId, string name)
+	{
+		this.itemId = itemId;
+		this.name = name;
+	}
+	static ItemConfig()
+	{
+		Configs[0] = new ItemConfig(0, "第纳尔");
+	}
 }
