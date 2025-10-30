@@ -108,6 +108,7 @@ public class BodyPartData
 	public readonly BodyPartCode id;
 	public int hp = 10;
 	public int maxHp = 10;
+	public ItemData? slot;
 	public BodyPartData(BodyPartCode id) => this.id = id;
 	public BodyPartData(DataVersion version, BinaryReader reader)
 	{
@@ -116,6 +117,11 @@ public class BodyPartData
 			id = (BodyPartCode)reader.ReadByte();
 			hp = reader.ReadInt32();
 			maxHp = reader.ReadInt32();
+			var hasSlot = reader.ReadBoolean();
+			if (hasSlot)
+			{
+				slot = new(version: version, reader: reader);
+			}
 		}
 	}
 	public void Serialize(BinaryWriter writer)
@@ -125,7 +131,16 @@ public class BodyPartData
 			writer.Write((byte)id);
 			writer.Write(hp);
 			writer.Write(maxHp);
+			if (slot is not null)
+			{
+				writer.Write(true);
+				slot.Serialize(writer);
+			}
+			else
+			{
+				writer.Write(false);
+			}
 		}
 	}
-	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp})";
+	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slot)}={slot})";
 }
