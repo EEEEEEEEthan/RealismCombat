@@ -267,6 +267,7 @@ public partial class CombatNode : Node
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
 				const int damage = 2;
 				targetBodyPart.hp -= damage;
+				combatNode.PlaySoundEffect(AudioTable.retrohurt1236672);
 				var defenderNode = combatNode.GetCharacterNode(defender);
 				if (defenderNode != null) defenderNode.Shake();
 				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
@@ -312,6 +313,13 @@ public partial class CombatNode : Node
 	[Export] Container team0 = null!;
 	[Export] Container team1 = null!;
 	Dictionary<CharacterData, CharacterNode> characterNodes = new();
+	AudioStreamPlayer audioStreamPlayer = null!;
+	void PlaySoundEffect(string audioPath)
+	{
+		var audioStream = GD.Load<AudioStream>(audioPath);
+		audioStreamPlayer.Stream = audioStream;
+		audioStreamPlayer.Play();
+	}
 	State CurrentState
 	{
 		get => state;
@@ -330,6 +338,7 @@ public partial class CombatNode : Node
 	public CombatNodeAwaiter GetAwaiter() => new(this);
 	public override void _Ready()
 	{
+		audioStreamPlayer = GetNode<AudioStreamPlayer>("AudioStreamPlayer");
 		foreach (var character in combatData.characters)
 		{
 			var characterNode = CharacterNode.Create();

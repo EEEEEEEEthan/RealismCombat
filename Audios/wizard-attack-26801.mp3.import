@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/wizard-attack-26801.mp3-bce4306ef2d86bf712c28
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
