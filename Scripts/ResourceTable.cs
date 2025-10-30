@@ -21,10 +21,10 @@ public static class AudioTable
 {
 	#region autogen_audios
 	public const string arpegio01Loop45094 = "res://Audios/arpegio01_loop-45094.mp3";
+	public const string battleMusic1 = "res://Audios/battle_music_1.mp3";
 	public const string gameboypluck41265 = "res://Audios/gameboy-pluck-41265.mp3";
 	public const string oneBeep99630 = "res://Audios/one_beep-99630.mp3";
 	public const string retroclick236673 = "res://Audios/retro-click-236673.mp3";
 	public const string retrohurt1236672 = "res://Audios/retro-hurt-1-236672.mp3";
-	public const string wizardattack26801 = "res://Audios/wizard-attack-26801.mp3";
 	#endregion autogen_audios
 }

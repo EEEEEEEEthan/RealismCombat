@@ -68,7 +68,7 @@ public partial class GameNode : Node
 		public CombatState(GameNode gameNode, CombatData combatData) : base(gameNode)
 		{
 			gameNode.CurrentState = this;
-			gameNode.Root.PlayMusic(AudioTable.wizardattack26801);
+			gameNode.Root.PlayMusic(AudioTable.battleMusic1);
 			gameNode.gameData.combatData = combatData;
 			var combatNode = CombatNode.Create(gameNode: gameNode, combatData: combatData);
 			gameNode.AddChild(combatNode);

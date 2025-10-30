@@ -218,10 +218,6 @@ public partial class ProgramRootNode : Node
 		}
 		bgmPlayer.Stream = audioStream;
 		bgmPlayer.Play();
-		if (audioPath == AudioTable.wizardattack26801)
-		{
-			bgmPlayer.Seek(2.0f);
-		}
 	}
 	public void PlaySoundEffect(string audioPath)
 	{
