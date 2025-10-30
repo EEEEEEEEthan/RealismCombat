@@ -1,16 +1,22 @@
-[gd_scene load_steps=3 format=3 uid="uid://bsr6jng6vgk8j"]
+[gd_scene load_steps=5 format=3 uid="uid://d3s5fkmxowalf"]
 
 [ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="1_0k2da"]
 [ext_resource type="Script" uid="uid://cnse8sg5d07nm" path="res://Scripts/Nodes/PropertyDrawerNode.cs" id="2_nght4"]
+[ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icons.png" id="3_ojnvm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nvink"]
+atlas = ExtResource("3_ojnvm")
+region = Rect2(0, 8, 8, 8)
 
 [node name="Head" type="HBoxContainer" node_paths=PackedStringArray("name", "value")]
 offset_right = 80.0
-offset_bottom = 14.0
+offset_bottom = 8.0
 mouse_filter = 2
 theme = ExtResource("1_0k2da")
+theme_override_constants/separation = 2
 script = ExtResource("2_nght4")
 name = NodePath("Name")
-value = NodePath("HitPoint")
+value = NodePath("TextureRect/Value")
 
 [node name="Name" type="Label" parent="."]
 custom_minimum_size = Vector2(16, 0)
@@ -19,8 +25,15 @@ size_flags_horizontal = 0
 size_flags_vertical = 1
 text = "头部"
 
-[node name="HitPoint" type="Label" parent="."]
+[node name="TextureRect" type="HBoxContainer" parent="."]
+self_modulate = Color(0.4745098, 0.4745098, 0.4745098, 1)
+custom_minimum_size = Vector2(20, 6)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "|||||"
+size_flags_vertical = 4
+
+[node name="Value" type="NinePatchRect" parent="TextureRect"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+texture = SubResource("AtlasTexture_nvink")
+region_rect = Rect2(4, 0, 2, 8)
+axis_stretch_horizontal = 1
