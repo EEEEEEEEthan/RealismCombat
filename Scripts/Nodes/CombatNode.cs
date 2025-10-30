@@ -138,6 +138,8 @@ public partial class CombatNode : Node
 		public RoundInProgressState(CombatNode combatNode) : base(combatNode) => combatNode.CurrentState = this;
 		public override void Update(double deltaTime)
 		{
+			if (!combatNode.AreAllEntryAnimationsFinished()) return;
+			
 			if (firstUpdate)
 			{
 				firstUpdate = false;
@@ -390,6 +392,7 @@ public partial class CombatNode : Node
 	GameNode gameNode = null!;
 	[Export] Container team0 = null!;
 	[Export] Container team1 = null!;
+	bool isEntryAnimationFinished;
 	State CurrentState
 	{
 		get => state;
@@ -418,7 +421,28 @@ public partial class CombatNode : Node
 			characterNode.SizeFlagsVertical = character.team == 0 ? Control.SizeFlags.ShrinkEnd : Control.SizeFlags.ShrinkBegin;
 			characterNodes[character] = characterNode;
 		}
+		PlayEntryAnimations();
+	}
+	async void PlayEntryAnimations()
+	{
+		var screenSize = GetViewport().GetVisibleRect().Size;
+		
+		team0.OffsetTop = (int)screenSize.Y;
+		team1.OffsetTop = -(int)screenSize.Y;
+		
+		var tween0 = CreateTween();
+		var tween1 = CreateTween();
+		
+		tween0.TweenProperty(team0, "offset_top", 0, 0.5);
+		tween1.TweenProperty(team1, "offset_top", 0, 0.5);
+		
+		await ToSignal(tween0, Tween.SignalName.Finished);
+		isEntryAnimationFinished = true;
 	}
 	public override void _Process(double delta) => CurrentState.Update(delta);
 	CharacterNode? GetCharacterNode(CharacterData character) => characterNodes.TryGetValue(key: character, value: out var node) ? node : null;
+	public bool AreAllEntryAnimationsFinished()
+	{
+		return isEntryAnimationFinished;
+	}
 }

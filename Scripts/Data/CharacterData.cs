@@ -87,7 +87,7 @@ public static class BodyPartCodeExtensions
 		part switch
 		{
 			BodyPartCode.Head => "头部",
-			BodyPartCode.Chest => "胸部",
+			BodyPartCode.Chest => "躯干",
 			BodyPartCode.LeftArm => "左臂",
 			BodyPartCode.RightArm => "右臂",
 			BodyPartCode.LeftLeg => "左腿",
