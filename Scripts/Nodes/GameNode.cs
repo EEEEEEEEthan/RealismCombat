@@ -1,29 +1,38 @@
 using System;
 using Godot;
 using RealismCombat.Data;
+using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class GameNode : Node
 {
 	public abstract class State(GameNode gameNode)
 	{
-		public static State Create(GameNode gameNode) =>
-			gameNode.gameData.state switch
+		public static State Create(GameNode gameNode)
+		{
+			if (gameNode.gameData.state == CombatState.serializeId && gameNode.gameData.combatData == null)
+			{
+				return new IdleState(gameNode);
+			}
+			return gameNode.gameData.state switch
 			{
 				IdleState.serializeId => new IdleState(gameNode),
 				CombatState.serializeId => new CombatState(gameNode: gameNode,
 					combatData: gameNode.gameData.combatData ?? throw new InvalidOperationException("战斗数据为空")),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
+		}
 		public readonly GameNode gameNode = gameNode;
+		public Action? OnExit;
 	}
 	public class IdleState : State
 	{
 		public const int serializeId = 0;
+		public MenuDialogue? dialogue;
 		public IdleState(GameNode gameNode) : base(gameNode)
 		{
 			gameNode.CurrentState = this;
 			gameNode.Root.PlayMusic(AudioTable.arpegio01Loop45094);
-			var dialogue = gameNode.Root.CreateDialogue();
+			dialogue = gameNode.Root.CreateDialogue();
 			dialogue.Initialize(new()
 			{
 				title = "游戏菜单",
@@ -36,7 +45,7 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							dialogue.QueueFree();
+							dialogue?.QueueFree();
 							var combatData = new CombatData();
 							var (min, max) = CharacterData.InitialActionPointRange;
 							combatData.characters.Add(new(name: "ethan", team: 0) { ActionPoint = GD.Randf() * (max - min) + min, });
@@ -52,7 +61,7 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							dialogue.QueueFree();
+							dialogue?.QueueFree();
 							gameNode.QueueFree();
 							gameNode.Root.state = new ProgramRootNode.IdleState(gameNode.Root);
 						},
@@ -60,6 +69,10 @@ public partial class GameNode : Node
 					},
 				],
 			});
+			OnExit = () =>
+			{
+				dialogue?.QueueFree();
+			};
 		}
 	}
 	public class CombatState : State
@@ -80,12 +93,18 @@ public partial class GameNode : Node
 			try
 			{
 				await combatNode;
-				_ = new IdleState(gameNode);
+				if (IsInstanceValid(gameNode) && gameNode.IsInsideTree())
+				{
+					_ = new IdleState(gameNode);
+				}
 			}
 			catch (Exception e)
 			{
 				Log.PrintException(e);
-				gameNode.Root.McpRespond();
+				if (IsInstanceValid(gameNode) && gameNode.IsInsideTree())
+				{
+					gameNode.Root.McpRespond();
+				}
 			}
 		}
 	}
@@ -124,5 +143,9 @@ public partial class GameNode : Node
 	{
 		Root = GetParent<ProgramRootNode>();
 		_ = State.Create(gameNode: this);
+	}
+	public override void _ExitTree()
+	{
+		state.OnExit?.Invoke();
 	}
 }

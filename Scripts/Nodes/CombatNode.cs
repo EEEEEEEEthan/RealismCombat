@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Godot;
 using RealismCombat.Data;
@@ -366,9 +367,27 @@ public partial class CombatNode : Node
 					var winner = team0Alive ? "玩家" : "敌人";
 					Log.Print($"战斗结束，{winner}获胜");
 					combatNode.combatData.characters.Clear();
-					combatNode.gameNode.SetCombatData(null);
-					combatNode.gameNode.Save();
-					combatNode.QueueFree();
+					var gameNode = combatNode.gameNode;
+					if (!team0Alive)
+					{
+						var root = gameNode.Root;
+						root.PlayMusic(AudioTable.arpegio01Loop45094);
+						await root.PopMessage("玩家队伍全灭，返回主菜单");
+						if (File.Exists(Persistant.saveDataPath))
+						{
+							File.Delete(Persistant.saveDataPath);
+							Log.Print("存档已删除");
+						}
+						combatNode.QueueFree();
+						gameNode.QueueFree();
+						root.state = new ProgramRootNode.IdleState(root);
+					}
+					else
+					{
+						gameNode.SetCombatData(null);
+						gameNode.Save();
+						combatNode.QueueFree();
+					}
 					return;
 				}
 			}
