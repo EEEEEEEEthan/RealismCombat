@@ -22,21 +22,21 @@ partial class CharacterNode : Control
 	{
 		if (CharacterData == null) return;
 		nameLabel.Text = CharacterData.name;
-		actionPoint.property = ((int)CharacterData.actionPoint + 10, 10);
-		speed.property = ((int)CharacterData.speed, 10);
-		head.property = (CharacterData.head.hp, CharacterData.head.maxHp);
-		chest.property = (CharacterData.chest.hp, CharacterData.chest.maxHp);
-		rightArm.property = (CharacterData.rightArm.hp, CharacterData.rightArm.maxHp);
-		leftArm.property = (CharacterData.leftArm.hp, CharacterData.leftArm.maxHp);
-		rightLeg.property = (CharacterData.rightLeg.hp, CharacterData.rightLeg.maxHp);
-		leftLeg.property = (CharacterData.leftLeg.hp, CharacterData.leftLeg.maxHp);
-		actionPoint.title = "行动";
-		speed.title = "速度";
-		head.title = "头部";
-		chest.title = "胸部";
-		rightArm.title = "右臂";
-		leftArm.title = "左臂";
-		rightLeg.title = "右腿";
-		leftLeg.title = "左腿";
+		actionPoint.Value = ((float)CharacterData.actionPoint + 10) / 10;
+		speed.Value = (float)CharacterData.speed / 10;
+		head.Value = (float)CharacterData.head.hp / CharacterData.head.maxHp;
+		chest.Value = (float)CharacterData.chest.hp / CharacterData.chest.maxHp;
+		rightArm.Value = (float)CharacterData.rightArm.hp / CharacterData.rightArm.maxHp;
+		leftArm.Value = (float)CharacterData.leftArm.hp / CharacterData.leftArm.maxHp;
+		rightLeg.Value = (float)CharacterData.rightLeg.hp / CharacterData.rightLeg.maxHp;
+		leftLeg.Value = (float)CharacterData.leftLeg.hp / CharacterData.leftLeg.maxHp;
+		actionPoint.Title = "行动";
+		speed.Title = "速度";
+		head.Title = "头部";
+		chest.Title = "胸部";
+		rightArm.Title = "右臂";
+		leftArm.Title = "左臂";
+		rightLeg.Title = "右腿";
+		leftLeg.Title = "左腿";
 	}
 }

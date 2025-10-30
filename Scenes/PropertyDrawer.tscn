@@ -8,15 +8,15 @@
 atlas = ExtResource("3_ojnvm")
 region = Rect2(0, 8, 8, 8)
 
-[node name="Head" type="HBoxContainer" node_paths=PackedStringArray("name", "value")]
+[node name="Head" type="HBoxContainer"]
 offset_right = 80.0
 offset_bottom = 8.0
 mouse_filter = 2
 theme = ExtResource("1_0k2da")
 theme_override_constants/separation = 2
 script = ExtResource("2_nght4")
-name = NodePath("Name")
-value = NodePath("TextureRect/Value")
+Title = "头部"
+Value = 0.618
 
 [node name="Name" type="Label" parent="."]
 custom_minimum_size = Vector2(16, 0)
@@ -25,14 +25,14 @@ size_flags_horizontal = 0
 size_flags_vertical = 1
 text = "头部"
 
-[node name="TextureRect" type="HBoxContainer" parent="."]
+[node name="ValueContainer" type="HBoxContainer" parent="."]
 self_modulate = Color(0.4745098, 0.4745098, 0.4745098, 1)
-custom_minimum_size = Vector2(20, 6)
+custom_minimum_size = Vector2(19, 6)
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="Value" type="NinePatchRect" parent="TextureRect"]
-custom_minimum_size = Vector2(20, 0)
+[node name="Value" type="NinePatchRect" parent="ValueContainer"]
+custom_minimum_size = Vector2(11, 0)
 layout_mode = 2
 texture = SubResource("AtlasTexture_nvink")
 region_rect = Rect2(4, 0, 2, 8)
