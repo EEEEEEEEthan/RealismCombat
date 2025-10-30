@@ -82,10 +82,11 @@ public partial class CombatNode : Node
 				CheckForReadyCharacter();
 				return;
 			}
+			var speedMultiplier = Input.IsAnythingPressed() ? 5.0 : 1.0;
 			foreach (var character in combatNode.combatData.characters)
 			{
 				var oldActionPoint = character.ActionPoint;
-				character.ActionPoint += character.speed * deltaTime;
+				character.ActionPoint += character.speed * speedMultiplier * deltaTime;
 				if (oldActionPoint < 0 && character.ActionPoint >= 0) Log.Print($"{character.name} 行动力恢复到 {character.ActionPoint:F2}");
 			}
 			CheckForReadyCharacter();

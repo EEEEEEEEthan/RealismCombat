@@ -18,7 +18,7 @@ public class CharacterData
 	public readonly BodyPartData leftLeg = new(BodyPartCode.LeftLeg);
 	public readonly BodyPartData rightLeg = new(BodyPartCode.RightLeg);
 	public readonly IReadOnlyList<BodyPartData> bodyParts;
-	public double speed = 5;
+	public double speed = 1;
 	double actionPoint;
 	public bool PlayerControlled => team == 0;
 	public bool Dead => head.hp <= 0 || chest.hp <= 0;
