@@ -12,6 +12,7 @@ public partial class CombatNode : Node
 	{
 		public readonly CombatData combatData = combatData;
 		public int? attackerIndex;
+		public int? defenderIndex;
 		public BodyPartCode? attackerBodyPart;
 		public BodyPartCode? defenderBodyPart;
 		CharacterData Attacker
@@ -125,24 +126,25 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
-			HandleCharacterTurn(combatNode: combatNode, character: character, attackerIndex: characterIndex);
+			HandleCharacterTurn(combatNode: combatNode, attacker: character, attackerIndex: characterIndex);
 		}
 		public override void Update(double deltaTime) { }
-		void HandleCharacterTurn(CombatNode combatNode, CharacterData character, byte attackerIndex)
+		void HandleCharacterTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
 		{
-			if (character.PlayerControlled)
+			if (attacker.PlayerControlled)
 			{
 				var programRoot = combatNode.GetNode<ProgramRootNode>("/root/ProgramRoot");
 				var simulate = new ActionSimulate(this.combatNode.combatData)
 				{
 					attackerIndex = attackerIndex,
 				};
+				selectAttackerBody();
+				void selectAttackerBody()
 				{
-					// select attacker body
 					var dialogue = programRoot.CreateDialogue();
 					var dialogueData = new DialogueData
 					{
-						title = $"{character.name}的回合-选择身体部位",
+						title = $"{attacker.name}的回合-选择身体部位",
 					};
 					var options = new List<DialogueOptionData>();
 					dialogueData.options = options;
@@ -156,18 +158,48 @@ public partial class CombatNode : Node
 							description = available ? $"使用{bodyPart.GetName()}进行行动" : error,
 							onConfirm = () =>
 							{
-								dialogue.QueueFree();
 								simulate.attackerBodyPart = bodyPart;
+								dialogue.QueueFree();
+								selectDefender();
+							},
+							option = $"{bodyPart.GetName()}",
+						});
+					}
+					dialogue.Initialize(dialogueData);
+				}
+				void selectDefender()
+				{
+					var dialogue = programRoot.CreateDialogue();
+					var dialogueData = new DialogueData
+					{
+						title = $"{attacker.name}的回合-选择目标角色",
+					};
+					var options = new List<DialogueOptionData>();
+					dialogueData.options = options;
+					for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
+					{
+						var index = i;
+						var c = this.combatNode.combatData.characters[i];
+						var defender = c;
+						if (c.team == attacker.team) continue;
+						options.Add(new()
+						{
+							available = true,
+							description = $"以{defender.name}为目标",
+							onConfirm = () =>
+							{
+								dialogue.QueueFree();
+								simulate.defenderIndex = index;
 								var action = new ActionData(
 									attackerIndex: attackerIndex,
 									attackerBody: simulate.attackerBodyPart.Value,
-									defenderIndex: 1,
+									defenderIndex: simulate.defenderIndex.Value,
 									defenderBody: BodyPartCode.Head
 								);
 								combatNode.combatData.lastAction = action;
 								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 							},
-							option = $"{bodyPart.GetName()}",
+							option = $"{defender.name}",
 						});
 					}
 					dialogue.Initialize(dialogueData);
@@ -175,7 +207,7 @@ public partial class CombatNode : Node
 			}
 			else
 			{
-				var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != character.team);
+				var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != attacker.team);
 				if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
 				var action = new ActionData(
 					attackerIndex: attackerIndex,
