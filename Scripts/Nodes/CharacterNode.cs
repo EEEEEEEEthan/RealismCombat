@@ -37,7 +37,7 @@ partial class CharacterNode : Control
 		if (CharacterData == null) return;
 		panelContainer.ThemeTypeVariation = CharacterData.team == 0 ? "Team0" : "Team1";
 		nameLabel.Text = CharacterData.name;
-		actionPoint.Value = ((float)CharacterData.actionPoint + 10) / 10;
+		actionPoint.Value = ((float)CharacterData.ActionPoint + 10) / 10;
 		speed.Value = (float)CharacterData.speed / 10;
 		head.Value = (float)CharacterData.head.hp / CharacterData.head.maxHp;
 		chest.Value = (float)CharacterData.chest.hp / CharacterData.chest.maxHp;

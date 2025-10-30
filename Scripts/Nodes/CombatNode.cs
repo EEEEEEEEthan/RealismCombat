@@ -84,16 +84,16 @@ public partial class CombatNode : Node
 			}
 			foreach (var character in combatNode.combatData.characters)
 			{
-				var oldActionPoint = character.actionPoint;
-				character.actionPoint += character.speed * deltaTime;
-				if (oldActionPoint < 0 && character.actionPoint >= 0) Log.Print($"{character.name} 行动力恢复到 {character.actionPoint:F2}");
+				var oldActionPoint = character.ActionPoint;
+				character.ActionPoint += character.speed * deltaTime;
+				if (oldActionPoint < 0 && character.ActionPoint >= 0) Log.Print($"{character.name} 行动力恢复到 {character.ActionPoint:F2}");
 			}
 			CheckForReadyCharacter();
 		}
 		void CheckForReadyCharacter()
 		{
 			foreach (var character in combatNode.combatData.characters)
-				if (character.actionPoint >= 0)
+				if (character.ActionPoint >= 0)
 				{
 					_ = new CharacterTurnState(combatNode: combatNode, character: character);
 					return;
@@ -280,7 +280,7 @@ public partial class CombatNode : Node
 					}
 				}
 				const int actionPoint = 5;
-				attacker.actionPoint -= actionPoint;
+				attacker.ActionPoint -= actionPoint;
 				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
 				_ = new RoundInProgressState(combatNode);
 			}
