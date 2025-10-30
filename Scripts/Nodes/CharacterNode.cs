@@ -8,6 +8,7 @@ partial class CharacterNode : Control
 		var instance = GD.Load<PackedScene>(ResourceTable.character).Instantiate<CharacterNode>();
 		return instance;
 	}
+	PanelContainer panelContainer = null!;
 	Label nameLabel = null!;
 	PropertyDrawerNode actionPoint = null!;
 	PropertyDrawerNode speed = null!;
@@ -20,20 +21,21 @@ partial class CharacterNode : Control
 	public CharacterData? CharacterData { get; set; }
 	public override void _Ready()
 	{
-		nameLabel = GetNode<Label>("VBoxContainer/Title");
-		actionPoint = GetNode<PropertyDrawerNode>("VBoxContainer/ActionPoint");
-		speed = GetNode<PropertyDrawerNode>("VBoxContainer/Speed");
-		head = GetNode<PropertyDrawerNode>("VBoxContainer/Head");
-		chest = GetNode<PropertyDrawerNode>("VBoxContainer/Chest");
-		rightArm = GetNode<PropertyDrawerNode>("VBoxContainer/RightArm");
-		leftArm = GetNode<PropertyDrawerNode>("VBoxContainer/LeftArm");
-		rightLeg = GetNode<PropertyDrawerNode>("VBoxContainer/RightLeg");
-		leftLeg = GetNode<PropertyDrawerNode>("VBoxContainer/LeftLeg");
+		panelContainer = GetNode<PanelContainer>("PanelContainer");
+		nameLabel = GetNode<Label>("PanelContainer/VBoxContainer/Title");
+		actionPoint = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/ActionPoint");
+		speed = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/Speed");
+		head = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/Head");
+		chest = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/Chest");
+		rightArm = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/RightArm");
+		leftArm = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/LeftArm");
+		rightLeg = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/RightLeg");
+		leftLeg = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/LeftLeg");
 	}
 	public override void _Process(double delta)
 	{
 		if (CharacterData == null) return;
-		ThemeTypeVariation = CharacterData.team == 0 ? "Team0" : "Team1";
+		panelContainer.ThemeTypeVariation = CharacterData.team == 0 ? "Team0" : "Team1";
 		nameLabel.Text = CharacterData.name;
 		actionPoint.Value = ((float)CharacterData.actionPoint + 10) / 10;
 		speed.Value = (float)CharacterData.speed / 10;
