@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://bjvlumvxgutph"]
+[gd_scene load_steps=3 format=3 uid="uid://bjvlumvxgutph"]
 
 [ext_resource type="Script" uid="uid://5vu4muq6l6se" path="res://Scripts/Nodes/CharacterNode.cs" id="1_0y7nr"]
-[ext_resource type="Theme" uid="uid://bpxr1w3o076bd" path="res://Theme.tres" id="2_jo2ib"]
 [ext_resource type="PackedScene" uid="uid://d3s5fkmxowalf" path="res://Scenes/PropertyDrawer.tscn" id="3_677pu"]
 
 [node name="Character" type="PanelContainer" node_paths=PackedStringArray("nameLabel", "actionPoint", "speed", "head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg")]
@@ -10,10 +9,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 7.0
 offset_top = 68.0
-offset_right = -173.0
+offset_right = -202.0
 offset_bottom = -74.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"Team0"
 script = ExtResource("1_0y7nr")
 nameLabel = NodePath("VBoxContainer/Name")
 actionPoint = NodePath("VBoxContainer/ActionPoint")
@@ -30,9 +30,23 @@ layout_mode = 2
 theme_override_constants/separation = 0
 
 [node name="Name" type="Label" parent="VBoxContainer"]
+self_modulate = Color(0, 0, 0, 1)
 layout_mode = 2
 size_flags_vertical = 3
-theme = ExtResource("2_jo2ib")
+theme_type_variation = &"HeaderMedium"
+text = "Ethan"
+
+[node name="Name" type="Label" parent="VBoxContainer/Name"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_type_variation = &"HeaderMedium"
 text = "Ethan"
 
 [node name="Head" parent="VBoxContainer" instance=ExtResource("3_677pu")]

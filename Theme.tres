@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=7 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=11 format=3 uid="uid://bpxr1w3o076bd"]
 
 [ext_resource type="FontFile" uid="uid://cwaryh10sp0rr" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
 [ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
@@ -16,10 +16,35 @@ texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 5.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_c6xh3"]
+atlas = ExtResource("2_k1aya")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_t6dyh"]
+texture = SubResource("AtlasTexture_c6xh3")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t6dyh"]
+atlas = ExtResource("2_k1aya")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_y2aw4"]
+texture = SubResource("AtlasTexture_t6dyh")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+region_rect = Rect2(0, 0, 16, 16)
+
 [resource]
 default_font = ExtResource("2_23v3e")
 default_font_size = 8
 HBoxContainer/constants/separation = 0
+HeaderLarge/colors/font_shadow_color = Color(0, 0, 0, 1)
+HeaderLarge/constants/shadow_offset_y = 1
 HeaderLarge/font_sizes/font_size = 12
 HeaderLarge/fonts/font = ExtResource("1_j4jqe")
 HeaderMedium/base_type = &"Label"
@@ -29,4 +54,8 @@ HeaderSmall/font_sizes/font_size = 10
 HeaderSmall/fonts/font = ExtResource("1_k1aya")
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
+Team0/base_type = &"PanelContainer"
+Team0/styles/panel = SubResource("StyleBoxTexture_t6dyh")
+Team1/base_type = &"PanelContainer"
+Team1/styles/panel = SubResource("StyleBoxTexture_y2aw4")
 VBoxContainer/constants/separation = 0
