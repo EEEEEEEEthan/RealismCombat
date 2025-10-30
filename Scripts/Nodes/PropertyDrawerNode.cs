@@ -5,9 +5,9 @@ namespace RealismCombat.Nodes;
 partial class PropertyDrawerNode : Node
 {
 	float value;
-	string title;
-	Label titleControl;
-	Control valueControl;
+	string title = "属性";
+	Label? titleControl;
+	Control? valueControl;
 	[Export]
 	public string Title
 	{
@@ -30,8 +30,8 @@ partial class PropertyDrawerNode : Node
 			UpdateProperties();
 		}
 	}
-	Label TitleControl => titleControl ??= GetNode<Label>("Name");
-	Control ValueControl => valueControl ??= GetNode<Control>("ValueContainer/Value");
+	Label? TitleControl => titleControl ??= FindChild("Title") as Label;
+	Control? ValueControl => valueControl ??= FindChild("Value") as Control;
 	public override void _Ready() => UpdateProperties();
 	public override void _Process(double delta) => UpdateProperties();
 	void UpdateProperties()

@@ -18,7 +18,7 @@ script = ExtResource("2_nght4")
 Title = "头部"
 Value = 0.618
 
-[node name="Name" type="Label" parent="."]
+[node name="Title" type="Label" parent="."]
 custom_minimum_size = Vector2(16, 0)
 layout_mode = 2
 size_flags_horizontal = 0
