@@ -1,11 +1,16 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 public class GameData
 {
 	public byte state;
 	public CombatData? combatData;
-	public GameData() { }
+	public readonly List<ItemData> items = [];
+	public GameData()
+	{
+		items.Add(new(name: "第纳尔", count: 100));
+	}
 	public GameData(DataVersion version, BinaryReader reader)
 	{
 		state = reader.ReadByte();
@@ -15,6 +20,16 @@ public class GameData
 			using (reader.ReadScope())
 			{
 				combatData = new(version: version, reader: reader);
+			}
+		}
+		{
+			using (reader.ReadScope())
+			{
+				var count = reader.ReadInt32();
+				for (var i = 0; i < count; ++i)
+				{
+					items.Add(new(version: version, reader: reader));
+				}
 			}
 		}
 	}
@@ -32,6 +47,14 @@ public class GameData
 		else
 		{
 			writer.Write(false);
+		}
+		using (writer.WriteScope())
+		{
+			writer.Write(items.Count);
+			foreach (var item in items)
+			{
+				item.Serialize(writer);
+			}
 		}
 	}
 }

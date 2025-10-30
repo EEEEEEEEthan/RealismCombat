@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using RealismCombat.Data;
 using RealismCombat.Nodes.Dialogues;
@@ -56,6 +57,18 @@ public partial class GameNode : Node
 					},
 					new()
 					{
+						option = "物品栏",
+						description = "查看物品",
+						onPreview = () => { },
+						onConfirm = () =>
+						{
+							dialogue?.QueueFree();
+							ShowInventoryMenu(gameNode: gameNode);
+						},
+						available = true,
+					},
+					new()
+					{
 						option = "退出",
 						description = "返回主菜单",
 						onPreview = () => { },
@@ -73,6 +86,53 @@ public partial class GameNode : Node
 			{
 				dialogue?.QueueFree();
 			};
+		}
+		static void ShowInventoryMenu(GameNode gameNode)
+		{
+			var inventoryDialogue = gameNode.Root.CreateDialogue();
+			var options = new List<DialogueOptionData>();
+			if (gameNode.gameData.items.Count == 0)
+			{
+				options.Add(new()
+				{
+					option = "物品栏为空",
+					description = null,
+					onPreview = () => { },
+					onConfirm = () => { },
+					available = false,
+				});
+			}
+			else
+			{
+				foreach (var item in gameNode.gameData.items)
+				{
+					options.Add(new()
+					{
+						option = $"{item.name} x{item.count}",
+						description = null,
+						onPreview = () => { },
+						onConfirm = () => { },
+						available = false,
+					});
+				}
+			}
+			options.Add(new()
+			{
+				option = "返回",
+				description = "返回游戏菜单",
+				onPreview = () => { },
+				onConfirm = () =>
+				{
+					inventoryDialogue?.QueueFree();
+					_ = new IdleState(gameNode);
+				},
+				available = true,
+			});
+			inventoryDialogue.Initialize(new()
+			{
+				title = "物品栏",
+				options = options,
+			});
 		}
 	}
 	public class CombatState : State
