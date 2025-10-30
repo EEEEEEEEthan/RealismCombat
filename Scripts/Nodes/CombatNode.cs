@@ -111,6 +111,8 @@ public partial class CombatNode : Node
 			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
+			var attackerNode = combatNode.GetCharacterNode(character);
+			if (attackerNode != null) attackerNode.IsActing = true;
 			HandleCharacterTurn(combatNode: combatNode, attacker: character, attackerIndex: characterIndex);
 		}
 		public override void Update(double deltaTime) { }
@@ -265,6 +267,8 @@ public partial class CombatNode : Node
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
 				const int damage = 2;
 				targetBodyPart.hp -= damage;
+				var defenderNode = combatNode.GetCharacterNode(defender);
+				if (defenderNode != null) defenderNode.Shake();
 				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
 				if (defender.Dead)
 				{
@@ -283,6 +287,8 @@ public partial class CombatNode : Node
 				const int actionPoint = 5;
 				attacker.ActionPoint -= actionPoint;
 				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
+				var attackerNode = combatNode.GetCharacterNode(attacker);
+				if (attackerNode != null) attackerNode.IsActing = false;
 				_ = new RoundInProgressState(combatNode);
 			}
 			catch (Exception e)
@@ -305,6 +311,7 @@ public partial class CombatNode : Node
 	GameNode gameNode = null!;
 	[Export] Container team0 = null!;
 	[Export] Container team1 = null!;
+	Dictionary<CharacterData, CharacterNode> characterNodes = new();
 	State CurrentState
 	{
 		get => state;
@@ -329,7 +336,12 @@ public partial class CombatNode : Node
 			characterNode.CharacterData = character;
 			var targetTeam = character.team == 0 ? team0 : team1;
 			targetTeam.AddChild(characterNode);
+			characterNodes[character] = characterNode;
 		}
+	}
+	CharacterNode? GetCharacterNode(CharacterData character)
+	{
+		return characterNodes.TryGetValue(character, out var node) ? node : null;
 	}
 	public override void _Process(double delta) => CurrentState.Update(delta);
 }

@@ -19,6 +19,27 @@ partial class CharacterNode : Control
 	PropertyDrawerNode rightLeg = null!;
 	PropertyDrawerNode leftLeg = null!;
 	public CharacterData? CharacterData { get; set; }
+	Vector2 originalPanelPosition;
+	float currentVerticalOffset;
+	bool isActing;
+	double shakeTime;
+	const float maxVerticalOffset = -8.0f;
+	const float moveLerpSpeed = 10.0f;
+	const float shakeDuration = 0.3f;
+	const float shakeStrength = 4.0f;
+	public bool IsActing
+	{
+		get => isActing;
+		set
+		{
+			if (isActing == value) return;
+			isActing = value;
+		}
+	}
+	public void Shake()
+	{
+		shakeTime = shakeDuration;
+	}
 	public override void _Ready()
 	{
 		panelContainer = GetNode<PanelContainer>("PanelContainer");
@@ -31,6 +52,7 @@ partial class CharacterNode : Control
 		leftArm = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/LeftArm");
 		rightLeg = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/RightLeg");
 		leftLeg = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/LeftLeg");
+		originalPanelPosition = panelContainer.Position;
 	}
 	public override void _Process(double delta)
 	{
@@ -53,5 +75,22 @@ partial class CharacterNode : Control
 		leftArm.Title = "左臂";
 		rightLeg.Title = "右腿";
 		leftLeg.Title = "左腿";
+		float targetVerticalOffset = 0.0f;
+		if (isActing)
+		{
+			float direction = CharacterData.team == 0 ? -1.0f : 1.0f;
+			targetVerticalOffset = maxVerticalOffset * direction;
+		}
+		currentVerticalOffset = Mathf.Lerp(currentVerticalOffset, targetVerticalOffset, (float)delta * moveLerpSpeed);
+		float horizontalOffset = 0.0f;
+		if (shakeTime > 0)
+		{
+			shakeTime -= delta;
+			if (shakeTime < 0) shakeTime = 0;
+			float progress = 1.0f - (float)(shakeTime / shakeDuration);
+			float currentShakeStrength = shakeStrength * (1.0f - progress);
+			horizontalOffset = (GD.Randf() * 2.0f - 1.0f) * currentShakeStrength;
+		}
+		panelContainer.Position = originalPanelPosition + new Vector2(horizontalOffset, currentVerticalOffset);
 	}
 }
