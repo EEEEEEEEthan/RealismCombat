@@ -13,65 +13,52 @@ public class CombatData
 	public ActionData? lastAction;
 	public CombatData(DataVersion version, BinaryReader reader)
 	{
-		state = reader.ReadByte();
-		currentCharacterIndex = reader.ReadByte();
-		tickTimer = reader.ReadDouble();
-		tickCount = reader.ReadInt64();
+		using (reader.ReadScope())
 		{
 			using (reader.ReadScope())
 			{
-				var count = reader.ReadByte();
-				for (var i = count; i-- > 0;) characters.Add(new(version: version, reader: reader));
+				state = reader.ReadByte();
+				currentCharacterIndex = reader.ReadByte();
+				tickTimer = reader.ReadDouble();
+				tickCount = reader.ReadInt64();
 			}
-		}
-		{
-			using (reader.ReadScope())
-			{
-				var count = reader.ReadByte();
-				for (var i = 0; i < count; ++i) extraData[reader.ReadString()] = reader.ReadString();
-			}
-		}
-		var hasLastAction = reader.ReadBoolean();
-		if (hasLastAction)
-		{
-			using (reader.ReadScope())
-			{
-				lastAction = new(dataVersion: version, reader: reader);
-			}
+			var count = reader.ReadByte();
+			for (var i = count; i-- > 0;) characters.Add(new(version: version, reader: reader));
+			count = reader.ReadByte();
+			for (var i = 0; i < count; ++i) extraData[reader.ReadString()] = reader.ReadString();
+			var hasLastAction = reader.ReadBoolean();
+			if (hasLastAction) lastAction = new(dataVersion: version, reader: reader);
 		}
 	}
 	public CombatData() { }
 	public void Serialize(BinaryWriter writer)
 	{
-		writer.Write(state);
-		writer.Write(currentCharacterIndex);
-		writer.Write(tickTimer);
-		writer.Write(tickCount);
 		using (writer.WriteScope())
 		{
+			using (writer.WriteScope())
+			{
+				writer.Write(state);
+				writer.Write(currentCharacterIndex);
+				writer.Write(tickTimer);
+				writer.Write(tickCount);
+			}
 			writer.Write((byte)characters.Count);
 			foreach (var character in characters) character.Serialize(writer);
-		}
-		using (writer.WriteScope())
-		{
-			writer.Write(extraData.Count);
+			writer.Write((byte)extraData.Count);
 			foreach ((var key, var value) in extraData)
 			{
 				writer.Write(key);
 				writer.Write(value);
 			}
-		}
-		if (lastAction is not null)
-		{
-			writer.Write(true);
-			using (writer.WriteScope())
+			if (lastAction is not null)
 			{
+				writer.Write(true);
 				lastAction.Serialize(writer);
 			}
-		}
-		else
-		{
-			writer.Write(false);
+			else
+			{
+				writer.Write(false);
+			}
 		}
 	}
 }

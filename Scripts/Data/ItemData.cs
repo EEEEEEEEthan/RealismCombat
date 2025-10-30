@@ -13,20 +13,25 @@ public class ItemData
 	}
 	public ItemData(DataVersion version, BinaryReader reader)
 	{
-		itemId = reader.ReadUInt32();
-		count = reader.ReadInt32();
+		using (reader.ReadScope())
+		{
+			itemId = reader.ReadUInt32();
+			count = reader.ReadInt32();
+		}
 	}
 	public void Serialize(BinaryWriter writer)
 	{
-		writer.Write(itemId);
-		writer.Write(count);
+		using (writer.WriteScope())
+		{
+			writer.Write(itemId);
+			writer.Write(count);
+		}
 	}
 	public override string ToString() => $"{nameof(ItemData)}({nameof(itemId)}={itemId}, {nameof(count)}={count})";
 }
 public record ItemConfig
 {
+	public static readonly Dictionary<uint, ItemConfig> Configs = new();
 	public uint itemId;
 	public required string name;
-	public static readonly Dictionary<uint, ItemConfig> Configs = new();
 }
-

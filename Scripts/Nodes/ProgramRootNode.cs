@@ -57,11 +57,11 @@ public partial class ProgramRootNode : Node
 							programRootNode.AddChild(gameNode);
 							Log.Print("已读取存档");
 						}
-						catch (Exception e)
+						catch (Exception)
 						{
-							Log.PrintException(e);
 							programRootNode.PopMessage("读档失败");
 							programRootNode.McpRespond();
+							throw;
 						}
 					},
 					available = true,

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 public record ActionData
 {
@@ -15,16 +16,22 @@ public record ActionData
 	}
 	public ActionData(DataVersion dataVersion, BinaryReader reader)
 	{
-		attackerIndex = reader.ReadInt32();
-		defenderIndex = reader.ReadInt32();
-		attackerBody = (BodyPartCode)reader.ReadByte();
-		defenderBody = (BodyPartCode)reader.ReadByte();
+		using (reader.ReadScope())
+		{
+			attackerIndex = reader.ReadInt32();
+			defenderIndex = reader.ReadInt32();
+			attackerBody = (BodyPartCode)reader.ReadByte();
+			defenderBody = (BodyPartCode)reader.ReadByte();
+		}
 	}
 	public void Serialize(BinaryWriter writer)
 	{
-		writer.Write(attackerIndex);
-		writer.Write(defenderIndex);
-		writer.Write((byte)attackerBody);
-		writer.Write((byte)defenderBody);
+		using (writer.WriteScope())
+		{
+			writer.Write(attackerIndex);
+			writer.Write(defenderIndex);
+			writer.Write((byte)attackerBody);
+			writer.Write((byte)defenderBody);
+		}
 	}
 }
