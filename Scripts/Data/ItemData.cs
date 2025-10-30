@@ -71,5 +71,6 @@ public class ItemConfig
 	static ItemConfig()
 	{
 		Configs[0] = new ItemConfig(0, "第纳尔", 0);
+		Configs[1] = new ItemConfig(1, "测试装备", 2);
 	}
 }

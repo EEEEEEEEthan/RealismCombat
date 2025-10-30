@@ -7,7 +7,11 @@ public class GameData
 	public readonly List<ItemData> items = [];
 	public byte state;
 	public CombatData? combatData;
-	public GameData() => items.Add(new(itemId: 0, count: 100));
+	public GameData() 
+	{
+		items.Add(new(itemId: 0, count: 100));
+		items.Add(new(itemId: 1, count: 1));
+	}
 	public GameData(DataVersion version, BinaryReader reader)
 	{
 		using (reader.ReadScope())
