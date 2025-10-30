@@ -32,6 +32,45 @@ public partial class CombatNode : Node
 			error = null!;
 			return true;
 		}
+		CharacterData Defender
+		{
+			get
+			{
+				if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
+				return combatData.characters[defenderIndex.Value];
+			}
+		}
+		public bool ValidDefenderBodyPart(BodyPartCode bodyPart, out string error)
+		{
+			if (Defender.bodyParts[(int)bodyPart].hp <= 0)
+			{
+				error = $"{Defender.name}的{bodyPart.GetName()}已失去战斗能力";
+				return false;
+			}
+			error = null!;
+			return true;
+		}
+		public bool ValidDefender(int defenderIndex, out string error)
+		{
+			var defender = combatData.characters[defenderIndex];
+			if (defenderIndex == attackerIndex)
+			{
+				error = "不能攻击自己";
+				return false;
+			}
+			if (defender.team == Attacker.team)
+			{
+				error = "不能攻击同队队友";
+				return false;
+			}
+			if (defender.Dead)
+			{
+				error = $"{defender.name}已死亡";
+				return false;
+			}
+			error = null!;
+			return true;
+		}
 	}
 	public class CombatNodeAwaiter : INotifyCompletion
 	{
@@ -172,11 +211,11 @@ public partial class CombatNode : Node
 						var index = i;
 						var c = this.combatNode.combatData.characters[i];
 						var defender = c;
-						if (c.team == attacker.team) continue;
+						var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
 						options.Add(new()
 						{
-							available = true,
-							description = $"以{defender.name}为目标",
+							available = available,
+							description = available ? $"以{defender.name}为目标" : error,
 							onConfirm = () =>
 							{
 								dialogue.QueueFree();
@@ -201,11 +240,11 @@ public partial class CombatNode : Node
 					foreach (var b in BodyPartData.allBodyParts)
 					{
 						var bodyPart = b;
-						var available = defender.bodyParts[(int)bodyPart].hp > 0;
+						var available = simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out var error);
 						options.Add(new()
 						{
 							available = available,
-							description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : $"{defender.name}的{bodyPart.GetName()}已失去战斗能力",
+							description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : error,
 							onConfirm = () =>
 							{
 								simulate.defenderBodyPart = bodyPart;
