@@ -40,6 +40,19 @@ partial class CharacterNode : Control
 	{
 		shakeTime = shakeDuration;
 	}
+	public PropertyDrawerNode? GetBodyPartDrawer(BodyPartCode bodyPart)
+	{
+		return bodyPart switch
+		{
+			BodyPartCode.Head => head,
+			BodyPartCode.Chest => chest,
+			BodyPartCode.LeftArm => leftArm,
+			BodyPartCode.RightArm => rightArm,
+			BodyPartCode.LeftLeg => leftLeg,
+			BodyPartCode.RightLeg => rightLeg,
+			_ => null,
+		};
+	}
 	public override void _Ready()
 	{
 		panelContainer = GetNode<PanelContainer>("PanelContainer");

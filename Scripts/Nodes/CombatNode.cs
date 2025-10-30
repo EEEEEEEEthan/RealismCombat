@@ -269,7 +269,12 @@ public partial class CombatNode : Node
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
 				var defenderNode = combatNode.GetCharacterNode(defender);
-				if (defenderNode != null) defenderNode.Shake();
+				if (defenderNode != null)
+				{
+					defenderNode.Shake();
+					var bodyPartDrawer = defenderNode.GetBodyPartDrawer(action.defenderBody);
+					if (bodyPartDrawer != null) bodyPartDrawer.Flash();
+				}
 				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
 				if (defender.Dead)
 				{

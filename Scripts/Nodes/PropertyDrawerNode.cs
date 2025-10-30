@@ -1,15 +1,19 @@
 using Godot;
 using RealismCombat.Extensions;
+using RealismCombat;
 namespace RealismCombat.Nodes;
 [Tool]
-partial class PropertyDrawerNode : Node
+partial class PropertyDrawerNode : Control
 {
 	float value;
 	string title = "属性";
 	Label? titleControl;
 	Control? valueControl;
+	Control? valueContainer;
 	float currentWidth;
 	float targetWidth;
+	double flashTime;
+	const float flashDuration = 0.3f;
 	[Export]
 	public string Title
 	{
@@ -34,6 +38,7 @@ partial class PropertyDrawerNode : Node
 	}
 	Label? TitleControl => titleControl ??= FindChild("Title") as Label;
 	Control? ValueControl => valueControl ??= FindChild("Value") as Control;
+	Control? ValueContainer => valueContainer ??= FindChild("ValueContainer") as Control;
 	public override void _Ready()
 	{
 		UpdateTitle();
@@ -51,6 +56,31 @@ partial class PropertyDrawerNode : Node
 		{
 			currentWidth = Mathf.Lerp(currentWidth, targetWidth, (float)delta * lerpSpeed);
 			UpdateValueWidth();
+		}
+		if (flashTime > 0)
+		{
+			flashTime -= delta;
+			UpdateFlashColor();
+		}
+		else if (flashTime != 0)
+		{
+			flashTime = 0;
+			UpdateFlashColor();
+		}
+	}
+	public void Flash()
+	{
+		flashTime = flashDuration;
+	}
+	void UpdateFlashColor()
+	{
+		if (flashTime > 0)
+		{
+			Modulate = GameColors.hurtFlash;
+		}
+		else
+		{
+			Modulate = Colors.White;
 		}
 	}
 	void UpdateTitle()
