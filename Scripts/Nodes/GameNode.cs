@@ -22,7 +22,7 @@ public partial class GameNode : Node
 		public IdleState(GameNode gameNode) : base(gameNode)
 		{
 			gameNode.CurrentState = this;
-			gameNode.PlayAudio(AudioTable.arpegio01Loop45094);
+			gameNode.Root.PlayMusic(AudioTable.arpegio01Loop45094);
 			var dialogue = gameNode.Root.CreateDialogue();
 			dialogue.Initialize(new()
 			{
@@ -69,7 +69,7 @@ public partial class GameNode : Node
 		public CombatState(GameNode gameNode, CombatData combatData) : base(gameNode)
 		{
 			gameNode.CurrentState = this;
-			gameNode.PlayAudio(AudioTable.wizardattack26801);
+			gameNode.Root.PlayMusic(AudioTable.wizardattack26801);
 			gameNode.gameData.combatData = combatData;
 			var combatNode = CombatNode.Create(gameNode: gameNode, combatData: combatData);
 			gameNode.AddChild(combatNode);
@@ -98,21 +98,6 @@ public partial class GameNode : Node
 	State state = null!;
 	GameData gameData = null!;
 	public ProgramRootNode Root { get; private set; } = null!;
-	AudioStreamPlayer audioStreamPlayer = null!;
-	void PlayAudio(string audioPath)
-	{
-		var audioStream = GD.Load<AudioStream>(audioPath);
-		if (audioStream is AudioStreamMP3 mp3Stream)
-		{
-			mp3Stream.Loop = true;
-		}
-		audioStreamPlayer.Stream = audioStream;
-		audioStreamPlayer.Play();
-		if (audioPath == AudioTable.wizardattack26801)
-		{
-			audioStreamPlayer.Seek(2.0f);
-		}
-	}
 	State CurrentState
 	{
 		get => state;
@@ -130,7 +115,6 @@ public partial class GameNode : Node
 	public override void _Ready()
 	{
 		Root = GetParent<ProgramRootNode>();
-		audioStreamPlayer = GetNode<AudioStreamPlayer>("AudioStreamPlayer");
 		_ = State.Create(gameNode: this);
 	}
 }

@@ -92,6 +92,7 @@ public partial class MenuDialogue : PanelContainer
 		var option = data.options[index];
 		if (!option.available) throw new InvalidOperationException("选项不可用，无法确认");
 		Log.Print($"选择了{index},{option.option}");
+		root.PlaySoundEffect(AudioTable.gameboypluck41265);
 		option.onConfirm();
 		Complete();
 	}

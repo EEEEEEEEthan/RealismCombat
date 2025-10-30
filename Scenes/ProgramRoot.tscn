@@ -11,3 +11,9 @@ offset_left = 8.0
 offset_top = 24.0
 offset_right = 8.0
 offset_bottom = 24.0
+
+[node name="BgmPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = false
+
+[node name="SoundEffectPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = false

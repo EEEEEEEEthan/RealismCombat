@@ -63,6 +63,3 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "选项介绍"
 fit_content = true
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-autoplay = false

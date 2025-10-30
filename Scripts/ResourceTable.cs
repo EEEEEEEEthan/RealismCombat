@@ -21,6 +21,7 @@ public static class AudioTable
 {
 	#region autogen_audios
 	public const string arpegio01Loop45094 = "res://Audios/arpegio01_loop-45094.mp3";
+	public const string gameboypluck41265 = "res://Audios/gameboy-pluck-41265.mp3";
 	public const string retrohurt1236672 = "res://Audios/retro-hurt-1-236672.mp3";
 	public const string wizardattack26801 = "res://Audios/wizard-attack-26801.mp3";
 	#endregion autogen_audios

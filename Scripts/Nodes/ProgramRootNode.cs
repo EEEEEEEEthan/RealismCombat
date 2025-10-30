@@ -108,6 +108,8 @@ public partial class ProgramRootNode : Node
 	readonly McpHandler? mcpHandler;
 	GenericDialogue? currentPopMessage;
 	public bool HadClientConnected { get; private set; }
+	AudioStreamPlayer bgmPlayer = null!;
+	AudioStreamPlayer soundEffectPlayer = null!;
 	ProgramRootNode()
 	{
 		if (arguments.TryGetValue(key: "port", value: out var portText))
@@ -199,5 +201,42 @@ public partial class ProgramRootNode : Node
 		AddChild(dialogue);
 		return dialogue;
 	}
-	public override void _Ready() => state = new IdleState(this);
+	public override void _Ready()
+	{
+		bgmPlayer = GetNode<AudioStreamPlayer>("BgmPlayer");
+		soundEffectPlayer = GetNode<AudioStreamPlayer>("SoundEffectPlayer");
+		soundEffectPlayer.Finished += OnSoundEffectFinished;
+		state = new IdleState(this);
+	}
+	void OnSoundEffectFinished()
+	{
+		if (bgmPlayer.Stream != null && bgmPlayer.StreamPaused)
+		{
+			bgmPlayer.StreamPaused = false;
+		}
+	}
+	public void PlayMusic(string audioPath)
+	{
+		var audioStream = GD.Load<AudioStream>(audioPath);
+		if (audioStream is AudioStreamMP3 mp3Stream)
+		{
+			mp3Stream.Loop = true;
+		}
+		bgmPlayer.Stream = audioStream;
+		bgmPlayer.Play();
+		if (audioPath == AudioTable.wizardattack26801)
+		{
+			bgmPlayer.Seek(2.0f);
+		}
+	}
+	public void PlaySoundEffect(string audioPath)
+	{
+		if (bgmPlayer.Stream != null && bgmPlayer.Playing && !bgmPlayer.StreamPaused)
+		{
+			bgmPlayer.StreamPaused = true;
+		}
+		var audioStream = GD.Load<AudioStream>(audioPath);
+		soundEffectPlayer.Stream = audioStream;
+		soundEffectPlayer.Play();
+	}
 }
