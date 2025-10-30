@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 public class CombatData
 {
@@ -17,14 +18,27 @@ public class CombatData
 		tickTimer = reader.ReadDouble();
 		tickCount = reader.ReadInt64();
 		{
-			var count = reader.ReadByte();
-			for (var i = count; i-- > 0;) characters.Add(new(version: version, reader: reader));
+			using (reader.ReadScope())
+			{
+				var count = reader.ReadByte();
+				for (var i = count; i-- > 0;) characters.Add(new(version: version, reader: reader));
+			}
 		}
 		{
-			var count = reader.ReadByte();
-			for (var i = 0; i < count; ++i) extraData[reader.ReadString()] = reader.ReadString();
+			using (reader.ReadScope())
+			{
+				var count = reader.ReadByte();
+				for (var i = 0; i < count; ++i) extraData[reader.ReadString()] = reader.ReadString();
+			}
 		}
-		lastAction = new(dataVersion: version, reader: reader);
+		var hasLastAction = reader.ReadBoolean();
+		if (hasLastAction)
+		{
+			using (reader.ReadScope())
+			{
+				lastAction = new(dataVersion: version, reader: reader);
+			}
+		}
 	}
 	public CombatData() { }
 	public void Serialize(BinaryWriter writer)
@@ -33,14 +47,31 @@ public class CombatData
 		writer.Write(currentCharacterIndex);
 		writer.Write(tickTimer);
 		writer.Write(tickCount);
-		writer.Write((byte)characters.Count);
-		foreach (var character in characters) character.Serialize(writer);
-		writer.Write(extraData.Count);
-		foreach ((var key, var value) in extraData)
+		using (writer.WriteScope())
 		{
-			writer.Write(key);
-			writer.Write(value);
+			writer.Write((byte)characters.Count);
+			foreach (var character in characters) character.Serialize(writer);
 		}
-		lastAction.Serialize(writer);
+		using (writer.WriteScope())
+		{
+			writer.Write(extraData.Count);
+			foreach ((var key, var value) in extraData)
+			{
+				writer.Write(key);
+				writer.Write(value);
+			}
+		}
+		if (lastAction is not null)
+		{
+			writer.Write(true);
+			using (writer.WriteScope())
+			{
+				lastAction.Serialize(writer);
+			}
+		}
+		else
+		{
+			writer.Write(false);
+		}
 	}
 }

@@ -360,6 +360,9 @@ public partial class CombatNode : Node
 				{
 					var winner = team0Alive ? "玩家" : "敌人";
 					Log.Print($"战斗结束，{winner}获胜");
+					combatNode.combatData.characters.Clear();
+					combatNode.gameNode.SetCombatData(null);
+					combatNode.gameNode.Save();
 					combatNode.QueueFree();
 					return;
 				}

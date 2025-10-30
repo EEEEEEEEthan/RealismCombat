@@ -46,11 +46,15 @@ public class CharacterData
 		team = reader.ReadByte();
 		ActionPoint = reader.ReadDouble();
 		speed = reader.ReadDouble();
-		head = new(version: version, reader: reader);
-		chest = new(version: version, reader: reader);
-		leftArm = new(version: version, reader: reader);
-		rightArm = new(version: version, reader: reader);
-		leftLeg = new(version: version, reader: reader);
+		using (reader.ReadScope())
+		{
+			head = new(version: version, reader: reader);
+			chest = new(version: version, reader: reader);
+			leftArm = new(version: version, reader: reader);
+			rightArm = new(version: version, reader: reader);
+			leftLeg = new(version: version, reader: reader);
+			rightLeg = new(version: version, reader: reader);
+		}
 		bodyParts = new List<BodyPartData>
 		{
 			head, chest, leftArm, rightArm, leftLeg, rightLeg,
@@ -62,12 +66,15 @@ public class CharacterData
 		writer.Write(team);
 		writer.Write(ActionPoint);
 		writer.Write(speed);
-		head.Serialize(writer);
-		chest.Serialize(writer);
-		leftArm.Serialize(writer);
-		rightArm.Serialize(writer);
-		leftLeg.Serialize(writer);
-		rightLeg.Serialize(writer);
+		using (writer.WriteScope())
+		{
+			head.Serialize(writer);
+			chest.Serialize(writer);
+			leftArm.Serialize(writer);
+			rightArm.Serialize(writer);
+			leftLeg.Serialize(writer);
+			rightLeg.Serialize(writer);
+		}
 	}
 	public override string ToString() =>
 		$"{nameof(CharacterData)}({nameof(name)}={name}, {nameof(team)}={team}, {nameof(ActionPoint)}={ActionPoint}, {nameof(speed)}={speed}, {nameof(head)}={head}, {nameof(chest)}={chest}, {nameof(leftArm)}={leftArm}, {nameof(rightArm)}={rightArm}, {nameof(leftLeg)}={leftLeg}, {nameof(rightLeg)}={rightLeg})";
@@ -104,15 +111,21 @@ public class BodyPartData
 	public BodyPartData(BodyPartCode id) => this.id = id;
 	public BodyPartData(DataVersion version, BinaryReader reader)
 	{
-		id = (BodyPartCode)reader.ReadByte();
-		hp = reader.ReadByte();
-		maxHp = reader.ReadByte();
+		using (reader.ReadScope())
+		{
+			id = (BodyPartCode)reader.ReadByte();
+			hp = reader.ReadInt32();
+			maxHp = reader.ReadInt32();
+		}
 	}
 	public void Serialize(BinaryWriter writer)
 	{
-		writer.Write((byte)id);
-		writer.Write(hp);
-		writer.Write(maxHp);
+		using (writer.WriteScope())
+		{
+			writer.Write((byte)id);
+			writer.Write(hp);
+			writer.Write(maxHp);
+		}
 	}
 	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp})";
 }

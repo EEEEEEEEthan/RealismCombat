@@ -70,6 +70,7 @@ public partial class GameNode : Node
 			gameNode.CurrentState = this;
 			gameNode.Root.PlayMusic(AudioTable.battleMusic1);
 			gameNode.gameData.combatData = combatData;
+			gameNode.Save();
 			var combatNode = CombatNode.Create(gameNode: gameNode, combatData: combatData);
 			gameNode.AddChild(combatNode);
 			WaitForCombatEnd(gameNode: gameNode, combatNode: combatNode);
@@ -110,6 +111,14 @@ public partial class GameNode : Node
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
+	}
+	public void Save()
+	{
+		Persistant.Save(gameData, Persistant.saveDataPath);
+	}
+	public void SetCombatData(CombatData? combatData)
+	{
+		gameData.combatData = combatData;
 	}
 	public override void _Ready()
 	{

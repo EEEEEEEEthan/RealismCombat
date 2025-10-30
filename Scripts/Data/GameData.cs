@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 public class GameData
 {
@@ -9,7 +10,13 @@ public class GameData
 	{
 		state = reader.ReadByte();
 		var hasCombatData = reader.ReadBoolean();
-		if (hasCombatData) combatData = new(version: version, reader: reader);
+		if (hasCombatData)
+		{
+			using (reader.ReadScope())
+			{
+				combatData = new(version: version, reader: reader);
+			}
+		}
 	}
 	public void Serialize(BinaryWriter writer)
 	{
@@ -17,7 +24,10 @@ public class GameData
 		if (combatData is not null)
 		{
 			writer.Write(true);
-			combatData.Serialize(writer);
+			using (writer.WriteScope())
+			{
+				combatData.Serialize(writer);
+			}
 		}
 		else
 		{

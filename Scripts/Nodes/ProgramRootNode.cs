@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Godot;
+using RealismCombat.Data;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
@@ -17,41 +20,70 @@ public partial class ProgramRootNode : Node
 		{
 			programRootNode.state = this;
 			var dialogue = programRootNode.CreateDialogue();
-			dialogue.Initialize(new()
+			var options = new List<DialogueOptionData>
 			{
-				title = "主菜单",
-				options =
-				[
-					new()
+				new()
+				{
+					option = "开始游戏",
+					description = "开始新游戏",
+					onPreview = () => { },
+					onConfirm = () =>
 					{
-						option = "开始游戏",
-						description = "开始新游戏",
-						onPreview = () => { },
-						onConfirm = () =>
+						programRootNode.state = new GameState(programRootNode);
+						dialogue.QueueFree();
+						var gameNode = GameNode.Create(new());
+						programRootNode.AddChild(gameNode);
+						Log.Print("开始游戏,但是功能还没做");
+						programRootNode.McpRespond();
+					},
+					available = true,
+				},
+			};
+			if (File.Exists(Persistant.saveDataPath))
+			{
+				options.Add(new()
+				{
+					option = "读档",
+					description = "读取存档",
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						try
 						{
 							programRootNode.state = new GameState(programRootNode);
 							dialogue.QueueFree();
-							var gameNode = GameNode.Create(new());
+							var gameData = Persistant.Load(Persistant.saveDataPath);
+							var gameNode = GameNode.Create(gameData);
 							programRootNode.AddChild(gameNode);
-							Log.Print("开始游戏,但是功能还没做");
+							Log.Print("已读取存档");
 							programRootNode.McpRespond();
-						},
-						available = true,
-					},
-					new()
-					{
-						option = "退出",
-						description = "退出游戏",
-						onPreview = () => { },
-						onConfirm = () =>
+						}
+						catch (Exception e)
 						{
-							Log.Print("游戏即将退出...");
+							Log.PrintException(e);
 							programRootNode.McpRespond();
-							programRootNode.GetTree().Quit();
-						},
-						available = true,
+						}
 					},
-				],
+					available = true,
+				});
+			}
+			options.Add(new()
+			{
+				option = "退出",
+				description = "退出游戏",
+				onPreview = () => { },
+				onConfirm = () =>
+				{
+					Log.Print("游戏即将退出...");
+					programRootNode.McpRespond();
+					programRootNode.GetTree().Quit();
+				},
+				available = true,
+			});
+			dialogue.Initialize(new()
+			{
+				title = "主菜单",
+				options = options,
 			});
 		}
 	}
