@@ -8,16 +8,28 @@ partial class CharacterNode : Control
 		var instance = GD.Load<PackedScene>(ResourceTable.character).Instantiate<CharacterNode>();
 		return instance;
 	}
-	[Export] Label nameLabel = null!;
-	[Export] PropertyDrawerNode actionPoint = null!;
-	[Export] PropertyDrawerNode speed = null!;
-	[Export] PropertyDrawerNode head = null!;
-	[Export] PropertyDrawerNode chest = null!;
-	[Export] PropertyDrawerNode rightArm = null!;
-	[Export] PropertyDrawerNode leftArm = null!;
-	[Export] PropertyDrawerNode rightLeg = null!;
-	[Export] PropertyDrawerNode leftLeg = null!;
+	Label nameLabel = null!;
+	PropertyDrawerNode actionPoint = null!;
+	PropertyDrawerNode speed = null!;
+	PropertyDrawerNode head = null!;
+	PropertyDrawerNode chest = null!;
+	PropertyDrawerNode rightArm = null!;
+	PropertyDrawerNode leftArm = null!;
+	PropertyDrawerNode rightLeg = null!;
+	PropertyDrawerNode leftLeg = null!;
 	public CharacterData? CharacterData { get; set; }
+	public override void _Ready()
+	{
+		nameLabel = GetNode<Label>("VBoxContainer/Title");
+		actionPoint = GetNode<PropertyDrawerNode>("VBoxContainer/ActionPoint");
+		speed = GetNode<PropertyDrawerNode>("VBoxContainer/Speed");
+		head = GetNode<PropertyDrawerNode>("VBoxContainer/Head");
+		chest = GetNode<PropertyDrawerNode>("VBoxContainer/Chest");
+		rightArm = GetNode<PropertyDrawerNode>("VBoxContainer/RightArm");
+		leftArm = GetNode<PropertyDrawerNode>("VBoxContainer/LeftArm");
+		rightLeg = GetNode<PropertyDrawerNode>("VBoxContainer/RightLeg");
+		leftLeg = GetNode<PropertyDrawerNode>("VBoxContainer/LeftLeg");
+	}
 	public override void _Process(double delta)
 	{
 		if (CharacterData == null) return;
