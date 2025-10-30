@@ -1,14 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cmxwrugccq2l1"]
-
-[ext_resource type="Script" uid="uid://c25h2b5317cle" path="res://Scripts/Nodes/Components/OptionNode.cs" id="1_0dip6"]
-[ext_resource type="Texture2D" uid="uid://bpp64d7aekaxm" path="res://Textures/IconAtlas.tres" id="1_vqhlv"]
+[gd_scene load_steps=2 format=3 uid="uid://cmxwrugccq2l1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ub70b"]
-atlas = ExtResource("1_vqhlv")
 region = Rect2(8, 0, 8, 8)
 
 [node name="HBoxContainer" type="HBoxContainer"]
-script = ExtResource("1_0dip6")
 
 [node name="Control" type="TextureRect" parent="."]
 layout_mode = 2

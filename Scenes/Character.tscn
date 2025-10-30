@@ -37,7 +37,7 @@ layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Ethan"
 script = ExtResource("2_677pu")
-Shadow = NodePath("Label2")
+Shadow = NodePath("Label")
 metadata/_custom_type_script = "uid://bsnl8117tnmxx"
 
 [node name="ActionPoint" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]

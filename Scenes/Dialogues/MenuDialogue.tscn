@@ -55,7 +55,6 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 text = "请选择"
-autowrap_mode = 0
 
 [node name="OptionDetail" parent="Control/PanelContainer/HBoxContainer" instance=ExtResource("3_qi3qq")]
 layout_mode = 2

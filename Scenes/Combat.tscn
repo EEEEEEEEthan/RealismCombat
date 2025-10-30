@@ -9,15 +9,16 @@ team1 = NodePath("Team1")
 
 [node name="Team0" type="HBoxContainer" parent="."]
 custom_minimum_size = Vector2(10.885, 0)
-anchors_preset = 12
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
-grow_vertical = 0
+grow_vertical = 2
 
 [node name="Team1" type="HBoxContainer" parent="."]
 layout_direction = 3
-anchors_preset = 10
+anchors_preset = 15
 anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2

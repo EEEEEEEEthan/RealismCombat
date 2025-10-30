@@ -414,6 +414,8 @@ public partial class CombatNode : Node
 			characterNode.CharacterData = character;
 			var targetTeam = character.team == 0 ? team0 : team1;
 			targetTeam.AddChild(characterNode);
+			characterNode.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
+			characterNode.SizeFlagsVertical = character.team == 0 ? Control.SizeFlags.ShrinkEnd : Control.SizeFlags.ShrinkBegin;
 			characterNodes[character] = characterNode;
 		}
 	}
