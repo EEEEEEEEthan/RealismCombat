@@ -22,6 +22,14 @@ public partial class CombatNode : Node
 				return combatData.characters[attackerIndex.Value];
 			}
 		}
+		CharacterData Defender
+		{
+			get
+			{
+				if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
+				return combatData.characters[defenderIndex.Value];
+			}
+		}
 		public bool ValidAttackerBodyPart(BodyPartCode bodyPart, out string error)
 		{
 			if (Attacker.bodyParts[(int)bodyPart].hp <= 0)
@@ -31,14 +39,6 @@ public partial class CombatNode : Node
 			}
 			error = null!;
 			return true;
-		}
-		CharacterData Defender
-		{
-			get
-			{
-				if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
-				return combatData.characters[defenderIndex.Value];
-			}
 		}
 		public bool ValidDefenderBodyPart(BodyPartCode bodyPart, out string error)
 		{
@@ -70,6 +70,29 @@ public partial class CombatNode : Node
 			}
 			error = null!;
 			return true;
+		}
+		public class SimulateResult
+		{
+			public int damage;
+			public int actionPoint;
+		}
+		public SimulateResult Simulate()
+		{
+			if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
+			if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
+			if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
+			if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
+			if (!ValidAttackerBodyPart(attackerBodyPart.Value, out var attackerError))
+				throw new InvalidOperationException(attackerError);
+			if (!ValidDefender(defenderIndex.Value, out var defenderError))
+				throw new InvalidOperationException(defenderError);
+			if (!ValidDefenderBodyPart(defenderBodyPart.Value, out var defenderBodyError))
+				throw new InvalidOperationException(defenderBodyError);
+			return new SimulateResult
+			{
+				damage = 2,
+				actionPoint = 5,
+			};
 		}
 	}
 	public class CombatNodeAwaiter : INotifyCompletion
@@ -153,13 +176,9 @@ public partial class CombatNode : Node
 			var attackerNode = combatNode.GetCharacterNode(character);
 			if (attackerNode != null) attackerNode.IsActing = true;
 			if (character.PlayerControlled)
-			{
 				HandlePlayerTurn(combatNode: combatNode, attacker: character, attackerIndex: characterIndex);
-			}
 			else
-			{
 				HandleBotTurn(combatNode: combatNode, attacker: character, attackerIndex: characterIndex);
-			}
 		}
 		public override void Update(double deltaTime) { }
 		void HandlePlayerTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
@@ -294,13 +313,18 @@ public partial class CombatNode : Node
 		{
 			try
 			{
+				var simulate = new ActionSimulate(combatNode.combatData)
+				{
+					attackerIndex = action.attackerIndex,
+					defenderIndex = action.defenderIndex,
+					attackerBodyPart = action.attackerBody,
+					defenderBodyPart = action.defenderBody,
+				};
+				var simulateResult = simulate.Simulate();
 				var attacker = combatNode.combatData.characters[action.attackerIndex];
 				var defender = combatNode.combatData.characters[action.defenderIndex];
 				var defenderNode = combatNode.GetCharacterNode(defender);
-				if (defenderNode != null)
-				{
-					defenderNode.IsActing = true;
-				}
+				if (defenderNode != null) defenderNode.IsActing = true;
 				var targetBodyPart = action.defenderBody switch
 				{
 					BodyPartCode.Head => defender.head,
@@ -313,20 +337,17 @@ public partial class CombatNode : Node
 				};
 				await combatNode.gameNode.Root.PopMessage(
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
-				const int damage = 2;
+				var damage = simulateResult.damage;
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
 				if (defenderNode != null)
 				{
 					defenderNode.Shake();
 					var bodyPartDrawer = defenderNode.GetBodyPartDrawer(action.defenderBody);
-					if (bodyPartDrawer != null) bodyPartDrawer.Flash();
+					bodyPartDrawer?.Flash();
 				}
 				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
-				if (defenderNode != null)
-				{
-					defenderNode.IsActing = false;
-				}
+				if (defenderNode != null) defenderNode.IsActing = false;
 				if (defender.Dead)
 				{
 					await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
@@ -341,7 +362,7 @@ public partial class CombatNode : Node
 						return;
 					}
 				}
-				const int actionPoint = 5;
+				var actionPoint = simulateResult.actionPoint;
 				attacker.ActionPoint -= actionPoint;
 				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
 				var attackerNode = combatNode.GetCharacterNode(attacker);
