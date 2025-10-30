@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat;
 using RealismCombat.Nodes.Components;
 namespace RealismCombat.Nodes.Dialogues;
 public record DialogueData
@@ -51,13 +50,12 @@ public partial class MenuDialogue : PanelContainer
 			if (active)
 			{
 				var builder = new StringBuilder();
-				builder.AppendLine(data.title?.Trim());
-				builder.AppendLine("请做出选择(game_select_option):");
+				builder.Append(data.title?.Trim() + "\n");
+				builder.Append("请做出选择(game_select_option):\n");
 				for (var i = 0; i < data.options.Count; i++)
 				{
 					var option = data.options[i];
-					//if (!option.available) builder.AppendLine($"{i}. (not available) {option.option?.Trim()} {option.description?.Trim()}");
-					builder.AppendLine($"{i}. {option.option?.Trim()} {option.description?.Trim()}");
+					builder.Append($"{i}. {option.option?.Trim()} {option.description?.Trim()}\n");
 				}
 				Log.Print(builder.ToString());
 				root.McpRespond();
@@ -105,41 +103,9 @@ public partial class MenuDialogue : PanelContainer
 		option.onConfirm();
 		Complete();
 	}
-	void ShakeTitleControl()
-	{
-		if (titleControl == null) return;
-		if (shakeTween != null)
-		{
-			shakeTween.Kill();
-			if (titleControlOriginalPosition.HasValue)
-			{
-				titleControl.Position = titleControlOriginalPosition.Value;
-			}
-		}
-		if (titleControlOriginalPosition == null)
-		{
-			titleControlOriginalPosition = titleControl.Position;
-		}
-		var originalPosition = titleControlOriginalPosition.Value;
-		shakeTween = CreateTween();
-		const float shakeDistance = 8.0f;
-		const float shakeDuration = 0.1f;
-		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X + shakeDistance, shakeDuration);
-		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X - shakeDistance, shakeDuration);
-		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X + shakeDistance, shakeDuration);
-		shakeTween.TweenProperty(titleControl, "position:x", originalPosition.X, shakeDuration);
-		shakeTween.Finished += () =>
-		{
-			titleControl.Position = originalPosition;
-			shakeTween = null;
-		};
-	}
 	public void Select(int index)
 	{
-		if (this.index != index)
-		{
-			root.PlaySoundEffect(AudioTable.oneBeep99630);
-		}
+		if (this.index != index) root.PlaySoundEffect(AudioTable.oneBeep99630);
 		var text = data.options[index].description;
 		if (text != null) description.Show(text);
 		data.options[index].onPreview?.Invoke();
@@ -155,14 +121,34 @@ public partial class MenuDialogue : PanelContainer
 		UpdateTitleControl();
 		Active = active;
 	}
+	void ShakeTitleControl()
+	{
+		if (titleControl == null) return;
+		if (shakeTween != null)
+		{
+			shakeTween.Kill();
+			if (titleControlOriginalPosition.HasValue) titleControl.Position = titleControlOriginalPosition.Value;
+		}
+		if (titleControlOriginalPosition == null) titleControlOriginalPosition = titleControl.Position;
+		var originalPosition = titleControlOriginalPosition.Value;
+		shakeTween = CreateTween();
+		const float shakeDistance = 8.0f;
+		const float shakeDuration = 0.1f;
+		shakeTween.TweenProperty(@object: titleControl, property: "position:x", finalVal: originalPosition.X + shakeDistance, duration: shakeDuration);
+		shakeTween.TweenProperty(@object: titleControl, property: "position:x", finalVal: originalPosition.X - shakeDistance, duration: shakeDuration);
+		shakeTween.TweenProperty(@object: titleControl, property: "position:x", finalVal: originalPosition.X + shakeDistance, duration: shakeDuration);
+		shakeTween.TweenProperty(@object: titleControl, property: "position:x", finalVal: originalPosition.X, duration: shakeDuration);
+		shakeTween.Finished += () =>
+		{
+			titleControl.Position = originalPosition;
+			shakeTween = null;
+		};
+	}
 	void UpdateTitleControl() => titleControl.Visible = Active && !string.IsNullOrEmpty(data.title);
 	void AddOption(DialogueOptionData data)
 	{
 		var label = new Label { Text = data.option, };
-		if (!data.available)
-		{
-			label.Modulate = GameColors.unavailableOption;
-		}
+		if (!data.available) label.Modulate = GameColors.unavailableOption;
 		container.AddChild(label);
 		if (container.GetChildCount() == 1)
 		{
