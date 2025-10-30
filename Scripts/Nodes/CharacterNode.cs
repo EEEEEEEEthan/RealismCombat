@@ -23,7 +23,7 @@ partial class CharacterNode : Control
 	float currentVerticalOffset;
 	bool isActing;
 	double shakeTime;
-	const float maxVerticalOffset = -8.0f;
+	const float maxVerticalOffset = 8.0f;
 	const float moveLerpSpeed = 10.0f;
 	const float shakeDuration = 0.3f;
 	const float shakeStrength = 4.0f;
