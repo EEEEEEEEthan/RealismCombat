@@ -31,7 +31,7 @@ public partial class MenuDialogue : PanelContainer
 	ProgramRootNode root = null!;
 	[Export] Container container = null!;
 	[Export] TextureRect arrow = null!;
-	[Export] PrinterLabelNode title = null!;
+	[Export] Label title = null!;
 	[Export] PrinterLabelNode description = null!;
 	[Export] Control titleControl = null!;
 	int index;
@@ -112,7 +112,7 @@ public partial class MenuDialogue : PanelContainer
 	{
 		this.data = data;
 		if (data.options.Count < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
-		if (data.title != null) title.Show(data.title);
+		if (data.title != null) title.Text = data.title;
 		foreach (var optionData in data.options) AddOption(optionData);
 		UpdateTitleControl();
 		Active = active;
