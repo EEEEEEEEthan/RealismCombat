@@ -98,6 +98,10 @@ public partial class MenuDialogue : PanelContainer
 	}
 	public void Select(int index)
 	{
+		if (this.index != index)
+		{
+			root.PlaySoundEffect(AudioTable.oneBeep99630);
+		}
 		var text = data.options[index].description;
 		if (text != null) description.Show(text);
 		data.options[index].onPreview?.Invoke();

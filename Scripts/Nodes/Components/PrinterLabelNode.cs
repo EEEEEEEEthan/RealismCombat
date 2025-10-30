@@ -23,7 +23,7 @@ partial class PrinterLabelNode : RichTextLabel
 		VisibleCharacters += 1;
 		if (root != null && Printing)
 		{
-			root.PlaySoundEffect(AudioTable.oneBeep99630);
+			root.PlaySoundEffect(AudioTable.retroclick236673);
 		}
 		if (!Printing) SetProcess(false);
 	}
