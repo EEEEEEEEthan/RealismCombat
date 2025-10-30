@@ -205,15 +205,7 @@ public partial class ProgramRootNode : Node
 	{
 		bgmPlayer = GetNode<AudioStreamPlayer>("BgmPlayer");
 		soundEffectPlayer = GetNode<AudioStreamPlayer>("SoundEffectPlayer");
-		soundEffectPlayer.Finished += OnSoundEffectFinished;
 		state = new IdleState(this);
-	}
-	void OnSoundEffectFinished()
-	{
-		if (bgmPlayer.Stream != null && bgmPlayer.StreamPaused)
-		{
-			bgmPlayer.StreamPaused = false;
-		}
 	}
 	public void PlayMusic(string audioPath)
 	{
@@ -231,10 +223,6 @@ public partial class ProgramRootNode : Node
 	}
 	public void PlaySoundEffect(string audioPath)
 	{
-		if (bgmPlayer.Stream != null && bgmPlayer.Playing && !bgmPlayer.StreamPaused)
-		{
-			bgmPlayer.StreamPaused = true;
-		}
 		var audioStream = GD.Load<AudioStream>(audioPath);
 		soundEffectPlayer.Stream = audioStream;
 		soundEffectPlayer.Play();
