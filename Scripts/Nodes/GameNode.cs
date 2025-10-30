@@ -41,7 +41,6 @@ public partial class GameNode : Node
 							var (min, max) = CharacterData.InitialActionPointRange;
 							combatData.characters.Add(new(name: "ethan", team: 0) { ActionPoint = GD.Randf() * (max - min) + min, });
 							combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-							combatData.characters.Add(new(name: "raven", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
 							_ = new CombatState(gameNode: gameNode, combatData: combatData);
 						},
 						available = true,
