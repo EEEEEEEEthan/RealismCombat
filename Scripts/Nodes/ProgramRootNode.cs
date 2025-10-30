@@ -50,17 +50,17 @@ public partial class ProgramRootNode : Node
 					{
 						try
 						{
+							var gameData = Persistant.Load(Persistant.saveDataPath);
 							programRootNode.state = new GameState(programRootNode);
 							dialogue.QueueFree();
-							var gameData = Persistant.Load(Persistant.saveDataPath);
 							var gameNode = GameNode.Create(gameData);
 							programRootNode.AddChild(gameNode);
 							Log.Print("已读取存档");
-							programRootNode.McpRespond();
 						}
 						catch (Exception e)
 						{
 							Log.PrintException(e);
+							programRootNode.PopMessage("读档失败");
 							programRootNode.McpRespond();
 						}
 					},
