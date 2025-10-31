@@ -58,47 +58,49 @@ public partial class CombatNode : Node
 			error = null!;
 			return true;
 		}
-	public bool ValidDefender(int defenderIndex, out string error)
-	{
-		var defender = combatData.characters[defenderIndex];
-		if (defenderIndex == attackerIndex)
+		public bool ValidDefender(int defenderIndex, out string error)
 		{
-			error = "不能攻击自己";
-			return false;
+			var defender = combatData.characters[defenderIndex];
+			if (defenderIndex == attackerIndex)
+			{
+				error = "不能攻击自己";
+				return false;
+			}
+			if (defender.team == Attacker.team)
+			{
+				error = "不能攻击同队队友";
+				return false;
+			}
+			if (defender.Dead)
+			{
+				error = $"{defender.name}已死亡";
+				return false;
+			}
+			error = null!;
+			return true;
 		}
-		if (defender.team == Attacker.team)
+		public SimulateResult Simulate()
 		{
-			error = "不能攻击同队队友";
-			return false;
+			if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
+			if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
+			if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
+			if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
+			if (!actionCode.HasValue) throw new InvalidOperationException("动作代码未设置");
+			if (!ValidAttackerBodyPart(bodyPart: attackerBodyPart.Value, error: out var attackerError)) throw new InvalidOperationException(attackerError);
+			if (!ValidDefender(defenderIndex: defenderIndex.Value, error: out var defenderError)) throw new InvalidOperationException(defenderError);
+			if (!ValidDefenderBodyPart(bodyPart: defenderBodyPart.Value, error: out var defenderBodyError))
+				throw new InvalidOperationException(defenderBodyError);
+			var config = ActionConfig.Configs.TryGetValue(key: actionCode.Value, value: out var actionConfig)
+				? actionConfig
+				: throw new InvalidOperationException($"未找到动作配置：{actionCode.Value}");
+			if (!config.ValidEquipment(attacker: Attacker, bodyPart: attackerBodyPart.Value, error: out var equipmentError))
+				throw new InvalidOperationException(equipmentError);
+			return new()
+			{
+				damageRange = config.damageRange,
+				actionPoint = config.actionPointCost,
+			};
 		}
-		if (defender.Dead)
-		{
-			error = $"{defender.name}已死亡";
-			return false;
-		}
-		error = null!;
-		return true;
-	}
-	public SimulateResult Simulate()
-	{
-		if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
-		if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
-		if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
-		if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
-		if (!actionCode.HasValue) throw new InvalidOperationException("动作代码未设置");
-		if (!ValidAttackerBodyPart(bodyPart: attackerBodyPart.Value, error: out var attackerError)) throw new InvalidOperationException(attackerError);
-		if (!ValidDefender(defenderIndex: defenderIndex.Value, error: out var defenderError)) throw new InvalidOperationException(defenderError);
-		if (!ValidDefenderBodyPart(bodyPart: defenderBodyPart.Value, error: out var defenderBodyError))
-			throw new InvalidOperationException(defenderBodyError);
-		var config = ActionConfig.Configs.TryGetValue(actionCode.Value, out var actionConfig) ? actionConfig : throw new InvalidOperationException($"未找到动作配置：{actionCode.Value}");
-		if (!config.ValidEquipment(attacker: Attacker, bodyPart: attackerBodyPart.Value, error: out var equipmentError))
-			throw new InvalidOperationException(equipmentError);
-		return new()
-		{
-			damageRange = config.damageRange,
-			actionPoint = config.actionPointCost,
-		};
-	}
 	}
 	public class CombatNodeAwaiter : INotifyCompletion
 	{
@@ -120,7 +122,7 @@ public partial class CombatNode : Node
 	}
 	public abstract class State(CombatNode combatNode)
 	{
-		public static State Create(CombatNode combatNode)
+		public static State Load(CombatNode combatNode)
 		{
 			var combatData = combatNode.combatData;
 			if (combatData.characters.Count == 0) throw new InvalidOperationException("战斗数据中没有角色");
@@ -200,12 +202,12 @@ public partial class CombatNode : Node
 			{
 				attackerIndex = attackerIndex,
 			};
-			MenuDialogue? attackerBodyDialogue = null;
-			MenuDialogue? actionCodeDialogue = null;
-			MenuDialogue? defenderDialogue = null;
-			MenuDialogue? defenderBodyDialogue = null;
+			MenuDialogue? attackerBodyDialogue;
+			MenuDialogue? actionCodeDialogue;
+			MenuDialogue? defenderDialogue;
+			MenuDialogue? defenderBodyDialogue;
 			selectAttackerBody();
-			string GetBodyPartEquipmentText(CharacterData character, BodyPartCode bodyPart)
+			string getBodyPartEquipmentText(CharacterData character, BodyPartCode bodyPart)
 			{
 				var bodyPartData = bodyPart switch
 				{
@@ -240,7 +242,7 @@ public partial class CombatNode : Node
 				{
 					var bodyPart = b;
 					var available = simulate.ValidAttackerBodyPart(bodyPart: bodyPart, error: out var error);
-					var equipmentText = GetBodyPartEquipmentText(character: attacker, bodyPart: bodyPart);
+					var equipmentText = getBodyPartEquipmentText(character: attacker, bodyPart: bodyPart);
 					options.Add(new()
 					{
 						available = available,
@@ -255,42 +257,40 @@ public partial class CombatNode : Node
 				}
 				attackerBodyDialogue.Initialize(dialogueData);
 			}
-		void selectActionCode()
-		{
-			actionCodeDialogue = programRoot.CreateDialogue();
-			var dialogueData = new DialogueData
+			void selectActionCode()
 			{
-				title = $"{attacker.name}的回合-选择攻击动作",
-			};
-			var options = new List<DialogueOptionData>();
-			dialogueData.options = options;
-			foreach (ActionCode actionCode in Enum.GetValues<ActionCode>())
-			{
-				var code = actionCode;
-				var config = ActionConfig.Configs.TryGetValue(actionCode, out var actionConfig) ? actionConfig : null;
-				var allowedByBodyPart = config != null && config.allowedBodyParts.Contains(simulate.attackerBodyPart!.Value);
-				if (!allowedByBodyPart)
+				actionCodeDialogue = programRoot.CreateDialogue();
+				var dialogueData = new DialogueData
 				{
-					continue;
-				}
-				string equipmentError = null!;
-				var validEquipment = config != null && config.ValidEquipment(attacker: attacker, bodyPart: simulate.attackerBodyPart.Value, error: out equipmentError);
-				var available = validEquipment;
-				var description = validEquipment ? actionCode.GetName() : equipmentError;
-				options.Add(new()
+					title = $"{attacker.name}的回合-选择攻击动作",
+				};
+				var options = new List<DialogueOptionData>();
+				dialogueData.options = options;
+				foreach (var actionCode in Enum.GetValues<ActionCode>())
 				{
-					available = available,
-					description = description,
-					onConfirm = () =>
+					var code = actionCode;
+					var config = ActionConfig.Configs.GetValueOrDefault(actionCode);
+					var allowedByBodyPart = config != null && config.allowedBodyParts.Contains(simulate.attackerBodyPart!.Value);
+					if (!allowedByBodyPart) continue;
+					string equipmentError = null!;
+					var validEquipment =
+						config != null && config.ValidEquipment(attacker: attacker, bodyPart: simulate.attackerBodyPart.Value, error: out equipmentError);
+					var available = validEquipment;
+					var description = validEquipment ? actionCode.GetName() : equipmentError;
+					options.Add(new()
 					{
-						simulate.actionCode = code;
-						selectDefender();
-					},
-					option = actionCode.GetName(),
-				});
+						available = available,
+						description = description,
+						onConfirm = () =>
+						{
+							simulate.actionCode = code;
+							selectDefender();
+						},
+						option = actionCode.GetName(),
+					});
+				}
+				actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
 			}
-			actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
-		}
 			void selectDefender()
 			{
 				defenderDialogue = programRoot.CreateDialogue();
@@ -334,7 +334,7 @@ public partial class CombatNode : Node
 				{
 					var bodyPart = b;
 					var available = simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out var error);
-					var equipmentText = GetBodyPartEquipmentText(character: defender, bodyPart: bodyPart);
+					var equipmentText = getBodyPartEquipmentText(character: defender, bodyPart: bodyPart);
 					options.Add(new()
 					{
 						available = available,
@@ -480,7 +480,7 @@ public partial class CombatNode : Node
 		var combatNode = GD.Load<PackedScene>(ResourceTable.combat).Instantiate<CombatNode>();
 		combatNode.gameNode = gameNode;
 		combatNode.combatData = combatData;
-		_ = State.Create(combatNode: combatNode);
+		_ = State.Load(combatNode: combatNode);
 		return combatNode;
 	}
 	readonly Dictionary<CharacterData, CharacterNode> characterNodes = new();
