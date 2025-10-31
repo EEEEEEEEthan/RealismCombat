@@ -434,15 +434,6 @@ public partial class CombatNode : Node
 		}
 		async void Run()
 		{
-			async Task FinishAttackWithoutDamage()
-			{
-				defenderNode.IsActing = false;
-				var actionPointCost = simulateResult.actionPoint;
-				attacker.ActionPoint -= actionPointCost;
-				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
-				attackerNode.IsActing = false;
-				_ = new RoundInProgressState(combatNode);
-			}
 			try
 			{
 				var simulate = new ActionSimulate(combatNode.combatData)
@@ -458,6 +449,15 @@ public partial class CombatNode : Node
 				var defender = combatNode.combatData.characters[action.defenderIndex];
 				var attackerNode = combatNode.GetCharacterNode(attacker);
 				var defenderNode = combatNode.GetCharacterNode(defender);
+				async Task FinishAttackWithoutDamage()
+				{
+					defenderNode.IsActing = false;
+					var actionPointCost = simulateResult.actionPoint;
+					attacker.ActionPoint -= actionPointCost;
+					await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
+					attackerNode.IsActing = false;
+					_ = new RoundInProgressState(combatNode);
+				}
 				attackerNode.IsActing = true;
 				defenderNode.IsActing = true;
 				var targetBodyPart = action.defenderBody switch
@@ -556,15 +556,6 @@ public partial class CombatNode : Node
 				Log.PrintException(e);
 				combatNode.gameNode.Root.McpRespond();
 			}
-		}
-		async Task FinishAttackWithoutDamage()
-		{
-			defenderNode.IsActing = false;
-			var actionPointCost = simulateResult.actionPoint;
-			attacker.ActionPoint -= actionPointCost;
-			await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
-			attackerNode.IsActing = false;
-			_ = new RoundInProgressState(combatNode);
 		}
 		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(CharacterData defender, BodyPartCode targetBodyPart)
 		{
