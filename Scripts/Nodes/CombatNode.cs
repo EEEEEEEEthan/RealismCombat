@@ -269,10 +269,14 @@ public partial class CombatNode : Node
 				var code = actionCode;
 				var config = ActionConfig.Configs.TryGetValue(actionCode, out var actionConfig) ? actionConfig : null;
 				var allowedByBodyPart = config != null && config.allowedBodyParts.Contains(simulate.attackerBodyPart!.Value);
+				if (!allowedByBodyPart)
+				{
+					continue;
+				}
 				string equipmentError = null!;
-				var validEquipment = allowedByBodyPart && config != null && config.ValidEquipment(attacker: attacker, bodyPart: simulate.attackerBodyPart.Value, error: out equipmentError);
+				var validEquipment = config != null && config.ValidEquipment(attacker: attacker, bodyPart: simulate.attackerBodyPart.Value, error: out equipmentError);
 				var available = validEquipment;
-				var description = allowedByBodyPart ? (validEquipment ? actionCode.GetName() : equipmentError) : "该身体部位无法使用此动作";
+				var description = validEquipment ? actionCode.GetName() : equipmentError;
 				options.Add(new()
 				{
 					available = available,
