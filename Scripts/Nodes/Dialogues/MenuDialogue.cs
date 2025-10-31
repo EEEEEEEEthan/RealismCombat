@@ -134,8 +134,8 @@ public partial class MenuDialogue : PanelContainer
 				},
 				available = true,
 			};
-			var optionsList = new List<DialogueOptionData>(data.options) { returnOption };
-			this.data = data with { options = optionsList };
+			var optionsList = new List<DialogueOptionData>(data.options) { returnOption, };
+			this.data = data with { options = optionsList, };
 		}
 		if (this.data.options.Count < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
 		if (this.data.title != null) title.Text = this.data.title;
@@ -145,13 +145,12 @@ public partial class MenuDialogue : PanelContainer
 	}
 	void ShakeTitleControl()
 	{
-		if (titleControl == null) return;
 		if (shakeTween != null)
 		{
 			shakeTween.Kill();
 			if (titleControlOriginalPosition.HasValue) titleControl.Position = titleControlOriginalPosition.Value;
 		}
-		if (titleControlOriginalPosition == null) titleControlOriginalPosition = titleControl.Position;
+		titleControlOriginalPosition ??= titleControl.Position;
 		var originalPosition = titleControlOriginalPosition.Value;
 		shakeTween = CreateTween();
 		const float shakeDistance = 8.0f;
