@@ -329,7 +329,7 @@ public partial class GameNode : Node
 						}
 						else
 						{
-							if (slotItem.items.Count > 0)
+							if (slotItem.items.Any(slot => slot != null))
 							{
 								ShowItemContainerMenu(gameNode: gameNode, container: slotItem, title: GetItemName(slotItem.itemId), parentDialogue: containerDialogue, onReturn: onReturn, returnDescription: "返回上级菜单");
 							}
