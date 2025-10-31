@@ -101,6 +101,13 @@ public static class BodyPartCodeExtensions
 			BodyPartCode.RightLeg => "右腿",
 			_ => "未知部位",
 		};
+	public static int GetSlotCapacity(this BodyPartCode part) =>
+		part switch
+		{
+			BodyPartCode.LeftArm => 2,
+			BodyPartCode.RightArm => 2,
+			_ => 1,
+		};
 }
 public class BodyPartData
 {
@@ -108,8 +115,13 @@ public class BodyPartData
 	public readonly BodyPartCode id;
 	public int hp = 10;
 	public int maxHp = 10;
-	public ItemData? slot;
-	public BodyPartData(BodyPartCode id) => this.id = id;
+	public readonly ItemData?[] slots;
+	public BodyPartData(BodyPartCode id)
+	{
+		this.id = id;
+		var capacity = id.GetSlotCapacity();
+		slots = new ItemData?[capacity];
+	}
 	public BodyPartData(DataVersion version, BinaryReader reader)
 	{
 		using (reader.ReadScope())
@@ -117,10 +129,16 @@ public class BodyPartData
 			id = (BodyPartCode)reader.ReadByte();
 			hp = reader.ReadInt32();
 			maxHp = reader.ReadInt32();
-			var hasSlot = reader.ReadBoolean();
-			if (hasSlot)
+			var slotCount = reader.ReadInt32();
+			var capacity = id.GetSlotCapacity();
+			slots = new ItemData?[capacity];
+			for (var i = 0; i < slotCount && i < capacity; ++i)
 			{
-				slot = new(version: version, reader: reader);
+				var hasSlot = reader.ReadBoolean();
+				if (hasSlot)
+				{
+					slots[i] = new(version: version, reader: reader);
+				}
 			}
 		}
 	}
@@ -131,16 +149,20 @@ public class BodyPartData
 			writer.Write((byte)id);
 			writer.Write(hp);
 			writer.Write(maxHp);
-			if (slot is not null)
+			writer.Write(slots.Length);
+			foreach (var slot in slots)
 			{
-				writer.Write(true);
-				slot.Serialize(writer);
-			}
-			else
-			{
-				writer.Write(false);
+				if (slot is not null)
+				{
+					writer.Write(true);
+					slot.Serialize(writer);
+				}
+				else
+				{
+					writer.Write(false);
+				}
 			}
 		}
 	}
-	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slot)}={slot})";
+	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slots)}={slots.Length})";
 }

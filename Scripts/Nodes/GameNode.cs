@@ -190,7 +190,8 @@ public partial class GameNode : Node
 			foreach (var bodyPart in character.bodyParts)
 			{
 				var partName = bodyPart.id.GetName();
-				var optionText = bodyPart.slot == null ? partName : $"{partName}[{GetItemName(bodyPart.slot.itemId)}]";
+				var equippedCount = bodyPart.slots.Count(slot => slot != null);
+				var optionText = equippedCount == 0 ? partName : $"{partName}({equippedCount}/{bodyPart.slots.Length})";
 				options.Add(new()
 				{
 					option = optionText,
@@ -198,7 +199,7 @@ public partial class GameNode : Node
 					onPreview = () => { },
 					onConfirm = () =>
 					{
-						ShowSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: equipmentDialogue);
+						ShowBodyPartSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: equipmentDialogue);
 					},
 					available = true,
 				});
@@ -209,20 +210,43 @@ public partial class GameNode : Node
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
 		}
-		static void ShowSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue)
-		{
-			if (bodyPart.slot == null)
-			{
-				ShowEmptySlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue);
-			}
-			else
-			{
-				ShowEquippedSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, item: bodyPart.slot);
-			}
-		}
-		static void ShowEmptySlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue)
+		static void ShowBodyPartSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue)
 		{
 			var slotDialogue = gameNode.Root.CreateDialogue();
+			var options = new List<DialogueOptionData>();
+			for (var i = 0; i < bodyPart.slots.Length; i++)
+			{
+				var slotIndex = i;
+				var slotItem = bodyPart.slots[i];
+				var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : $"槽位{slotIndex + 1}[{GetItemName(slotItem.itemId)}]";
+				options.Add(new()
+				{
+					option = optionText,
+					description = null,
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						if (slotItem == null)
+						{
+							ShowEmptyBodyPartSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, slotIndex: slotIndex, slotDialogue: slotDialogue);
+						}
+						else
+						{
+							ShowEquippedBodyPartSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, slotIndex: slotIndex, slotDialogue: slotDialogue, slotItem: slotItem);
+						}
+					},
+					available = true,
+				});
+			}
+			slotDialogue.Initialize(new()
+			{
+				title = $"{bodyPart.id.GetName()} - 槽位",
+				options = options,
+			}, onReturn: () => { }, returnDescription: "返回装备菜单");
+		}
+		static void ShowEmptyBodyPartSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, int slotIndex, MenuDialogue slotDialogue)
+		{
+			var itemSlotDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
 			if (gameNode.gameData.items.Count == 0)
 			{
@@ -248,7 +272,7 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							bodyPart.slot = new ItemData(itemId: itemId, count: 1);
+							bodyPart.slots[slotIndex] = new ItemData(itemId: itemId, count: 1);
 							if (item.count > 1)
 							{
 								item.count--;
@@ -258,6 +282,7 @@ public partial class GameNode : Node
 								gameNode.gameData.items.Remove(item);
 							}
 							gameNode.Save();
+							itemSlotDialogue?.QueueFree();
 							slotDialogue?.QueueFree();
 							parentDialogue?.QueueFree();
 						},
@@ -265,23 +290,23 @@ public partial class GameNode : Node
 					});
 				}
 			}
-			slotDialogue.Initialize(new()
+			itemSlotDialogue.Initialize(new()
 			{
-				title = $"{bodyPart.id.GetName()} - 选择物品",
+				title = $"{bodyPart.id.GetName()} - 槽位{slotIndex + 1} - 选择物品",
 				options = options,
-			}, onReturn: () => { }, returnDescription: "返回装备菜单");
+			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
-		static void ShowEquippedSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, ItemData item)
+		static void ShowEquippedBodyPartSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, int slotIndex, MenuDialogue slotDialogue, ItemData slotItem)
 		{
-			var slotDialogue = gameNode.Root.CreateDialogue();
+			var itemSlotDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
-			if (item.slots.Length > 0)
+			if (slotItem.slots.Length > 0)
 			{
-				for (var i = 0; i < item.slots.Length; i++)
+				for (var i = 0; i < slotItem.slots.Length; i++)
 				{
-					var slotIndex = i;
-					var slotItem = item.slots[i];
-					var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : $"槽位{slotIndex + 1}[{GetItemName(slotItem.itemId)}]";
+					var nestedSlotIndex = i;
+					var nestedSlotItem = slotItem.slots[i];
+					var optionText = nestedSlotItem == null ? $"槽位{nestedSlotIndex + 1}(空)" : $"槽位{nestedSlotIndex + 1}[{GetItemName(nestedSlotItem.itemId)}]";
 					options.Add(new()
 					{
 						option = optionText,
@@ -289,20 +314,20 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							if (slotItem == null)
+							if (nestedSlotItem == null)
 							{
-								ShowEmptyItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, item: item, slotIndex: slotIndex, slotDialogue: slotDialogue);
+								ShowEmptyItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: slotDialogue, item: slotItem, slotIndex: nestedSlotIndex, slotDialogue: itemSlotDialogue);
 							}
 							else
 							{
-								ShowEquippedItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, item: item, slotIndex: slotIndex, slotDialogue: slotDialogue, slotItem: slotItem);
+								ShowEquippedItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: slotDialogue, item: slotItem, slotIndex: nestedSlotIndex, slotDialogue: itemSlotDialogue, slotItem: nestedSlotItem);
 							}
 						},
 						available = true,
 					});
 				}
 			}
-			var hasNonEmptySlot = item.slots.Length > 0 && item.slots.Any(slot => slot != null);
+			var hasNonEmptySlot = slotItem.slots.Length > 0 && slotItem.slots.Any(slot => slot != null);
 			if (!hasNonEmptySlot)
 			{
 				options.Add(new()
@@ -312,21 +337,22 @@ public partial class GameNode : Node
 					onPreview = () => { },
 					onConfirm = () =>
 					{
-						if (bodyPart.slot != null)
+						if (bodyPart.slots[slotIndex] != null)
 						{
-							AddItemToInventory(gameNode: gameNode, item: bodyPart.slot);
-							bodyPart.slot = null;
+							AddItemToInventory(gameNode: gameNode, item: bodyPart.slots[slotIndex]!);
+							bodyPart.slots[slotIndex] = null;
 							gameNode.Save();
 						}
+						itemSlotDialogue?.QueueFree();
 						slotDialogue?.QueueFree();
 						parentDialogue?.QueueFree();
 					},
 					available = true,
 				});
 			}
-			slotDialogue.Initialize(new()
+			itemSlotDialogue.Initialize(new()
 			{
-				title = $"{bodyPart.id.GetName()} - {GetItemName(item.itemId)}",
+				title = $"{bodyPart.id.GetName()} - 槽位{slotIndex + 1} - {GetItemName(slotItem.itemId)}",
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
