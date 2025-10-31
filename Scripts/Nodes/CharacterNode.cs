@@ -3,6 +3,10 @@ using RealismCombat.Data;
 namespace RealismCombat.Nodes;
 partial class CharacterNode : Control
 {
+	const float maxVerticalOffset = 8.0f;
+	const float moveLerpSpeed = 10.0f;
+	const float shakeDuration = 0.3f;
+	const float shakeStrength = 4.0f;
 	public static CharacterNode Create()
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.character).Instantiate<CharacterNode>();
@@ -18,15 +22,11 @@ partial class CharacterNode : Control
 	PropertyDrawerNode leftArm = null!;
 	PropertyDrawerNode rightLeg = null!;
 	PropertyDrawerNode leftLeg = null!;
-	public CharacterData? CharacterData { get; set; }
 	Vector2 originalPanelPosition;
 	float currentVerticalOffset;
 	bool isActing;
 	double shakeTime;
-	const float maxVerticalOffset = 8.0f;
-	const float moveLerpSpeed = 10.0f;
-	const float shakeDuration = 0.3f;
-	const float shakeStrength = 4.0f;
+	public CharacterData? CharacterData { get; set; }
 	public bool IsActing
 	{
 		get => isActing;
@@ -36,13 +36,9 @@ partial class CharacterNode : Control
 			isActing = value;
 		}
 	}
-	public void Shake()
-	{
-		shakeTime = shakeDuration;
-	}
-	public PropertyDrawerNode? GetBodyPartDrawer(BodyPartCode bodyPart)
-	{
-		return bodyPart switch
+	public void Shake() => shakeTime = shakeDuration;
+	public PropertyDrawerNode? GetBodyPartDrawer(BodyPartCode bodyPart) =>
+		bodyPart switch
 		{
 			BodyPartCode.Head => head,
 			BodyPartCode.Chest => chest,
@@ -52,7 +48,6 @@ partial class CharacterNode : Control
 			BodyPartCode.RightLeg => rightLeg,
 			_ => null,
 		};
-	}
 	public override void _Ready()
 	{
 		panelContainer = GetNode<PanelContainer>("PanelContainer");
@@ -88,22 +83,22 @@ partial class CharacterNode : Control
 		leftArm.Title = BodyPartCode.LeftArm.GetName();
 		rightLeg.Title = BodyPartCode.RightLeg.GetName();
 		leftLeg.Title = BodyPartCode.LeftLeg.GetName();
-		float targetVerticalOffset = 0.0f;
+		var targetVerticalOffset = 0.0f;
 		if (isActing)
 		{
-			float direction = CharacterData.team == 0 ? -1.0f : 1.0f;
+			var direction = CharacterData.team == 0 ? -1.0f : 1.0f;
 			targetVerticalOffset = maxVerticalOffset * direction;
 		}
-		currentVerticalOffset = Mathf.Lerp(currentVerticalOffset, targetVerticalOffset, (float)delta * moveLerpSpeed);
-		float horizontalOffset = 0.0f;
+		currentVerticalOffset = Mathf.Lerp(from: currentVerticalOffset, to: targetVerticalOffset, weight: (float)delta * moveLerpSpeed);
+		var horizontalOffset = 0.0f;
 		if (shakeTime > 0)
 		{
 			shakeTime -= delta;
 			if (shakeTime < 0) shakeTime = 0;
-			float progress = 1.0f - (float)(shakeTime / shakeDuration);
-			float currentShakeStrength = shakeStrength * (1.0f - progress);
+			var progress = 1.0f - (float)(shakeTime / shakeDuration);
+			var currentShakeStrength = shakeStrength * (1.0f - progress);
 			horizontalOffset = (GD.Randf() * 2.0f - 1.0f) * currentShakeStrength;
 		}
-		panelContainer.Position = originalPanelPosition + new Vector2(horizontalOffset, currentVerticalOffset);
+		panelContainer.Position = originalPanelPosition + new Vector2(x: horizontalOffset, y: currentVerticalOffset);
 	}
 }

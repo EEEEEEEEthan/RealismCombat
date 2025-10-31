@@ -4,6 +4,7 @@ namespace RealismCombat.Nodes.Components;
 public partial class ShadowLabel : Label
 {
 	Label? shadow;
+	string lastText = "";
 	[Export]
 	Label Shadow
 	{
@@ -25,19 +26,13 @@ public partial class ShadowLabel : Label
 	}
 	public override bool _Set(StringName property, Variant value)
 	{
-		var result = base._Set(property, value);
+		var result = base._Set(property: property, value: value);
 		var propertyStr = property.ToString();
 		if (propertyStr == "text" || propertyStr == "theme" || propertyStr == "theme_type_variation")
-		{
 			SyncProperties();
-		}
-		else if (propertyStr.StartsWith("theme_override_"))
-		{
-			SyncThemeOverrideProperty(propertyStr, value);
-		}
+		else if (propertyStr.StartsWith("theme_override_")) SyncThemeOverrideProperty(propertyName: propertyStr, value: value);
 		return result;
 	}
-	string lastText = "";
 	public override void _Ready()
 	{
 		base._Ready();
@@ -55,10 +50,7 @@ public partial class ShadowLabel : Label
 	public override void _Notification(int what)
 	{
 		base._Notification(what);
-		if (what == NotificationThemeChanged)
-		{
-			SyncProperties();
-		}
+		if (what == NotificationThemeChanged) SyncProperties();
 	}
 	void SyncProperties()
 	{
@@ -76,6 +68,6 @@ public partial class ShadowLabel : Label
 	void SyncThemeOverrideProperty(string propertyName, Variant value)
 	{
 		var shadowLabel = Shadow;
-		shadowLabel._Set(propertyName, value);
+		shadowLabel._Set(property: propertyName, value: value);
 	}
 }

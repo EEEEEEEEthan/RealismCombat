@@ -12,10 +12,7 @@ public partial class GameNode : Node
 	{
 		public static State Create(GameNode gameNode)
 		{
-			if (gameNode.gameData.state == CombatState.serializeId && gameNode.gameData.combatData == null)
-			{
-				return new IdleState(gameNode);
-			}
+			if (gameNode.gameData.state == CombatState.serializeId && gameNode.gameData.combatData == null) return new IdleState(gameNode);
 			return gameNode.gameData.state switch
 			{
 				IdleState.serializeId => new IdleState(gameNode),
@@ -30,146 +27,33 @@ public partial class GameNode : Node
 	public class IdleState : State
 	{
 		public const int serializeId = 0;
-		public MenuDialogue? dialogue;
-		public IdleState(GameNode gameNode) : base(gameNode)
+		static string GetItemName(uint itemId) => ItemConfig.Configs.TryGetValue(key: itemId, value: out var config) ? config.name : $"物品{itemId}";
+		static bool CanStack(ItemData item1, ItemData item2)
 		{
-			gameNode.CurrentState = this;
-			gameNode.Root.PlayMusic(AudioTable.arpegio01Loop45094);
-			dialogue = gameNode.Root.CreateDialogue();
-			dialogue.Initialize(new()
-			{
-				title = "游戏菜单",
-				options =
-				[
-					new()
-					{
-						option = "进入战斗",
-						description = "开始战斗",
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							dialogue?.QueueFree();
-							CombatData combatData;
-							if (gameNode.gameData.combatData != null && gameNode.gameData.combatData.characters.Count > 0)
-							{
-								var hasTeam0 = gameNode.gameData.combatData.characters.Exists(c => c.team == 0);
-								var hasTeam1 = gameNode.gameData.combatData.characters.Exists(c => c.team == 1);
-								if (hasTeam0 && hasTeam1)
-								{
-									combatData = gameNode.gameData.combatData;
-									var (min, max) = CharacterData.InitialActionPointRange;
-									foreach (var character in combatData.characters)
-									{
-										character.ActionPoint = GD.Randf() * (max - min) + min;
-									}
-								}
-								else
-								{
-									combatData = new CombatData();
-									var (min, max) = CharacterData.InitialActionPointRange;
-									foreach (var playerCharacter in gameNode.gameData.playerCharacters)
-									{
-										playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
-										combatData.characters.Add(playerCharacter);
-									}
-									combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-									combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-								}
-							}
-							else
-							{
-								combatData = new CombatData();
-								var (min, max) = CharacterData.InitialActionPointRange;
-								foreach (var playerCharacter in gameNode.gameData.playerCharacters)
-								{
-									playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
-									combatData.characters.Add(playerCharacter);
-								}
-								combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-								combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-							}
-							_ = new CombatState(gameNode: gameNode, combatData: combatData);
-						},
-						available = true,
-					},
-					new()
-					{
-						option = "物品栏",
-						description = "查看物品",
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							ShowInventoryMenu(gameNode: gameNode);
-						},
-						available = true,
-					},
-					new()
-					{
-						option = "装备",
-						description = "管理装备",
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							ShowEquipmentMenu(gameNode: gameNode);
-						},
-						available = true,
-					},
-					new()
-					{
-						option = "退出",
-						description = "返回主菜单",
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							dialogue?.QueueFree();
-							gameNode.QueueFree();
-							gameNode.Root.state = new ProgramRootNode.IdleState(gameNode.Root);
-						},
-						available = true,
-					},
-				],
-			});
-			OnExit = () =>
-			{
-				if (dialogue != null && IsInstanceValid(dialogue) && dialogue.IsInsideTree())
-				{
-					dialogue.QueueFree();
-				}
-			};
+			if (item1.itemId != item2.itemId) return false;
+			if (item1.slots.Length != item2.slots.Length) return false;
+			return item1.slots.All(slot => slot.item == null) && item2.slots.All(slot => slot.item == null);
 		}
-		static string GetItemName(uint itemId)
+		static void AddItemToInventory(GameNode gameNode, ItemData item)
 		{
-			return ItemConfig.Configs.TryGetValue(itemId, out var config) ? config.name : $"物品{itemId}";
-		}
-	static bool CanStack(ItemData item1, ItemData item2)
-	{
-		if (item1.itemId != item2.itemId) return false;
-		if (item1.slots.Length != item2.slots.Length) return false;
-		return item1.slots.All(slot => slot.item == null) && item2.slots.All(slot => slot.item == null);
-	}
-	static void AddItemToInventory(GameNode gameNode, ItemData item)
-	{
-		if (item.slots.Length > 0 && item.slots.Any(slot => slot.item != null))
-		{
-			gameNode.gameData.items.Add(item);
-			return;
-		}
-		foreach (var existingItem in gameNode.gameData.items)
-		{
-			if (CanStack(existingItem, item))
+			if (item.slots.Length > 0 && item.slots.Any(slot => slot.item != null))
 			{
-				existingItem.count += item.count;
+				gameNode.gameData.items.Add(item);
 				return;
 			}
+			foreach (var existingItem in gameNode.gameData.items)
+				if (CanStack(item1: existingItem, item2: item))
+				{
+					existingItem.count += item.count;
+					return;
+				}
+			gameNode.gameData.items.Add(item);
 		}
-		gameNode.gameData.items.Add(item);
-	}
 		static void ShowInventoryMenu(GameNode gameNode)
 		{
 			var inventoryDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
 			if (gameNode.gameData.items.Count == 0)
-			{
 				options.Add(new()
 				{
 					option = "物品栏为空",
@@ -178,9 +62,7 @@ public partial class GameNode : Node
 					onConfirm = () => { },
 					available = false,
 				});
-			}
 			else
-			{
 				foreach (var item in gameNode.gameData.items)
 				{
 					var itemName = GetItemName(item.itemId);
@@ -193,12 +75,13 @@ public partial class GameNode : Node
 						available = false,
 					});
 				}
-			}
-			inventoryDialogue.Initialize(new()
-			{
-				title = "物品栏",
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
+			inventoryDialogue.Initialize(data: new()
+				{
+					title = "物品栏",
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回游戏菜单");
 		}
 		static void ShowEquipmentMenu(GameNode gameNode)
 		{
@@ -225,11 +108,13 @@ public partial class GameNode : Node
 					available = true,
 				});
 			}
-			characterSelectDialogue.Initialize(new()
-			{
-				title = "选择角色",
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
+			characterSelectDialogue.Initialize(data: new()
+				{
+					title = "选择角色",
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回游戏菜单");
 		}
 		static void ShowCharacterEquipmentMenu(GameNode gameNode, CharacterData character, MenuDialogue? parentDialogue)
 		{
@@ -260,13 +145,9 @@ public partial class GameNode : Node
 				var container = (IItemContainer)bodyPart;
 				var equippedItems = new List<string>();
 				foreach (var slot in container.items)
-				{
 					if (slot != null)
-					{
 						equippedItems.Add(GetItemName(slot.itemId));
-					}
-				}
-				var optionText = equippedItems.Count == 0 ? partName : $"{partName}[{string.Join("][", equippedItems)}]";
+				var optionText = equippedItems.Count == 0 ? partName : $"{partName}[{string.Join(separator: "][", values: equippedItems)}]";
 				options.Add(new()
 				{
 					option = optionText,
@@ -274,31 +155,48 @@ public partial class GameNode : Node
 					onPreview = () => { },
 					onConfirm = () =>
 					{
-						ShowItemContainerMenu(gameNode: gameNode, container: container, title: $"{character.name} - {partName}", parentDialogue: equipmentDialogue, onReturn: () => { }, returnDescription: "返回装备菜单");
+						ShowItemContainerMenu(gameNode: gameNode,
+							container: container,
+							title: $"{character.name} - {partName}",
+							parentDialogue: equipmentDialogue,
+							onReturn: () => { },
+							returnDescription: "返回装备菜单");
 					},
 					available = true,
 				});
 			}
-			equipmentDialogue.Initialize(new()
-			{
-				title = $"{character.name} - 装备",
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回选择角色");
+			equipmentDialogue.Initialize(data: new()
+				{
+					title = $"{character.name} - 装备",
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回选择角色");
 		}
-		static void ShowItemContainerMenu(GameNode gameNode, IItemContainer container, string title, MenuDialogue? parentDialogue, Action? onReturn, string? returnDescription, IItemContainer? parentContainer = null, int? parentSlotIndex = null)
+		static void ShowItemContainerMenu(
+			GameNode gameNode,
+			IItemContainer container,
+			string title,
+			MenuDialogue? parentDialogue,
+			Action? onReturn,
+			string? returnDescription,
+			IItemContainer? parentContainer = null,
+			int? parentSlotIndex = null)
 		{
 			var containerDialogue = gameNode.Root.CreateDialogue();
 			void RefreshMenu()
 			{
 				if (!IsInstanceValid(containerDialogue) || !containerDialogue.IsInsideTree()) return;
 				containerDialogue.QueueFree();
-				ShowItemContainerMenu(gameNode: gameNode, container: container, title: title, parentDialogue: parentDialogue, onReturn: onReturn, returnDescription: returnDescription);
+				ShowItemContainerMenu(gameNode: gameNode,
+					container: container,
+					title: title,
+					parentDialogue: parentDialogue,
+					onReturn: onReturn,
+					returnDescription: returnDescription);
 			}
 			container.ItemsChanged += RefreshMenu;
-			containerDialogue.TreeExited += () =>
-			{
-				container.ItemsChanged -= RefreshMenu;
-			};
+			containerDialogue.TreeExited += () => { container.ItemsChanged -= RefreshMenu; };
 			var options = new List<DialogueOptionData>();
 			var isItemData = container is ItemData;
 			for (var i = 0; i < container.items.Count; i++)
@@ -329,25 +227,42 @@ public partial class GameNode : Node
 					{
 						if (slotItem == null)
 						{
-							ShowItemSelectMenu(gameNode: gameNode, container: container, slotIndex: slotIndex, title: title, parentDialogue: parentDialogue, containerDialogue: containerDialogue, onReturn: onReturn, returnDescription: returnDescription);
+							ShowItemSelectMenu(gameNode: gameNode,
+								container: container,
+								slotIndex: slotIndex,
+								title: title,
+								parentDialogue: parentDialogue,
+								containerDialogue: containerDialogue,
+								onReturn: onReturn,
+								returnDescription: returnDescription);
 						}
 						else
 						{
 							if (slotItem.items.Count > 0)
-							{
-								ShowItemContainerMenu(gameNode: gameNode, container: slotItem, title: GetItemName(slotItem.itemId), parentDialogue: containerDialogue, onReturn: onReturn, returnDescription: "返回上级菜单", parentContainer: container, parentSlotIndex: slotIndex);
-							}
+								ShowItemContainerMenu(gameNode: gameNode,
+									container: slotItem,
+									title: GetItemName(slotItem.itemId),
+									parentDialogue: containerDialogue,
+									onReturn: onReturn,
+									returnDescription: "返回上级菜单",
+									parentContainer: container,
+									parentSlotIndex: slotIndex);
 							else
-							{
-								ShowItemUnEquipMenu(gameNode: gameNode, container: container, slotIndex: slotIndex, slotItem: slotItem, title: title, parentDialogue: parentDialogue, containerDialogue: containerDialogue, onReturn: onReturn, returnDescription: returnDescription);
-							}
+								ShowItemUnEquipMenu(gameNode: gameNode,
+									container: container,
+									slotIndex: slotIndex,
+									slotItem: slotItem,
+									title: title,
+									parentDialogue: parentDialogue,
+									containerDialogue: containerDialogue,
+									onReturn: onReturn,
+									returnDescription: returnDescription);
 						}
 					},
 					available = true,
 				});
 			}
 			if (parentContainer != null && parentSlotIndex.HasValue && container is ItemData)
-			{
 				options.Add(new()
 				{
 					option = "卸下",
@@ -360,54 +275,45 @@ public partial class GameNode : Node
 						{
 							AddItemToInventory(gameNode: gameNode, item: itemToUnequip);
 							if (parentContainer is BodyPartData bodyPart)
-							{
-								bodyPart.SetSlot(parentSlotIndex.Value, null);
-							}
-							else if (parentContainer is ItemData itemContainer)
-							{
-								itemContainer.SetSlot(parentSlotIndex.Value, null);
-							}
+								bodyPart.SetSlot(index: parentSlotIndex.Value, value: null);
+							else if (parentContainer is ItemData itemContainer) itemContainer.SetSlot(index: parentSlotIndex.Value, value: null);
 							gameNode.Save();
-							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree())
-							{
-								containerDialogue.QueueFree();
-							}
-							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree())
-							{
-								parentDialogue.QueueFree();
-							}
+							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree()) containerDialogue.QueueFree();
+							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree()) parentDialogue.QueueFree();
 						}
 					},
 					available = true,
 				});
-			}
-			containerDialogue.Initialize(new()
-			{
-				title = title,
-				options = options,
-			}, onReturn: onReturn, returnDescription: returnDescription);
+			containerDialogue.Initialize(data: new()
+				{
+					title = title,
+					options = options,
+				},
+				onReturn: onReturn,
+				returnDescription: returnDescription);
 		}
-		static void ShowItemSelectMenu(GameNode gameNode, IItemContainer container, int slotIndex, string title, MenuDialogue? parentDialogue, MenuDialogue containerDialogue, Action? onReturn, string? returnDescription)
+		static void ShowItemSelectMenu(
+			GameNode gameNode,
+			IItemContainer container,
+			int slotIndex,
+			string title,
+			MenuDialogue? parentDialogue,
+			MenuDialogue containerDialogue,
+			Action? onReturn,
+			string? returnDescription)
 		{
 			var selectDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
 			EquipmentType? allowedTypes = null;
 			if (container is BodyPartData bodyPart)
 			{
-				if (slotIndex >= 0 && slotIndex < bodyPart.slots.Length)
-				{
-					allowedTypes = bodyPart.slots[slotIndex].allowedTypes;
-				}
+				if (slotIndex >= 0 && slotIndex < bodyPart.slots.Length) allowedTypes = bodyPart.slots[slotIndex].allowedTypes;
 			}
 			else if (container is ItemData itemContainer)
 			{
-				if (slotIndex >= 0 && slotIndex < itemContainer.slots.Length)
-				{
-					allowedTypes = itemContainer.slots[slotIndex].allowedTypes;
-				}
+				if (slotIndex >= 0 && slotIndex < itemContainer.slots.Length) allowedTypes = itemContainer.slots[slotIndex].allowedTypes;
 			}
 			if (gameNode.gameData.items.Count == 0)
-			{
 				options.Add(new()
 				{
 					option = "没有可装备的物品",
@@ -416,9 +322,7 @@ public partial class GameNode : Node
 					onConfirm = () => { },
 					available = false,
 				});
-			}
 			else
-			{
 				foreach (var item in gameNode.gameData.items)
 				{
 					var itemId = item.itemId;
@@ -428,22 +332,14 @@ public partial class GameNode : Node
 					EquipmentType? itemType = null;
 					if (container is BodyPartData bodyPartForCheck)
 					{
-						if (slotIndex >= 0 && slotIndex < bodyPartForCheck.slots.Length)
-						{
-							canPlace = bodyPartForCheck.slots[slotIndex].CanPlace(newItem);
-						}
+						if (slotIndex >= 0 && slotIndex < bodyPartForCheck.slots.Length) canPlace = bodyPartForCheck.slots[slotIndex].CanPlace(newItem);
 					}
 					else if (container is ItemData itemContainerForCheck)
 					{
 						if (slotIndex >= 0 && slotIndex < itemContainerForCheck.slots.Length)
-						{
 							canPlace = itemContainerForCheck.slots[slotIndex].CanPlace(newItem);
-						}
 					}
-					if (ItemConfig.Configs.TryGetValue(itemId, out var config))
-					{
-						itemType = config.equipmentType;
-					}
+					if (ItemConfig.Configs.TryGetValue(key: itemId, value: out var config)) itemType = config.equipmentType;
 					string? description = null;
 					if (itemType.HasValue)
 					{
@@ -459,47 +355,39 @@ public partial class GameNode : Node
 						{
 							var newItemForPlace = new ItemData(itemId: itemId, count: 1);
 							if (container is BodyPartData bodyPartForPlace)
-							{
-								bodyPartForPlace.SetSlot(slotIndex, newItemForPlace);
-							}
-							else if (container is ItemData itemContainerForPlace)
-							{
-								itemContainerForPlace.SetSlot(slotIndex, newItemForPlace);
-							}
+								bodyPartForPlace.SetSlot(index: slotIndex, value: newItemForPlace);
+							else if (container is ItemData itemContainerForPlace) itemContainerForPlace.SetSlot(index: slotIndex, value: newItemForPlace);
 							if (item.count > 1)
-							{
 								item.count--;
-							}
 							else
-							{
 								gameNode.gameData.items.Remove(item);
-							}
 							gameNode.Save();
-							if (IsInstanceValid(selectDialogue) && selectDialogue.IsInsideTree())
-							{
-								selectDialogue.QueueFree();
-							}
-							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree())
-							{
-								containerDialogue.QueueFree();
-							}
-							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree())
-							{
-								parentDialogue.QueueFree();
-							}
+							if (IsInstanceValid(selectDialogue) && selectDialogue.IsInsideTree()) selectDialogue.QueueFree();
+							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree()) containerDialogue.QueueFree();
+							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree()) parentDialogue.QueueFree();
 						},
 						available = canPlace,
 					});
 				}
-			}
 			var titleText = allowedTypes.HasValue ? $"物品槽[{allowedTypes.Value.GetShortName()}]" : $"{title} - 选择物品";
-			selectDialogue.Initialize(new()
-			{
-				title = titleText,
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回上级菜单");
+			selectDialogue.Initialize(data: new()
+				{
+					title = titleText,
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回上级菜单");
 		}
-		static void ShowItemUnEquipMenu(GameNode gameNode, IItemContainer container, int slotIndex, ItemData slotItem, string title, MenuDialogue? parentDialogue, MenuDialogue containerDialogue, Action? onReturn, string? returnDescription)
+		static void ShowItemUnEquipMenu(
+			GameNode gameNode,
+			IItemContainer container,
+			int slotIndex,
+			ItemData slotItem,
+			string title,
+			MenuDialogue? parentDialogue,
+			MenuDialogue containerDialogue,
+			Action? onReturn,
+			string? returnDescription)
 		{
 			var unEquipDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
@@ -512,34 +400,117 @@ public partial class GameNode : Node
 				{
 					AddItemToInventory(gameNode: gameNode, item: slotItem);
 					if (container is BodyPartData bodyPart)
-					{
-						bodyPart.SetSlot(slotIndex, null);
-					}
-					else if (container is ItemData itemContainer)
-					{
-						itemContainer.SetSlot(slotIndex, null);
-					}
+						bodyPart.SetSlot(index: slotIndex, value: null);
+					else if (container is ItemData itemContainer) itemContainer.SetSlot(index: slotIndex, value: null);
 					gameNode.Save();
-					if (IsInstanceValid(unEquipDialogue) && unEquipDialogue.IsInsideTree())
-					{
-						unEquipDialogue.QueueFree();
-					}
-					if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree())
-					{
-						containerDialogue.QueueFree();
-					}
-					if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree())
-					{
-						parentDialogue.QueueFree();
-					}
+					if (IsInstanceValid(unEquipDialogue) && unEquipDialogue.IsInsideTree()) unEquipDialogue.QueueFree();
+					if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree()) containerDialogue.QueueFree();
+					if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree()) parentDialogue.QueueFree();
 				},
 				available = true,
 			});
-			unEquipDialogue.Initialize(new()
+			unEquipDialogue.Initialize(data: new()
+				{
+					title = $"{title} - {GetItemName(slotItem.itemId)}",
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回上级菜单");
+		}
+		public MenuDialogue? dialogue;
+		public IdleState(GameNode gameNode) : base(gameNode)
+		{
+			gameNode.CurrentState = this;
+			gameNode.Root.PlayMusic(AudioTable.arpegio01Loop45094);
+			dialogue = gameNode.Root.CreateDialogue();
+			dialogue.Initialize(new()
 			{
-				title = $"{title} - {GetItemName(slotItem.itemId)}",
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回上级菜单");
+				title = "游戏菜单",
+				options =
+				[
+					new()
+					{
+						option = "进入战斗",
+						description = "开始战斗",
+						onPreview = () => { },
+						onConfirm = () =>
+						{
+							dialogue?.QueueFree();
+							CombatData combatData;
+							if (gameNode.gameData.combatData != null && gameNode.gameData.combatData.characters.Count > 0)
+							{
+								var hasTeam0 = gameNode.gameData.combatData.characters.Exists(c => c.team == 0);
+								var hasTeam1 = gameNode.gameData.combatData.characters.Exists(c => c.team == 1);
+								if (hasTeam0 && hasTeam1)
+								{
+									combatData = gameNode.gameData.combatData;
+									(var min, var max) = CharacterData.InitialActionPointRange;
+									foreach (var character in combatData.characters) character.ActionPoint = GD.Randf() * (max - min) + min;
+								}
+								else
+								{
+									combatData = new();
+									(var min, var max) = CharacterData.InitialActionPointRange;
+									foreach (var playerCharacter in gameNode.gameData.playerCharacters)
+									{
+										playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
+										combatData.characters.Add(playerCharacter);
+									}
+									combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+									combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+								}
+							}
+							else
+							{
+								combatData = new();
+								(var min, var max) = CharacterData.InitialActionPointRange;
+								foreach (var playerCharacter in gameNode.gameData.playerCharacters)
+								{
+									playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
+									combatData.characters.Add(playerCharacter);
+								}
+								combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+								combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+							}
+							_ = new CombatState(gameNode: gameNode, combatData: combatData);
+						},
+						available = true,
+					},
+					new()
+					{
+						option = "物品栏",
+						description = "查看物品",
+						onPreview = () => { },
+						onConfirm = () => { ShowInventoryMenu(gameNode: gameNode); },
+						available = true,
+					},
+					new()
+					{
+						option = "装备",
+						description = "管理装备",
+						onPreview = () => { },
+						onConfirm = () => { ShowEquipmentMenu(gameNode: gameNode); },
+						available = true,
+					},
+					new()
+					{
+						option = "退出",
+						description = "返回主菜单",
+						onPreview = () => { },
+						onConfirm = () =>
+						{
+							dialogue?.QueueFree();
+							gameNode.QueueFree();
+							gameNode.Root.state = new ProgramRootNode.IdleState(gameNode.Root);
+						},
+						available = true,
+					},
+				],
+			});
+			OnExit = () =>
+			{
+				if (dialogue != null && IsInstanceValid(dialogue) && dialogue.IsInsideTree()) dialogue.QueueFree();
+			};
 		}
 	}
 	public class CombatState : State
@@ -560,18 +531,12 @@ public partial class GameNode : Node
 			try
 			{
 				await combatNode;
-				if (IsInstanceValid(gameNode) && gameNode.IsInsideTree())
-				{
-					_ = new IdleState(gameNode);
-				}
+				if (IsInstanceValid(gameNode) && gameNode.IsInsideTree()) _ = new IdleState(gameNode);
 			}
 			catch (Exception e)
 			{
 				Log.PrintException(e);
-				if (IsInstanceValid(gameNode) && gameNode.IsInsideTree())
-				{
-					gameNode.Root.McpRespond();
-				}
+				if (IsInstanceValid(gameNode) && gameNode.IsInsideTree()) gameNode.Root.McpRespond();
 			}
 		}
 	}
@@ -598,21 +563,12 @@ public partial class GameNode : Node
 			};
 		}
 	}
-	public void Save()
-	{
-		Persistant.Save(gameData, Persistant.saveDataPath);
-	}
-	public void SetCombatData(CombatData? combatData)
-	{
-		gameData.combatData = combatData;
-	}
+	public void Save() => Persistant.Save(data: gameData, path: Persistant.saveDataPath);
+	public void SetCombatData(CombatData? combatData) => gameData.combatData = combatData;
 	public override void _Ready()
 	{
 		Root = GetParent<ProgramRootNode>();
 		_ = State.Create(gameNode: this);
 	}
-	public override void _ExitTree()
-	{
-		state.OnExit?.Invoke();
-	}
+	public override void _ExitTree() => state.OnExit?.Invoke();
 }

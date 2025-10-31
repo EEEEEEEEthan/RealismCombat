@@ -1,10 +1,10 @@
 using Godot;
 using RealismCombat.Extensions;
-using RealismCombat;
 namespace RealismCombat.Nodes;
 [Tool]
 partial class PropertyDrawerNode : Control
 {
+	const float flashDuration = 0.3f;
 	float value;
 	string title = "属性";
 	Label? titleControl;
@@ -13,7 +13,6 @@ partial class PropertyDrawerNode : Control
 	float currentWidth;
 	float targetWidth;
 	double flashTime;
-	const float flashDuration = 0.3f;
 	[Export]
 	public string Title
 	{
@@ -44,17 +43,14 @@ partial class PropertyDrawerNode : Control
 		UpdateTitle();
 		UpdateTargetWidth();
 		currentWidth = 0;
-		if (ValueControl?.Valid() == true)
-		{
-			ValueControl.CustomMinimumSize = ValueControl.CustomMinimumSize with { X = 0, };
-		}
+		if (ValueControl?.Valid() == true) ValueControl.CustomMinimumSize = ValueControl.CustomMinimumSize with { X = 0, };
 	}
 	public override void _Process(double delta)
 	{
 		const float lerpSpeed = 10.0f;
 		if (Mathf.Abs(currentWidth - targetWidth) > 0.1f)
 		{
-			currentWidth = Mathf.Lerp(currentWidth, targetWidth, (float)delta * lerpSpeed);
+			currentWidth = Mathf.Lerp(from: currentWidth, to: targetWidth, weight: (float)delta * lerpSpeed);
 			UpdateValueWidth();
 		}
 		if (flashTime > 0)
@@ -68,20 +64,13 @@ partial class PropertyDrawerNode : Control
 			UpdateFlashColor();
 		}
 	}
-	public void Flash()
-	{
-		flashTime = flashDuration;
-	}
+	public void Flash() => flashTime = flashDuration;
 	void UpdateFlashColor()
 	{
 		if (flashTime > 0)
-		{
 			Modulate = GameColors.hurtFlash;
-		}
 		else
-		{
 			Modulate = Colors.White;
-		}
 	}
 	void UpdateTitle()
 	{

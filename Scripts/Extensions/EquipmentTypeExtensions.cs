@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using RealismCombat.Data;
 namespace RealismCombat.Extensions;
 static class EquipmentTypeExtensions
@@ -29,7 +27,7 @@ static class EquipmentTypeExtensions
 		if ((type & EquipmentType.LegLiner) != 0) parts.Add("腿甲内衬");
 		if ((type & EquipmentType.LegMidLayer) != 0) parts.Add("腿甲中层");
 		if ((type & EquipmentType.LegOuter) != 0) parts.Add("腿甲外层");
-		return parts.Count == 0 ? "未知类型" : string.Join("或", parts);
+		return parts.Count == 0 ? "未知类型" : string.Join(separator: "或", values: parts);
 	}
 	public static string GetShortName(this EquipmentType type)
 	{
@@ -55,7 +53,6 @@ static class EquipmentTypeExtensions
 		if ((type & EquipmentType.LegLiner) != 0) parts.Add("内衬");
 		if ((type & EquipmentType.LegMidLayer) != 0) parts.Add("中层");
 		if ((type & EquipmentType.LegOuter) != 0) parts.Add("外层");
-		return parts.Count == 0 ? "未知类型" : string.Join("或", parts);
+		return parts.Count == 0 ? "未知类型" : string.Join(separator: "或", values: parts);
 	}
 }
-

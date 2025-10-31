@@ -81,7 +81,8 @@ public partial class MenuDialogue : Control
 			Select((index - 1 + container.GetChildCount()) % container.GetChildCount());
 		else if (moveDown)
 			Select((index + 1) % container.GetChildCount());
-		else if (accept) Confirm(index);
+		else if (accept)
+			Confirm(index);
 		else if (cancel && returnOptionIndex.HasValue) Confirm(returnOptionIndex.Value);
 	}
 	public override void _Process(double delta)

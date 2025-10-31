@@ -26,7 +26,7 @@ public partial class ResourceTableExporterPlugin : EditorPlugin
 	const string audiosDirectory = "res://Audios/";
 	const string autogenRegionName = "autogen_scenes";
 	const string autogenAudiosRegionName = "autogen_audios";
-	static readonly string[] audioExtensions = { ".mp3", ".ogg", ".wav" };
+	static readonly string[] audioExtensions = { ".mp3", ".ogg", ".wav", };
 	static void ResolveNameConflicts(List<SceneInfo> sceneFiles)
 	{
 		var nameCount = new Dictionary<string, int>();
@@ -248,7 +248,7 @@ public partial class ResourceTableExporterPlugin : EditorPlugin
 			}
 			else if (fileName.EndsWith(".tscn"))
 			{
-				var constantName = GenerateConstantName(fullPath, scenesDirectory);
+				var constantName = GenerateConstantName(godotPath: fullPath, baseDirectory: scenesDirectory);
 				sceneFiles.Add(new()
 				{
 					ConstantName = constantName,
@@ -290,7 +290,7 @@ public partial class ResourceTableExporterPlugin : EditorPlugin
 			}
 			else if (IsAudioFile(fileName))
 			{
-				var constantName = GenerateConstantName(fullPath, audiosDirectory);
+				var constantName = GenerateConstantName(godotPath: fullPath, baseDirectory: audiosDirectory);
 				audioFiles.Add(new()
 				{
 					ConstantName = constantName,
@@ -304,7 +304,7 @@ public partial class ResourceTableExporterPlugin : EditorPlugin
 	bool IsAudioFile(string fileName)
 	{
 		foreach (var ext in audioExtensions)
-			if (fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+			if (fileName.EndsWith(value: ext, comparisonType: StringComparison.OrdinalIgnoreCase))
 				return true;
 		return false;
 	}

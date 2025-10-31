@@ -1,5 +1,4 @@
 using Godot;
-using RealismCombat.Nodes;
 namespace RealismCombat.Nodes.Components;
 partial class PrinterLabelNode : RichTextLabel
 {
@@ -21,10 +20,7 @@ partial class PrinterLabelNode : RichTextLabel
 		time -= currentInterval;
 		if (time > 0) time = 0;
 		VisibleCharacters += 1;
-		if (root != null && Printing)
-		{
-			root.PlaySoundEffect(AudioTable.retroclick236673);
-		}
+		if (root != null && Printing) root.PlaySoundEffect(AudioTable.retroclick236673);
 		if (!Printing) SetProcess(false);
 	}
 	public void Show(string text)

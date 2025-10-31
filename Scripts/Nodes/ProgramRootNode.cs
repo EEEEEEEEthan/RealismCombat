@@ -40,7 +40,6 @@ public partial class ProgramRootNode : Node
 				},
 			};
 			if (File.Exists(Persistant.saveDataPath))
-			{
 				options.Add(new()
 				{
 					option = "读档",
@@ -66,7 +65,6 @@ public partial class ProgramRootNode : Node
 					},
 					available = true,
 				});
-			}
 			options.Add(new()
 			{
 				option = "退出",
@@ -91,6 +89,7 @@ public partial class ProgramRootNode : Node
 	{
 		public GameState(ProgramRootNode programRootNode) : base(programRootNode) => programRootNode.state = this;
 	}
+	const int MaxSoundEffectPlayers = 16;
 	static readonly IReadOnlyDictionary<string, string> arguments;
 	static ProgramRootNode()
 	{
@@ -138,11 +137,10 @@ public partial class ProgramRootNode : Node
 	public State state = null!;
 	[Export] public Container dialogues = null!;
 	readonly McpHandler? mcpHandler;
-	GenericDialogue? currentPopMessage;
-	public bool HadClientConnected { get; private set; }
-	AudioStreamPlayer bgmPlayer = null!;
 	readonly List<AudioStreamPlayer> soundEffectPlayers = new();
-	const int MaxSoundEffectPlayers = 16;
+	GenericDialogue? currentPopMessage;
+	AudioStreamPlayer bgmPlayer = null!;
+	public bool HadClientConnected { get; private set; }
 	ProgramRootNode()
 	{
 		if (arguments.TryGetValue(key: "port", value: out var portText))
@@ -157,8 +155,7 @@ public partial class ProgramRootNode : Node
 				{
 					HadClientConnected = true;
 					// 如果当前有弹窗且未设置自动继续，在工具连接后启用自动继续
-					if (currentPopMessage != null && currentPopMessage.autoContinue <= 0)
-						currentPopMessage.autoContinue = 1.5f;
+					if (currentPopMessage != null && currentPopMessage.autoContinue <= 0) currentPopMessage.autoContinue = 1.5f;
 				}
 				void onClientDisconnected()
 				{
@@ -244,10 +241,7 @@ public partial class ProgramRootNode : Node
 	public void PlayMusic(string audioPath)
 	{
 		var audioStream = GD.Load<AudioStream>(audioPath);
-		if (audioStream is AudioStreamMP3 mp3Stream)
-		{
-			mp3Stream.Loop = true;
-		}
+		if (audioStream is AudioStreamMP3 mp3Stream) mp3Stream.Loop = true;
 		bgmPlayer.Stream = audioStream;
 		bgmPlayer.Play();
 	}
@@ -261,12 +255,8 @@ public partial class ProgramRootNode : Node
 	AudioStreamPlayer GetAvailableSoundEffectPlayer()
 	{
 		foreach (var player in soundEffectPlayers)
-		{
 			if (!player.Playing)
-			{
 				return player;
-			}
-		}
 		if (soundEffectPlayers.Count < MaxSoundEffectPlayers)
 		{
 			var newPlayer = new AudioStreamPlayer();

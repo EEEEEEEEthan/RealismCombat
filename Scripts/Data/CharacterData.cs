@@ -125,9 +125,9 @@ public class BodyPartData : IItemContainer
 {
 	public static readonly IReadOnlyList<BodyPartCode> allBodyParts = Enum.GetValues<BodyPartCode>();
 	public readonly BodyPartCode id;
+	public readonly SlotData[] slots;
 	public int hp = 10;
 	public int maxHp = 10;
-	public readonly SlotData[] slots;
 	public IReadOnlyList<ItemData?> items => slots.Select(s => s.item).ToList().AsReadOnly();
 	public event Action? ItemsChanged;
 	public BodyPartData(BodyPartCode id)
@@ -138,7 +138,7 @@ public class BodyPartData : IItemContainer
 		for (var i = 0; i < capacity; i++)
 		{
 			var allowedTypes = id.GetAllowedTypes(slotIndex: i);
-			slots[i] = new SlotData(allowedTypes: allowedTypes);
+			slots[i] = new(allowedTypes: allowedTypes);
 		}
 	}
 	public BodyPartData(DataVersion version, BinaryReader reader)
@@ -151,14 +151,11 @@ public class BodyPartData : IItemContainer
 			var slotCount = reader.ReadInt32();
 			var capacity = id.GetSlotCapacity();
 			slots = new SlotData[capacity];
-			for (var i = 0; i < slotCount && i < capacity; ++i)
-			{
-				slots[i] = new(version: version, reader: reader);
-			}
+			for (var i = 0; i < slotCount && i < capacity; ++i) slots[i] = new(version: version, reader: reader);
 			for (var i = slotCount; i < capacity; i++)
 			{
 				var allowedTypes = id.GetAllowedTypes(slotIndex: i);
-				slots[i] = new SlotData(allowedTypes: allowedTypes);
+				slots[i] = new(allowedTypes: allowedTypes);
 			}
 		}
 	}
@@ -170,21 +167,16 @@ public class BodyPartData : IItemContainer
 			writer.Write(hp);
 			writer.Write(maxHp);
 			writer.Write(slots.Length);
-			foreach (var slot in slots)
-			{
-				slot.Serialize(writer);
-			}
+			foreach (var slot in slots) slot.Serialize(writer);
 		}
 	}
 	public void SetSlot(int index, ItemData? value)
 	{
 		if (index < 0 || index >= slots.Length) throw new ArgumentOutOfRangeException(nameof(index));
-		if (!slots[index].CanPlace(value))
-		{
-			throw new InvalidOperationException($"物品类型 {value?.itemId} 不允许放入此槽位");
-		}
+		if (!slots[index].CanPlace(value)) throw new InvalidOperationException($"物品类型 {value?.itemId} 不允许放入此槽位");
 		slots[index].item = value;
 		ItemsChanged?.Invoke();
 	}
-	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slots)}={slots.Length})";
+	public override string ToString() =>
+		$"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slots)}={slots.Length})";
 }

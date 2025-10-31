@@ -212,18 +212,13 @@ public partial class CombatNode : Node
 				};
 				var equippedItems = new List<string>();
 				foreach (var slot in bodyPartData.slots)
-				{
 					if (slot.item != null)
 					{
-						var itemName = ItemConfig.Configs.TryGetValue(slot.item.itemId, out var config) ? config.name : $"物品{slot.item.itemId}";
+						var itemName = ItemConfig.Configs.TryGetValue(key: slot.item.itemId, value: out var config) ? config.name : $"物品{slot.item.itemId}";
 						equippedItems.Add(itemName);
 					}
-				}
-				if (equippedItems.Count == 0)
-				{
-					return string.Empty;
-				}
-				return $"[{string.Join("][", equippedItems)}]";
+				if (equippedItems.Count == 0) return string.Empty;
+				return $"[{string.Join(separator: "][", values: equippedItems)}]";
 			}
 			void selectAttackerBody()
 			{
@@ -238,7 +233,7 @@ public partial class CombatNode : Node
 				{
 					var bodyPart = b;
 					var available = simulate.ValidAttackerBodyPart(bodyPart: bodyPart, error: out var error);
-					var equipmentText = GetBodyPartEquipmentText(attacker, bodyPart);
+					var equipmentText = GetBodyPartEquipmentText(character: attacker, bodyPart: bodyPart);
 					options.Add(new()
 					{
 						available = available,
@@ -296,7 +291,7 @@ public partial class CombatNode : Node
 				{
 					var bodyPart = b;
 					var available = simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out var error);
-					var equipmentText = GetBodyPartEquipmentText(defender, bodyPart);
+					var equipmentText = GetBodyPartEquipmentText(character: defender, bodyPart: bodyPart);
 					options.Add(new()
 					{
 						available = available,
