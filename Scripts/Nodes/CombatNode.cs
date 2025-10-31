@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Godot;
 using RealismCombat.Data;
 using RealismCombat.Nodes.Dialogues;
@@ -397,6 +398,13 @@ public partial class CombatNode : Node
 	public class CharacterTurnActionState : State
 	{
 		public const byte serializeId = 2;
+		enum ReactionChoice
+		{
+			None,
+			Block,
+			Dodge,
+			Hold,
+		}
 		public new static CharacterTurnActionState Load(CombatNode combatNode)
 		{
 			using var stream = new MemoryStream(combatNode.combatData.stateData!);
@@ -426,6 +434,15 @@ public partial class CombatNode : Node
 		}
 		async void Run()
 		{
+			async Task FinishAttackWithoutDamage()
+			{
+				defenderNode.IsActing = false;
+				var actionPointCost = simulateResult.actionPoint;
+				attacker.ActionPoint -= actionPointCost;
+				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
+				attackerNode.IsActing = false;
+				_ = new RoundInProgressState(combatNode);
+			}
 			try
 			{
 				var simulate = new ActionSimulate(combatNode.combatData)
@@ -455,6 +472,36 @@ public partial class CombatNode : Node
 				};
 				await combatNode.gameNode.Root.PopMessage(
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
+				if (defender.reaction > 0 && defender.PlayerControlled)
+				{
+					var reactionDecision = await AskPlayerReactionAsync(defender: defender, targetBodyPart: action.defenderBody);
+					switch (reactionDecision.choice)
+					{
+						case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
+						{
+							defender.reaction = Math.Max(0, defender.reaction - 1);
+							var blockPart = reactionDecision.blockBodyPart.Value;
+							await combatNode.gameNode.Root.PopMessage($"{defender.name}用{blockPart.GetName()}成功格挡，未受伤害!");
+							await FinishAttackWithoutDamage();
+							return;
+						}
+						case ReactionChoice.Dodge:
+						{
+							defender.reaction = Math.Max(0, defender.reaction - 1);
+							var dodgeSucceeded = GD.Randf() < 0.5f;
+							if (dodgeSucceeded)
+							{
+								await combatNode.gameNode.Root.PopMessage($"{defender.name}成功闪避，未受伤害!");
+								await FinishAttackWithoutDamage();
+								return;
+							}
+							await combatNode.gameNode.Root.PopMessage($"{defender.name}试图闪避，但未能成功!");
+							break;
+						}
+						case ReactionChoice.Hold:
+							break;
+					}
+				}
 				var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
@@ -508,6 +555,103 @@ public partial class CombatNode : Node
 			{
 				Log.PrintException(e);
 				combatNode.gameNode.Root.McpRespond();
+			}
+		}
+		async Task FinishAttackWithoutDamage()
+		{
+			defenderNode.IsActing = false;
+			var actionPointCost = simulateResult.actionPoint;
+			attacker.ActionPoint -= actionPointCost;
+			await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
+			attackerNode.IsActing = false;
+			_ = new RoundInProgressState(combatNode);
+		}
+		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(CharacterData defender, BodyPartCode targetBodyPart)
+		{
+			while (true)
+			{
+				var choice = ReactionChoice.None;
+				var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
+				reactionDialogue.Initialize(new DialogueData
+				{
+					title = $"{defender.name}的应对选择",
+					options = new List<DialogueOptionData>
+					{
+						new()
+						{
+							option = "格挡",
+							description = "消耗1点反应，选择部位格挡免伤",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Block;
+								reactionDialogue.QueueFree();
+							},
+							available = true,
+						},
+						new()
+						{
+							option = "闪避",
+							description = "消耗1点反应，50%概率闪避",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Dodge;
+								reactionDialogue.QueueFree();
+							},
+							available = true,
+						},
+						new()
+						{
+							option = "硬抗",
+							description = "不使用反应，直接承受攻击",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Hold;
+								reactionDialogue.QueueFree();
+							},
+							available = true,
+						},
+					},
+				});
+				await reactionDialogue;
+				switch (choice)
+				{
+					case ReactionChoice.Block:
+					{
+						BodyPartCode? selected = null;
+						var blockDialogue = combatNode.gameNode.Root.CreateDialogue();
+						var options = new List<DialogueOptionData>();
+						foreach (var bodyPart in BodyPartData.allBodyParts)
+						{
+							var optionPart = bodyPart;
+							var isTarget = optionPart == targetBodyPart;
+							options.Add(new DialogueOptionData
+							{
+								option = optionPart.GetName(),
+								description = isTarget ? "格挡该部位，免疫本次伤害" : "只能格挡当前受击部位",
+								onConfirm = () =>
+								{
+									selected = optionPart;
+									blockDialogue.QueueFree();
+								},
+								available = isTarget,
+							});
+						}
+						blockDialogue.Initialize(new DialogueData
+						{
+							title = $"{defender.name}选择格挡部位",
+							options = options,
+						}, onReturn: () => { selected = null; }, returnDescription: "返回选择应对方式");
+						await blockDialogue;
+						if (selected.HasValue) return (ReactionChoice.Block, selected);
+						continue;
+					}
+					case ReactionChoice.Dodge:
+						return (ReactionChoice.Dodge, null);
+					case ReactionChoice.Hold:
+						return (ReactionChoice.Hold, null);
+					default:
+						continue;
+				}
 			}
 		}
 	}
