@@ -202,10 +202,18 @@ public partial class ProgramRootNode : Node
 	{
 		mcpHandler?.Update();
 		var count = dialogues.GetChildCount();
-		for (var i = count; i-- > 0;)
+		for (var i = 0; i < count; i++)
 		{
 			var node = dialogues.GetChild(i);
-			if (node is MenuDialogue dialogue) dialogue.Active = i == count - 1;
+			if (node is MenuDialogue dialogue)
+			{
+				dialogue.Active = i == count - 1;
+				const float fullWidth = 16.0f;
+				const float collapsedWidth = 0.0f;
+				const int keepVisibleCount = 2;
+				var visibleFromIndex = Math.Max(0, count - keepVisibleCount);
+				dialogue.SetTargetWidth(i >= visibleFromIndex ? fullWidth : collapsedWidth);
+			}
 		}
 	}
 	public MenuDialogue CreateDialogue()

@@ -41,6 +41,9 @@ public partial class MenuDialogue : Control
 	Tween? shakeTween;
 	Vector2? titleControlOriginalPosition;
 	int? returnOptionIndex;
+	float targetWidth;
+	float currentWidth;
+	const float widthTransitionSpeed = 10.0f;
 	public bool Active
 	{
 		get => active;
@@ -90,6 +93,11 @@ public partial class MenuDialogue : Control
 		if (container.GetChildCount() == 0) return;
 		arrow.Position = container.GetChild<Control>(index).Position with { X = -6, };
 		arrow.SelfModulate = Input.IsAnythingPressed() && Active ? GameColors.activeControl : GameColors.normalControl;
+		if (Mathf.Abs(currentWidth - targetWidth) > 0.1f)
+		{
+			currentWidth = Mathf.Lerp(from: currentWidth, to: targetWidth, weight: (float)delta * widthTransitionSpeed);
+			CustomMinimumSize = CustomMinimumSize with { X = currentWidth, };
+		}
 	}
 	public override void _ExitTree()
 	{
@@ -121,6 +129,7 @@ public partial class MenuDialogue : Control
 		this.index = index;
 	}
 	public TaskAwaiter<int> GetAwaiter() => completionSource.Task.GetAwaiter();
+	public void SetTargetWidth(float width) => targetWidth = width;
 	public void Initialize(DialogueData data, bool active = true, Action? onReturn = null, string? returnDescription = null)
 	{
 		this.data = data;
@@ -151,6 +160,8 @@ public partial class MenuDialogue : Control
 		foreach (var optionData in this.data.options) AddOption(optionData);
 		UpdateTitleControl();
 		Active = active;
+		currentWidth = 0;
+		CustomMinimumSize = CustomMinimumSize with { X = 0, };
 	}
 	void ShakeTitleControl()
 	{
