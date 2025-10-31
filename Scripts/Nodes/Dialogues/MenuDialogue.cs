@@ -40,6 +40,7 @@ public partial class MenuDialogue : Control
 	bool active;
 	Tween? shakeTween;
 	Vector2? titleControlOriginalPosition;
+	int? returnOptionIndex;
 	public bool Active
 	{
 		get => active;
@@ -75,11 +76,13 @@ public partial class MenuDialogue : Control
 		var moveUp = Input.IsActionJustPressed("ui_up");
 		var moveDown = Input.IsActionJustPressed("ui_down");
 		var accept = Input.IsActionJustPressed("ui_accept");
+		var cancel = Input.IsActionJustPressed("ui_cancel");
 		if (moveUp)
 			Select((index - 1 + container.GetChildCount()) % container.GetChildCount());
 		else if (moveDown)
 			Select((index + 1) % container.GetChildCount());
 		else if (accept) Confirm(index);
+		else if (cancel && returnOptionIndex.HasValue) Confirm(returnOptionIndex.Value);
 	}
 	public override void _Process(double delta)
 	{
@@ -136,6 +139,11 @@ public partial class MenuDialogue : Control
 			};
 			var optionsList = new List<DialogueOptionData>(data.options) { returnOption, };
 			this.data = data with { options = optionsList, };
+			returnOptionIndex = this.data.options.Count - 1;
+		}
+		else
+		{
+			returnOptionIndex = null;
 		}
 		if (this.data.options.Count < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
 		if (this.data.title != null) title.Text = this.data.title;
