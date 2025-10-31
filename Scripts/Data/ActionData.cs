@@ -35,3 +35,26 @@ public record ActionData
 		}
 	}
 }
+public enum ActionCode
+{
+	StraightPunch,
+	HookPunch,
+	Swing,
+	Thrust,
+	Kick,
+	ElbowStrike,
+}
+public static class ActionCodeExtensions
+{
+	public static string GetName(this ActionCode motion) =>
+		motion switch
+		{
+			ActionCode.StraightPunch => "冲拳",
+			ActionCode.HookPunch => "勾拳",
+			ActionCode.Swing => "挥砍",
+			ActionCode.Thrust => "刺击",
+			ActionCode.Kick => "踢",
+			ActionCode.ElbowStrike => "肘击",
+			_ => "未知动作",
+		};
+}
