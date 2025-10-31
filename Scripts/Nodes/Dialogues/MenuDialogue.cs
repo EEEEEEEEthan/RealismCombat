@@ -117,12 +117,29 @@ public partial class MenuDialogue : PanelContainer
 		this.index = index;
 	}
 	public TaskAwaiter<int> GetAwaiter() => completionSource.Task.GetAwaiter();
-	public void Initialize(DialogueData data, bool active = true)
+	public void Initialize(DialogueData data, bool active = true, Action? onReturn = null, string? returnDescription = null)
 	{
 		this.data = data;
-		if (data.options.Count < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
-		if (data.title != null) title.Text = data.title;
-		foreach (var optionData in data.options) AddOption(optionData);
+		if (onReturn != null)
+		{
+			var returnOption = new DialogueOptionData
+			{
+				option = "返回",
+				description = returnDescription,
+				onPreview = () => { },
+				onConfirm = () =>
+				{
+					QueueFree();
+					onReturn();
+				},
+				available = true,
+			};
+			var optionsList = new List<DialogueOptionData>(data.options) { returnOption };
+			this.data = data with { options = optionsList };
+		}
+		if (this.data.options.Count < 1) throw new ArgumentException("至少需要一个选项才能显示菜单对话框");
+		if (this.data.title != null) title.Text = this.data.title;
+		foreach (var optionData in this.data.options) AddOption(optionData);
 		UpdateTitleControl();
 		Active = active;
 	}

@@ -176,22 +176,11 @@ public partial class GameNode : Node
 					});
 				}
 			}
-			options.Add(new()
-			{
-				option = "返回",
-				description = "返回游戏菜单",
-				onPreview = () => { },
-				onConfirm = () =>
-				{
-					inventoryDialogue?.QueueFree();
-				},
-				available = true,
-			});
 			inventoryDialogue.Initialize(new()
 			{
 				title = "物品栏",
 				options = options,
-			});
+			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
 		}
 		static void ShowEquipmentMenu(GameNode gameNode)
 		{
@@ -214,22 +203,11 @@ public partial class GameNode : Node
 					available = true,
 				});
 			}
-			options.Add(new()
-			{
-				option = "返回",
-				description = "返回游戏菜单",
-				onPreview = () => { },
-				onConfirm = () =>
-				{
-					equipmentDialogue?.QueueFree();
-				},
-				available = true,
-			});
 			equipmentDialogue.Initialize(new()
 			{
 				title = "装备",
 				options = options,
-			});
+			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
 		}
 		static void ShowSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue)
 		{
@@ -287,22 +265,11 @@ public partial class GameNode : Node
 					});
 				}
 			}
-			options.Add(new()
-			{
-				option = "返回",
-				description = "返回装备菜单",
-				onPreview = () => { },
-				onConfirm = () =>
-				{
-					slotDialogue?.QueueFree();
-				},
-				available = true,
-			});
 			slotDialogue.Initialize(new()
 			{
 				title = $"{bodyPart.id.GetName()} - 选择物品",
 				options = options,
-			});
+			}, onReturn: () => { }, returnDescription: "返回装备菜单");
 		}
 		static void ShowEquippedSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, ItemData item)
 		{
@@ -335,17 +302,6 @@ public partial class GameNode : Node
 					});
 				}
 			}
-			options.Add(new()
-			{
-				option = "返回",
-				description = "返回上级菜单",
-				onPreview = () => { },
-				onConfirm = () =>
-				{
-					slotDialogue?.QueueFree();
-				},
-				available = true,
-			});
 			var hasNonEmptySlot = item.slots.Length > 0 && item.slots.Any(slot => slot != null);
 			if (!hasNonEmptySlot)
 			{
@@ -372,7 +328,7 @@ public partial class GameNode : Node
 			{
 				title = $"{bodyPart.id.GetName()} - {GetItemName(item.itemId)}",
 				options = options,
-			});
+			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
 		static void ShowEmptyItemSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, ItemData item, int slotIndex, MenuDialogue slotDialogue)
 		{
@@ -419,22 +375,11 @@ public partial class GameNode : Node
 					});
 				}
 			}
-			options.Add(new()
-			{
-				option = "返回",
-				description = "返回上级菜单",
-				onPreview = () => { },
-				onConfirm = () =>
-				{
-					itemSlotDialogue?.QueueFree();
-				},
-				available = true,
-			});
 			itemSlotDialogue.Initialize(new()
 			{
 				title = $"槽位{slotIndex + 1} - 选择物品",
 				options = options,
-			});
+			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
 		static void ShowEquippedItemSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, ItemData item, int slotIndex, MenuDialogue slotDialogue, ItemData slotItem)
 		{
@@ -467,17 +412,6 @@ public partial class GameNode : Node
 					});
 				}
 			}
-			options.Add(new()
-			{
-				option = "返回",
-				description = "返回上级菜单",
-				onPreview = () => { },
-				onConfirm = () =>
-				{
-					itemSlotDialogue?.QueueFree();
-				},
-				available = true,
-			});
 			var hasNonEmptySlot = slotItem.slots.Length > 0 && slotItem.slots.Any(slot => slot != null);
 			if (!hasNonEmptySlot)
 			{
@@ -502,7 +436,7 @@ public partial class GameNode : Node
 			{
 				title = $"槽位{slotIndex + 1} - {GetItemName(slotItem.itemId)}",
 				options = options,
-			});
+			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
 	}
 	public class CombatState : State
