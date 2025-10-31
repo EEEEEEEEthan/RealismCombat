@@ -183,27 +183,39 @@ public partial class CombatNode : Node
 			var characterIndex = reader.ReadByte();
 			return new(combatNode: combatNode, characterIndex: characterIndex);
 		}
-		public readonly CharacterData character;
+		readonly byte characterIndex;
+		bool run;
+		public CharacterData Character => combatNode.combatData.characters[characterIndex];
 		public CharacterTurnState(CombatNode combatNode, byte characterIndex) : base(combatNode)
 		{
 			using var stream = new MemoryStream();
 			using var writer = new BinaryWriter(stream);
-			writer.Write(characterIndex);
+			writer.Write(this.characterIndex = characterIndex);
 			combatNode.combatData.stateData = stream.GetBuffer();
-			character = combatNode.combatData.characters[characterIndex];
 			combatNode.CurrentState = this;
 			combatNode.gameNode.Save();
 			combatNode.gameNode.Root.PlaySoundEffect(AudioTable.selection3);
-			var attackerNode = combatNode.GetCharacterNode(character);
-			if (attackerNode != null) attackerNode.IsActing = true;
-			if (character.PlayerControlled)
-				HandlePlayerTurn(combatNode: combatNode, attacker: character, attackerIndex: characterIndex);
-			else
-				HandleBotTurn(combatNode: combatNode, attacker: character, attackerIndex: characterIndex);
+			var attackerNode = combatNode.GetCharacterNode(Character);
+			attackerNode.IsActing = true;
 		}
-		public override void Update(double deltaTime) { }
-		void HandlePlayerTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
+		public override void Update(double deltaTime)
 		{
+			if (!run)
+			{
+				run = true;
+				Run();
+			}
+		}
+		void Run()
+		{
+			if (Character.PlayerControlled)
+				HandlePlayerTurn(combatNode: combatNode, attacker: Character, attackerIndex: characterIndex);
+			else
+				HandleBotTurn(combatNode: combatNode, attacker: Character, attackerIndex: characterIndex);
+		}
+		async void HandlePlayerTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
+		{
+			await combatNode.ToSignal(source: combatNode.GetTree(), signal: SceneTree.SignalName.ProcessFrame);
 			var programRoot = combatNode.gameNode.Root;
 			var simulate = new ActionSimulate(this.combatNode.combatData)
 			{
@@ -385,7 +397,7 @@ public partial class CombatNode : Node
 	public class CharacterTurnActionState : State
 	{
 		public const byte serializeId = 2;
-		public static CharacterTurnActionState Load(CombatNode combatNode)
+		public new static CharacterTurnActionState Load(CombatNode combatNode)
 		{
 			using var stream = new MemoryStream(combatNode.combatData.stateData!);
 			using var reader = new BinaryReader(stream);
@@ -393,6 +405,7 @@ public partial class CombatNode : Node
 			return new(combatNode: combatNode, action: actionData);
 		}
 		public readonly ActionData action;
+		bool run;
 		public CharacterTurnActionState(CombatNode combatNode, ActionData action) : base(combatNode)
 		{
 			using var stream = new MemoryStream();
@@ -401,9 +414,16 @@ public partial class CombatNode : Node
 			combatNode.combatData.stateData = stream.GetBuffer();
 			this.action = action;
 			combatNode.CurrentState = this;
-			Run();
+			combatNode.gameNode.Save();
 		}
-		public override void Update(double deltaTime) { }
+		public override void Update(double deltaTime)
+		{
+			if (!run)
+			{
+				run = true;
+				Run();
+			}
+		}
 		async void Run()
 		{
 			try
@@ -419,8 +439,10 @@ public partial class CombatNode : Node
 				var simulateResult = simulate.Simulate();
 				var attacker = combatNode.combatData.characters[action.attackerIndex];
 				var defender = combatNode.combatData.characters[action.defenderIndex];
+				var attackerNode = combatNode.GetCharacterNode(attacker);
 				var defenderNode = combatNode.GetCharacterNode(defender);
-				if (defenderNode != null) defenderNode.IsActing = true;
+				attackerNode.IsActing = true;
+				defenderNode.IsActing = true;
 				var targetBodyPart = action.defenderBody switch
 				{
 					BodyPartCode.Head => defender.head,
@@ -436,14 +458,11 @@ public partial class CombatNode : Node
 				var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
-				if (defenderNode != null)
-				{
-					defenderNode.Shake();
-					var bodyPartDrawer = defenderNode.GetBodyPartDrawer(action.defenderBody);
-					bodyPartDrawer?.Flash();
-				}
+				defenderNode.Shake();
+				var bodyPartDrawer = defenderNode.GetBodyPartDrawer(action.defenderBody);
+				bodyPartDrawer?.Flash();
 				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
-				if (defenderNode != null) defenderNode.IsActing = false;
+				defenderNode.IsActing = false;
 				if (defender.Dead)
 				{
 					await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
@@ -482,8 +501,7 @@ public partial class CombatNode : Node
 				var actionPoint = simulateResult.actionPoint;
 				attacker.ActionPoint -= actionPoint;
 				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
-				var attackerNode = combatNode.GetCharacterNode(attacker);
-				if (attackerNode != null) attackerNode.IsActing = false;
+				attackerNode.IsActing = false;
 				_ = new RoundInProgressState(combatNode);
 			}
 			catch (Exception e)
@@ -552,5 +570,5 @@ public partial class CombatNode : Node
 		await ToSignal(source: tween0, signal: Tween.SignalName.Finished);
 		isEntryAnimationFinished = true;
 	}
-	CharacterNode? GetCharacterNode(CharacterData character) => characterNodes.TryGetValue(key: character, value: out var node) ? node : null;
+	CharacterNode GetCharacterNode(CharacterData character) => characterNodes[character];
 }
