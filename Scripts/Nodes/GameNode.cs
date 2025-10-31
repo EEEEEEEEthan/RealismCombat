@@ -48,10 +48,23 @@ public partial class GameNode : Node
 						onConfirm = () =>
 						{
 							dialogue?.QueueFree();
-							var combatData = new CombatData();
-							var (min, max) = CharacterData.InitialActionPointRange;
-							combatData.characters.Add(new(name: "ethan", team: 0) { ActionPoint = GD.Randf() * (max - min) + min, });
-							combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+							CombatData combatData;
+							if (gameNode.gameData.combatData != null && gameNode.gameData.combatData.characters.Count > 0)
+							{
+								combatData = gameNode.gameData.combatData;
+								var (min, max) = CharacterData.InitialActionPointRange;
+								foreach (var character in combatData.characters)
+								{
+									character.ActionPoint = GD.Randf() * (max - min) + min;
+								}
+							}
+							else
+							{
+								combatData = new CombatData();
+								var (min, max) = CharacterData.InitialActionPointRange;
+								combatData.characters.Add(new(name: "ethan", team: 0) { ActionPoint = GD.Randf() * (max - min) + min, });
+								combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+							}
 							_ = new CombatState(gameNode: gameNode, combatData: combatData);
 						},
 						available = true,
@@ -190,8 +203,15 @@ public partial class GameNode : Node
 			foreach (var bodyPart in character.bodyParts)
 			{
 				var partName = bodyPart.id.GetName();
-				var equippedCount = bodyPart.slots.Count(slot => slot != null);
-				var optionText = equippedCount == 0 ? partName : $"{partName}({equippedCount}/{bodyPart.slots.Length})";
+				var equippedItems = new List<string>();
+				foreach (var slot in bodyPart.slots)
+				{
+					if (slot != null)
+					{
+						equippedItems.Add(GetItemName(slot.itemId));
+					}
+				}
+				var optionText = equippedItems.Count == 0 ? partName : $"{partName}[{string.Join("][", equippedItems)}]";
 				options.Add(new()
 				{
 					option = optionText,
@@ -218,7 +238,9 @@ public partial class GameNode : Node
 			{
 				var slotIndex = i;
 				var slotItem = bodyPart.slots[i];
-				var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : $"槽位{slotIndex + 1}[{GetItemName(slotItem.itemId)}]";
+				var equippedCount = slotItem != null ? slotItem.slots.Count(slot => slot != null) : 0;
+				var totalSlots = slotItem != null ? slotItem.slots.Length : 0;
+				var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : totalSlots > 0 ? $"槽位{slotIndex + 1}({equippedCount}/{totalSlots})" : $"槽位{slotIndex + 1}";
 				options.Add(new()
 				{
 					option = optionText,
@@ -306,7 +328,7 @@ public partial class GameNode : Node
 				{
 					var nestedSlotIndex = i;
 					var nestedSlotItem = slotItem.slots[i];
-					var optionText = nestedSlotItem == null ? $"槽位{nestedSlotIndex + 1}(空)" : $"槽位{nestedSlotIndex + 1}[{GetItemName(nestedSlotItem.itemId)}]";
+					var optionText = nestedSlotItem == null ? "空" : GetItemName(nestedSlotItem.itemId);
 					options.Add(new()
 					{
 						option = optionText,
@@ -417,7 +439,7 @@ public partial class GameNode : Node
 				{
 					var nestedSlotIndex = i;
 					var nestedSlotItem = slotItem.slots[i];
-					var optionText = nestedSlotItem == null ? $"槽位{nestedSlotIndex + 1}(空)" : $"槽位{nestedSlotIndex + 1}[{GetItemName(nestedSlotItem.itemId)}]";
+					var optionText = nestedSlotItem == null ? "空" : GetItemName(nestedSlotItem.itemId);
 					options.Add(new()
 					{
 						option = optionText,

@@ -198,6 +198,33 @@ public partial class CombatNode : Node
 			MenuDialogue? defenderDialogue = null;
 			MenuDialogue? defenderBodyDialogue = null;
 			selectAttackerBody();
+			string GetBodyPartEquipmentText(CharacterData character, BodyPartCode bodyPart)
+			{
+				var bodyPartData = bodyPart switch
+				{
+					BodyPartCode.Head => character.head,
+					BodyPartCode.Chest => character.chest,
+					BodyPartCode.LeftArm => character.leftArm,
+					BodyPartCode.RightArm => character.rightArm,
+					BodyPartCode.LeftLeg => character.leftLeg,
+					BodyPartCode.RightLeg => character.rightLeg,
+					_ => throw new ArgumentOutOfRangeException(),
+				};
+				var equippedItems = new List<string>();
+				foreach (var slot in bodyPartData.slots)
+				{
+					if (slot != null)
+					{
+						var itemName = ItemConfig.Configs.TryGetValue(slot.itemId, out var config) ? config.name : $"物品{slot.itemId}";
+						equippedItems.Add(itemName);
+					}
+				}
+				if (equippedItems.Count == 0)
+				{
+					return string.Empty;
+				}
+				return $"[{string.Join("][", equippedItems)}]";
+			}
 			void selectAttackerBody()
 			{
 				attackerBodyDialogue = programRoot.CreateDialogue();
@@ -211,6 +238,7 @@ public partial class CombatNode : Node
 				{
 					var bodyPart = b;
 					var available = simulate.ValidAttackerBodyPart(bodyPart: bodyPart, error: out var error);
+					var equipmentText = GetBodyPartEquipmentText(attacker, bodyPart);
 					options.Add(new()
 					{
 						available = available,
@@ -220,7 +248,7 @@ public partial class CombatNode : Node
 							simulate.attackerBodyPart = bodyPart;
 							selectDefender();
 						},
-						option = $"{bodyPart.GetName()}",
+						option = $"{bodyPart.GetName()}{equipmentText}",
 					});
 				}
 				attackerBodyDialogue.Initialize(dialogueData);
@@ -268,6 +296,7 @@ public partial class CombatNode : Node
 				{
 					var bodyPart = b;
 					var available = simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out var error);
+					var equipmentText = GetBodyPartEquipmentText(defender, bodyPart);
 					options.Add(new()
 					{
 						available = available,
@@ -287,7 +316,7 @@ public partial class CombatNode : Node
 							combatNode.combatData.lastAction = action;
 							_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 						},
-						option = $"{bodyPart.GetName()}",
+						option = $"{bodyPart.GetName()}{equipmentText}",
 					});
 				}
 				defenderBodyDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderBodyPart = null; }, returnDescription: "返回选择目标角色");
