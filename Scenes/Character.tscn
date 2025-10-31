@@ -12,8 +12,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 7.0
 offset_top = 66.0
-offset_right = -192.0
-offset_bottom = -72.0
+offset_right = -448.0
+offset_bottom = -296.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0y7nr")
@@ -32,7 +32,10 @@ theme_type_variation = &"Team0"
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" node_paths=PackedStringArray("Shadow")]
+[node name="NameBar" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer/NameBar" node_paths=PackedStringArray("Shadow")]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Ethan"
@@ -40,35 +43,49 @@ script = ExtResource("2_677pu")
 Shadow = NodePath("Label")
 metadata/_custom_type_script = "uid://bsnl8117tnmxx"
 
+[node name="ReactionContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/NameBar"]
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 0
+
 [node name="ActionPoint" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-Title = "行动"
+Title = "属性"
+Value = 0.0
 
 [node name="Head" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
+Title = "属性"
+Value = 0.0
 
 [node name="Chest" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-Title = "躯干"
+Title = "属性"
+Value = 0.0
 
 [node name="RightArm" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-Title = "右手"
+Title = "属性"
+Value = 0.0
 
 [node name="LeftArm" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-Title = "左手"
+Title = "属性"
+Value = 0.0
 
 [node name="RightLeg" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-Title = "右腿"
+Title = "属性"
+Value = 0.0
 
 [node name="LeftLeg" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
-Title = "左腿"
+Title = "属性"
+Value = 0.0
 
 [node name="Speed" parent="PanelContainer/VBoxContainer" instance=ExtResource("3_677pu")]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
-Title = "速度"
+Title = "属性"
+Value = 0.0

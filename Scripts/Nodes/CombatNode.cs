@@ -168,6 +168,7 @@ public partial class CombatNode : Node
 				var character = combatNode.combatData.characters[index];
 				if (character.ActionPoint >= 0)
 				{
+					character.reaction += 1;
 					_ = new CharacterTurnState(combatNode: combatNode, characterIndex: index);
 					return;
 				}

@@ -13,6 +13,7 @@ partial class CharacterNode : Control
 		return instance;
 	}
 	PanelContainer panelContainer = null!;
+	HBoxContainer reactionContainer = null!;
 	Label nameLabel = null!;
 	PropertyDrawerNode actionPoint = null!;
 	PropertyDrawerNode speed = null!;
@@ -26,6 +27,7 @@ partial class CharacterNode : Control
 	float currentVerticalOffset;
 	bool isActing;
 	double shakeTime;
+	int currentReactionCount;
 	public CharacterData? CharacterData { get; set; }
 	public bool IsActing
 	{
@@ -51,7 +53,8 @@ partial class CharacterNode : Control
 	public override void _Ready()
 	{
 		panelContainer = GetNode<PanelContainer>("PanelContainer");
-		nameLabel = GetNode<Label>("PanelContainer/VBoxContainer/Title");
+		reactionContainer = GetNode<HBoxContainer>("PanelContainer/VBoxContainer/NameBar/ReactionContainer");
+		nameLabel = GetNode<Label>("PanelContainer/VBoxContainer/NameBar/Title");
 		actionPoint = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/ActionPoint");
 		speed = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/Speed");
 		head = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/Head");
@@ -83,6 +86,21 @@ partial class CharacterNode : Control
 		leftArm.Title = BodyPartCode.LeftArm.GetName();
 		rightLeg.Title = BodyPartCode.RightLeg.GetName();
 		leftLeg.Title = BodyPartCode.LeftLeg.GetName();
+		var targetReactionCount = CharacterData.reaction;
+		var actualChildCount = reactionContainer.GetChildCount();
+		while (actualChildCount < targetReactionCount)
+		{
+			var reactionInstance = GD.Load<PackedScene>(ResourceTable.componentsReaction).Instantiate();
+			reactionContainer.AddChild(reactionInstance);
+			actualChildCount++;
+		}
+		while (actualChildCount > targetReactionCount)
+		{
+			var child = reactionContainer.GetChild(actualChildCount - 1);
+			child.QueueFree();
+			actualChildCount--;
+		}
+		currentReactionCount = actualChildCount;
 		var targetVerticalOffset = 0.0f;
 		if (isActing)
 		{

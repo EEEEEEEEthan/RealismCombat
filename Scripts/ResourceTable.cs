@@ -7,6 +7,7 @@ public static class ResourceTable
 	public const string combat = "res://Scenes/Combat.tscn";
 	public const string componentsOption = "res://Scenes/Components/Option.tscn";
 	public const string componentsPrinterlabel = "res://Scenes/Components/PrinterLabel.tscn";
+	public const string componentsReaction = "res://Scenes/Components/Reaction.tscn";
 	public const string dialoguesGenericdialogue = "res://Scenes/Dialogues/GenericDialogue.tscn";
 	public const string dialoguesMenudialogue = "res://Scenes/Dialogues/MenuDialogue.tscn";
 	public const string game = "res://Scenes/Game.tscn";
@@ -25,6 +26,5 @@ public static class AudioTable
 	public const string retroclick236673 = "res://Audios/retro-click-236673.mp3";
 	public const string retrohurt1236672 = "res://Audios/retro-hurt-1-236672.mp3";
 	public const string selection3 = "res://Audios/selection3.wav";
-	public const string wizardattack26801 = "res://Audios/wizard-attack-26801.mp3";
 	#endregion autogen_audios
 }
