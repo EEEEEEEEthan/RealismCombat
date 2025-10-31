@@ -131,7 +131,10 @@ public partial class GameNode : Node
 			});
 			OnExit = () =>
 			{
-				dialogue?.QueueFree();
+				if (dialogue != null && IsInstanceValid(dialogue) && dialogue.IsInsideTree())
+				{
+					dialogue.QueueFree();
+				}
 			};
 		}
 		static string GetItemName(uint itemId)
