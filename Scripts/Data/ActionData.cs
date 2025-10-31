@@ -7,12 +7,14 @@ public record ActionData
 	public readonly int defenderIndex;
 	public readonly BodyPartCode attackerBody;
 	public readonly BodyPartCode defenderBody;
-	public ActionData(int attackerIndex, BodyPartCode attackerBody, int defenderIndex, BodyPartCode defenderBody)
+	public readonly ActionCode actionCode;
+	public ActionData(int attackerIndex, BodyPartCode attackerBody, int defenderIndex, BodyPartCode defenderBody, ActionCode actionCode)
 	{
 		this.attackerIndex = attackerIndex;
 		this.defenderIndex = defenderIndex;
 		this.attackerBody = attackerBody;
 		this.defenderBody = defenderBody;
+		this.actionCode = actionCode;
 	}
 	public ActionData(DataVersion dataVersion, BinaryReader reader)
 	{
@@ -22,6 +24,7 @@ public record ActionData
 			defenderIndex = reader.ReadInt32();
 			attackerBody = (BodyPartCode)reader.ReadByte();
 			defenderBody = (BodyPartCode)reader.ReadByte();
+			actionCode = (ActionCode)reader.ReadByte();
 		}
 	}
 	public void Serialize(BinaryWriter writer)
@@ -32,6 +35,7 @@ public record ActionData
 			writer.Write(defenderIndex);
 			writer.Write((byte)attackerBody);
 			writer.Write((byte)defenderBody);
+			writer.Write((byte)actionCode);
 		}
 	}
 }

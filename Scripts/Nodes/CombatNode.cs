@@ -20,6 +20,7 @@ public partial class CombatNode : Node
 		public int? defenderIndex;
 		public BodyPartCode? attackerBodyPart;
 		public BodyPartCode? defenderBodyPart;
+		public ActionCode? actionCode;
 		CharacterData Attacker
 		{
 			get
@@ -195,6 +196,7 @@ public partial class CombatNode : Node
 				attackerIndex = attackerIndex,
 			};
 			MenuDialogue? attackerBodyDialogue = null;
+			MenuDialogue? actionCodeDialogue = null;
 			MenuDialogue? defenderDialogue = null;
 			MenuDialogue? defenderBodyDialogue = null;
 			selectAttackerBody();
@@ -241,12 +243,38 @@ public partial class CombatNode : Node
 						onConfirm = () =>
 						{
 							simulate.attackerBodyPart = bodyPart;
-							selectDefender();
+							selectActionCode();
 						},
 						option = $"{bodyPart.GetName()}{equipmentText}",
 					});
 				}
 				attackerBodyDialogue.Initialize(dialogueData);
+			}
+			void selectActionCode()
+			{
+				actionCodeDialogue = programRoot.CreateDialogue();
+				var dialogueData = new DialogueData
+				{
+					title = $"{attacker.name}的回合-选择攻击动作",
+				};
+				var options = new List<DialogueOptionData>();
+				dialogueData.options = options;
+				foreach (ActionCode actionCode in Enum.GetValues<ActionCode>())
+				{
+					var code = actionCode;
+					options.Add(new()
+					{
+						available = true,
+						description = actionCode.GetName(),
+						onConfirm = () =>
+						{
+							simulate.actionCode = code;
+							selectDefender();
+						},
+						option = actionCode.GetName(),
+					});
+				}
+				actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
 			}
 			void selectDefender()
 			{
@@ -275,7 +303,7 @@ public partial class CombatNode : Node
 						option = $"{defender.name}",
 					});
 				}
-				defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择身体部位");
+				defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择攻击动作");
 			}
 			void selectDefenderBody()
 			{
@@ -300,13 +328,15 @@ public partial class CombatNode : Node
 						{
 							simulate.defenderBodyPart = bodyPart;
 							attackerBodyDialogue?.QueueFree();
+							actionCodeDialogue?.QueueFree();
 							defenderDialogue?.QueueFree();
 							defenderBodyDialogue?.QueueFree();
 							var action = new ActionData(
 								attackerIndex: attackerIndex,
 								attackerBody: simulate.attackerBodyPart.Value,
 								defenderIndex: simulate.defenderIndex.Value,
-								defenderBody: simulate.defenderBodyPart.Value
+								defenderBody: simulate.defenderBodyPart.Value,
+								actionCode: simulate.actionCode.Value
 							);
 							combatNode.combatData.lastAction = action;
 							_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
@@ -325,7 +355,8 @@ public partial class CombatNode : Node
 				attackerIndex: attackerIndex,
 				attackerBody: BodyPartCode.RightArm,
 				defenderIndex: targetIndex,
-				defenderBody: BodyPartCode.Head
+				defenderBody: BodyPartCode.Head,
+				actionCode: ActionCode.StraightPunch
 			);
 			combatNode.combatData.lastAction = action;
 			_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
