@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
-public class ItemData
+public class ItemData : IItemContainer
 {
 	public readonly uint itemId;
 	public int count;
 	public readonly ItemData?[] slots;
+	public IReadOnlyList<ItemData?> items => slots;
+	public event Action? ItemsChanged;
 	public ItemData(uint itemId, int count)
 	{
 		this.itemId = itemId;
@@ -53,6 +56,12 @@ public class ItemData
 				}
 			}
 		}
+	}
+	public void SetSlot(int index, ItemData? value)
+	{
+		if (index < 0 || index >= slots.Length) throw new ArgumentOutOfRangeException(nameof(index));
+		slots[index] = value;
+		ItemsChanged?.Invoke();
 	}
 	public override string ToString() => $"{nameof(ItemData)}({nameof(itemId)}={itemId}, {nameof(count)}={count}, {nameof(slots)}={slots.Length})";
 }

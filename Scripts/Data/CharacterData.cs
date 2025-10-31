@@ -109,13 +109,15 @@ public static class BodyPartCodeExtensions
 			_ => 1,
 		};
 }
-public class BodyPartData
+public class BodyPartData : IItemContainer
 {
 	public static readonly IReadOnlyList<BodyPartCode> allBodyParts = Enum.GetValues<BodyPartCode>();
 	public readonly BodyPartCode id;
 	public int hp = 10;
 	public int maxHp = 10;
 	public readonly ItemData?[] slots;
+	public IReadOnlyList<ItemData?> items => slots;
+	public event Action? ItemsChanged;
 	public BodyPartData(BodyPartCode id)
 	{
 		this.id = id;
@@ -163,6 +165,12 @@ public class BodyPartData
 				}
 			}
 		}
+	}
+	public void SetSlot(int index, ItemData? value)
+	{
+		if (index < 0 || index >= slots.Length) throw new ArgumentOutOfRangeException(nameof(index));
+		slots[index] = value;
+		ItemsChanged?.Invoke();
 	}
 	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slots)}={slots.Length})";
 }

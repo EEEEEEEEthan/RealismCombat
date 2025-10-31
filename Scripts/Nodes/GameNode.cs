@@ -199,12 +199,32 @@ public partial class GameNode : Node
 		{
 			var character = GetOrCreatePlayerCharacter(gameNode);
 			var equipmentDialogue = gameNode.Root.CreateDialogue();
+			void RefreshMenu()
+			{
+				if (!IsInstanceValid(equipmentDialogue) || !equipmentDialogue.IsInsideTree()) return;
+				equipmentDialogue.QueueFree();
+				ShowEquipmentMenu(gameNode: gameNode);
+			}
+			foreach (var bodyPart in character.bodyParts)
+			{
+				var container = (IItemContainer)bodyPart;
+				container.ItemsChanged += RefreshMenu;
+			}
+			equipmentDialogue.TreeExited += () =>
+			{
+				foreach (var bodyPart in character.bodyParts)
+				{
+					var container = (IItemContainer)bodyPart;
+					container.ItemsChanged -= RefreshMenu;
+				}
+			};
 			var options = new List<DialogueOptionData>();
 			foreach (var bodyPart in character.bodyParts)
 			{
 				var partName = bodyPart.id.GetName();
+				var container = (IItemContainer)bodyPart;
 				var equippedItems = new List<string>();
-				foreach (var slot in bodyPart.slots)
+				foreach (var slot in container.items)
 				{
 					if (slot != null)
 					{
@@ -219,7 +239,7 @@ public partial class GameNode : Node
 					onPreview = () => { },
 					onConfirm = () =>
 					{
-						ShowBodyPartSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: equipmentDialogue);
+						ShowItemContainerMenu(gameNode: gameNode, container: container, title: partName, parentDialogue: equipmentDialogue, onReturn: () => { }, returnDescription: "返回装备菜单");
 					},
 					available = true,
 				});
@@ -230,17 +250,41 @@ public partial class GameNode : Node
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
 		}
-		static void ShowBodyPartSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue)
+		static void ShowItemContainerMenu(GameNode gameNode, IItemContainer container, string title, MenuDialogue? parentDialogue, Action? onReturn, string? returnDescription)
 		{
-			var slotDialogue = gameNode.Root.CreateDialogue();
+			var containerDialogue = gameNode.Root.CreateDialogue();
+			void RefreshMenu()
+			{
+				if (!IsInstanceValid(containerDialogue) || !containerDialogue.IsInsideTree()) return;
+				containerDialogue.QueueFree();
+				ShowItemContainerMenu(gameNode: gameNode, container: container, title: title, parentDialogue: parentDialogue, onReturn: onReturn, returnDescription: returnDescription);
+			}
+			container.ItemsChanged += RefreshMenu;
+			containerDialogue.TreeExited += () =>
+			{
+				container.ItemsChanged -= RefreshMenu;
+			};
 			var options = new List<DialogueOptionData>();
-			for (var i = 0; i < bodyPart.slots.Length; i++)
+			var isItemData = container is ItemData;
+			for (var i = 0; i < container.items.Count; i++)
 			{
 				var slotIndex = i;
-				var slotItem = bodyPart.slots[i];
-				var equippedCount = slotItem != null ? slotItem.slots.Count(slot => slot != null) : 0;
-				var totalSlots = slotItem != null ? slotItem.slots.Length : 0;
-				var optionText = slotItem == null ? $"槽位{slotIndex + 1}(空)" : totalSlots > 0 ? $"槽位{slotIndex + 1}({equippedCount}/{totalSlots})" : $"槽位{slotIndex + 1}";
+				var slotItem = container.items[i];
+				string optionText;
+				if (slotItem == null)
+				{
+					optionText = "空";
+				}
+				else if (isItemData && slotItem.items.Count > 0)
+				{
+					var equippedCount = slotItem.items.Count(slot => slot != null);
+					var totalSlots = slotItem.items.Count;
+					optionText = $"{GetItemName(slotItem.itemId)}({equippedCount}/{totalSlots})";
+				}
+				else
+				{
+					optionText = GetItemName(slotItem.itemId);
+				}
 				options.Add(new()
 				{
 					option = optionText,
@@ -250,25 +294,32 @@ public partial class GameNode : Node
 					{
 						if (slotItem == null)
 						{
-							ShowEmptyBodyPartSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, slotIndex: slotIndex, slotDialogue: slotDialogue);
+							ShowItemSelectMenu(gameNode: gameNode, container: container, slotIndex: slotIndex, title: title, parentDialogue: parentDialogue, containerDialogue: containerDialogue, onReturn: onReturn, returnDescription: returnDescription);
 						}
 						else
 						{
-							ShowEquippedBodyPartSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: parentDialogue, slotIndex: slotIndex, slotDialogue: slotDialogue, slotItem: slotItem);
+							if (slotItem.items.Count > 0)
+							{
+								ShowItemContainerMenu(gameNode: gameNode, container: slotItem, title: GetItemName(slotItem.itemId), parentDialogue: containerDialogue, onReturn: onReturn, returnDescription: "返回上级菜单");
+							}
+							else
+							{
+								ShowItemUnEquipMenu(gameNode: gameNode, container: container, slotIndex: slotIndex, slotItem: slotItem, title: title, parentDialogue: parentDialogue, containerDialogue: containerDialogue, onReturn: onReturn, returnDescription: returnDescription);
+							}
 						}
 					},
 					available = true,
 				});
 			}
-			slotDialogue.Initialize(new()
+			containerDialogue.Initialize(new()
 			{
-				title = $"{bodyPart.id.GetName()} - 槽位",
+				title = title,
 				options = options,
-			}, onReturn: () => { }, returnDescription: "返回装备菜单");
+			}, onReturn: onReturn, returnDescription: returnDescription);
 		}
-		static void ShowEmptyBodyPartSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, int slotIndex, MenuDialogue slotDialogue)
+		static void ShowItemSelectMenu(GameNode gameNode, IItemContainer container, int slotIndex, string title, MenuDialogue? parentDialogue, MenuDialogue containerDialogue, Action? onReturn, string? returnDescription)
 		{
-			var itemSlotDialogue = gameNode.Root.CreateDialogue();
+			var selectDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
 			if (gameNode.gameData.items.Count == 0)
 			{
@@ -294,7 +345,15 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							bodyPart.slots[slotIndex] = new ItemData(itemId: itemId, count: 1);
+							var newItem = new ItemData(itemId: itemId, count: 1);
+							if (container is BodyPartData bodyPart)
+							{
+								bodyPart.SetSlot(slotIndex, newItem);
+							}
+							else if (container is ItemData itemContainer)
+							{
+								itemContainer.SetSlot(slotIndex, newItem);
+							}
 							if (item.count > 1)
 							{
 								item.count--;
@@ -304,185 +363,56 @@ public partial class GameNode : Node
 								gameNode.gameData.items.Remove(item);
 							}
 							gameNode.Save();
-							itemSlotDialogue?.QueueFree();
-							slotDialogue?.QueueFree();
-							parentDialogue?.QueueFree();
+							selectDialogue?.QueueFree();
+							containerDialogue?.QueueFree();
+							if (parentDialogue != null)
+							{
+								parentDialogue?.QueueFree();
+							}
 						},
 						available = true,
 					});
 				}
 			}
-			itemSlotDialogue.Initialize(new()
+			selectDialogue.Initialize(new()
 			{
-				title = $"{bodyPart.id.GetName()} - 槽位{slotIndex + 1} - 选择物品",
+				title = $"{title} - 选择物品",
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
-		static void ShowEquippedBodyPartSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, int slotIndex, MenuDialogue slotDialogue, ItemData slotItem)
+		static void ShowItemUnEquipMenu(GameNode gameNode, IItemContainer container, int slotIndex, ItemData slotItem, string title, MenuDialogue? parentDialogue, MenuDialogue containerDialogue, Action? onReturn, string? returnDescription)
 		{
-			var itemSlotDialogue = gameNode.Root.CreateDialogue();
+			var unEquipDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
-			if (slotItem.slots.Length > 0)
+			options.Add(new()
 			{
-				for (var i = 0; i < slotItem.slots.Length; i++)
+				option = "卸下",
+				description = "卸下这个装备",
+				onPreview = () => { },
+				onConfirm = () =>
 				{
-					var nestedSlotIndex = i;
-					var nestedSlotItem = slotItem.slots[i];
-					var optionText = nestedSlotItem == null ? "空" : GetItemName(nestedSlotItem.itemId);
-					options.Add(new()
+					AddItemToInventory(gameNode: gameNode, item: slotItem);
+					if (container is BodyPartData bodyPart)
 					{
-						option = optionText,
-						description = null,
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							if (nestedSlotItem == null)
-							{
-								ShowEmptyItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: slotDialogue, item: slotItem, slotIndex: nestedSlotIndex, slotDialogue: itemSlotDialogue);
-							}
-							else
-							{
-								ShowEquippedItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: slotDialogue, item: slotItem, slotIndex: nestedSlotIndex, slotDialogue: itemSlotDialogue, slotItem: nestedSlotItem);
-							}
-						},
-						available = true,
-					});
-				}
-			}
-			var hasNonEmptySlot = slotItem.slots.Length > 0 && slotItem.slots.Any(slot => slot != null);
-			if (!hasNonEmptySlot)
-			{
-				options.Add(new()
-				{
-					option = "卸下",
-					description = "卸下这个装备",
-					onPreview = () => { },
-					onConfirm = () =>
+						bodyPart.SetSlot(slotIndex, null);
+					}
+					else if (container is ItemData itemContainer)
 					{
-						if (bodyPart.slots[slotIndex] != null)
-						{
-							AddItemToInventory(gameNode: gameNode, item: bodyPart.slots[slotIndex]!);
-							bodyPart.slots[slotIndex] = null;
-							gameNode.Save();
-						}
-						itemSlotDialogue?.QueueFree();
-						slotDialogue?.QueueFree();
+						itemContainer.SetSlot(slotIndex, null);
+					}
+					gameNode.Save();
+					unEquipDialogue?.QueueFree();
+					containerDialogue?.QueueFree();
+					if (parentDialogue != null)
+					{
 						parentDialogue?.QueueFree();
-					},
-					available = true,
-				});
-			}
-			itemSlotDialogue.Initialize(new()
+					}
+				},
+				available = true,
+			});
+			unEquipDialogue.Initialize(new()
 			{
-				title = $"{bodyPart.id.GetName()} - 槽位{slotIndex + 1} - {GetItemName(slotItem.itemId)}",
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回上级菜单");
-		}
-		static void ShowEmptyItemSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, ItemData item, int slotIndex, MenuDialogue slotDialogue)
-		{
-			var itemSlotDialogue = gameNode.Root.CreateDialogue();
-			var options = new List<DialogueOptionData>();
-			if (gameNode.gameData.items.Count == 0)
-			{
-				options.Add(new()
-				{
-					option = "没有可装备的物品",
-					description = null,
-					onPreview = () => { },
-					onConfirm = () => { },
-					available = false,
-				});
-			}
-			else
-			{
-				foreach (var inventoryItem in gameNode.gameData.items)
-				{
-					var itemId = inventoryItem.itemId;
-					var itemName = GetItemName(itemId);
-					options.Add(new()
-					{
-						option = $"{itemName} x{inventoryItem.count}",
-						description = null,
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							item.slots[slotIndex] = new ItemData(itemId: itemId, count: 1);
-							if (inventoryItem.count > 1)
-							{
-								inventoryItem.count--;
-							}
-							else
-							{
-								gameNode.gameData.items.Remove(inventoryItem);
-							}
-							gameNode.Save();
-							itemSlotDialogue?.QueueFree();
-							slotDialogue?.QueueFree();
-						},
-						available = true,
-					});
-				}
-			}
-			itemSlotDialogue.Initialize(new()
-			{
-				title = $"槽位{slotIndex + 1} - 选择物品",
-				options = options,
-			}, onReturn: () => { }, returnDescription: "返回上级菜单");
-		}
-		static void ShowEquippedItemSlotMenu(GameNode gameNode, CharacterData character, BodyPartData bodyPart, MenuDialogue parentDialogue, ItemData item, int slotIndex, MenuDialogue slotDialogue, ItemData slotItem)
-		{
-			var itemSlotDialogue = gameNode.Root.CreateDialogue();
-			var options = new List<DialogueOptionData>();
-			if (slotItem.slots.Length > 0)
-			{
-				for (var i = 0; i < slotItem.slots.Length; i++)
-				{
-					var nestedSlotIndex = i;
-					var nestedSlotItem = slotItem.slots[i];
-					var optionText = nestedSlotItem == null ? "空" : GetItemName(nestedSlotItem.itemId);
-					options.Add(new()
-					{
-						option = optionText,
-						description = null,
-						onPreview = () => { },
-						onConfirm = () =>
-						{
-							if (nestedSlotItem == null)
-							{
-								ShowEmptyItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: slotDialogue, item: slotItem, slotIndex: nestedSlotIndex, slotDialogue: itemSlotDialogue);
-							}
-							else
-							{
-								ShowEquippedItemSlotMenu(gameNode: gameNode, character: character, bodyPart: bodyPart, parentDialogue: slotDialogue, item: slotItem, slotIndex: nestedSlotIndex, slotDialogue: itemSlotDialogue, slotItem: nestedSlotItem);
-							}
-						},
-						available = true,
-					});
-				}
-			}
-			var hasNonEmptySlot = slotItem.slots.Length > 0 && slotItem.slots.Any(slot => slot != null);
-			if (!hasNonEmptySlot)
-			{
-				options.Add(new()
-				{
-					option = "卸下",
-					description = "卸下这个装备",
-					onPreview = () => { },
-					onConfirm = () =>
-					{
-						AddItemToInventory(gameNode: gameNode, item: slotItem);
-						item.slots[slotIndex] = null;
-						gameNode.Save();
-						itemSlotDialogue?.QueueFree();
-						slotDialogue?.QueueFree();
-						parentDialogue?.QueueFree();
-					},
-					available = true,
-				});
-			}
-			itemSlotDialogue.Initialize(new()
-			{
-				title = $"槽位{slotIndex + 1} - {GetItemName(slotItem.itemId)}",
+				title = $"{title} - {GetItemName(slotItem.itemId)}",
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}
