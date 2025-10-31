@@ -178,6 +178,7 @@ public partial class CombatNode : Node
 			combatNode.combatData.currentCharacterIndex = characterIndex;
 			combatNode.CurrentState = this;
 			combatNode.gameNode.Save();
+			combatNode.gameNode.Root.PlaySoundEffect(AudioTable.selection3);
 			var attackerNode = combatNode.GetCharacterNode(character);
 			if (attackerNode != null) attackerNode.IsActing = true;
 			if (character.PlayerControlled)
