@@ -94,15 +94,24 @@ public class ItemConfig
 	public uint itemId { get; private set; }
 	public string name { get; private set; }
 	public int slotCapacity { get; private set; }
-	private ItemConfig(uint itemId, string name, int slotCapacity = 0)
+	public EquipmentType equipmentType { get; private set; }
+	private ItemConfig(uint itemId, string name, int slotCapacity = 0, EquipmentType equipmentType = EquipmentType.None)
 	{
 		this.itemId = itemId;
 		this.name = name;
 		this.slotCapacity = slotCapacity;
+		this.equipmentType = equipmentType;
 	}
 	static ItemConfig()
 	{
-		Configs[0] = new ItemConfig(0, "第纳尔", 0);
-		Configs[1] = new ItemConfig(1, "测试装备", 2);
+		Configs[0] = new ItemConfig(0, "第纳尔", 0, EquipmentType.钱);
+		Configs[1] = new ItemConfig(1, "棉质内衬", 0, EquipmentType.胸甲内衬);
+		Configs[2] = new ItemConfig(2, "粗布绵甲", 0, EquipmentType.胸甲外套);
+		Configs[3] = new ItemConfig(3, "皮帽", 0, EquipmentType.头盔);
+		Configs[4] = new ItemConfig(4, "布手套", 0, EquipmentType.护手);
+		Configs[5] = new ItemConfig(5, "短刀", 0, EquipmentType.单手武器 | EquipmentType.刀);
+		Configs[6] = new ItemConfig(6, "长剑", 0, EquipmentType.单手武器 | EquipmentType.剑);
+		Configs[7] = new ItemConfig(7, "双手剑", 0, EquipmentType.双手武器 | EquipmentType.剑);
+		Configs[8] = new ItemConfig(8, "圆盾", 0, EquipmentType.盾);
 	}
 }
