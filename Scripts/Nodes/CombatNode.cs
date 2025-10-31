@@ -475,15 +475,73 @@ public partial class CombatNode : Node
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
 				if (defender.reaction > 0 && defender.PlayerControlled)
 				{
-					var reactionDecision = await AskPlayerReactionAsync(defender: defender, targetBodyPart: action.defenderBody);
+					var reactionDecision = await AskPlayerReactionAsync(defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody);
 					switch (reactionDecision.choice)
 					{
 						case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
 						{
 							defender.reaction = Math.Max(0, defender.reaction - 1);
 							var blockPart = reactionDecision.blockBodyPart.Value;
-							await combatNode.gameNode.Root.PopMessage($"{defender.name}用{blockPart.GetName()}成功格挡，未受伤害!");
-							await FinishAttackWithoutDamage();
+							var originalDamage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
+							var blockDamage = originalDamage / 2;
+							var blockBodyPartData = blockPart switch
+							{
+								BodyPartCode.Head => defender.head,
+								BodyPartCode.Chest => defender.chest,
+								BodyPartCode.LeftArm => defender.leftArm,
+								BodyPartCode.RightArm => defender.rightArm,
+								BodyPartCode.LeftLeg => defender.leftLeg,
+								BodyPartCode.RightLeg => defender.rightLeg,
+								_ => throw new ArgumentOutOfRangeException(),
+							};
+							targetBodyPart.hp -= 0;
+							blockBodyPartData.hp -= blockDamage;
+							combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
+							defenderNode.Shake();
+							var blockBodyPartDrawer = defenderNode.GetBodyPartDrawer(blockPart);
+							blockBodyPartDrawer?.Flash();
+							await combatNode.gameNode.Root.PopMessage($"{defender.name}用{blockPart.GetName()}格挡！{action.defenderBody.GetName()}免伤，{blockPart.GetName()}受到{blockDamage}点伤害!");
+							defenderNode.IsActing = false;
+							if (defender.Dead)
+							{
+								await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
+								combatNode.combatData.characters.RemoveAt(action.defenderIndex);
+								var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
+								var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
+								if (!team0Alive || !team1Alive)
+								{
+									var winner = team0Alive ? "玩家" : "敌人";
+									Log.Print($"战斗结束，{winner}获胜");
+									combatNode.combatData.characters.Clear();
+									var gameNode = combatNode.gameNode;
+									if (!team0Alive)
+									{
+										var root = gameNode.Root;
+										root.PlayMusic(AudioTable.arpegio01Loop45094);
+										await root.PopMessage("玩家队伍全灭，返回主菜单");
+										if (File.Exists(Persistant.saveDataPath))
+										{
+											File.Delete(Persistant.saveDataPath);
+											Log.Print("存档已删除");
+										}
+										combatNode.QueueFree();
+										gameNode.QueueFree();
+										root.state = new ProgramRootNode.IdleState(root);
+									}
+									else
+									{
+										gameNode.SetCombatData(null);
+										gameNode.Save();
+										combatNode.QueueFree();
+									}
+									return;
+								}
+							}
+							var actionPointCost = simulateResult.actionPoint;
+							attacker.ActionPoint -= actionPointCost;
+							await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
+							attackerNode.IsActing = false;
+							_ = new RoundInProgressState(combatNode);
 							return;
 						}
 						case ReactionChoice.Dodge:
@@ -558,7 +616,7 @@ public partial class CombatNode : Node
 				combatNode.gameNode.Root.McpRespond();
 			}
 		}
-		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(CharacterData defender, BodyPartCode targetBodyPart)
+		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(CharacterData defender, int defenderIndex, BodyPartCode targetBodyPart)
 		{
 			while (true)
 			{
@@ -572,7 +630,7 @@ public partial class CombatNode : Node
 						new()
 						{
 							option = "格挡",
-							description = "消耗1点反应，选择部位格挡免伤",
+							description = "消耗1点反应，用选择的部位格挡，受击部位免伤，格挡部位受到一半伤害",
 							onConfirm = () =>
 							{
 								choice = ReactionChoice.Block;
@@ -612,20 +670,24 @@ public partial class CombatNode : Node
 						BodyPartCode? selected = null;
 						var blockDialogue = combatNode.gameNode.Root.CreateDialogue();
 						var options = new List<DialogueOptionData>();
+						var simulate = new ActionSimulate(combatNode.combatData)
+						{
+							defenderIndex = defenderIndex,
+						};
 						foreach (var bodyPart in BodyPartData.allBodyParts)
 						{
 							var optionPart = bodyPart;
-							var isTarget = optionPart == targetBodyPart;
+							var available = simulate.ValidDefenderBodyPart(bodyPart: optionPart, error: out var error);
 							options.Add(new DialogueOptionData
 							{
 								option = optionPart.GetName(),
-								description = isTarget ? "格挡该部位，免疫本次伤害" : "只能格挡当前受击部位",
+								description = available ? $"用{optionPart.GetName()}格挡，受击部位免伤，{optionPart.GetName()}受到一半伤害" : error,
 								onConfirm = () =>
 								{
 									selected = optionPart;
 									blockDialogue.QueueFree();
 								},
-								available = isTarget,
+								available = available,
 							});
 						}
 						blockDialogue.Initialize(new DialogueData
