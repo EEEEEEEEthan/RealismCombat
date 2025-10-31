@@ -117,8 +117,8 @@ public static class BodyPartCodeExtensions
 		{
 			BodyPartCode.Head => EquipmentType.HelmetLiner,
 			BodyPartCode.Chest => EquipmentType.ChestLiner,
-			BodyPartCode.LeftArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
-			BodyPartCode.RightArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
+			BodyPartCode.LeftArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.Arm,
+			BodyPartCode.RightArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.Arm,
 			BodyPartCode.LeftLeg => EquipmentType.LegLiner,
 			BodyPartCode.RightLeg => EquipmentType.LegLiner,
 			_ => EquipmentType.None,

@@ -24,10 +24,8 @@ public enum EquipmentType : ulong
 	ChestMidLayer = 1UL << 6,
 	/// <summary>胸甲外套</summary>
 	ChestOuter = 1UL << 7,
-	/// <summary>单手武器</summary>
-	OneHandedWeapon = 1UL << 8,
-	/// <summary>双手武器</summary>
-	TwoHandedWeapon = 1UL << 9,
+	/// <summary>武器</summary>
+	Arm = 1UL << 8,
 	/// <summary>刀</summary>
 	Knife = 1UL << 10,
 	/// <summary>剑</summary>
@@ -157,8 +155,8 @@ public class ItemConfig
 			equipmentType: EquipmentType.ChestLiner,
 			slotAllowedTypesPerSlot: new[]
 			{
-				EquipmentType.ChestMidLayer, EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
-				EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
+				EquipmentType.ChestMidLayer, EquipmentType.Arm,
+				EquipmentType.Arm,
 			});
 		Configs[2] = new(itemId: 2,
 			name: "链甲",
@@ -166,14 +164,14 @@ public class ItemConfig
 			equipmentType: EquipmentType.ChestMidLayer,
 			slotAllowedTypesPerSlot: new[]
 			{
-				EquipmentType.ChestOuter, EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
-				EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
+				EquipmentType.ChestOuter, EquipmentType.Arm,
+				EquipmentType.Arm,
 			});
 		Configs[3] = new(itemId: 3, name: "皮帽", slotCapacity: 0, equipmentType: EquipmentType.HelmetLiner);
 		Configs[4] = new(itemId: 4, name: "布手套", slotCapacity: 0, equipmentType: EquipmentType.Gauntlet);
-		Configs[5] = new(itemId: 5, name: "短刀", slotCapacity: 0, equipmentType: EquipmentType.OneHandedWeapon | EquipmentType.Knife);
-		Configs[6] = new(itemId: 6, name: "长剑", slotCapacity: 0, equipmentType: EquipmentType.OneHandedWeapon | EquipmentType.Sword);
-		Configs[7] = new(itemId: 7, name: "双手剑", slotCapacity: 0, equipmentType: EquipmentType.TwoHandedWeapon | EquipmentType.Sword);
+		Configs[5] = new(itemId: 5, name: "短刀", slotCapacity: 0, equipmentType: EquipmentType.Arm | EquipmentType.Knife);
+		Configs[6] = new(itemId: 6, name: "长剑", slotCapacity: 0, equipmentType: EquipmentType.Arm | EquipmentType.Sword);
+		Configs[7] = new(itemId: 7, name: "双手剑", slotCapacity: 0, equipmentType: EquipmentType.Arm | EquipmentType.Sword);
 		Configs[8] = new(itemId: 8, name: "圆盾", slotCapacity: 0, equipmentType: EquipmentType.Shield);
 	}
 	readonly IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot;
