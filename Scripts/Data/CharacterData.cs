@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 /// <summary>
@@ -108,6 +109,17 @@ public static class BodyPartCodeExtensions
 			BodyPartCode.RightArm => 2,
 			_ => 1,
 		};
+	public static EquipmentType GetAllowedTypes(this BodyPartCode part, int slotIndex) =>
+		part switch
+		{
+			BodyPartCode.Head => EquipmentType.HelmetLiner,
+			BodyPartCode.Chest => EquipmentType.ChestLiner,
+			BodyPartCode.LeftArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
+			BodyPartCode.RightArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon,
+			BodyPartCode.LeftLeg => EquipmentType.LegLiner,
+			BodyPartCode.RightLeg => EquipmentType.LegLiner,
+			_ => EquipmentType.None,
+		};
 }
 public class BodyPartData : IItemContainer
 {
@@ -115,14 +127,19 @@ public class BodyPartData : IItemContainer
 	public readonly BodyPartCode id;
 	public int hp = 10;
 	public int maxHp = 10;
-	public readonly ItemData?[] slots;
-	public IReadOnlyList<ItemData?> items => slots;
+	public readonly SlotData[] slots;
+	public IReadOnlyList<ItemData?> items => slots.Select(s => s.item).ToList().AsReadOnly();
 	public event Action? ItemsChanged;
 	public BodyPartData(BodyPartCode id)
 	{
 		this.id = id;
 		var capacity = id.GetSlotCapacity();
-		slots = new ItemData?[capacity];
+		slots = new SlotData[capacity];
+		for (var i = 0; i < capacity; i++)
+		{
+			var allowedTypes = id.GetAllowedTypes(slotIndex: i);
+			slots[i] = new SlotData(allowedTypes: allowedTypes);
+		}
 	}
 	public BodyPartData(DataVersion version, BinaryReader reader)
 	{
@@ -133,14 +150,15 @@ public class BodyPartData : IItemContainer
 			maxHp = reader.ReadInt32();
 			var slotCount = reader.ReadInt32();
 			var capacity = id.GetSlotCapacity();
-			slots = new ItemData?[capacity];
+			slots = new SlotData[capacity];
 			for (var i = 0; i < slotCount && i < capacity; ++i)
 			{
-				var hasSlot = reader.ReadBoolean();
-				if (hasSlot)
-				{
-					slots[i] = new(version: version, reader: reader);
-				}
+				slots[i] = new(version: version, reader: reader);
+			}
+			for (var i = slotCount; i < capacity; i++)
+			{
+				var allowedTypes = id.GetAllowedTypes(slotIndex: i);
+				slots[i] = new SlotData(allowedTypes: allowedTypes);
 			}
 		}
 	}
@@ -154,22 +172,18 @@ public class BodyPartData : IItemContainer
 			writer.Write(slots.Length);
 			foreach (var slot in slots)
 			{
-				if (slot is not null)
-				{
-					writer.Write(true);
-					slot.Serialize(writer);
-				}
-				else
-				{
-					writer.Write(false);
-				}
+				slot.Serialize(writer);
 			}
 		}
 	}
 	public void SetSlot(int index, ItemData? value)
 	{
 		if (index < 0 || index >= slots.Length) throw new ArgumentOutOfRangeException(nameof(index));
-		slots[index] = value;
+		if (!slots[index].CanPlace(value))
+		{
+			throw new InvalidOperationException($"物品类型 {value?.itemId} 不允许放入此槽位");
+		}
+		slots[index].item = value;
 		ItemsChanged?.Invoke();
 	}
 	public override string ToString() => $"{nameof(BodyPartData)}({nameof(id)}={id}, {nameof(hp)}={hp}, {nameof(maxHp)}={maxHp}, {nameof(slots)}={slots.Length})";

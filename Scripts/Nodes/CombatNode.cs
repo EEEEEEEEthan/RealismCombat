@@ -213,9 +213,9 @@ public partial class CombatNode : Node
 				var equippedItems = new List<string>();
 				foreach (var slot in bodyPartData.slots)
 				{
-					if (slot != null)
+					if (slot.item != null)
 					{
-						var itemName = ItemConfig.Configs.TryGetValue(slot.itemId, out var config) ? config.name : $"物品{slot.itemId}";
+						var itemName = ItemConfig.Configs.TryGetValue(slot.item.itemId, out var config) ? config.name : $"物品{slot.item.itemId}";
 						equippedItems.Add(itemName);
 					}
 				}

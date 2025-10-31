@@ -137,29 +137,29 @@ public partial class GameNode : Node
 		{
 			return ItemConfig.Configs.TryGetValue(itemId, out var config) ? config.name : $"物品{itemId}";
 		}
-		static bool CanStack(ItemData item1, ItemData item2)
+	static bool CanStack(ItemData item1, ItemData item2)
+	{
+		if (item1.itemId != item2.itemId) return false;
+		if (item1.slots.Length != item2.slots.Length) return false;
+		return item1.slots.All(slot => slot.item == null) && item2.slots.All(slot => slot.item == null);
+	}
+	static void AddItemToInventory(GameNode gameNode, ItemData item)
+	{
+		if (item.slots.Length > 0 && item.slots.Any(slot => slot.item != null))
 		{
-			if (item1.itemId != item2.itemId) return false;
-			if (item1.slots.Length != item2.slots.Length) return false;
-			return item1.slots.All(slot => slot == null) && item2.slots.All(slot => slot == null);
+			gameNode.gameData.items.Add(item);
+			return;
 		}
-		static void AddItemToInventory(GameNode gameNode, ItemData item)
+		foreach (var existingItem in gameNode.gameData.items)
 		{
-			if (item.slots.Length > 0 && item.slots.Any(slot => slot != null))
+			if (CanStack(existingItem, item))
 			{
-				gameNode.gameData.items.Add(item);
+				existingItem.count += item.count;
 				return;
 			}
-			foreach (var existingItem in gameNode.gameData.items)
-			{
-				if (CanStack(existingItem, item))
-				{
-					existingItem.count += item.count;
-					return;
-				}
-			}
-			gameNode.gameData.items.Add(item);
 		}
+		gameNode.gameData.items.Add(item);
+	}
 		static void ShowInventoryMenu(GameNode gameNode)
 		{
 			var inventoryDialogue = gameNode.Root.CreateDialogue();
@@ -369,6 +369,22 @@ public partial class GameNode : Node
 				{
 					var itemId = item.itemId;
 					var itemName = GetItemName(itemId);
+					var newItem = new ItemData(itemId: itemId, count: 1);
+					var canPlace = false;
+					if (container is BodyPartData bodyPart)
+					{
+						if (slotIndex >= 0 && slotIndex < bodyPart.slots.Length)
+						{
+							canPlace = bodyPart.slots[slotIndex].CanPlace(newItem);
+						}
+					}
+					else if (container is ItemData itemContainer)
+					{
+						if (slotIndex >= 0 && slotIndex < itemContainer.slots.Length)
+						{
+							canPlace = itemContainer.slots[slotIndex].CanPlace(newItem);
+						}
+					}
 					options.Add(new()
 					{
 						option = $"{itemName} x{item.count}",
@@ -376,14 +392,14 @@ public partial class GameNode : Node
 						onPreview = () => { },
 						onConfirm = () =>
 						{
-							var newItem = new ItemData(itemId: itemId, count: 1);
+							var newItemForPlace = new ItemData(itemId: itemId, count: 1);
 							if (container is BodyPartData bodyPart)
 							{
-								bodyPart.SetSlot(slotIndex, newItem);
+								bodyPart.SetSlot(slotIndex, newItemForPlace);
 							}
 							else if (container is ItemData itemContainer)
 							{
-								itemContainer.SetSlot(slotIndex, newItem);
+								itemContainer.SetSlot(slotIndex, newItemForPlace);
 							}
 							if (item.count > 1)
 							{
@@ -407,7 +423,7 @@ public partial class GameNode : Node
 								parentDialogue.QueueFree();
 							}
 						},
-						available = true,
+						available = canPlace,
 					});
 				}
 			}
