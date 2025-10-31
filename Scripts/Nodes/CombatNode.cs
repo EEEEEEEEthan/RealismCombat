@@ -473,7 +473,7 @@ public partial class CombatNode : Node
 				};
 				await combatNode.gameNode.Root.PopMessage(
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
-				if (defender.reaction > 0 && defender.PlayerControlled)
+				if (defender.PlayerControlled)
 				{
 					var reactionDecision =
 						await AskPlayerReactionAsync(defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody);
@@ -626,34 +626,13 @@ public partial class CombatNode : Node
 			while (true)
 			{
 				var choice = ReactionChoice.None;
+				var hasReaction = defender.reaction > 0;
 				var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
 				reactionDialogue.Initialize(new()
 				{
 					title = $"{defender.name}的反应",
 					options = new List<DialogueOptionData>
 					{
-						new()
-						{
-							option = "格挡",
-							description = "用选择的部位格挡",
-							onConfirm = () =>
-							{
-								choice = ReactionChoice.Block;
-								reactionDialogue.QueueFree();
-							},
-							available = true,
-						},
-						new()
-						{
-							option = "闪避",
-							description = "50%概率闪避",
-							onConfirm = () =>
-							{
-								choice = ReactionChoice.Dodge;
-								reactionDialogue.QueueFree();
-							},
-							available = true,
-						},
 						new()
 						{
 							option = "硬抗",
@@ -664,6 +643,28 @@ public partial class CombatNode : Node
 								reactionDialogue.QueueFree();
 							},
 							available = true,
+						},
+						new()
+						{
+							option = "格挡",
+							description = hasReaction ? "用选择的部位格挡" : "需要1个[反应]",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Block;
+								reactionDialogue.QueueFree();
+							},
+							available = hasReaction,
+						},
+						new()
+						{
+							option = "闪避",
+							description = hasReaction ? "50%概率闪避" : "需要1个[反应]",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Dodge;
+								reactionDialogue.QueueFree();
+							},
+							available = hasReaction,
 						},
 					},
 				});
