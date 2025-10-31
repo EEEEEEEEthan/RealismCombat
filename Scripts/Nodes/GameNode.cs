@@ -72,6 +72,7 @@ public partial class GameNode : Node
 										combatData.characters.Add(playerCharacter);
 									}
 									combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+									combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
 								}
 							}
 							else
@@ -84,6 +85,7 @@ public partial class GameNode : Node
 									combatData.characters.Add(playerCharacter);
 								}
 								combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+								combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
 							}
 							_ = new CombatState(gameNode: gameNode, combatData: combatData);
 						},
@@ -130,17 +132,6 @@ public partial class GameNode : Node
 			{
 				dialogue?.QueueFree();
 			};
-		}
-		static CharacterData GetOrCreatePlayerCharacter(GameNode gameNode)
-		{
-			if (gameNode.gameData.playerCharacters.Count > 0)
-			{
-				return gameNode.gameData.playerCharacters[0];
-			}
-			var playerCharacter = new CharacterData(name: "ethan", team: 0);
-			gameNode.gameData.playerCharacters.Add(playerCharacter);
-			gameNode.Save();
-			return playerCharacter;
 		}
 		static string GetItemName(uint itemId)
 		{
@@ -207,13 +198,43 @@ public partial class GameNode : Node
 		}
 		static void ShowEquipmentMenu(GameNode gameNode)
 		{
-			var character = GetOrCreatePlayerCharacter(gameNode);
+			if (gameNode.gameData.playerCharacters.Count == 0)
+			{
+				var playerCharacter = new CharacterData(name: "ethan", team: 0);
+				gameNode.gameData.playerCharacters.Add(playerCharacter);
+				gameNode.Save();
+			}
+			var characterSelectDialogue = gameNode.Root.CreateDialogue();
+			var options = new List<DialogueOptionData>();
+			foreach (var character in gameNode.gameData.playerCharacters)
+			{
+				var selectedCharacter = character;
+				options.Add(new()
+				{
+					option = selectedCharacter.name,
+					description = null,
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						ShowCharacterEquipmentMenu(gameNode: gameNode, character: selectedCharacter, parentDialogue: characterSelectDialogue);
+					},
+					available = true,
+				});
+			}
+			characterSelectDialogue.Initialize(new()
+			{
+				title = "选择角色",
+				options = options,
+			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
+		}
+		static void ShowCharacterEquipmentMenu(GameNode gameNode, CharacterData character, MenuDialogue? parentDialogue)
+		{
 			var equipmentDialogue = gameNode.Root.CreateDialogue();
 			void RefreshMenu()
 			{
 				if (!IsInstanceValid(equipmentDialogue) || !equipmentDialogue.IsInsideTree()) return;
 				equipmentDialogue.QueueFree();
-				ShowEquipmentMenu(gameNode: gameNode);
+				ShowCharacterEquipmentMenu(gameNode: gameNode, character: character, parentDialogue: parentDialogue);
 			}
 			foreach (var bodyPart in character.bodyParts)
 			{
@@ -249,16 +270,16 @@ public partial class GameNode : Node
 					onPreview = () => { },
 					onConfirm = () =>
 					{
-						ShowItemContainerMenu(gameNode: gameNode, container: container, title: partName, parentDialogue: equipmentDialogue, onReturn: () => { }, returnDescription: "返回装备菜单");
+						ShowItemContainerMenu(gameNode: gameNode, container: container, title: $"{character.name} - {partName}", parentDialogue: equipmentDialogue, onReturn: () => { }, returnDescription: "返回装备菜单");
 					},
 					available = true,
 				});
 			}
 			equipmentDialogue.Initialize(new()
 			{
-				title = "装备",
+				title = $"{character.name} - 装备",
 				options = options,
-			}, onReturn: () => { }, returnDescription: "返回游戏菜单");
+			}, onReturn: () => { }, returnDescription: "返回选择角色");
 		}
 		static void ShowItemContainerMenu(GameNode gameNode, IItemContainer container, string title, MenuDialogue? parentDialogue, Action? onReturn, string? returnDescription)
 		{
