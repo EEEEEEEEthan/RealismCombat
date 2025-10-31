@@ -19,7 +19,7 @@ public record DialogueOptionData
 	public Action onConfirm = null!;
 	public bool available;
 }
-public partial class MenuDialogue : PanelContainer
+public partial class MenuDialogue : Control
 {
 	public static MenuDialogue Create(ProgramRootNode programRoot)
 	{

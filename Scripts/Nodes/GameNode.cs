@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using RealismCombat.Data;
+using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes;
 public partial class GameNode : Node
@@ -387,6 +388,21 @@ public partial class GameNode : Node
 		{
 			var selectDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
+			EquipmentType? allowedTypes = null;
+			if (container is BodyPartData bodyPart)
+			{
+				if (slotIndex >= 0 && slotIndex < bodyPart.slots.Length)
+				{
+					allowedTypes = bodyPart.slots[slotIndex].allowedTypes;
+				}
+			}
+			else if (container is ItemData itemContainer)
+			{
+				if (slotIndex >= 0 && slotIndex < itemContainer.slots.Length)
+				{
+					allowedTypes = itemContainer.slots[slotIndex].allowedTypes;
+				}
+			}
 			if (gameNode.gameData.items.Count == 0)
 			{
 				options.Add(new()
@@ -406,35 +422,46 @@ public partial class GameNode : Node
 					var itemName = GetItemName(itemId);
 					var newItem = new ItemData(itemId: itemId, count: 1);
 					var canPlace = false;
-					if (container is BodyPartData bodyPart)
+					EquipmentType? itemType = null;
+					if (container is BodyPartData bodyPartForCheck)
 					{
-						if (slotIndex >= 0 && slotIndex < bodyPart.slots.Length)
+						if (slotIndex >= 0 && slotIndex < bodyPartForCheck.slots.Length)
 						{
-							canPlace = bodyPart.slots[slotIndex].CanPlace(newItem);
+							canPlace = bodyPartForCheck.slots[slotIndex].CanPlace(newItem);
 						}
 					}
-					else if (container is ItemData itemContainer)
+					else if (container is ItemData itemContainerForCheck)
 					{
-						if (slotIndex >= 0 && slotIndex < itemContainer.slots.Length)
+						if (slotIndex >= 0 && slotIndex < itemContainerForCheck.slots.Length)
 						{
-							canPlace = itemContainer.slots[slotIndex].CanPlace(newItem);
+							canPlace = itemContainerForCheck.slots[slotIndex].CanPlace(newItem);
 						}
+					}
+					if (ItemConfig.Configs.TryGetValue(itemId, out var config))
+					{
+						itemType = config.equipmentType;
+					}
+					string? description = null;
+					if (itemType.HasValue)
+					{
+						var itemTypeName = itemType.Value.GetShortName();
+						description = $"[{itemTypeName}]";
 					}
 					options.Add(new()
 					{
 						option = $"{itemName} x{item.count}",
-						description = null,
+						description = description,
 						onPreview = () => { },
 						onConfirm = () =>
 						{
 							var newItemForPlace = new ItemData(itemId: itemId, count: 1);
-							if (container is BodyPartData bodyPart)
+							if (container is BodyPartData bodyPartForPlace)
 							{
-								bodyPart.SetSlot(slotIndex, newItemForPlace);
+								bodyPartForPlace.SetSlot(slotIndex, newItemForPlace);
 							}
-							else if (container is ItemData itemContainer)
+							else if (container is ItemData itemContainerForPlace)
 							{
-								itemContainer.SetSlot(slotIndex, newItemForPlace);
+								itemContainerForPlace.SetSlot(slotIndex, newItemForPlace);
 							}
 							if (item.count > 1)
 							{
@@ -462,9 +489,10 @@ public partial class GameNode : Node
 					});
 				}
 			}
+			var titleText = allowedTypes.HasValue ? $"物品槽[{allowedTypes.Value.GetShortName()}]" : $"{title} - 选择物品";
 			selectDialogue.Initialize(new()
 			{
-				title = $"{title} - 选择物品",
+				title = titleText,
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回上级菜单");
 		}

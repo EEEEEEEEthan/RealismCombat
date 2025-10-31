@@ -8,56 +8,64 @@
 atlas = ExtResource("1_j11dv")
 region = Rect2(8, 0, 8, 8)
 
-[node name="MenuDialogue" type="PanelContainer" node_paths=PackedStringArray("container", "arrow", "title", "description", "titleControl")]
+[node name="MenuDialogue" type="Control" node_paths=PackedStringArray("container", "arrow", "title", "description", "titleControl")]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 3
+anchors_preset = 0
 offset_left = 41.0
-offset_top = 55.0
-offset_right = 53.0
-offset_bottom = 73.0
+offset_top = 56.0
+offset_right = 63.0
+offset_bottom = 84.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 focus_mode = 2
 script = ExtResource("1_mceob")
-container = NodePath("MarginContainer/VBoxContainer")
-arrow = NodePath("Control/Arrow")
-title = NodePath("Control/PanelContainer/HBoxContainer/Title")
-description = NodePath("Control/PanelContainer/HBoxContainer/OptionDetail")
-titleControl = NodePath("Control/PanelContainer")
+container = NodePath("PanelContainer/MarginContainer/VBoxContainer")
+arrow = NodePath("PanelContainer/Control/Arrow")
+title = NodePath("PanelContainer/Control/PanelContainer/HBoxContainer/Title")
+description = NodePath("PanelContainer/Control/PanelContainer/HBoxContainer/OptionDetail")
+titleControl = NodePath("PanelContainer/Control/PanelContainer")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+offset_right = 12.0
+offset_bottom = 18.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2
 focus_behavior_recursive = 1
 theme_override_constants/margin_left = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="PanelContainer"]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 focus_behavior_recursive = 1
 
-[node name="Arrow" type="TextureRect" parent="Control"]
+[node name="Arrow" type="TextureRect" parent="PanelContainer/Control"]
 layout_mode = 0
 offset_left = -6.0
 offset_right = 2.0
 offset_bottom = 8.0
 texture = SubResource("AtlasTexture_ec0hb")
 
-[node name="PanelContainer" type="PanelContainer" parent="Control"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 offset_top = -30.0
 offset_right = 96.0
 
-[node name="HBoxContainer" type="VBoxContainer" parent="Control/PanelContainer"]
+[node name="HBoxContainer" type="VBoxContainer" parent="PanelContainer/Control/PanelContainer"]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="Control/PanelContainer/HBoxContainer"]
+[node name="Title" type="Label" parent="PanelContainer/Control/PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "请选择"
 
-[node name="OptionDetail" parent="Control/PanelContainer/HBoxContainer" instance=ExtResource("3_qi3qq")]
+[node name="OptionDetail" parent="PanelContainer/Control/PanelContainer/HBoxContainer" instance=ExtResource("3_qi3qq")]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "选项介绍"
