@@ -130,7 +130,7 @@ public partial class CombatNode : Node
 			{
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
 				CharacterTurnState.serializeId => CharacterTurnState.Load(combatNode),
-				CharacterTurnActionState.serializeId => new RoundInProgressState(combatNode),
+				CharacterTurnActionState.serializeId => CharacterTurnActionState.Load(combatNode),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
@@ -141,11 +141,7 @@ public partial class CombatNode : Node
 	{
 		public const byte serializeId = 0;
 		bool firstUpdate = true;
-		public RoundInProgressState(CombatNode combatNode) : base(combatNode)
-		{
-			combatNode.CurrentState = this;
-			combatNode.gameNode.Save();
-		}
+		public RoundInProgressState(CombatNode combatNode) : base(combatNode) => combatNode.CurrentState = this;
 		public override void Update(double deltaTime)
 		{
 			if (!combatNode.AreAllEntryAnimationsFinished()) return;
@@ -190,6 +186,10 @@ public partial class CombatNode : Node
 		public readonly CharacterData character;
 		public CharacterTurnState(CombatNode combatNode, byte characterIndex) : base(combatNode)
 		{
+			using var stream = new MemoryStream();
+			using var writer = new BinaryWriter(stream);
+			writer.Write(characterIndex);
+			combatNode.combatData.stateData = stream.GetBuffer();
 			character = combatNode.combatData.characters[characterIndex];
 			combatNode.CurrentState = this;
 			combatNode.gameNode.Save();
@@ -385,9 +385,20 @@ public partial class CombatNode : Node
 	public class CharacterTurnActionState : State
 	{
 		public const byte serializeId = 2;
+		public static CharacterTurnActionState Load(CombatNode combatNode)
+		{
+			using var stream = new MemoryStream(combatNode.combatData.stateData!);
+			using var reader = new BinaryReader(stream);
+			var actionData = new ActionData(reader);
+			return new(combatNode: combatNode, action: actionData);
+		}
 		public readonly ActionData action;
 		public CharacterTurnActionState(CombatNode combatNode, ActionData action) : base(combatNode)
 		{
+			using var stream = new MemoryStream();
+			using var writer = new BinaryWriter(stream);
+			action.Serialize(writer);
+			combatNode.combatData.stateData = stream.GetBuffer();
 			this.action = action;
 			combatNode.CurrentState = this;
 			Run();

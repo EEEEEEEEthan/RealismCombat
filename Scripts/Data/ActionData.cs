@@ -18,7 +18,7 @@ public record ActionData
 		this.defenderBody = defenderBody;
 		this.actionCode = actionCode;
 	}
-	public ActionData(DataVersion dataVersion, BinaryReader reader)
+	public ActionData(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{
