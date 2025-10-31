@@ -281,7 +281,7 @@ public partial class GameNode : Node
 				options = options,
 			}, onReturn: () => { }, returnDescription: "返回选择角色");
 		}
-		static void ShowItemContainerMenu(GameNode gameNode, IItemContainer container, string title, MenuDialogue? parentDialogue, Action? onReturn, string? returnDescription)
+		static void ShowItemContainerMenu(GameNode gameNode, IItemContainer container, string title, MenuDialogue? parentDialogue, Action? onReturn, string? returnDescription, IItemContainer? parentContainer = null, int? parentSlotIndex = null)
 		{
 			var containerDialogue = gameNode.Root.CreateDialogue();
 			void RefreshMenu()
@@ -329,13 +329,48 @@ public partial class GameNode : Node
 						}
 						else
 						{
-							if (slotItem.items.Any(slot => slot != null))
+							if (slotItem.items.Count > 0)
 							{
-								ShowItemContainerMenu(gameNode: gameNode, container: slotItem, title: GetItemName(slotItem.itemId), parentDialogue: containerDialogue, onReturn: onReturn, returnDescription: "返回上级菜单");
+								ShowItemContainerMenu(gameNode: gameNode, container: slotItem, title: GetItemName(slotItem.itemId), parentDialogue: containerDialogue, onReturn: onReturn, returnDescription: "返回上级菜单", parentContainer: container, parentSlotIndex: slotIndex);
 							}
 							else
 							{
 								ShowItemUnEquipMenu(gameNode: gameNode, container: container, slotIndex: slotIndex, slotItem: slotItem, title: title, parentDialogue: parentDialogue, containerDialogue: containerDialogue, onReturn: onReturn, returnDescription: returnDescription);
+							}
+						}
+					},
+					available = true,
+				});
+			}
+			if (parentContainer != null && parentSlotIndex.HasValue && container is ItemData)
+			{
+				options.Add(new()
+				{
+					option = "卸下",
+					description = "卸下这个装备",
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						var itemToUnequip = container as ItemData;
+						if (itemToUnequip != null)
+						{
+							AddItemToInventory(gameNode: gameNode, item: itemToUnequip);
+							if (parentContainer is BodyPartData bodyPart)
+							{
+								bodyPart.SetSlot(parentSlotIndex.Value, null);
+							}
+							else if (parentContainer is ItemData itemContainer)
+							{
+								itemContainer.SetSlot(parentSlotIndex.Value, null);
+							}
+							gameNode.Save();
+							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree())
+							{
+								containerDialogue.QueueFree();
+							}
+							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree())
+							{
+								parentDialogue.QueueFree();
 							}
 						}
 					},

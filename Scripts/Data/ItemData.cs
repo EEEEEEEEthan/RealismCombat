@@ -106,10 +106,10 @@ public class ItemData : IItemContainer
 		this.itemId = itemId;
 		this.count = count;
 		var capacity = ItemConfig.Configs.TryGetValue(itemId, out var config) ? config.slotCapacity : 0;
-		var allowedTypes = ItemConfig.Configs.TryGetValue(itemId, out var config2) ? config2.slotAllowedTypes : EquipmentType.None;
 		slots = new SlotData[capacity];
 		for (var i = 0; i < capacity; i++)
 		{
+			var allowedTypes = ItemConfig.Configs.TryGetValue(itemId, out var config2) ? config2.GetSlotAllowedTypes(i) : EquipmentType.None;
 			slots[i] = new SlotData(allowedTypes: allowedTypes);
 		}
 	}
@@ -121,7 +121,6 @@ public class ItemData : IItemContainer
 			count = reader.ReadInt32();
 			var slotCount = reader.ReadInt32();
 			var capacity = ItemConfig.Configs.TryGetValue(itemId, out var config) ? config.slotCapacity : 0;
-			var allowedTypes = ItemConfig.Configs.TryGetValue(itemId, out var config2) ? config2.slotAllowedTypes : EquipmentType.None;
 			slots = new SlotData[capacity];
 			for (var i = 0; i < slotCount && i < capacity; ++i)
 			{
@@ -129,6 +128,7 @@ public class ItemData : IItemContainer
 			}
 			for (var i = slotCount; i < capacity; i++)
 			{
+				var allowedTypes = ItemConfig.Configs.TryGetValue(itemId, out var config2) ? config2.GetSlotAllowedTypes(i) : EquipmentType.None;
 				slots[i] = new SlotData(allowedTypes: allowedTypes);
 			}
 		}
@@ -166,19 +166,29 @@ public class ItemConfig
 	public int slotCapacity { get; private set; }
 	public EquipmentType equipmentType { get; private set; }
 	public EquipmentType slotAllowedTypes { get; private set; }
-	private ItemConfig(uint itemId, string name, int slotCapacity = 0, EquipmentType equipmentType = EquipmentType.None, EquipmentType slotAllowedTypes = EquipmentType.None)
+	private readonly IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot;
+	public EquipmentType GetSlotAllowedTypes(int slotIndex)
+	{
+		if (slotAllowedTypesPerSlot != null && slotIndex >= 0 && slotIndex < slotAllowedTypesPerSlot.Count)
+		{
+			return slotAllowedTypesPerSlot[slotIndex];
+		}
+		return slotAllowedTypes;
+	}
+	private ItemConfig(uint itemId, string name, int slotCapacity = 0, EquipmentType equipmentType = EquipmentType.None, EquipmentType slotAllowedTypes = EquipmentType.None, IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot = null)
 	{
 		this.itemId = itemId;
 		this.name = name;
 		this.slotCapacity = slotCapacity;
 		this.equipmentType = equipmentType;
 		this.slotAllowedTypes = slotAllowedTypes;
+		this.slotAllowedTypesPerSlot = slotAllowedTypesPerSlot;
 	}
 	static ItemConfig()
 	{
 		Configs[0] = new ItemConfig(0, "第纳尔", 0, EquipmentType.Money);
-		Configs[1] = new ItemConfig(1, "棉质内衬", 0, EquipmentType.ChestLiner);
-		Configs[2] = new ItemConfig(2, "粗布绵甲", 0, EquipmentType.ChestLiner);
+		Configs[1] = new ItemConfig(1, "棉质内衬", 3, EquipmentType.ChestLiner, slotAllowedTypesPerSlot: new[] { EquipmentType.ChestMidLayer, EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon, EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon });
+		Configs[2] = new ItemConfig(2, "链甲", 3, EquipmentType.ChestMidLayer, slotAllowedTypesPerSlot: new[] { EquipmentType.ChestOuter, EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon, EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon });
 		Configs[3] = new ItemConfig(3, "皮帽", 0, EquipmentType.HelmetLiner);
 		Configs[4] = new ItemConfig(4, "布手套", 0, EquipmentType.Gauntlet);
 		Configs[5] = new ItemConfig(5, "短刀", 0, EquipmentType.OneHandedWeapon | EquipmentType.Knife);
