@@ -51,18 +51,38 @@ public partial class GameNode : Node
 							CombatData combatData;
 							if (gameNode.gameData.combatData != null && gameNode.gameData.combatData.characters.Count > 0)
 							{
-								combatData = gameNode.gameData.combatData;
-								var (min, max) = CharacterData.InitialActionPointRange;
-								foreach (var character in combatData.characters)
+								var hasTeam0 = gameNode.gameData.combatData.characters.Exists(c => c.team == 0);
+								var hasTeam1 = gameNode.gameData.combatData.characters.Exists(c => c.team == 1);
+								if (hasTeam0 && hasTeam1)
 								{
-									character.ActionPoint = GD.Randf() * (max - min) + min;
+									combatData = gameNode.gameData.combatData;
+									var (min, max) = CharacterData.InitialActionPointRange;
+									foreach (var character in combatData.characters)
+									{
+										character.ActionPoint = GD.Randf() * (max - min) + min;
+									}
+								}
+								else
+								{
+									combatData = new CombatData();
+									var (min, max) = CharacterData.InitialActionPointRange;
+									foreach (var playerCharacter in gameNode.gameData.playerCharacters)
+									{
+										playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
+										combatData.characters.Add(playerCharacter);
+									}
+									combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
 								}
 							}
 							else
 							{
 								combatData = new CombatData();
 								var (min, max) = CharacterData.InitialActionPointRange;
-								combatData.characters.Add(new(name: "ethan", team: 0) { ActionPoint = GD.Randf() * (max - min) + min, });
+								foreach (var playerCharacter in gameNode.gameData.playerCharacters)
+								{
+									playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
+									combatData.characters.Add(playerCharacter);
+								}
 								combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
 							}
 							_ = new CombatState(gameNode: gameNode, combatData: combatData);
@@ -113,23 +133,13 @@ public partial class GameNode : Node
 		}
 		static CharacterData GetOrCreatePlayerCharacter(GameNode gameNode)
 		{
-			if (gameNode.gameData.combatData != null)
+			if (gameNode.gameData.playerCharacters.Count > 0)
 			{
-				foreach (var character in gameNode.gameData.combatData.characters)
-				{
-					if (character.PlayerControlled)
-					{
-						return character;
-					}
-				}
-			}
-			if (gameNode.gameData.combatData == null)
-			{
-				gameNode.gameData.combatData = new CombatData();
-				gameNode.Save();
+				return gameNode.gameData.playerCharacters[0];
 			}
 			var playerCharacter = new CharacterData(name: "ethan", team: 0);
-			gameNode.gameData.combatData.characters.Add(playerCharacter);
+			gameNode.gameData.playerCharacters.Add(playerCharacter);
+			gameNode.Save();
 			return playerCharacter;
 		}
 		static string GetItemName(uint itemId)
