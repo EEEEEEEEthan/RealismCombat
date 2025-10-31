@@ -398,7 +398,6 @@ public partial class CombatNode : Node
 	}
 	public class CharacterTurnActionState : State
 	{
-		public const byte serializeId = 2;
 		enum ReactionChoice
 		{
 			None,
@@ -406,6 +405,7 @@ public partial class CombatNode : Node
 			Dodge,
 			Hold,
 		}
+		public const byte serializeId = 2;
 		public new static CharacterTurnActionState Load(CombatNode combatNode)
 		{
 			using var stream = new MemoryStream(combatNode.combatData.stateData!);
@@ -475,12 +475,13 @@ public partial class CombatNode : Node
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
 				if (defender.reaction > 0 && defender.PlayerControlled)
 				{
-					var reactionDecision = await AskPlayerReactionAsync(defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody);
+					var reactionDecision =
+						await AskPlayerReactionAsync(defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody);
 					switch (reactionDecision.choice)
 					{
 						case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
 						{
-							defender.reaction = Math.Max(0, defender.reaction - 1);
+							defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
 							var blockPart = reactionDecision.blockBodyPart.Value;
 							var originalDamage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
 							var blockDamage = originalDamage / 2;
@@ -500,7 +501,8 @@ public partial class CombatNode : Node
 							defenderNode.Shake();
 							var blockBodyPartDrawer = defenderNode.GetBodyPartDrawer(blockPart);
 							blockBodyPartDrawer?.Flash();
-							await combatNode.gameNode.Root.PopMessage($"{defender.name}用{blockPart.GetName()}格挡！{action.defenderBody.GetName()}免伤，{blockPart.GetName()}受到{blockDamage}点伤害!");
+							await combatNode.gameNode.Root.PopMessage(
+								$"{defender.name}用{blockPart.GetName()}格挡！{action.defenderBody.GetName()}免伤，{blockPart.GetName()}受到{blockDamage}点伤害!");
 							defenderNode.IsActing = false;
 							if (defender.Dead)
 							{
@@ -546,7 +548,7 @@ public partial class CombatNode : Node
 						}
 						case ReactionChoice.Dodge:
 						{
-							defender.reaction = Math.Max(0, defender.reaction - 1);
+							defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
 							var dodgeSucceeded = GD.Randf() < 0.5f;
 							if (dodgeSucceeded)
 							{
@@ -616,13 +618,16 @@ public partial class CombatNode : Node
 				combatNode.gameNode.Root.McpRespond();
 			}
 		}
-		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(CharacterData defender, int defenderIndex, BodyPartCode targetBodyPart)
+		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(
+			CharacterData defender,
+			int defenderIndex,
+			BodyPartCode targetBodyPart)
 		{
 			while (true)
 			{
 				var choice = ReactionChoice.None;
 				var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
-				reactionDialogue.Initialize(new DialogueData
+				reactionDialogue.Initialize(new()
 				{
 					title = $"{defender.name}的应对选择",
 					options = new List<DialogueOptionData>
@@ -630,7 +635,7 @@ public partial class CombatNode : Node
 						new()
 						{
 							option = "格挡",
-							description = "消耗1点反应，用选择的部位格挡，受击部位免伤，格挡部位受到一半伤害",
+							description = "用选择的部位格挡",
 							onConfirm = () =>
 							{
 								choice = ReactionChoice.Block;
@@ -641,7 +646,7 @@ public partial class CombatNode : Node
 						new()
 						{
 							option = "闪避",
-							description = "消耗1点反应，50%概率闪避",
+							description = "50%概率闪避",
 							onConfirm = () =>
 							{
 								choice = ReactionChoice.Dodge;
@@ -652,7 +657,7 @@ public partial class CombatNode : Node
 						new()
 						{
 							option = "硬抗",
-							description = "不使用反应，直接承受攻击",
+							description = "承受攻击",
 							onConfirm = () =>
 							{
 								choice = ReactionChoice.Hold;
@@ -678,7 +683,7 @@ public partial class CombatNode : Node
 						{
 							var optionPart = bodyPart;
 							var available = simulate.ValidDefenderBodyPart(bodyPart: optionPart, error: out var error);
-							options.Add(new DialogueOptionData
+							options.Add(new()
 							{
 								option = optionPart.GetName(),
 								description = available ? $"用{optionPart.GetName()}格挡，受击部位免伤，{optionPart.GetName()}受到一半伤害" : error,
@@ -690,11 +695,13 @@ public partial class CombatNode : Node
 								available = available,
 							});
 						}
-						blockDialogue.Initialize(new DialogueData
-						{
-							title = $"{defender.name}选择格挡部位",
-							options = options,
-						}, onReturn: () => { selected = null; }, returnDescription: "返回选择应对方式");
+						blockDialogue.Initialize(data: new()
+							{
+								title = $"{defender.name}选择格挡部位",
+								options = options,
+							},
+							onReturn: () => { selected = null; },
+							returnDescription: "返回选择应对方式");
 						await blockDialogue;
 						if (selected.HasValue) return (ReactionChoice.Block, selected);
 						continue;

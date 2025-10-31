@@ -21,6 +21,7 @@ public record DialogueOptionData
 }
 public partial class MenuDialogue : Control
 {
+	const float widthTransitionSpeed = 10.0f;
 	public static MenuDialogue Create(ProgramRootNode programRoot)
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.dialoguesMenudialogue).Instantiate<MenuDialogue>();
@@ -43,7 +44,6 @@ public partial class MenuDialogue : Control
 	int? returnOptionIndex;
 	float targetWidth;
 	float currentWidth;
-	const float widthTransitionSpeed = 10.0f;
 	public bool Active
 	{
 		get => active;
@@ -98,6 +98,7 @@ public partial class MenuDialogue : Control
 			currentWidth = Mathf.Lerp(from: currentWidth, to: targetWidth, weight: (float)delta * widthTransitionSpeed);
 			CustomMinimumSize = CustomMinimumSize with { X = currentWidth, };
 		}
+		titleControl.Position = new(x: -1, y: -titleControl.GetRect().Size.Y - 1);
 	}
 	public override void _ExitTree()
 	{

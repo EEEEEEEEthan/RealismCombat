@@ -12,10 +12,10 @@ region = Rect2(8, 0, 8, 8)
 custom_minimum_size = Vector2(16, 0)
 layout_mode = 3
 anchors_preset = 0
-offset_left = 41.0
-offset_top = 56.0
-offset_right = 63.0
-offset_bottom = 84.0
+offset_left = 4.0
+offset_top = 34.0
+offset_right = 26.0
+offset_bottom = 62.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 focus_mode = 2
@@ -53,9 +53,10 @@ texture = SubResource("AtlasTexture_ec0hb")
 
 [node name="PanelContainer" type="PanelContainer" parent="PanelContainer/Control"]
 layout_mode = 1
-anchors_preset = -1
-offset_top = -30.0
-offset_right = 96.0
+offset_left = -1.0
+offset_top = -31.0
+offset_right = 111.0
+offset_bottom = -1.0
 
 [node name="HBoxContainer" type="VBoxContainer" parent="PanelContainer/Control/PanelContainer"]
 layout_mode = 2
@@ -70,4 +71,3 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "选项介绍"
 fit_content = true
-autowrap_mode = 0
