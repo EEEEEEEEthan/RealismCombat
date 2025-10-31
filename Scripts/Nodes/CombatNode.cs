@@ -10,6 +10,11 @@ public partial class CombatNode : Node
 {
 	public class ActionSimulate(CombatData combatData)
 	{
+		public class SimulateResult
+		{
+			public (int min, int max) damageRange;
+			public int actionPoint;
+		}
 		public readonly CombatData combatData = combatData;
 		public int? attackerIndex;
 		public int? defenderIndex;
@@ -72,29 +77,22 @@ public partial class CombatNode : Node
 			error = null!;
 			return true;
 		}
-	public class SimulateResult
-	{
-		public (int min, int max) damageRange;
-		public int actionPoint;
-	}
-	public SimulateResult Simulate()
-	{
-		if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
-		if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
-		if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
-		if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
-		if (!ValidAttackerBodyPart(attackerBodyPart.Value, out var attackerError))
-			throw new InvalidOperationException(attackerError);
-		if (!ValidDefender(defenderIndex.Value, out var defenderError))
-			throw new InvalidOperationException(defenderError);
-		if (!ValidDefenderBodyPart(defenderBodyPart.Value, out var defenderBodyError))
-			throw new InvalidOperationException(defenderBodyError);
-		return new SimulateResult
+		public SimulateResult Simulate()
 		{
-			damageRange = (1, 3),
-			actionPoint = 5,
-		};
-	}
+			if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
+			if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
+			if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
+			if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
+			if (!ValidAttackerBodyPart(bodyPart: attackerBodyPart.Value, error: out var attackerError)) throw new InvalidOperationException(attackerError);
+			if (!ValidDefender(defenderIndex: defenderIndex.Value, error: out var defenderError)) throw new InvalidOperationException(defenderError);
+			if (!ValidDefenderBodyPart(bodyPart: defenderBodyPart.Value, error: out var defenderBodyError))
+				throw new InvalidOperationException(defenderBodyError);
+			return new()
+			{
+				damageRange = (1, 3),
+				actionPoint = 5,
+			};
+		}
 	}
 	public class CombatNodeAwaiter : INotifyCompletion
 	{
@@ -144,7 +142,6 @@ public partial class CombatNode : Node
 		public override void Update(double deltaTime)
 		{
 			if (!combatNode.AreAllEntryAnimationsFinished()) return;
-			
 			if (firstUpdate)
 			{
 				firstUpdate = false;
@@ -196,10 +193,13 @@ public partial class CombatNode : Node
 			{
 				attackerIndex = attackerIndex,
 			};
+			MenuDialogue? attackerBodyDialogue = null;
+			MenuDialogue? defenderDialogue = null;
+			MenuDialogue? defenderBodyDialogue = null;
 			selectAttackerBody();
 			void selectAttackerBody()
 			{
-				var dialogue = programRoot.CreateDialogue();
+				attackerBodyDialogue = programRoot.CreateDialogue();
 				var dialogueData = new DialogueData
 				{
 					title = $"{attacker.name}的回合-选择身体部位",
@@ -217,79 +217,79 @@ public partial class CombatNode : Node
 						onConfirm = () =>
 						{
 							simulate.attackerBodyPart = bodyPart;
-							dialogue.QueueFree();
 							selectDefender();
 						},
 						option = $"{bodyPart.GetName()}",
 					});
 				}
-				dialogue.Initialize(dialogueData);
-				void selectDefender()
+				attackerBodyDialogue.Initialize(dialogueData);
+			}
+			void selectDefender()
+			{
+				defenderDialogue = programRoot.CreateDialogue();
+				var dialogueData = new DialogueData
 				{
-					var dialogue = programRoot.CreateDialogue();
-					var dialogueData = new DialogueData
-					{
-						title = $"{attacker.name}的回合-选择目标角色",
-					};
-					var options = new List<DialogueOptionData>();
-					dialogueData.options = options;
-					for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
-					{
-						var index = i;
-						var c = this.combatNode.combatData.characters[i];
-						var defender = c;
-						var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
-						options.Add(new()
-						{
-							available = available,
-							description = available ? $"以{defender.name}为目标" : error,
-							onConfirm = () =>
-							{
-								dialogue.QueueFree();
-								simulate.defenderIndex = index;
-								selectDefenderBody();
-							},
-							option = $"{defender.name}",
-						});
-					}
-					dialogue.Initialize(dialogueData);
-				}
-				void selectDefenderBody()
+					title = $"{attacker.name}的回合-选择目标角色",
+				};
+				var options = new List<DialogueOptionData>();
+				dialogueData.options = options;
+				for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
 				{
-					var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
-					var dialogue = programRoot.CreateDialogue();
-					var dialogueData = new DialogueData
+					var index = i;
+					var c = this.combatNode.combatData.characters[i];
+					var defender = c;
+					var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
+					options.Add(new()
 					{
-						title = $"{attacker.name}的回合-选择目标身体部位",
-					};
-					var options = new List<DialogueOptionData>();
-					dialogueData.options = options;
-					foreach (var b in BodyPartData.allBodyParts)
-					{
-						var bodyPart = b;
-						var available = simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out var error);
-						options.Add(new()
+						available = available,
+						description = available ? $"以{defender.name}为目标" : error,
+						onConfirm = () =>
 						{
-							available = available,
-							description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : error,
-							onConfirm = () =>
-							{
-								simulate.defenderBodyPart = bodyPart;
-								dialogue.QueueFree();
-								var action = new ActionData(
-									attackerIndex: attackerIndex,
-									attackerBody: simulate.attackerBodyPart.Value,
-									defenderIndex: simulate.defenderIndex.Value,
-									defenderBody: simulate.defenderBodyPart.Value
-								);
-								combatNode.combatData.lastAction = action;
-								_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
-							},
-							option = $"{bodyPart.GetName()}",
-						});
-					}
-					dialogue.Initialize(dialogueData);
+							simulate.defenderIndex = index;
+							selectDefenderBody();
+						},
+						option = $"{defender.name}",
+					});
 				}
+				defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择身体部位");
+			}
+			void selectDefenderBody()
+			{
+				var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
+				defenderBodyDialogue = programRoot.CreateDialogue();
+				var dialogueData = new DialogueData
+				{
+					title = $"{attacker.name}的回合-选择目标身体部位",
+				};
+				var options = new List<DialogueOptionData>();
+				dialogueData.options = options;
+				foreach (var b in BodyPartData.allBodyParts)
+				{
+					var bodyPart = b;
+					var available = simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out var error);
+					options.Add(new()
+					{
+						available = available,
+						description = available ? $"攻击{defender.name}的{bodyPart.GetName()}" : error,
+						onConfirm = () =>
+						{
+							simulate.defenderBodyPart = bodyPart;
+							attackerBodyDialogue?.QueueFree();
+							defenderDialogue?.QueueFree();
+							defenderBodyDialogue?.QueueFree();
+							var action = new ActionData(
+								attackerIndex: attackerIndex,
+								attackerBody: simulate.attackerBodyPart.Value,
+								defenderIndex: simulate.defenderIndex.Value,
+								defenderBody: simulate.defenderBodyPart.Value
+							);
+							combatNode.combatData.lastAction = action;
+							_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
+						},
+						option = $"{bodyPart.GetName()}",
+					});
+				}
+				defenderBodyDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderBodyPart = null; }, returnDescription: "返回选择目标角色");
 			}
 		}
 		void HandleBotTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
@@ -343,60 +343,60 @@ public partial class CombatNode : Node
 					BodyPartCode.RightLeg => defender.rightLeg,
 					_ => throw new ArgumentOutOfRangeException(),
 				};
-			await combatNode.gameNode.Root.PopMessage(
-				$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
-			var damage = GD.RandRange(simulateResult.damageRange.min, simulateResult.damageRange.max);
-			targetBodyPart.hp -= damage;
-			combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
-			if (defenderNode != null)
-			{
-				defenderNode.Shake();
-				var bodyPartDrawer = defenderNode.GetBodyPartDrawer(action.defenderBody);
-				bodyPartDrawer?.Flash();
-			}
-			await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
-			if (defenderNode != null) defenderNode.IsActing = false;
-			if (defender.Dead)
-			{
-				await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
-				combatNode.combatData.characters.RemoveAt(action.defenderIndex);
-				var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
-				var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
-				if (!team0Alive || !team1Alive)
+				await combatNode.gameNode.Root.PopMessage(
+					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
+				var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
+				targetBodyPart.hp -= damage;
+				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
+				if (defenderNode != null)
 				{
-					var winner = team0Alive ? "玩家" : "敌人";
-					Log.Print($"战斗结束，{winner}获胜");
-					combatNode.combatData.characters.Clear();
-					var gameNode = combatNode.gameNode;
-					if (!team0Alive)
-					{
-						var root = gameNode.Root;
-						root.PlayMusic(AudioTable.arpegio01Loop45094);
-						await root.PopMessage("玩家队伍全灭，返回主菜单");
-						if (File.Exists(Persistant.saveDataPath))
-						{
-							File.Delete(Persistant.saveDataPath);
-							Log.Print("存档已删除");
-						}
-						combatNode.QueueFree();
-						gameNode.QueueFree();
-						root.state = new ProgramRootNode.IdleState(root);
-					}
-					else
-					{
-						gameNode.SetCombatData(null);
-						gameNode.Save();
-						combatNode.QueueFree();
-					}
-					return;
+					defenderNode.Shake();
+					var bodyPartDrawer = defenderNode.GetBodyPartDrawer(action.defenderBody);
+					bodyPartDrawer?.Flash();
 				}
-			}
-			var actionPoint = simulateResult.actionPoint;
-			attacker.ActionPoint -= actionPoint;
-			await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
-			var attackerNode = combatNode.GetCharacterNode(attacker);
-			if (attackerNode != null) attackerNode.IsActing = false;
-			_ = new RoundInProgressState(combatNode);
+				await combatNode.gameNode.Root.PopMessage($"造成{damage}点伤害!");
+				if (defenderNode != null) defenderNode.IsActing = false;
+				if (defender.Dead)
+				{
+					await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
+					combatNode.combatData.characters.RemoveAt(action.defenderIndex);
+					var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
+					var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
+					if (!team0Alive || !team1Alive)
+					{
+						var winner = team0Alive ? "玩家" : "敌人";
+						Log.Print($"战斗结束，{winner}获胜");
+						combatNode.combatData.characters.Clear();
+						var gameNode = combatNode.gameNode;
+						if (!team0Alive)
+						{
+							var root = gameNode.Root;
+							root.PlayMusic(AudioTable.arpegio01Loop45094);
+							await root.PopMessage("玩家队伍全灭，返回主菜单");
+							if (File.Exists(Persistant.saveDataPath))
+							{
+								File.Delete(Persistant.saveDataPath);
+								Log.Print("存档已删除");
+							}
+							combatNode.QueueFree();
+							gameNode.QueueFree();
+							root.state = new ProgramRootNode.IdleState(root);
+						}
+						else
+						{
+							gameNode.SetCombatData(null);
+							gameNode.Save();
+							combatNode.QueueFree();
+						}
+						return;
+					}
+				}
+				var actionPoint = simulateResult.actionPoint;
+				attacker.ActionPoint -= actionPoint;
+				await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPoint}行动力!");
+				var attackerNode = combatNode.GetCharacterNode(attacker);
+				if (attackerNode != null) attackerNode.IsActing = false;
+				_ = new RoundInProgressState(combatNode);
 			}
 			catch (Exception e)
 			{
@@ -450,26 +450,19 @@ public partial class CombatNode : Node
 		}
 		PlayEntryAnimations();
 	}
+	public override void _Process(double delta) => CurrentState.Update(delta);
+	public bool AreAllEntryAnimationsFinished() => isEntryAnimationFinished;
 	async void PlayEntryAnimations()
 	{
 		var screenSize = GetViewport().GetVisibleRect().Size;
-		
 		team0.OffsetTop = (int)screenSize.Y;
 		team1.OffsetTop = -(int)screenSize.Y;
-		
 		var tween0 = CreateTween();
 		var tween1 = CreateTween();
-		
-		tween0.TweenProperty(team0, "offset_top", 0, 0.5);
-		tween1.TweenProperty(team1, "offset_top", 0, 0.5);
-		
-		await ToSignal(tween0, Tween.SignalName.Finished);
+		tween0.TweenProperty(@object: team0, property: "offset_top", finalVal: 0, duration: 0.5);
+		tween1.TweenProperty(@object: team1, property: "offset_top", finalVal: 0, duration: 0.5);
+		await ToSignal(source: tween0, signal: Tween.SignalName.Finished);
 		isEntryAnimationFinished = true;
 	}
-	public override void _Process(double delta) => CurrentState.Update(delta);
 	CharacterNode? GetCharacterNode(CharacterData character) => characterNodes.TryGetValue(key: character, value: out var node) ? node : null;
-	public bool AreAllEntryAnimationsFinished()
-	{
-		return isEntryAnimationFinished;
-	}
 }
