@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
 public record ActionData
@@ -61,4 +62,28 @@ public static class ActionCodeExtensions
 			ActionCode.ElbowStrike => "肘击",
 			_ => "未知动作",
 		};
+}
+public class ActionConfig
+{
+	public static readonly Dictionary<ActionCode, ActionConfig> Configs = new();
+	static ActionConfig()
+	{
+		Configs[ActionCode.StraightPunch] = new(actionCode: ActionCode.StraightPunch, damageRange: (1, 3), actionPointCost: 5, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
+		Configs[ActionCode.HookPunch] = new(actionCode: ActionCode.HookPunch, damageRange: (2, 4), actionPointCost: 6, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
+		Configs[ActionCode.Swing] = new(actionCode: ActionCode.Swing, damageRange: (3, 5), actionPointCost: 7, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
+		Configs[ActionCode.Thrust] = new(actionCode: ActionCode.Thrust, damageRange: (2, 6), actionPointCost: 6, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
+		Configs[ActionCode.Kick] = new(actionCode: ActionCode.Kick, damageRange: (4, 8), actionPointCost: 8, allowedBodyParts: new[] { BodyPartCode.LeftLeg, BodyPartCode.RightLeg });
+		Configs[ActionCode.ElbowStrike] = new(actionCode: ActionCode.ElbowStrike, damageRange: (2, 4), actionPointCost: 4, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
+	}
+	public (int min, int max) damageRange { get; private set; }
+	public int actionPointCost { get; private set; }
+	public ActionCode actionCode { get; private set; }
+	public IReadOnlyList<BodyPartCode> allowedBodyParts { get; private set; }
+	ActionConfig(ActionCode actionCode, (int min, int max) damageRange, int actionPointCost, IReadOnlyList<BodyPartCode> allowedBodyParts)
+	{
+		this.actionCode = actionCode;
+		this.damageRange = damageRange;
+		this.actionPointCost = actionPointCost;
+		this.allowedBodyParts = allowedBodyParts;
+	}
 }

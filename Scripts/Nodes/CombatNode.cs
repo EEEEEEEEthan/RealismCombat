@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Godot;
 using RealismCombat.Data;
@@ -78,22 +79,24 @@ public partial class CombatNode : Node
 			error = null!;
 			return true;
 		}
-		public SimulateResult Simulate()
+	public SimulateResult Simulate()
+	{
+		if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
+		if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
+		if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
+		if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
+		if (!actionCode.HasValue) throw new InvalidOperationException("动作代码未设置");
+		if (!ValidAttackerBodyPart(bodyPart: attackerBodyPart.Value, error: out var attackerError)) throw new InvalidOperationException(attackerError);
+		if (!ValidDefender(defenderIndex: defenderIndex.Value, error: out var defenderError)) throw new InvalidOperationException(defenderError);
+		if (!ValidDefenderBodyPart(bodyPart: defenderBodyPart.Value, error: out var defenderBodyError))
+			throw new InvalidOperationException(defenderBodyError);
+		var config = ActionConfig.Configs.TryGetValue(actionCode.Value, out var actionConfig) ? actionConfig : throw new InvalidOperationException($"未找到动作配置：{actionCode.Value}");
+		return new()
 		{
-			if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
-			if (!defenderIndex.HasValue) throw new InvalidOperationException("防御者索引未设置");
-			if (!attackerBodyPart.HasValue) throw new InvalidOperationException("攻击者身体部位未设置");
-			if (!defenderBodyPart.HasValue) throw new InvalidOperationException("防御者身体部位未设置");
-			if (!ValidAttackerBodyPart(bodyPart: attackerBodyPart.Value, error: out var attackerError)) throw new InvalidOperationException(attackerError);
-			if (!ValidDefender(defenderIndex: defenderIndex.Value, error: out var defenderError)) throw new InvalidOperationException(defenderError);
-			if (!ValidDefenderBodyPart(bodyPart: defenderBodyPart.Value, error: out var defenderBodyError))
-				throw new InvalidOperationException(defenderBodyError);
-			return new()
-			{
-				damageRange = (1, 3),
-				actionPoint = 5,
-			};
-		}
+			damageRange = config.damageRange,
+			actionPoint = config.actionPointCost,
+		};
+	}
 	}
 	public class CombatNodeAwaiter : INotifyCompletion
 	{
@@ -250,32 +253,34 @@ public partial class CombatNode : Node
 				}
 				attackerBodyDialogue.Initialize(dialogueData);
 			}
-			void selectActionCode()
+		void selectActionCode()
+		{
+			actionCodeDialogue = programRoot.CreateDialogue();
+			var dialogueData = new DialogueData
 			{
-				actionCodeDialogue = programRoot.CreateDialogue();
-				var dialogueData = new DialogueData
+				title = $"{attacker.name}的回合-选择攻击动作",
+			};
+			var options = new List<DialogueOptionData>();
+			dialogueData.options = options;
+			foreach (ActionCode actionCode in Enum.GetValues<ActionCode>())
+			{
+				var code = actionCode;
+				var config = ActionConfig.Configs.TryGetValue(actionCode, out var actionConfig) ? actionConfig : null;
+				var allowedByBodyPart = config != null && config.allowedBodyParts.Contains(simulate.attackerBodyPart!.Value);
+				options.Add(new()
 				{
-					title = $"{attacker.name}的回合-选择攻击动作",
-				};
-				var options = new List<DialogueOptionData>();
-				dialogueData.options = options;
-				foreach (ActionCode actionCode in Enum.GetValues<ActionCode>())
-				{
-					var code = actionCode;
-					options.Add(new()
+					available = allowedByBodyPart,
+					description = allowedByBodyPart ? actionCode.GetName() : "该身体部位无法使用此动作",
+					onConfirm = () =>
 					{
-						available = true,
-						description = actionCode.GetName(),
-						onConfirm = () =>
-						{
-							simulate.actionCode = code;
-							selectDefender();
-						},
-						option = actionCode.GetName(),
-					});
-				}
-				actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
+						simulate.actionCode = code;
+						selectDefender();
+					},
+					option = actionCode.GetName(),
+				});
 			}
+			actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
+		}
 			void selectDefender()
 			{
 				defenderDialogue = programRoot.CreateDialogue();
@@ -383,6 +388,7 @@ public partial class CombatNode : Node
 					defenderIndex = action.defenderIndex,
 					attackerBodyPart = action.attackerBody,
 					defenderBodyPart = action.defenderBody,
+					actionCode = action.actionCode,
 				};
 				var simulateResult = simulate.Simulate();
 				var attacker = combatNode.combatData.characters[action.attackerIndex];
