@@ -3,6 +3,29 @@ using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
+
+[Flags]
+public enum EquipmentType : ulong
+{
+	None = 0,
+	钱 = 1UL << 0,
+	头盔内衬 = 1UL << 1,
+	头盔中层 = 1UL << 2,
+	头盔 = 1UL << 3,
+	护手 = 1UL << 4,
+	胸甲内衬 = 1UL << 5,
+	胸甲中层 = 1UL << 6,
+	胸甲外套 = 1UL << 7,
+	单手武器 = 1UL << 8,
+	双手武器 = 1UL << 9,
+	刀 = 1UL << 10,
+	剑 = 1UL << 11,
+	锤 = 1UL << 12,
+	斧 = 1UL << 13,
+	枪 = 1UL << 14,
+	戟 = 1UL << 15,
+	盾 = 1UL << 16,
+}
 public class ItemData : IItemContainer
 {
 	public readonly uint itemId;
