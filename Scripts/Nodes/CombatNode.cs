@@ -129,7 +129,7 @@ public partial class CombatNode : Node
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
 				CharacterTurnState.serializeId => new CharacterTurnState(combatNode: combatNode,
 					character: combatData.characters[combatData.currentCharacterIndex]),
-				CharacterTurnActionState.serializeId => new CharacterTurnActionState(combatNode: combatNode, action: combatData.lastAction!),
+				CharacterTurnActionState.serializeId => new RoundInProgressState(combatNode),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 		}
@@ -353,7 +353,6 @@ public partial class CombatNode : Node
 								defenderBody: simulate.defenderBodyPart.Value,
 								actionCode: simulate.actionCode.Value
 							);
-							combatNode.combatData.lastAction = action;
 							_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 						},
 						option = $"{bodyPart.GetName()}{equipmentText}",
@@ -373,7 +372,6 @@ public partial class CombatNode : Node
 				defenderBody: BodyPartCode.Head,
 				actionCode: ActionCode.StraightPunch
 			);
-			combatNode.combatData.lastAction = action;
 			_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 		}
 	}
