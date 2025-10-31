@@ -7,6 +7,7 @@ partial class CharacterNode : Control
 	const float moveLerpSpeed = 10.0f;
 	const float shakeDuration = 0.3f;
 	const float shakeStrength = 4.0f;
+	const float deathRedDuration = 0.1f;
 	public static CharacterNode Create()
 	{
 		var instance = GD.Load<PackedScene>(ResourceTable.character).Instantiate<CharacterNode>();
@@ -27,7 +28,9 @@ partial class CharacterNode : Control
 	float currentVerticalOffset;
 	bool isActing;
 	double shakeTime;
+	double deathRedTime;
 	int currentReactionCount;
+	bool wasAlive;
 	public CharacterData? CharacterData { get; set; }
 	public bool IsActing
 	{
@@ -64,11 +67,34 @@ partial class CharacterNode : Control
 		rightLeg = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/RightLeg");
 		leftLeg = GetNode<PropertyDrawerNode>("PanelContainer/VBoxContainer/LeftLeg");
 		originalPanelPosition = panelContainer.Position;
+		wasAlive = true;
 	}
 	public override void _Process(double delta)
 	{
 		if (CharacterData == null) return;
-		panelContainer.ThemeTypeVariation = CharacterData.team == 0 ? "PanelContainer_Blue" : "PanelContainer_Orange";
+		var isAlive = !CharacterData.Dead;
+		if (wasAlive && !isAlive)
+		{
+			deathRedTime = deathRedDuration;
+		}
+		wasAlive = isAlive;
+		if (deathRedTime > 0)
+		{
+			deathRedTime -= delta;
+			if (deathRedTime <= 0)
+			{
+				deathRedTime = 0;
+				panelContainer.ThemeTypeVariation = "PanelContainer_Gray";
+			}
+			else
+			{
+				panelContainer.ThemeTypeVariation = "PanelContainer_Red";
+			}
+		}
+		else if (isAlive)
+		{
+			panelContainer.ThemeTypeVariation = CharacterData.team == 0 ? "PanelContainer_Blue" : "PanelContainer_Orange";
+		}
 		nameLabel.Text = CharacterData.name;
 		actionPoint.Value = ((float)CharacterData.ActionPoint + 10) / 10;
 		speed.Value = (float)CharacterData.speed / 10;

@@ -5,13 +5,14 @@
 [ext_resource type="PackedScene" uid="uid://d3s5fkmxowalf" path="res://Scenes/PropertyDrawer.tscn" id="3_677pu"]
 
 [node name="Character" type="Control"]
+custom_minimum_size = Vector2(53, 86)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 7.0
 offset_top = 66.0
-offset_right = -448.0
+offset_right = -452.0
 offset_bottom = -296.0
 grow_horizontal = 2
 grow_vertical = 2
