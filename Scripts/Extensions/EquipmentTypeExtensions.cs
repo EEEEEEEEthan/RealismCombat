@@ -15,7 +15,7 @@ static class EquipmentTypeExtensions
 		if ((type & EquipmentType.ChestLiner) != 0) parts.Add("胸甲内衬");
 		if ((type & EquipmentType.ChestMidLayer) != 0) parts.Add("胸甲中层");
 		if ((type & EquipmentType.ChestOuter) != 0) parts.Add("胸甲外套");
-		if ((type & EquipmentType.OneHandedWeapon) != 0) parts.Add("单手武器");
+		if ((type & EquipmentType.Arm) != 0) parts.Add("武器");
 		if ((type & EquipmentType.Knife) != 0) parts.Add("刀");
 		if ((type & EquipmentType.Sword) != 0) parts.Add("剑");
 		if ((type & EquipmentType.Hammer) != 0) parts.Add("锤");
@@ -40,7 +40,7 @@ static class EquipmentTypeExtensions
 		if ((type & EquipmentType.ChestLiner) != 0) parts.Add("内衬");
 		if ((type & EquipmentType.ChestMidLayer) != 0) parts.Add("中层");
 		if ((type & EquipmentType.ChestOuter) != 0) parts.Add("外套");
-		if ((type & EquipmentType.OneHandedWeapon) != 0) parts.Add("单手武器");
+		if ((type & EquipmentType.Arm) != 0) parts.Add("武器");
 		if ((type & EquipmentType.Knife) != 0) parts.Add("刀");
 		if ((type & EquipmentType.Sword) != 0) parts.Add("剑");
 		if ((type & EquipmentType.Hammer) != 0) parts.Add("锤");
