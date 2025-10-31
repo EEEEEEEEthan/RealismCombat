@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat.Data;
@@ -85,5 +86,47 @@ public class ActionConfig
 		this.damageRange = damageRange;
 		this.actionPointCost = actionPointCost;
 		this.allowedBodyParts = allowedBodyParts;
+	}
+	public bool ValidEquipment(CharacterData attacker, BodyPartCode bodyPart, out string error)
+	{
+		var bodyPartData = bodyPart switch
+		{
+			BodyPartCode.Head => attacker.head,
+			BodyPartCode.Chest => attacker.chest,
+			BodyPartCode.LeftArm => attacker.leftArm,
+			BodyPartCode.RightArm => attacker.rightArm,
+			BodyPartCode.LeftLeg => attacker.leftLeg,
+			BodyPartCode.RightLeg => attacker.rightLeg,
+			_ => throw new ArgumentOutOfRangeException(),
+		};
+		if (actionCode == ActionCode.Swing || actionCode == ActionCode.Thrust)
+		{
+			var weaponSlotIndex = bodyPartData.id switch
+			{
+				BodyPartCode.LeftArm => 1,
+				BodyPartCode.RightArm => 1,
+				_ => -1,
+			};
+			if (weaponSlotIndex < 0 || weaponSlotIndex >= bodyPartData.slots.Length)
+			{
+				error = $"{bodyPart.GetName()}无法装备武器";
+				return false;
+			}
+			var weaponSlot = bodyPartData.slots[weaponSlotIndex];
+			if (weaponSlot.item == null)
+			{
+				error = $"{bodyPart.GetName()}未装备武器";
+				return false;
+			}
+			var itemType = ItemConfig.Configs.TryGetValue(key: weaponSlot.item.itemId, value: out var itemConfig) ? itemConfig.equipmentType : EquipmentType.None;
+			var hasWeapon = (itemType & (EquipmentType.OneHandedWeapon | EquipmentType.TwoHandedWeapon)) != 0;
+			if (!hasWeapon)
+			{
+				error = $"{bodyPart.GetName()}装备的不是武器";
+				return false;
+			}
+		}
+		error = null!;
+		return true;
 	}
 }

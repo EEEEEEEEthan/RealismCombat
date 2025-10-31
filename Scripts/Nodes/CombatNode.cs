@@ -58,27 +58,27 @@ public partial class CombatNode : Node
 			error = null!;
 			return true;
 		}
-		public bool ValidDefender(int defenderIndex, out string error)
+	public bool ValidDefender(int defenderIndex, out string error)
+	{
+		var defender = combatData.characters[defenderIndex];
+		if (defenderIndex == attackerIndex)
 		{
-			var defender = combatData.characters[defenderIndex];
-			if (defenderIndex == attackerIndex)
-			{
-				error = "不能攻击自己";
-				return false;
-			}
-			if (defender.team == Attacker.team)
-			{
-				error = "不能攻击同队队友";
-				return false;
-			}
-			if (defender.Dead)
-			{
-				error = $"{defender.name}已死亡";
-				return false;
-			}
-			error = null!;
-			return true;
+			error = "不能攻击自己";
+			return false;
 		}
+		if (defender.team == Attacker.team)
+		{
+			error = "不能攻击同队队友";
+			return false;
+		}
+		if (defender.Dead)
+		{
+			error = $"{defender.name}已死亡";
+			return false;
+		}
+		error = null!;
+		return true;
+	}
 	public SimulateResult Simulate()
 	{
 		if (!attackerIndex.HasValue) throw new InvalidOperationException("攻击者索引未设置");
@@ -91,6 +91,8 @@ public partial class CombatNode : Node
 		if (!ValidDefenderBodyPart(bodyPart: defenderBodyPart.Value, error: out var defenderBodyError))
 			throw new InvalidOperationException(defenderBodyError);
 		var config = ActionConfig.Configs.TryGetValue(actionCode.Value, out var actionConfig) ? actionConfig : throw new InvalidOperationException($"未找到动作配置：{actionCode.Value}");
+		if (!config.ValidEquipment(attacker: Attacker, bodyPart: attackerBodyPart.Value, error: out var equipmentError))
+			throw new InvalidOperationException(equipmentError);
 		return new()
 		{
 			damageRange = config.damageRange,
@@ -267,10 +269,14 @@ public partial class CombatNode : Node
 				var code = actionCode;
 				var config = ActionConfig.Configs.TryGetValue(actionCode, out var actionConfig) ? actionConfig : null;
 				var allowedByBodyPart = config != null && config.allowedBodyParts.Contains(simulate.attackerBodyPart!.Value);
+				string equipmentError = null!;
+				var validEquipment = allowedByBodyPart && config != null && config.ValidEquipment(attacker: attacker, bodyPart: simulate.attackerBodyPart.Value, error: out equipmentError);
+				var available = validEquipment;
+				var description = allowedByBodyPart ? (validEquipment ? actionCode.GetName() : equipmentError) : "该身体部位无法使用此动作";
 				options.Add(new()
 				{
-					available = allowedByBodyPart,
-					description = allowedByBodyPart ? actionCode.GetName() : "该身体部位无法使用此动作",
+					available = available,
+					description = description,
 					onConfirm = () =>
 					{
 						simulate.actionCode = code;
