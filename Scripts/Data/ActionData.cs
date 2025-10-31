@@ -49,6 +49,7 @@ public enum ActionCode
 	Thrust,
 	Kick,
 	ElbowStrike,
+	Headbutt,
 }
 public static class ActionCodeExtensions
 {
@@ -61,6 +62,7 @@ public static class ActionCodeExtensions
 			ActionCode.Thrust => "刺击",
 			ActionCode.Kick => "踢",
 			ActionCode.ElbowStrike => "肘击",
+			ActionCode.Headbutt => "头槌",
 			_ => "未知动作",
 		};
 }
@@ -75,6 +77,7 @@ public class ActionConfig
 		Configs[ActionCode.Thrust] = new(actionCode: ActionCode.Thrust, damageRange: (2, 6), actionPointCost: 6, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
 		Configs[ActionCode.Kick] = new(actionCode: ActionCode.Kick, damageRange: (4, 8), actionPointCost: 8, allowedBodyParts: new[] { BodyPartCode.LeftLeg, BodyPartCode.RightLeg });
 		Configs[ActionCode.ElbowStrike] = new(actionCode: ActionCode.ElbowStrike, damageRange: (2, 4), actionPointCost: 4, allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm });
+		Configs[ActionCode.Headbutt] = new(actionCode: ActionCode.Headbutt, damageRange: (3, 6), actionPointCost: 6, allowedBodyParts: new[] { BodyPartCode.Head });
 	}
 	public (int min, int max) damageRange { get; private set; }
 	public int actionPointCost { get; private set; }
