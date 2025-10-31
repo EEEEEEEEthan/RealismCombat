@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://d3s5fkmxowalf" path="res://Scenes/PropertyDrawer.tscn" id="3_677pu"]
 
 [node name="Character" type="Control"]
-custom_minimum_size = Vector2(57, 86)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,7 +25,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"Team0"
+theme_type_variation = &"PanelContainer_Red"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 2

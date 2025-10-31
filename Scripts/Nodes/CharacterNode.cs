@@ -68,7 +68,7 @@ partial class CharacterNode : Control
 	public override void _Process(double delta)
 	{
 		if (CharacterData == null) return;
-		panelContainer.ThemeTypeVariation = CharacterData.team == 0 ? "Team0" : "Team1";
+		panelContainer.ThemeTypeVariation = CharacterData.team == 0 ? "PanelContainer_Blue" : "PanelContainer_Orange";
 		nameLabel.Text = CharacterData.name;
 		actionPoint.Value = ((float)CharacterData.ActionPoint + 10) / 10;
 		speed.Value = (float)CharacterData.speed / 10;

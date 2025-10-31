@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=10 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=14 format=3 uid="uid://bpxr1w3o076bd"]
 
 [ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
 [ext_resource type="FontFile" uid="uid://bepbhrp0yisid" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
@@ -26,6 +26,17 @@ texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 5.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_y2aw4"]
+atlas = ExtResource("2_k1aya")
+region = Rect2(16, 16, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7yw46"]
+texture = SubResource("AtlasTexture_y2aw4")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_t6dyh"]
 atlas = ExtResource("2_k1aya")
 region = Rect2(48, 0, 16, 16)
@@ -38,17 +49,32 @@ texture_margin_right = 5.0
 texture_margin_bottom = 5.0
 region_rect = Rect2(0, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_k1aya"]
+atlas = ExtResource("2_k1aya")
+region = Rect2(32, 16, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j4jqe"]
+texture = SubResource("AtlasTexture_k1aya")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
 [resource]
 default_font = ExtResource("1_k1aya")
 default_font_size = 10
 HBoxContainer/constants/separation = 0
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
+PanelContainer_Blue/base_type = &"PanelContainer"
+PanelContainer_Blue/styles/panel = SubResource("StyleBoxTexture_t6dyh")
+PanelContainer_Gray/base_type = &"PanelContainer"
+PanelContainer_Gray/styles/panel = SubResource("StyleBoxTexture_7yw46")
+PanelContainer_Orange/base_type = &"PanelContainer"
+PanelContainer_Orange/styles/panel = SubResource("StyleBoxTexture_y2aw4")
+PanelContainer_Red/base_type = &"PanelContainer"
+PanelContainer_Red/styles/panel = SubResource("StyleBoxTexture_j4jqe")
 SmallLabel/base_type = &"Label"
 SmallLabel/font_sizes/font_size = 8
 SmallLabel/fonts/font = ExtResource("2_23v3e")
-Team0/base_type = &"PanelContainer"
-Team0/styles/panel = SubResource("StyleBoxTexture_t6dyh")
-Team1/base_type = &"PanelContainer"
-Team1/styles/panel = SubResource("StyleBoxTexture_y2aw4")
 VBoxContainer/constants/separation = 0
