@@ -629,7 +629,7 @@ public partial class CombatNode : Node
 				var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
 				reactionDialogue.Initialize(new()
 				{
-					title = $"{defender.name}的应对选择",
+					title = $"{defender.name}的反应",
 					options = new List<DialogueOptionData>
 					{
 						new()
