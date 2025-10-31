@@ -6,7 +6,6 @@ public class CombatData
 {
 	public readonly List<CharacterData> characters = [];
 	public byte state;
-	public byte currentCharacterIndex;
 	public double tickTimer;
 	public long tickCount;
 	public byte[]? stateData;
@@ -15,7 +14,6 @@ public class CombatData
 		using (reader.ReadScope())
 		{
 			state = reader.ReadByte();
-			currentCharacterIndex = reader.ReadByte();
 			tickTimer = reader.ReadDouble();
 			tickCount = reader.ReadInt64();
 			var count = reader.ReadByte();
@@ -41,7 +39,6 @@ public class CombatData
 		using (writer.WriteScope())
 		{
 			writer.Write(state);
-			writer.Write(currentCharacterIndex);
 			writer.Write(tickTimer);
 			writer.Write(tickCount);
 			writer.Write((byte)characters.Count);

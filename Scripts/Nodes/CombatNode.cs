@@ -129,8 +129,7 @@ public partial class CombatNode : Node
 			return combatData.state switch
 			{
 				RoundInProgressState.serializeId => new RoundInProgressState(combatNode),
-				CharacterTurnState.serializeId => new CharacterTurnState(combatNode: combatNode,
-					character: combatData.characters[combatData.currentCharacterIndex]),
+				CharacterTurnState.serializeId => CharacterTurnState.Load(combatNode),
 				CharacterTurnActionState.serializeId => new RoundInProgressState(combatNode),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
@@ -167,23 +166,31 @@ public partial class CombatNode : Node
 		}
 		void CheckForReadyCharacter()
 		{
-			foreach (var character in combatNode.combatData.characters)
+			for (byte index = 0; index < combatNode.combatData.characters.Count; index++)
+			{
+				var character = combatNode.combatData.characters[index];
 				if (character.ActionPoint >= 0)
 				{
-					_ = new CharacterTurnState(combatNode: combatNode, character: character);
+					_ = new CharacterTurnState(combatNode: combatNode, characterIndex: index);
 					return;
 				}
+			}
 		}
 	}
 	public class CharacterTurnState : State
 	{
 		public const byte serializeId = 1;
-		public readonly CharacterData character;
-		public CharacterTurnState(CombatNode combatNode, CharacterData character) : base(combatNode)
+		public new static CharacterTurnState Load(CombatNode combatNode)
 		{
-			this.character = character;
-			var characterIndex = (byte)combatNode.combatData.characters.IndexOf(character);
-			combatNode.combatData.currentCharacterIndex = characterIndex;
+			using var stream = new MemoryStream(combatNode.combatData.stateData!);
+			using var reader = new BinaryReader(stream);
+			var characterIndex = reader.ReadByte();
+			return new(combatNode: combatNode, characterIndex: characterIndex);
+		}
+		public readonly CharacterData character;
+		public CharacterTurnState(CombatNode combatNode, byte characterIndex) : base(combatNode)
+		{
+			character = combatNode.combatData.characters[characterIndex];
 			combatNode.CurrentState = this;
 			combatNode.gameNode.Save();
 			combatNode.gameNode.Root.PlaySoundEffect(AudioTable.selection3);
@@ -266,17 +273,17 @@ public partial class CombatNode : Node
 				};
 				var options = new List<DialogueOptionData>();
 				dialogueData.options = options;
-				foreach (var actionCode in Enum.GetValues<ActionCode>())
+				foreach (var action in Enum.GetValues<ActionCode>())
 				{
-					var code = actionCode;
-					var config = ActionConfig.Configs.GetValueOrDefault(actionCode);
+					var code = action;
+					var config = ActionConfig.Configs.GetValueOrDefault(action);
 					var allowedByBodyPart = config != null && config.allowedBodyParts.Contains(simulate.attackerBodyPart!.Value);
 					if (!allowedByBodyPart) continue;
 					string equipmentError = null!;
 					var validEquipment =
 						config != null && config.ValidEquipment(attacker: attacker, bodyPart: simulate.attackerBodyPart.Value, error: out equipmentError);
 					var available = validEquipment;
-					var description = validEquipment ? actionCode.GetName() : equipmentError;
+					var description = validEquipment ? action.GetName() : equipmentError;
 					options.Add(new()
 					{
 						available = available,
@@ -286,7 +293,7 @@ public partial class CombatNode : Node
 							simulate.actionCode = code;
 							selectDefender();
 						},
-						option = actionCode.GetName(),
+						option = action.GetName(),
 					});
 				}
 				actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
