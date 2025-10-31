@@ -363,11 +363,17 @@ public partial class GameNode : Node
 								gameNode.gameData.items.Remove(item);
 							}
 							gameNode.Save();
-							selectDialogue?.QueueFree();
-							containerDialogue?.QueueFree();
-							if (parentDialogue != null)
+							if (IsInstanceValid(selectDialogue) && selectDialogue.IsInsideTree())
 							{
-								parentDialogue?.QueueFree();
+								selectDialogue.QueueFree();
+							}
+							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree())
+							{
+								containerDialogue.QueueFree();
+							}
+							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree())
+							{
+								parentDialogue.QueueFree();
 							}
 						},
 						available = true,
@@ -401,11 +407,17 @@ public partial class GameNode : Node
 						itemContainer.SetSlot(slotIndex, null);
 					}
 					gameNode.Save();
-					unEquipDialogue?.QueueFree();
-					containerDialogue?.QueueFree();
-					if (parentDialogue != null)
+					if (IsInstanceValid(unEquipDialogue) && unEquipDialogue.IsInsideTree())
 					{
-						parentDialogue?.QueueFree();
+						unEquipDialogue.QueueFree();
+					}
+					if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree())
+					{
+						containerDialogue.QueueFree();
+					}
+					if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree())
+					{
+						parentDialogue.QueueFree();
 					}
 				},
 				available = true,
