@@ -262,28 +262,32 @@ public partial class GameNode : Node
 					available = true,
 				});
 			}
-			if (parentContainer != null && parentSlotIndex.HasValue && container is ItemData)
-				options.Add(new()
-				{
-					option = "卸下",
-					description = "卸下这个装备",
-					onPreview = () => { },
-					onConfirm = () =>
+			if (parentContainer != null && parentSlotIndex.HasValue && container is ItemData itemData)
+			{
+				var hasItems = itemData.items.Any(slot => slot != null);
+				if (!hasItems)
+					options.Add(new()
 					{
-						var itemToUnequip = container as ItemData;
-						if (itemToUnequip != null)
+						option = "卸下",
+						description = "卸下这个装备",
+						onPreview = () => { },
+						onConfirm = () =>
 						{
-							AddItemToInventory(gameNode: gameNode, item: itemToUnequip);
-							if (parentContainer is BodyPartData bodyPart)
-								bodyPart.SetSlot(index: parentSlotIndex.Value, value: null);
-							else if (parentContainer is ItemData itemContainer) itemContainer.SetSlot(index: parentSlotIndex.Value, value: null);
-							gameNode.Save();
-							if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree()) containerDialogue.QueueFree();
-							if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree()) parentDialogue.QueueFree();
-						}
-					},
-					available = true,
-				});
+							var itemToUnequip = container as ItemData;
+							if (itemToUnequip != null)
+							{
+								AddItemToInventory(gameNode: gameNode, item: itemToUnequip);
+								if (parentContainer is BodyPartData bodyPart)
+									bodyPart.SetSlot(index: parentSlotIndex.Value, value: null);
+								else if (parentContainer is ItemData itemContainer) itemContainer.SetSlot(index: parentSlotIndex.Value, value: null);
+								gameNode.Save();
+								if (IsInstanceValid(containerDialogue) && containerDialogue.IsInsideTree()) containerDialogue.QueueFree();
+								if (parentDialogue != null && IsInstanceValid(parentDialogue) && parentDialogue.IsInsideTree()) parentDialogue.QueueFree();
+							}
+						},
+						available = true,
+					});
+			}
 			containerDialogue.Initialize(data: new()
 				{
 					title = title,
