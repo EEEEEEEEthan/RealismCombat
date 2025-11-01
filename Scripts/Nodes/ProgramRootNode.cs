@@ -16,6 +16,76 @@ public partial class ProgramRootNode : Node
 	}
 	public class IdleState : State
 	{
+		static void ShowSettingsMenu(ProgramRootNode programRootNode)
+		{
+			var settings = Settings.Load();
+			var settingsDialogue = programRootNode.CreateDialogue();
+			var options = new List<DialogueOptionData>
+			{
+				new()
+				{
+					option = "[dev]跳过存档",
+					description = settings.SkipSave ? "当前: 是" : "当前: 否",
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						ShowSkipSaveMenu(programRootNode: programRootNode, settings: settings, settingsDialogue: settingsDialogue);
+					},
+					available = true,
+				},
+			};
+			settingsDialogue.Initialize(data: new()
+				{
+					title = "设置",
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回主菜单");
+		}
+		static void ShowSkipSaveMenu(ProgramRootNode programRootNode, Settings settings, MenuDialogue settingsDialogue)
+		{
+			var skipSaveDialogue = programRootNode.CreateDialogue();
+			var options = new List<DialogueOptionData>
+			{
+				new()
+				{
+					option = "是",
+					description = "启用跳过存档",
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						settings.SkipSave = true;
+						settings.Save();
+						Log.Print("已启用跳过存档");
+						if (IsInstanceValid(skipSaveDialogue) && skipSaveDialogue.IsInsideTree()) skipSaveDialogue.QueueFree();
+						if (IsInstanceValid(settingsDialogue) && settingsDialogue.IsInsideTree()) settingsDialogue.QueueFree();
+					},
+					available = true,
+				},
+				new()
+				{
+					option = "否",
+					description = "禁用跳过存档",
+					onPreview = () => { },
+					onConfirm = () =>
+					{
+						settings.SkipSave = false;
+						settings.Save();
+						Log.Print("已禁用跳过存档");
+						if (IsInstanceValid(skipSaveDialogue) && skipSaveDialogue.IsInsideTree()) skipSaveDialogue.QueueFree();
+						if (IsInstanceValid(settingsDialogue) && settingsDialogue.IsInsideTree()) settingsDialogue.QueueFree();
+					},
+					available = true,
+				},
+			};
+			skipSaveDialogue.Initialize(data: new()
+				{
+					title = "跳过存档",
+					options = options,
+				},
+				onReturn: () => { },
+				returnDescription: "返回");
+		}
 		public IdleState(ProgramRootNode programRootNode) : base(programRootNode)
 		{
 			programRootNode.state = this;
@@ -64,6 +134,14 @@ public partial class ProgramRootNode : Node
 					},
 					available = true,
 				});
+			options.Add(new()
+			{
+				option = "设置",
+				description = "游戏设置",
+				onPreview = () => { },
+				onConfirm = () => { ShowSettingsMenu(programRootNode: programRootNode); },
+				available = true,
+			});
 			options.Add(new()
 			{
 				option = "退出",
