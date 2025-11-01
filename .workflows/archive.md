@@ -11,5 +11,5 @@
 
 3. 提交到 Git：
    - 根据 `git diff --cached` 的变更内容编写中文提交信息
-   - 提交, `git commit -m "提交信息" --author="NAME and USER <MAIL>"`覆盖作者.NAME是你的名字(例如claude,cursor,copilot,qwen,trae)USER和MAIL用原作者的设置
+   - 提交, `git commit -m "提交信息" --author="YOURNAME and USER <MAIL>"`覆盖作者.YOURNAME是你的名字(例如claude,cursor,copilot,qwen,trae)USER和MAIL用原作者的设置
    - 如果乱码用英文重试
