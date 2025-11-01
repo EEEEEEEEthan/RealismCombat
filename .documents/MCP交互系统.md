@@ -88,8 +88,12 @@ MCP(Model Context Protocol)交互系统允许外部工具通过TCP连接控制�
   - 发送 `game_quit` 命令到游戏
 
 **DebugTools：**
-- `show_node_tree()` - 显示节点树
+- `show_node_tree()` - 显示节点树结构
   - 发送 `show_node_tree` 命令到游戏
+  - 以JSON格式递归显示Godot节点树的层级结构
+  - 输出格式为 `"节点名(节点类型)"`，根据层级自动缩进
+  - 使用场景：检查场景结构、调试节点层级、监控状态变化、定位节点路径
+  - 实现位于 `Scripts/Nodes/ProgramRootNode.cs` 的 `BuildNodeTree` 方法
 
 ### GameClient - 游戏客户端
 位于 `.McpServer/GameClient.cs`
