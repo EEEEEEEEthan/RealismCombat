@@ -204,6 +204,7 @@ public partial class GameNode : Node
 				var slotIndex = i;
 				var slotItem = container.items[i];
 				string optionText;
+				string? description = null;
 				if (slotItem == null)
 				{
 					optionText = "空";
@@ -213,15 +214,17 @@ public partial class GameNode : Node
 					var equippedCount = slotItem.items.Count(slot => slot != null);
 					var totalSlots = slotItem.items.Count;
 					optionText = $"{GetItemName(slotItem.itemId)}({equippedCount}/{totalSlots})";
+					description = $"{slotItem.weight:F2}kg {slotItem.length:F2}m";
 				}
 				else
 				{
 					optionText = GetItemName(slotItem.itemId);
+					description = $"{slotItem.weight:F2}kg {slotItem.length:F2}m";
 				}
 				options.Add(new()
 				{
 					option = optionText,
-					description = null,
+					description = description,
 					onPreview = () => { },
 					onConfirm = () =>
 					{
