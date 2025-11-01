@@ -312,35 +312,36 @@ public partial class CombatNode : Node
 				}
 				actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
 			}
-			void selectDefender()
+		void selectDefender()
+		{
+			defenderDialogue = programRoot.CreateDialogue();
+			var dialogueData = new DialogueData
 			{
-				defenderDialogue = programRoot.CreateDialogue();
-				var dialogueData = new DialogueData
+				title = $"{attacker.name}的回合-选择目标角色",
+			};
+			var options = new List<DialogueOptionData>();
+			dialogueData.options = options;
+			for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
+			{
+				var index = i;
+				var c = this.combatNode.combatData.characters[i];
+				var defender = c;
+				if (index == attackerIndex || defender.team == attacker.team) continue;
+				var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
+				options.Add(new()
 				{
-					title = $"{attacker.name}的回合-选择目标角色",
-				};
-				var options = new List<DialogueOptionData>();
-				dialogueData.options = options;
-				for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
-				{
-					var index = i;
-					var c = this.combatNode.combatData.characters[i];
-					var defender = c;
-					var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
-					options.Add(new()
+					available = available,
+					description = available ? $"以{defender.name}为目标" : error,
+					onConfirm = () =>
 					{
-						available = available,
-						description = available ? $"以{defender.name}为目标" : error,
-						onConfirm = () =>
-						{
-							simulate.defenderIndex = index;
-							selectDefenderBody();
-						},
-						option = $"{defender.name}",
-					});
-				}
-				defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择攻击动作");
+						simulate.defenderIndex = index;
+						selectDefenderBody();
+					},
+					option = $"{defender.name}",
+				});
 			}
+			defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择攻击动作");
+		}
 			void selectDefenderBody()
 			{
 				var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
