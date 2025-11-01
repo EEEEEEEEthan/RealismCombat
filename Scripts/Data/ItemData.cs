@@ -161,37 +161,95 @@ public class ItemConfig
 	public static readonly Dictionary<uint, ItemConfig> Configs = new();
 	static ItemConfig()
 	{
-		Configs[0] = new(0, "第纳尔", 0, EquipmentType.Money, EquipmentType.None, null, 0.005, 0.01); // 金币很轻
-		Configs[1] = new(1,
-			"棉质内衬",
-			3,
-			EquipmentType.ChestLiner,
-			EquipmentType.None,
-			new[]
+		Configs[0] = new(
+			itemId: 0,
+			name: "第纳尔",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.Money,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 0.005,
+			length: 0.01); // 金币很轻
+		Configs[1] = new(
+			itemId: 1,
+			name: "棉质内衬",
+			slotCapacity: 3,
+			equipmentType: EquipmentType.ChestLiner,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: new[]
 			{
 				EquipmentType.ChestMidLayer, EquipmentType.Arm,
 				EquipmentType.Arm,
 			},
-			1.5,
-			0.8); // 棉质衣物重量
-		Configs[2] = new(2,
-			"链甲",
-			3,
-			EquipmentType.ChestMidLayer,
-			EquipmentType.None,
-			new[]
+			weight: 1.5,
+			length: 0.8); // 棉质衣物重量
+		Configs[2] = new(
+			itemId: 2,
+			name: "链甲",
+			slotCapacity: 3,
+			equipmentType: EquipmentType.ChestMidLayer,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: new[]
 			{
 				EquipmentType.ChestOuter, EquipmentType.Arm,
 				EquipmentType.Arm,
 			},
-			12.0,
-			0.9); // 链甲较重
-		Configs[3] = new(3, "皮帽", 0, EquipmentType.HelmetLiner, EquipmentType.None, null, 0.8, 0.3); // 皮帽
-		Configs[4] = new(4, "布手套", 0, EquipmentType.Gauntlet, EquipmentType.None, null, 0.2, 0.25); // 布手套
-		Configs[5] = new(5, "短刀", 0, EquipmentType.Arm | EquipmentType.Knife, EquipmentType.None, null, 1.2, 0.4); // 短刀
-		Configs[6] = new(6, "长剑", 0, EquipmentType.Arm | EquipmentType.Sword, EquipmentType.None, null, 3.0, 1.2); // 长剑
-		Configs[7] = new(7, "双手剑", 0, EquipmentType.Arm | EquipmentType.Sword, EquipmentType.None, null, 5.5, 1.5); // 双手剑更重
-		Configs[8] = new(8, "圆盾", 0, EquipmentType.Shield, EquipmentType.None, null, 4.0, 0.8); // 圆盾
+			weight: 12.0,
+			length: 0.9); // 链甲较重
+		Configs[3] = new(
+			itemId: 3,
+			name: "皮帽",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.HelmetLiner,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 0.8,
+			length: 0.3); // 皮帽
+		Configs[4] = new(
+			itemId: 4,
+			name: "布手套",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.Gauntlet,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 0.2,
+			length: 0.25); // 布手套
+		Configs[5] = new(
+			itemId: 5,
+			name: "短刀",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.Arm | EquipmentType.Knife,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 1.2,
+			length: 0.4); // 短刀
+		Configs[6] = new(
+			itemId: 6,
+			name: "长剑",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.Arm | EquipmentType.Sword,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 3.0,
+			length: 1.2); // 长剑
+		Configs[7] = new(
+			itemId: 7,
+			name: "双手剑",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.Arm | EquipmentType.Sword,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 5.5,
+			length: 1.5); // 双手剑更重
+		Configs[8] = new(
+			itemId: 8,
+			name: "圆盾",
+			slotCapacity: 0,
+			equipmentType: EquipmentType.Shield,
+			slotAllowedTypes: EquipmentType.None,
+			slotAllowedTypesPerSlot: null,
+			weight: 4.0,
+			length: 0.8); // 圆盾
 	}
 	readonly IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot;
 	public int slotCapacity { get; }
