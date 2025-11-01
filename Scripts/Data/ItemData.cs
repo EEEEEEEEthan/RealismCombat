@@ -234,13 +234,13 @@ public class ItemConfig
 			length: 1.2); // 长剑
 		Configs[7] = new(
 			itemId: 7,
-			name: "双手剑",
+			name: "短剑",
 			slotCapacity: 0,
 			equipmentType: EquipmentType.Arm | EquipmentType.Sword,
 			slotAllowedTypes: EquipmentType.None,
 			slotAllowedTypesPerSlot: null,
-			weight: 5.5,
-			length: 1.5); // 双手剑更重
+			weight: 1.5,
+			length: 0.6); // 短剑更轻更短
 		Configs[8] = new(
 			itemId: 8,
 			name: "圆盾",
