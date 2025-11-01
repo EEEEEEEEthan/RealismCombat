@@ -94,6 +94,7 @@ public class ItemData : IItemContainer
 	public readonly SlotData[] slots;
 	public int count;
 	public double weight; // 单个物品的重量，单位：公斤
+	public double length; // 物品长度（米），如果是武器则为武器长度，否则为最长径
 	public IReadOnlyList<ItemData?> items => slots.Select(s => s.item).ToList().AsReadOnly();
 	public event Action? ItemsChanged;
 	public ItemData(uint itemId, int count)
@@ -102,6 +103,7 @@ public class ItemData : IItemContainer
 		this.count = count;
 		var config = ItemConfig.Configs.TryGetValue(key: itemId, value: out var itemConfig) ? itemConfig : null;
 		this.weight = config?.weight ?? 0.0; // 根据配置设置单个物品重量
+		this.length = config?.length ?? 0.0; // 根据配置设置长度
 		var capacity = config?.slotCapacity ?? 0;
 		slots = new SlotData[capacity];
 		for (var i = 0; i < capacity; i++)
@@ -117,6 +119,7 @@ public class ItemData : IItemContainer
 			itemId = reader.ReadUInt32();
 			count = reader.ReadInt32();
 			weight = reader.ReadDouble(); // 读取单个物品重量
+			length = reader.ReadDouble(); // 读取长度
 			var slotCount = reader.ReadInt32();
 			var capacity = ItemConfig.Configs.TryGetValue(key: itemId, value: out var config) ? config.slotCapacity : 0;
 			slots = new SlotData[capacity];
@@ -135,6 +138,7 @@ public class ItemData : IItemContainer
 			writer.Write(itemId);
 			writer.Write(count);
 			writer.Write(weight); // 写入单个物品重量
+			writer.Write(length); // 写入长度
 			writer.Write(slots.Length);
 			foreach (var slot in slots) slot.Serialize(writer);
 		}
@@ -150,40 +154,44 @@ public class ItemData : IItemContainer
 	{
 		return weight * count;
 	}
-	public override string ToString() => $"{nameof(ItemData)}({nameof(itemId)}={itemId}, {nameof(count)}={count}, {nameof(weight)}={weight}kg, {nameof(slots)}={slots.Length}, {nameof(GetTotalWeight)}={GetTotalWeight()}kg)";
+	public override string ToString() => $"{nameof(ItemData)}({nameof(itemId)}={itemId}, {nameof(count)}={count}, {nameof(weight)}={weight}kg, {nameof(length)}={length}m, {nameof(slots)}={slots.Length}, {nameof(GetTotalWeight)}={GetTotalWeight()}kg)";
 }
 public class ItemConfig
 {
 	public static readonly Dictionary<uint, ItemConfig> Configs = new();
 	static ItemConfig()
 	{
-		Configs[0] = new(itemId: 0, name: "第纳尔", slotCapacity: 0, equipmentType: EquipmentType.Money, weight: 0.005); // 金币很轻
-		Configs[1] = new(itemId: 1,
-			name: "棉质内衬",
-			slotCapacity: 3,
-			equipmentType: EquipmentType.ChestLiner,
-			slotAllowedTypesPerSlot: new[]
+		Configs[0] = new(0, "第纳尔", 0, EquipmentType.Money, EquipmentType.None, null, 0.005, 0.01); // 金币很轻
+		Configs[1] = new(1,
+			"棉质内衬",
+			3,
+			EquipmentType.ChestLiner,
+			EquipmentType.None,
+			new[]
 			{
 				EquipmentType.ChestMidLayer, EquipmentType.Arm,
 				EquipmentType.Arm,
 			},
-			weight: 1.5); // 棉质衣物重量
-		Configs[2] = new(itemId: 2,
-			name: "链甲",
-			slotCapacity: 3,
-			equipmentType: EquipmentType.ChestMidLayer,
-			slotAllowedTypesPerSlot: new[]
+			1.5,
+			0.8); // 棉质衣物重量
+		Configs[2] = new(2,
+			"链甲",
+			3,
+			EquipmentType.ChestMidLayer,
+			EquipmentType.None,
+			new[]
 			{
 				EquipmentType.ChestOuter, EquipmentType.Arm,
 				EquipmentType.Arm,
 			},
-			weight: 12.0); // 链甲较重
-		Configs[3] = new(itemId: 3, name: "皮帽", slotCapacity: 0, equipmentType: EquipmentType.HelmetLiner, weight: 0.8); // 皮帽
-		Configs[4] = new(itemId: 4, name: "布手套", slotCapacity: 0, equipmentType: EquipmentType.Gauntlet, weight: 0.2); // 布手套
-		Configs[5] = new(itemId: 5, name: "短刀", slotCapacity: 0, equipmentType: EquipmentType.Arm | EquipmentType.Knife, weight: 1.2); // 短刀
-		Configs[6] = new(itemId: 6, name: "长剑", slotCapacity: 0, equipmentType: EquipmentType.Arm | EquipmentType.Sword, weight: 3.0); // 长剑
-		Configs[7] = new(itemId: 7, name: "双手剑", slotCapacity: 0, equipmentType: EquipmentType.Arm | EquipmentType.Sword, weight: 5.5); // 双手剑更重
-		Configs[8] = new(itemId: 8, name: "圆盾", slotCapacity: 0, equipmentType: EquipmentType.Shield, weight: 4.0); // 圆盾
+			12.0,
+			0.9); // 链甲较重
+		Configs[3] = new(3, "皮帽", 0, EquipmentType.HelmetLiner, EquipmentType.None, null, 0.8, 0.3); // 皮帽
+		Configs[4] = new(4, "布手套", 0, EquipmentType.Gauntlet, EquipmentType.None, null, 0.2, 0.25); // 布手套
+		Configs[5] = new(5, "短刀", 0, EquipmentType.Arm | EquipmentType.Knife, EquipmentType.None, null, 1.2, 0.4); // 短刀
+		Configs[6] = new(6, "长剑", 0, EquipmentType.Arm | EquipmentType.Sword, EquipmentType.None, null, 3.0, 1.2); // 长剑
+		Configs[7] = new(7, "双手剑", 0, EquipmentType.Arm | EquipmentType.Sword, EquipmentType.None, null, 5.5, 1.5); // 双手剑更重
+		Configs[8] = new(8, "圆盾", 0, EquipmentType.Shield, EquipmentType.None, null, 4.0, 0.8); // 圆盾
 	}
 	readonly IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot;
 	public int slotCapacity { get; }
@@ -192,14 +200,16 @@ public class ItemConfig
 	public uint itemId { get; private set; }
 	public string name { get; private set; }
 	public double weight { get; private set; } // 物品重量（公斤）
+	public double length { get; private set; } // 物品长度（米），如果是武器则为武器长度，否则为最长径
 	ItemConfig(
 		uint itemId,
 		string name,
-		int slotCapacity = 0,
-		EquipmentType equipmentType = EquipmentType.None,
-		EquipmentType slotAllowedTypes = EquipmentType.None,
-		IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot = null,
-		double weight = 0.0)
+		int slotCapacity,
+		EquipmentType equipmentType,
+		EquipmentType slotAllowedTypes,
+		IReadOnlyList<EquipmentType>? slotAllowedTypesPerSlot,
+		double weight,
+		double length)
 	{
 		this.itemId = itemId;
 		this.name = name;
@@ -208,6 +218,7 @@ public class ItemConfig
 		this.slotAllowedTypes = slotAllowedTypes;
 		this.slotAllowedTypesPerSlot = slotAllowedTypesPerSlot;
 		this.weight = weight;
+		this.length = length;
 	}
 	public EquipmentType GetSlotAllowedTypes(int slotIndex)
 	{
