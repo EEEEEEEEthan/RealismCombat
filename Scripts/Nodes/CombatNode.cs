@@ -385,16 +385,68 @@ public partial class CombatNode : Node
 		}
 		void HandleBotTurn(CombatNode combatNode, CharacterData attacker, byte attackerIndex)
 		{
-			var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != attacker.team);
-			if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
-			// 检查右臂是否装备武器，如果有则使用挥砍，否则使用冲拳
-			var hasWeapon = attacker.rightArm.slots.Length > 1 && attacker.rightArm.slots[1].item != null;
+			// 获取所有可攻击的敌人
+			var validTargets = new List<int>();
+			for (var i = 0; i < combatNode.combatData.characters.Count; i++)
+			{
+				var simulate = new ActionSimulate(combatNode.combatData) { attackerIndex = attackerIndex };
+				if (simulate.ValidDefender(defenderIndex: i, error: out _))
+					validTargets.Add(i);
+			}
+			if (validTargets.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
+
+			// 随机选择一个敌人
+			var targetIndex = validTargets[GD.RandRange(from: 0, to: validTargets.Count - 1)];
+
+			// 获取所有可用的攻击者身体部位
+			var validAttackerBodyParts = new List<BodyPartCode>();
+			var simulate2 = new ActionSimulate(combatNode.combatData) { attackerIndex = attackerIndex };
+			foreach (var bodyPart in BodyPartData.allBodyParts)
+			{
+				if (simulate2.ValidAttackerBodyPart(bodyPart: bodyPart, error: out _))
+					validAttackerBodyParts.Add(bodyPart);
+			}
+			if (validAttackerBodyParts.Count == 0) throw new InvalidOperationException("没有可用的身体部位");
+
+			// 随机选择攻击者身体部位
+			var attackerBodyPart = validAttackerBodyParts[GD.RandRange(from: 0, to: validAttackerBodyParts.Count - 1)];
+
+			// 获取该身体部位可用的所有动作
+			var validActions = new List<ActionCode>();
+			foreach (var actionCode in Enum.GetValues<ActionCode>())
+			{
+				var config = ActionConfig.Configs.GetValueOrDefault(actionCode);
+				if (config != null &&
+				    config.allowedBodyParts.Contains(attackerBodyPart) &&
+				    config.ValidEquipment(attacker: attacker, bodyPart: attackerBodyPart, error: out _))
+				{
+					validActions.Add(actionCode);
+				}
+			}
+			if (validActions.Count == 0) throw new InvalidOperationException($"身体部位{attackerBodyPart.GetName()}没有可用的动作");
+
+			// 随机选择动作
+			var selectedAction = validActions[GD.RandRange(from: 0, to: validActions.Count - 1)];
+
+			// 获取所有可攻击的防御者身体部位
+			var validDefenderBodyParts = new List<BodyPartCode>();
+			var simulate3 = new ActionSimulate(combatNode.combatData) { defenderIndex = targetIndex };
+			foreach (var bodyPart in BodyPartData.allBodyParts)
+			{
+				if (simulate3.ValidDefenderBodyPart(bodyPart: bodyPart, error: out _))
+					validDefenderBodyParts.Add(bodyPart);
+			}
+			if (validDefenderBodyParts.Count == 0) throw new InvalidOperationException("目标没有可攻击的身体部位");
+
+			// 随机选择防御者身体部位
+			var defenderBodyPart = validDefenderBodyParts[GD.RandRange(from: 0, to: validDefenderBodyParts.Count - 1)];
+
 			var action = new ActionData(
 				attackerIndex: attackerIndex,
-				attackerBody: BodyPartCode.RightArm,
+				attackerBody: attackerBodyPart,
 				defenderIndex: targetIndex,
-				defenderBody: BodyPartCode.Head,
-				actionCode: hasWeapon ? ActionCode.Swing : ActionCode.StraightPunch
+				defenderBody: defenderBodyPart,
+				actionCode: selectedAction
 			);
 			_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 		}
