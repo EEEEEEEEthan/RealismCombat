@@ -22,6 +22,24 @@ public class CharacterData
 	public double speed = 1;
 	public int reaction;
 	double actionPoint;
+	public double bodyWeight
+	{
+		get
+		{
+			double totalWeight = 70.0;
+			foreach (var bodyPart in bodyParts)
+			{
+				foreach (var slot in bodyPart.slots)
+				{
+					if (slot.item != null)
+					{
+						totalWeight += slot.item.GetTotalWeight();
+					}
+				}
+			}
+			return totalWeight;
+		}
+	}
 	public bool PlayerControlled => team == 0;
 	public bool Dead => head.hp <= 0 || chest.hp <= 0;
 	public double ActionPoint
@@ -81,7 +99,7 @@ public class CharacterData
 		}
 	}
 	public override string ToString() =>
-		$"{nameof(CharacterData)}({nameof(name)}={name}, {nameof(team)}={team}, {nameof(ActionPoint)}={ActionPoint}, {nameof(speed)}={speed}, {nameof(reaction)}={reaction}, {nameof(head)}={head}, {nameof(chest)}={chest}, {nameof(leftArm)}={leftArm}, {nameof(rightArm)}={rightArm}, {nameof(leftLeg)}={leftLeg}, {nameof(rightLeg)}={rightLeg})";
+		$"{nameof(CharacterData)}({nameof(name)}={name}, {nameof(team)}={team}, {nameof(ActionPoint)}={ActionPoint}, {nameof(speed)}={speed}, {nameof(bodyWeight)}={bodyWeight}, {nameof(reaction)}={reaction}, {nameof(head)}={head}, {nameof(chest)}={chest}, {nameof(leftArm)}={leftArm}, {nameof(rightArm)}={rightArm}, {nameof(leftLeg)}={leftLeg}, {nameof(rightLeg)}={rightLeg})";
 }
 public enum BodyPartCode
 {

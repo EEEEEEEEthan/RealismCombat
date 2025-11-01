@@ -474,10 +474,10 @@ public partial class CombatNode : Node
 				};
 				await combatNode.gameNode.Root.PopMessage(
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
-				if (defender.PlayerControlled)
-				{
-					var reactionDecision =
-						await AskPlayerReactionAsync(defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody);
+			if (defender.PlayerControlled)
+			{
+				var reactionDecision =
+					await AskPlayerReactionAsync(attacker: attacker, defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody, action: action);
 					switch (reactionDecision.choice)
 					{
 						case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
@@ -547,19 +547,21 @@ public partial class CombatNode : Node
 							_ = new RoundInProgressState(combatNode);
 							return;
 						}
-						case ReactionChoice.Dodge:
+					case ReactionChoice.Dodge:
+					{
+						defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
+						var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
+						var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
+						var dodgeSucceeded = GD.Randf() < dodgeSuccessRate;
+						if (dodgeSucceeded)
 						{
-							defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
-							var dodgeSucceeded = GD.Randf() < 0.5f;
-							if (dodgeSucceeded)
-							{
-								await combatNode.gameNode.Root.PopMessage($"{defender.name}成功闪避，未受伤害!");
-								await FinishAttackWithoutDamage();
-								return;
-							}
-							await combatNode.gameNode.Root.PopMessage($"{defender.name}试图闪避，但未能成功!");
-							break;
+							await combatNode.gameNode.Root.PopMessage($"{defender.name}成功闪避，未受伤害!");
+							await FinishAttackWithoutDamage();
+							return;
 						}
+						await combatNode.gameNode.Root.PopMessage($"{defender.name}试图闪避，但未能成功!");
+						break;
+					}
 						case ReactionChoice.Hold:
 							break;
 					}
@@ -619,56 +621,61 @@ public partial class CombatNode : Node
 				combatNode.gameNode.Root.McpRespond();
 			}
 		}
-		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(
-			CharacterData defender,
-			int defenderIndex,
-			BodyPartCode targetBodyPart)
+	async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(
+		CharacterData attacker,
+		CharacterData defender,
+		int defenderIndex,
+		BodyPartCode targetBodyPart,
+		ActionData action)
+	{
+		while (true)
 		{
-			while (true)
+			var choice = ReactionChoice.None;
+			var hasReaction = defender.reaction > 0;
+			var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
+			var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
+			var dodgePercentage = (int)(dodgeSuccessRate * 100);
+			var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
+			reactionDialogue.Initialize(new()
 			{
-				var choice = ReactionChoice.None;
-				var hasReaction = defender.reaction > 0;
-				var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
-				reactionDialogue.Initialize(new()
+				title = $"{defender.name}的反应",
+				options = new List<DialogueOptionData>
 				{
-					title = $"{defender.name}的反应",
-					options = new List<DialogueOptionData>
+					new()
 					{
-						new()
+						option = "硬抗",
+						description = "承受攻击",
+						onConfirm = () =>
 						{
-							option = "硬抗",
-							description = "承受攻击",
-							onConfirm = () =>
-							{
-								choice = ReactionChoice.Hold;
-								reactionDialogue.QueueFree();
-							},
-							available = true,
+							choice = ReactionChoice.Hold;
+							reactionDialogue.QueueFree();
 						},
-						new()
-						{
-							option = "格挡",
-							description = hasReaction ? "用选择的部位格挡" : "需要1个[反应]",
-							onConfirm = () =>
-							{
-								choice = ReactionChoice.Block;
-								reactionDialogue.QueueFree();
-							},
-							available = hasReaction,
-						},
-						new()
-						{
-							option = "闪避",
-							description = hasReaction ? "50%概率闪避" : "需要1个[反应]",
-							onConfirm = () =>
-							{
-								choice = ReactionChoice.Dodge;
-								reactionDialogue.QueueFree();
-							},
-							available = hasReaction,
-						},
+						available = true,
 					},
-				});
+					new()
+					{
+						option = "格挡",
+						description = hasReaction ? "用选择的部位格挡" : "需要1个[反应]",
+						onConfirm = () =>
+						{
+							choice = ReactionChoice.Block;
+							reactionDialogue.QueueFree();
+						},
+						available = hasReaction,
+					},
+					new()
+					{
+						option = "闪避",
+						description = hasReaction ? $"{dodgePercentage}%概率闪避" : "需要1个[反应]",
+						onConfirm = () =>
+						{
+							choice = ReactionChoice.Dodge;
+							reactionDialogue.QueueFree();
+						},
+						available = hasReaction,
+					},
+				},
+			});
 				await reactionDialogue;
 				switch (choice)
 				{
