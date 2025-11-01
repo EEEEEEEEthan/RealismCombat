@@ -4,7 +4,9 @@
       "Bash(dir:*)",
       "Bash(where dotnet:*)",
       "Read(*)",
-      "mcp__RealismCombatMcp__*"
+      "mcp__RealismCombatMcp__system_launch_program",
+      "mcp__RealismCombatMcp__game_select_option",
+      "mcp__RealismCombatMcp__game_quit"
     ],
     "deny": [],
     "ask": []

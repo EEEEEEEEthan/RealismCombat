@@ -3,19 +3,4 @@ mode: agent
 ---
 # test
 
-使用RealismCombatMcp工具进行测试.如果这个Mcp工具无法使用(或者不存在),你应该提醒用户
-
-你不需要自己编译游戏.mcp工具system_start_game会完成编译任务
-
-1. 使用mcp工具启动游戏(system_start_game).如果偶游戏正在运行,先关闭游戏(system_shut_down)
-2. 进行相关内容测试
-3. 如果遇到问题, 查看`.logs/`对应文件定位问题
-4. 测试完毕关闭游戏(system_shut_down)
-
-你不需要自行等待.每一个指令都会在完成其功能之后得到返回内容
-
-## 重要提示
-
-**如果修改了 `.McpServer` 目录下的代码，必须重启 MCP 服务才能使更改生效。**
-
-提醒用户需要手动重启 MCP 服务来应用更改。
+按照此[文档](../../.workflows/test.md)执行
