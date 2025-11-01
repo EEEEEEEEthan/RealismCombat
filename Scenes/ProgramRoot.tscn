@@ -12,6 +12,7 @@ script = ExtResource("1_jh2ti")
 dialogues = NodePath("HBoxContainer")
 
 [node name="TextureRect" type="TextureRect" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_w83y8")
 anchors_preset = 15
 anchor_right = 1.0

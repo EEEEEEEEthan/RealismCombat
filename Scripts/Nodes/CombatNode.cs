@@ -528,13 +528,30 @@ public partial class CombatNode : Node
 				};
 				await combatNode.gameNode.Root.PopMessage(
 					$"{attacker.name}用{action.attackerBody.GetName()}攻击{defender.name}的{action.defenderBody.GetName()}!");
-			if (defender.PlayerControlled)
-			{
-				var reactionDecision =
-					await AskPlayerReactionAsync(attacker: attacker, defender: defender, defenderIndex: action.defenderIndex, targetBodyPart: action.defenderBody, action: action);
-					switch (reactionDecision.choice)
-					{
-						case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
+
+				// 获取反应决策（玩家或AI）
+				(ReactionChoice choice, BodyPartCode? blockBodyPart) reactionDecision;
+				if (defender.PlayerControlled)
+				{
+					reactionDecision = await AskPlayerReactionAsync(
+						attacker: attacker,
+						defender: defender,
+						defenderIndex: action.defenderIndex,
+						targetBodyPart: action.defenderBody,
+						action: action);
+				}
+				else
+				{
+					reactionDecision = DecideBotReaction(
+						defender: defender,
+						defenderIndex: action.defenderIndex,
+						action: action,
+						attacker: attacker);
+				}
+
+				switch (reactionDecision.choice)
+				{
+					case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
 						{
 							defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
 							var blockPart = reactionDecision.blockBodyPart.Value;
@@ -616,11 +633,11 @@ public partial class CombatNode : Node
 						await combatNode.gameNode.Root.PopMessage($"{defender.name}试图闪避，但未能成功!");
 						break;
 					}
-						case ReactionChoice.Hold:
-							break;
-					}
-				}
-				var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
+				case ReactionChoice.Hold:
+					break;
+			}
+
+			var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
 				defenderNode.Shake();
@@ -778,6 +795,80 @@ public partial class CombatNode : Node
 				}
 			}
 		}
+
+	(ReactionChoice choice, BodyPartCode? blockBodyPart) DecideBotReaction(
+		CharacterData defender,
+		int defenderIndex,
+		ActionData action,
+		CharacterData attacker)
+	{
+		// AI没有反应点则硬抗
+		if (defender.reaction <= 0)
+		{
+			Log.Print($"{defender.name}(AI)没有反应点，选择硬抗");
+			return (ReactionChoice.Hold, null);
+		}
+
+		// 计算闪避成功率
+		var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
+		var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
+
+		// 获取所有可用的格挡身体部位
+		var validBlockParts = new List<BodyPartCode>();
+		var simulate = new ActionSimulate(combatNode.combatData) { defenderIndex = defenderIndex };
+		foreach (var bodyPart in BodyPartData.allBodyParts)
+		{
+			if (simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out _))
+				validBlockParts.Add(bodyPart);
+		}
+
+		// AI决策逻辑：
+		// 1. 如果闪避成功率 >= 60%，优先选择闪避
+		// 2. 如果闪避成功率在30%-60%之间，50%概率闪避，50%概率格挡
+		// 3. 如果闪避成功率 < 30%，优先格挡
+		// 4. 如果没有可用的格挡部位，则尝试闪避
+		// 5. 如果都不满足，硬抗
+
+		var random = GD.Randf();
+
+		if (dodgeSuccessRate >= 0.6)
+		{
+			// 高成功率优先闪避
+			Log.Print($"{defender.name}(AI)检测到高闪避成功率({dodgeSuccessRate:P0})，选择闪避");
+			return (ReactionChoice.Dodge, null);
+		}
+		else if (dodgeSuccessRate >= 0.3)
+		{
+			// 中等成功率，随机选择闪避或格挡
+			if (random < 0.5 && validBlockParts.Count > 0)
+			{
+				var selectedPart = validBlockParts[GD.RandRange(from: 0, to: validBlockParts.Count - 1)];
+				Log.Print($"{defender.name}(AI)检测到中等闪避成功率({dodgeSuccessRate:P0})，随机选择格挡，使用{selectedPart.GetName()}");
+				return (ReactionChoice.Block, selectedPart);
+			}
+			else
+			{
+				Log.Print($"{defender.name}(AI)检测到中等闪避成功率({dodgeSuccessRate:P0})，随机选择闪避");
+				return (ReactionChoice.Dodge, null);
+			}
+		}
+		else
+		{
+			// 低成功率优先格挡
+			if (validBlockParts.Count > 0)
+			{
+				var selectedPart = validBlockParts[GD.RandRange(from: 0, to: validBlockParts.Count - 1)];
+				Log.Print($"{defender.name}(AI)检测到低闪避成功率({dodgeSuccessRate:P0})，优先格挡，使用{selectedPart.GetName()}");
+				return (ReactionChoice.Block, selectedPart);
+			}
+			else
+			{
+				// 没有可用格挡部位，尝试闪避
+				Log.Print($"{defender.name}(AI)无可用格挡部位，尝试闪避(成功率{dodgeSuccessRate:P0})");
+				return (ReactionChoice.Dodge, null);
+			}
+		}
+	}
 	}
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
 	{
