@@ -387,12 +387,14 @@ public partial class CombatNode : Node
 		{
 			var targetIndex = combatNode.combatData.characters.FindIndex(c => c.team != attacker.team);
 			if (targetIndex == -1) throw new InvalidOperationException("没有找到可攻击的敌人");
+			// 检查右臂是否装备武器，如果有则使用挥砍，否则使用冲拳
+			var hasWeapon = attacker.rightArm.slots.Length > 1 && attacker.rightArm.slots[1].item != null;
 			var action = new ActionData(
 				attackerIndex: attackerIndex,
 				attackerBody: BodyPartCode.RightArm,
 				defenderIndex: targetIndex,
 				defenderBody: BodyPartCode.Head,
-				actionCode: ActionCode.StraightPunch
+				actionCode: hasWeapon ? ActionCode.Swing : ActionCode.StraightPunch
 			);
 			_ = new CharacterTurnActionState(combatNode: combatNode, action: action);
 		}

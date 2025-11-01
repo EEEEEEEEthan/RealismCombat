@@ -463,8 +463,15 @@ public partial class GameNode : Node
 										playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
 										combatData.characters.Add(playerCharacter);
 									}
-									combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-									combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+									// 创建敌人 dove，装备短剑
+									var dove = new CharacterData(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
+									dove.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 7, count: 1)); // 右手装备短剑
+									combatData.characters.Add(dove);
+									// 创建敌人 jack，装备长剑和短刀
+									var jack = new CharacterData(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
+									jack.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 6, count: 1)); // 右手装备长剑
+									jack.leftArm.SetSlot(index: 1, value: new ItemData(itemId: 5, count: 1)); // 左手装备短刀
+									combatData.characters.Add(jack);
 								}
 							}
 							else
@@ -476,8 +483,15 @@ public partial class GameNode : Node
 									playerCharacter.ActionPoint = GD.Randf() * (max - min) + min;
 									combatData.characters.Add(playerCharacter);
 								}
-								combatData.characters.Add(new(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
-								combatData.characters.Add(new(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, });
+								// 创建敌人 dove，装备短剑
+								var dove = new CharacterData(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
+								dove.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 7, count: 1)); // 右手装备短剑
+								combatData.characters.Add(dove);
+								// 创建敌人 jack，装备长剑和短刀
+								var jack = new CharacterData(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
+								jack.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 6, count: 1)); // 右手装备长剑
+								jack.leftArm.SetSlot(index: 1, value: new ItemData(itemId: 5, count: 1)); // 左手装备短刀
+								combatData.characters.Add(jack);
 							}
 							_ = new CombatState(gameNode: gameNode, combatData: combatData);
 						},
