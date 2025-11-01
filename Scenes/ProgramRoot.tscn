@@ -1,10 +1,25 @@
-[gd_scene load_steps=2 format=3 uid="uid://dyo86kwvghlkc"]
+[gd_scene load_steps=5 format=3 uid="uid://dyo86kwvghlkc"]
 
 [ext_resource type="Script" uid="uid://cq2ugya2pq8ok" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_jh2ti"]
+[ext_resource type="Shader" uid="uid://48ty16hnmlk8" path="res://Shaders/FCPalette.gdshader" id="2_dygvh"]
+[ext_resource type="Texture2D" uid="uid://1m6dp42eswii" path="res://Textures/BackgroundWoods.png" id="3_w83y8"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w83y8"]
+shader = ExtResource("2_dygvh")
 
 [node name="ProgramRoot" type="Node" node_paths=PackedStringArray("dialogues")]
 script = ExtResource("1_jh2ti")
 dialogues = NodePath("HBoxContainer")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_w83y8")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_w83y8")
+expand_mode = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 z_index = 4096
