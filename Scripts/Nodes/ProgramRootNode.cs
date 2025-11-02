@@ -27,10 +27,7 @@ public partial class ProgramRootNode : Node
 					option = "[dev]跳过存档",
 					description = settings.SkipSave ? "当前: 是" : "当前: 否",
 					onPreview = () => { },
-					onConfirm = () =>
-					{
-						ShowSkipSaveMenu(programRootNode: programRootNode, settings: settings, settingsDialogue: settingsDialogue);
-					},
+					onConfirm = () => { ShowSkipSaveMenu(programRootNode: programRootNode, settings: settings, settingsDialogue: settingsDialogue); },
 					available = true,
 				},
 			};
@@ -214,7 +211,7 @@ public partial class ProgramRootNode : Node
 	public State state = null!;
 	[Export] public Container dialogues = null!;
 	readonly McpHandler? mcpHandler;
-	readonly List<AudioStreamPlayer> soundEffectPlayers = new();
+	readonly List<AudioStreamPlayer> soundEffectPlayers = [];
 	GenericDialogue? currentPopMessage;
 	AudioStreamPlayer bgmPlayer = null!;
 	public bool HadClientConnected { get; private set; }
@@ -289,7 +286,7 @@ public partial class ProgramRootNode : Node
 				const float fullWidth = 16.0f;
 				const float collapsedWidth = 0.0f;
 				const int keepVisibleCount = 2;
-				var visibleFromIndex = Math.Max(0, count - keepVisibleCount);
+				var visibleFromIndex = Math.Max(val1: 0, val2: count - keepVisibleCount);
 				dialogue.SetTargetWidth(i >= visibleFromIndex ? fullWidth : collapsedWidth);
 			}
 		}

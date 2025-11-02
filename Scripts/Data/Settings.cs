@@ -7,33 +7,24 @@ public class Settings
 {
 	const string settingsFilePath = ".local.settings";
 	const string skipSaveKey = "SkipSave";
-	public bool SkipSave { get; set; }
-	public Settings()
-	{
-		SkipSave = false;
-	}
 	public static Settings Load()
 	{
 		var settings = new Settings();
-		if (!File.Exists(settingsFilePath))
-		{
-			return settings;
-		}
+		if (!File.Exists(settingsFilePath)) return settings;
 		try
 		{
-			var lines = File.ReadAllLines(settingsFilePath, Encoding.UTF8);
+			var lines = File.ReadAllLines(path: settingsFilePath, encoding: Encoding.UTF8);
 			foreach (var line in lines)
 			{
 				var trimmedLine = line.Trim();
 				if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith('#')) continue;
-				var parts = trimmedLine.Split('=', 2);
+				var parts = trimmedLine.Split(separator: '=', count: 2);
 				if (parts.Length != 2) continue;
 				var key = parts[0].Trim();
 				var value = parts[1].Trim();
 				if (key == skipSaveKey)
-				{
-					if (bool.TryParse(value, out var boolValue)) settings.SkipSave = boolValue;
-				}
+					if (bool.TryParse(value: value, result: out var boolValue))
+						settings.SkipSave = boolValue;
 			}
 		}
 		catch (Exception e)
@@ -42,6 +33,8 @@ public class Settings
 		}
 		return settings;
 	}
+	public bool SkipSave { get; set; }
+	public Settings() => SkipSave = false;
 	public void Save()
 	{
 		try
@@ -49,12 +42,12 @@ public class Settings
 			var existingSettings = new Dictionary<string, string>();
 			if (File.Exists(settingsFilePath))
 			{
-				var lines = File.ReadAllLines(settingsFilePath, Encoding.UTF8);
+				var lines = File.ReadAllLines(path: settingsFilePath, encoding: Encoding.UTF8);
 				foreach (var line in lines)
 				{
 					var trimmedLine = line.Trim();
 					if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith('#')) continue;
-					var parts = trimmedLine.Split('=', 2);
+					var parts = trimmedLine.Split(separator: '=', count: 2);
 					if (parts.Length != 2) continue;
 					var key = parts[0].Trim();
 					var value = parts[1].Trim();
@@ -62,7 +55,7 @@ public class Settings
 				}
 			}
 			existingSettings[skipSaveKey] = SkipSave.ToString();
-			using var writer = new StreamWriter(settingsFilePath, append: false, Encoding.UTF8);
+			using var writer = new StreamWriter(path: settingsFilePath, append: false, encoding: Encoding.UTF8);
 			foreach (var kvp in existingSettings) writer.WriteLine($"{kvp.Key} = {kvp.Value}");
 		}
 		catch (Exception e)
@@ -71,4 +64,3 @@ public class Settings
 		}
 	}
 }
-

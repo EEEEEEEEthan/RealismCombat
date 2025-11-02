@@ -1,5 +1,4 @@
 using System;
-using Godot;
 namespace RealismCombat.Data;
 public class ReactionSimulate
 {
@@ -24,8 +23,8 @@ public class ReactionSimulate
 			BodyPartCode.RightLeg => attacker.rightLeg,
 			_ => throw new ArgumentOutOfRangeException(),
 		};
-		double weaponWeight = 0.0;
-		double weaponLength = 0.0;
+		var weaponWeight = 0.0;
+		var weaponLength = 0.0;
 		if (action.actionCode == ActionCode.Swing || action.actionCode == ActionCode.Thrust)
 		{
 			var weaponSlotIndex = attackerBodyPart.id switch
@@ -44,16 +43,9 @@ public class ReactionSimulate
 				}
 			}
 		}
-		if (weaponWeight <= 0 || weaponLength <= 0 || defender.bodyWeight <= 0)
-		{
-			return 0.5;
-		}
+		if (weaponWeight <= 0 || weaponLength <= 0 || defender.bodyWeight <= 0) return 0.5;
 		var dodgeRate = weaponWeight / weaponLength / defender.bodyWeight;
-		return Math.Clamp(dodgeRate, 0.0, 1.0);
+		return Math.Clamp(value: dodgeRate, min: 0.0, max: 1.0);
 	}
-	public double CalculateBlockDamageReduction()
-	{
-		return 0.5;
-	}
+	public double CalculateBlockDamageReduction() => 0.5;
 }
-

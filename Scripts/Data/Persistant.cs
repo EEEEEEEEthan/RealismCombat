@@ -7,10 +7,7 @@ static class Persistant
 	public static void Save(GameData data, string path)
 	{
 		var settings = Settings.Load();
-		if (settings.SkipSave)
-		{
-			return;
-		}
+		if (settings.SkipSave) return;
 		var snapshot = new Snapshot(data);
 		using var stream = new FileStream(path: path, mode: FileMode.Create);
 		using var writer = new BinaryWriter(stream);

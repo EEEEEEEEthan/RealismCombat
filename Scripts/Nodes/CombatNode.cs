@@ -244,7 +244,7 @@ public partial class CombatNode : Node
 				foreach (var slot in bodyPartData.slots)
 					if (slot.item != null)
 					{
-						var itemName = ItemConfig.Configs.TryGetValue(key: slot.item.itemId, value: out var config) ? config.name : $"物品{slot.item.itemId}";
+						var itemName = ItemConfig.configs.TryGetValue(key: slot.item.itemId, value: out var config) ? config.Name : $"物品{slot.item.itemId}";
 						equippedItems.Add(itemName);
 					}
 				if (equippedItems.Count == 0) return string.Empty;
@@ -312,36 +312,36 @@ public partial class CombatNode : Node
 				}
 				actionCodeDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.actionCode = null; }, returnDescription: "返回选择身体部位");
 			}
-		void selectDefender()
-		{
-			defenderDialogue = programRoot.CreateDialogue();
-			var dialogueData = new DialogueData
+			void selectDefender()
 			{
-				title = $"{attacker.name}的回合-选择目标角色",
-			};
-			var options = new List<DialogueOptionData>();
-			dialogueData.options = options;
-			for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
-			{
-				var index = i;
-				var c = this.combatNode.combatData.characters[i];
-				var defender = c;
-				if (index == attackerIndex || defender.team == attacker.team) continue;
-				var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
-				options.Add(new()
+				defenderDialogue = programRoot.CreateDialogue();
+				var dialogueData = new DialogueData
 				{
-					available = available,
-					description = available ? $"以{defender.name}为目标" : error,
-					onConfirm = () =>
+					title = $"{attacker.name}的回合-选择目标角色",
+				};
+				var options = new List<DialogueOptionData>();
+				dialogueData.options = options;
+				for (var i = 0; i < this.combatNode.combatData.characters.Count; i++)
+				{
+					var index = i;
+					var c = this.combatNode.combatData.characters[i];
+					var defender = c;
+					if (index == attackerIndex || defender.team == attacker.team) continue;
+					var available = simulate.ValidDefender(defenderIndex: index, error: out var error);
+					options.Add(new()
 					{
-						simulate.defenderIndex = index;
-						selectDefenderBody();
-					},
-					option = $"{defender.name}",
-				});
+						available = available,
+						description = available ? $"以{defender.name}为目标" : error,
+						onConfirm = () =>
+						{
+							simulate.defenderIndex = index;
+							selectDefenderBody();
+						},
+						option = $"{defender.name}",
+					});
+				}
+				defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择攻击动作");
 			}
-			defenderDialogue.Initialize(data: dialogueData, onReturn: () => { simulate.defenderIndex = null; }, returnDescription: "返回选择攻击动作");
-		}
 			void selectDefenderBody()
 			{
 				var defender = this.combatNode.combatData.characters[simulate.defenderIndex.Value];
@@ -389,9 +389,8 @@ public partial class CombatNode : Node
 			var validTargets = new List<int>();
 			for (var i = 0; i < combatNode.combatData.characters.Count; i++)
 			{
-				var simulate = new ActionSimulate(combatNode.combatData) { attackerIndex = attackerIndex };
-				if (simulate.ValidDefender(defenderIndex: i, error: out _))
-					validTargets.Add(i);
+				var simulate = new ActionSimulate(combatNode.combatData) { attackerIndex = attackerIndex, };
+				if (simulate.ValidDefender(defenderIndex: i, error: out _)) validTargets.Add(i);
 			}
 			if (validTargets.Count == 0) throw new InvalidOperationException("没有找到可攻击的敌人");
 
@@ -400,12 +399,10 @@ public partial class CombatNode : Node
 
 			// 获取所有可用的攻击者身体部位
 			var validAttackerBodyParts = new List<BodyPartCode>();
-			var simulate2 = new ActionSimulate(combatNode.combatData) { attackerIndex = attackerIndex };
+			var simulate2 = new ActionSimulate(combatNode.combatData) { attackerIndex = attackerIndex, };
 			foreach (var bodyPart in BodyPartData.allBodyParts)
-			{
 				if (simulate2.ValidAttackerBodyPart(bodyPart: bodyPart, error: out _))
 					validAttackerBodyParts.Add(bodyPart);
-			}
 			if (validAttackerBodyParts.Count == 0) throw new InvalidOperationException("没有可用的身体部位");
 
 			// 随机选择攻击者身体部位
@@ -417,11 +414,9 @@ public partial class CombatNode : Node
 			{
 				var config = ActionConfig.Configs.GetValueOrDefault(actionCode);
 				if (config != null &&
-				    config.allowedBodyParts.Contains(attackerBodyPart) &&
-				    config.ValidEquipment(attacker: attacker, bodyPart: attackerBodyPart, error: out _))
-				{
+					config.allowedBodyParts.Contains(attackerBodyPart) &&
+					config.ValidEquipment(attacker: attacker, bodyPart: attackerBodyPart, error: out _))
 					validActions.Add(actionCode);
-				}
 			}
 			if (validActions.Count == 0) throw new InvalidOperationException($"身体部位{attackerBodyPart.GetName()}没有可用的动作");
 
@@ -430,17 +425,14 @@ public partial class CombatNode : Node
 
 			// 获取所有可攻击的防御者身体部位
 			var validDefenderBodyParts = new List<BodyPartCode>();
-			var simulate3 = new ActionSimulate(combatNode.combatData) { defenderIndex = targetIndex };
+			var simulate3 = new ActionSimulate(combatNode.combatData) { defenderIndex = targetIndex, };
 			foreach (var bodyPart in BodyPartData.allBodyParts)
-			{
 				if (simulate3.ValidDefenderBodyPart(bodyPart: bodyPart, error: out _))
 					validDefenderBodyParts.Add(bodyPart);
-			}
 			if (validDefenderBodyParts.Count == 0) throw new InvalidOperationException("目标没有可攻击的身体部位");
 
 			// 随机选择防御者身体部位
 			var defenderBodyPart = validDefenderBodyParts[GD.RandRange(from: 0, to: validDefenderBodyParts.Count - 1)];
-
 			var action = new ActionData(
 				attackerIndex: attackerIndex,
 				attackerBody: attackerBodyPart,
@@ -532,92 +524,87 @@ public partial class CombatNode : Node
 				// 获取反应决策（玩家或AI）
 				(ReactionChoice choice, BodyPartCode? blockBodyPart) reactionDecision;
 				if (defender.PlayerControlled)
-				{
 					reactionDecision = await AskPlayerReactionAsync(
 						attacker: attacker,
 						defender: defender,
 						defenderIndex: action.defenderIndex,
 						targetBodyPart: action.defenderBody,
 						action: action);
-				}
 				else
-				{
 					reactionDecision = DecideBotReaction(
 						defender: defender,
 						defenderIndex: action.defenderIndex,
 						action: action,
 						attacker: attacker);
-				}
-
 				switch (reactionDecision.choice)
 				{
 					case ReactionChoice.Block when reactionDecision.blockBodyPart.HasValue:
+					{
+						defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
+						var blockPart = reactionDecision.blockBodyPart.Value;
+						var originalDamage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
+						var blockDamage = originalDamage / 2;
+						var blockBodyPartData = blockPart switch
 						{
-							defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
-							var blockPart = reactionDecision.blockBodyPart.Value;
-							var originalDamage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
-							var blockDamage = originalDamage / 2;
-							var blockBodyPartData = blockPart switch
+							BodyPartCode.Head => defender.head,
+							BodyPartCode.Chest => defender.chest,
+							BodyPartCode.LeftArm => defender.leftArm,
+							BodyPartCode.RightArm => defender.rightArm,
+							BodyPartCode.LeftLeg => defender.leftLeg,
+							BodyPartCode.RightLeg => defender.rightLeg,
+							_ => throw new ArgumentOutOfRangeException(),
+						};
+						targetBodyPart.hp -= 0;
+						blockBodyPartData.hp -= blockDamage;
+						combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
+						defenderNode.Shake();
+						var blockBodyPartDrawer = defenderNode.GetBodyPartDrawer(blockPart);
+						blockBodyPartDrawer?.Flash();
+						await combatNode.gameNode.Root.PopMessage(
+							$"{defender.name}用{blockPart.GetName()}格挡！{action.defenderBody.GetName()}免伤，{blockPart.GetName()}受到{blockDamage}点伤害!");
+						defenderNode.IsActing = false;
+						if (defender.Dead)
+						{
+							await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
+							combatNode.combatData.characters.RemoveAt(action.defenderIndex);
+							var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
+							var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
+							if (!team0Alive || !team1Alive)
 							{
-								BodyPartCode.Head => defender.head,
-								BodyPartCode.Chest => defender.chest,
-								BodyPartCode.LeftArm => defender.leftArm,
-								BodyPartCode.RightArm => defender.rightArm,
-								BodyPartCode.LeftLeg => defender.leftLeg,
-								BodyPartCode.RightLeg => defender.rightLeg,
-								_ => throw new ArgumentOutOfRangeException(),
-							};
-							targetBodyPart.hp -= 0;
-							blockBodyPartData.hp -= blockDamage;
-							combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
-							defenderNode.Shake();
-							var blockBodyPartDrawer = defenderNode.GetBodyPartDrawer(blockPart);
-							blockBodyPartDrawer?.Flash();
-							await combatNode.gameNode.Root.PopMessage(
-								$"{defender.name}用{blockPart.GetName()}格挡！{action.defenderBody.GetName()}免伤，{blockPart.GetName()}受到{blockDamage}点伤害!");
-							defenderNode.IsActing = false;
-							if (defender.Dead)
-							{
-								await combatNode.gameNode.Root.PopMessage($"{defender.name} 死亡");
-								combatNode.combatData.characters.RemoveAt(action.defenderIndex);
-								var team0Alive = combatNode.combatData.characters.Exists(c => c.team == 0);
-								var team1Alive = combatNode.combatData.characters.Exists(c => c.team == 1);
-								if (!team0Alive || !team1Alive)
+								var winner = team0Alive ? "玩家" : "敌人";
+								Log.Print($"战斗结束，{winner}获胜");
+								combatNode.combatData.characters.Clear();
+								var gameNode = combatNode.gameNode;
+								if (!team0Alive)
 								{
-									var winner = team0Alive ? "玩家" : "敌人";
-									Log.Print($"战斗结束，{winner}获胜");
-									combatNode.combatData.characters.Clear();
-									var gameNode = combatNode.gameNode;
-									if (!team0Alive)
+									var root = gameNode.Root;
+									root.PlayMusic(AudioTable.arpegio01Loop45094);
+									await root.PopMessage("玩家队伍全灭，返回主菜单");
+									if (File.Exists(Persistant.saveDataPath))
 									{
-										var root = gameNode.Root;
-										root.PlayMusic(AudioTable.arpegio01Loop45094);
-										await root.PopMessage("玩家队伍全灭，返回主菜单");
-										if (File.Exists(Persistant.saveDataPath))
-										{
-											File.Delete(Persistant.saveDataPath);
-											Log.Print("存档已删除");
-										}
-										combatNode.QueueFree();
-										gameNode.QueueFree();
-										root.state = new ProgramRootNode.IdleState(root);
+										File.Delete(Persistant.saveDataPath);
+										Log.Print("存档已删除");
 									}
-									else
-									{
-										gameNode.SetCombatData(null);
-										gameNode.Save();
-										combatNode.QueueFree();
-									}
-									return;
+									combatNode.QueueFree();
+									gameNode.QueueFree();
+									root.state = new ProgramRootNode.IdleState(root);
 								}
+								else
+								{
+									gameNode.SetCombatData(null);
+									gameNode.Save();
+									combatNode.QueueFree();
+								}
+								return;
 							}
-							var actionPointCost = simulateResult.actionPoint;
-							attacker.ActionPoint -= actionPointCost;
-							await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
-							attackerNode.IsActing = false;
-							_ = new RoundInProgressState(combatNode);
-							return;
 						}
+						var actionPointCost = simulateResult.actionPoint;
+						attacker.ActionPoint -= actionPointCost;
+						await combatNode.gameNode.Root.PopMessage($"{attacker.name}消耗了{actionPointCost}行动力!");
+						attackerNode.IsActing = false;
+						_ = new RoundInProgressState(combatNode);
+						return;
+					}
 					case ReactionChoice.Dodge:
 					{
 						defender.reaction = Math.Max(val1: 0, val2: defender.reaction - 1);
@@ -633,11 +620,10 @@ public partial class CombatNode : Node
 						await combatNode.gameNode.Root.PopMessage($"{defender.name}试图闪避，但未能成功!");
 						break;
 					}
-				case ReactionChoice.Hold:
-					break;
-			}
-
-			var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
+					case ReactionChoice.Hold:
+						break;
+				}
+				var damage = GD.RandRange(from: simulateResult.damageRange.min, to: simulateResult.damageRange.max);
 				targetBodyPart.hp -= damage;
 				combatNode.gameNode.Root.PlaySoundEffect(AudioTable.retrohurt1236672);
 				defenderNode.Shake();
@@ -692,61 +678,61 @@ public partial class CombatNode : Node
 				combatNode.gameNode.Root.McpRespond();
 			}
 		}
-	async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(
-		CharacterData attacker,
-		CharacterData defender,
-		int defenderIndex,
-		BodyPartCode targetBodyPart,
-		ActionData action)
-	{
-		while (true)
+		async Task<(ReactionChoice choice, BodyPartCode? blockBodyPart)> AskPlayerReactionAsync(
+			CharacterData attacker,
+			CharacterData defender,
+			int defenderIndex,
+			BodyPartCode targetBodyPart,
+			ActionData action)
 		{
-			var choice = ReactionChoice.None;
-			var hasReaction = defender.reaction > 0;
-			var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
-			var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
-			var dodgePercentage = (int)(dodgeSuccessRate * 100);
-			var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
-			reactionDialogue.Initialize(new()
+			while (true)
 			{
-				title = $"{defender.name}的反应",
-				options = new List<DialogueOptionData>
+				var choice = ReactionChoice.None;
+				var hasReaction = defender.reaction > 0;
+				var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
+				var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
+				var dodgePercentage = (int)(dodgeSuccessRate * 100);
+				var reactionDialogue = combatNode.gameNode.Root.CreateDialogue();
+				reactionDialogue.Initialize(new()
 				{
-					new()
+					title = $"{defender.name}的反应",
+					options = new List<DialogueOptionData>
 					{
-						option = "硬抗",
-						description = "承受攻击",
-						onConfirm = () =>
+						new()
 						{
-							choice = ReactionChoice.Hold;
-							reactionDialogue.QueueFree();
+							option = "硬抗",
+							description = "承受攻击",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Hold;
+								reactionDialogue.QueueFree();
+							},
+							available = true,
 						},
-						available = true,
-					},
-					new()
-					{
-						option = "格挡",
-						description = hasReaction ? "用选择的部位格挡" : "需要1个[反应]",
-						onConfirm = () =>
+						new()
 						{
-							choice = ReactionChoice.Block;
-							reactionDialogue.QueueFree();
+							option = "格挡",
+							description = hasReaction ? "用选择的部位格挡" : "需要1个[反应]",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Block;
+								reactionDialogue.QueueFree();
+							},
+							available = hasReaction,
 						},
-						available = hasReaction,
-					},
-					new()
-					{
-						option = "闪避",
-						description = hasReaction ? $"{dodgePercentage}%概率闪避" : "需要1个[反应]",
-						onConfirm = () =>
+						new()
 						{
-							choice = ReactionChoice.Dodge;
-							reactionDialogue.QueueFree();
+							option = "闪避",
+							description = hasReaction ? $"{dodgePercentage}%概率闪避" : "需要1个[反应]",
+							onConfirm = () =>
+							{
+								choice = ReactionChoice.Dodge;
+								reactionDialogue.QueueFree();
+							},
+							available = hasReaction,
 						},
-						available = hasReaction,
 					},
-				},
-			});
+				});
 				await reactionDialogue;
 				switch (choice)
 				{
@@ -795,65 +781,55 @@ public partial class CombatNode : Node
 				}
 			}
 		}
-
-	(ReactionChoice choice, BodyPartCode? blockBodyPart) DecideBotReaction(
-		CharacterData defender,
-		int defenderIndex,
-		ActionData action,
-		CharacterData attacker)
-	{
-		// AI没有反应点则硬抗
-		if (defender.reaction <= 0)
+		(ReactionChoice choice, BodyPartCode? blockBodyPart) DecideBotReaction(
+			CharacterData defender,
+			int defenderIndex,
+			ActionData action,
+			CharacterData attacker)
 		{
-			Log.Print($"{defender.name}(AI)没有反应点，选择硬抗");
-			return (ReactionChoice.Hold, null);
-		}
-
-		// 计算闪避成功率
-		var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
-		var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
-
-		// 获取所有可用的格挡身体部位
-		var validBlockParts = new List<BodyPartCode>();
-		var simulate = new ActionSimulate(combatNode.combatData) { defenderIndex = defenderIndex };
-		foreach (var bodyPart in BodyPartData.allBodyParts)
-		{
-			if (simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out _))
-				validBlockParts.Add(bodyPart);
-		}
-
-		// AI决策逻辑：
-		// 1. 如果闪避成功率 >= 60%，优先选择闪避
-		// 2. 如果闪避成功率在30%-60%之间，50%概率闪避，50%概率格挡
-		// 3. 如果闪避成功率 < 30%，优先格挡
-		// 4. 如果没有可用的格挡部位，则尝试闪避
-		// 5. 如果都不满足，硬抗
-
-		var random = GD.Randf();
-
-		if (dodgeSuccessRate >= 0.6)
-		{
-			// 高成功率优先闪避
-			Log.Print($"{defender.name}(AI)检测到高闪避成功率({dodgeSuccessRate:P0})，选择闪避");
-			return (ReactionChoice.Dodge, null);
-		}
-		else if (dodgeSuccessRate >= 0.3)
-		{
-			// 中等成功率，随机选择闪避或格挡
-			if (random < 0.5 && validBlockParts.Count > 0)
+			// AI没有反应点则硬抗
+			if (defender.reaction <= 0)
 			{
-				var selectedPart = validBlockParts[GD.RandRange(from: 0, to: validBlockParts.Count - 1)];
-				Log.Print($"{defender.name}(AI)检测到中等闪避成功率({dodgeSuccessRate:P0})，随机选择格挡，使用{selectedPart.GetName()}");
-				return (ReactionChoice.Block, selectedPart);
+				Log.Print($"{defender.name}(AI)没有反应点，选择硬抗");
+				return (ReactionChoice.Hold, null);
 			}
-			else
+
+			// 计算闪避成功率
+			var reactionSimulate = new ReactionSimulate(attacker: attacker, defender: defender, action: action);
+			var dodgeSuccessRate = reactionSimulate.CalculateDodgeSuccessRate();
+
+			// 获取所有可用的格挡身体部位
+			var validBlockParts = new List<BodyPartCode>();
+			var simulate = new ActionSimulate(combatNode.combatData) { defenderIndex = defenderIndex, };
+			foreach (var bodyPart in BodyPartData.allBodyParts)
+				if (simulate.ValidDefenderBodyPart(bodyPart: bodyPart, error: out _))
+					validBlockParts.Add(bodyPart);
+
+			// AI决策逻辑：
+			// 1. 如果闪避成功率 >= 60%，优先选择闪避
+			// 2. 如果闪避成功率在30%-60%之间，50%概率闪避，50%概率格挡
+			// 3. 如果闪避成功率 < 30%，优先格挡
+			// 4. 如果没有可用的格挡部位，则尝试闪避
+			// 5. 如果都不满足，硬抗
+			var random = GD.Randf();
+			if (dodgeSuccessRate >= 0.6)
 			{
+				// 高成功率优先闪避
+				Log.Print($"{defender.name}(AI)检测到高闪避成功率({dodgeSuccessRate:P0})，选择闪避");
+				return (ReactionChoice.Dodge, null);
+			}
+			if (dodgeSuccessRate >= 0.3)
+			{
+				// 中等成功率，随机选择闪避或格挡
+				if (random < 0.5 && validBlockParts.Count > 0)
+				{
+					var selectedPart = validBlockParts[GD.RandRange(from: 0, to: validBlockParts.Count - 1)];
+					Log.Print($"{defender.name}(AI)检测到中等闪避成功率({dodgeSuccessRate:P0})，随机选择格挡，使用{selectedPart.GetName()}");
+					return (ReactionChoice.Block, selectedPart);
+				}
 				Log.Print($"{defender.name}(AI)检测到中等闪避成功率({dodgeSuccessRate:P0})，随机选择闪避");
 				return (ReactionChoice.Dodge, null);
 			}
-		}
-		else
-		{
 			// 低成功率优先格挡
 			if (validBlockParts.Count > 0)
 			{
@@ -861,14 +837,10 @@ public partial class CombatNode : Node
 				Log.Print($"{defender.name}(AI)检测到低闪避成功率({dodgeSuccessRate:P0})，优先格挡，使用{selectedPart.GetName()}");
 				return (ReactionChoice.Block, selectedPart);
 			}
-			else
-			{
-				// 没有可用格挡部位，尝试闪避
-				Log.Print($"{defender.name}(AI)无可用格挡部位，尝试闪避(成功率{dodgeSuccessRate:P0})");
-				return (ReactionChoice.Dodge, null);
-			}
+			// 没有可用格挡部位，尝试闪避
+			Log.Print($"{defender.name}(AI)无可用格挡部位，尝试闪避(成功率{dodgeSuccessRate:P0})");
+			return (ReactionChoice.Dodge, null);
 		}
-	}
 	}
 	public static CombatNode Create(GameNode gameNode, CombatData combatData)
 	{

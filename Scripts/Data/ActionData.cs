@@ -77,33 +77,33 @@ public class ActionConfig
 			new(actionCode: ActionCode.StraightPunch,
 				damageRange: (1, 3),
 				actionPointCost: 5,
-				allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm, });
+				allowedBodyParts: [BodyPartCode.LeftArm, BodyPartCode.RightArm,]);
 		Configs[ActionCode.HookPunch] =
 			new(actionCode: ActionCode.HookPunch,
 				damageRange: (2, 4),
 				actionPointCost: 6,
-				allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm, });
+				allowedBodyParts: [BodyPartCode.LeftArm, BodyPartCode.RightArm,]);
 		Configs[ActionCode.Swing] =
 			new(actionCode: ActionCode.Swing,
 				damageRange: (3, 5),
 				actionPointCost: 7,
-				allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm, });
+				allowedBodyParts: [BodyPartCode.LeftArm, BodyPartCode.RightArm,]);
 		Configs[ActionCode.Thrust] =
 			new(actionCode: ActionCode.Thrust,
 				damageRange: (2, 6),
 				actionPointCost: 6,
-				allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm, });
+				allowedBodyParts: [BodyPartCode.LeftArm, BodyPartCode.RightArm,]);
 		Configs[ActionCode.Kick] =
-			new(actionCode: ActionCode.Kick, damageRange: (4, 8), actionPointCost: 8, allowedBodyParts: new[] { BodyPartCode.LeftLeg, BodyPartCode.RightLeg, });
+			new(actionCode: ActionCode.Kick, damageRange: (4, 8), actionPointCost: 8, allowedBodyParts: [BodyPartCode.LeftLeg, BodyPartCode.RightLeg,]);
 		Configs[ActionCode.ElbowStrike] =
 			new(actionCode: ActionCode.ElbowStrike,
 				damageRange: (2, 4),
 				actionPointCost: 4,
-				allowedBodyParts: new[] { BodyPartCode.LeftArm, BodyPartCode.RightArm, });
+				allowedBodyParts: [BodyPartCode.LeftArm, BodyPartCode.RightArm,]);
 		Configs[ActionCode.Headbutt] =
-			new(actionCode: ActionCode.Headbutt, damageRange: (3, 6), actionPointCost: 6, allowedBodyParts: new[] { BodyPartCode.Head, });
+			new(actionCode: ActionCode.Headbutt, damageRange: (3, 6), actionPointCost: 6, allowedBodyParts: [BodyPartCode.Head,]);
 		Configs[ActionCode.Charge] =
-			new(actionCode: ActionCode.Charge, damageRange: (5, 10), actionPointCost: 10, allowedBodyParts: new[] { BodyPartCode.Chest, });
+			new(actionCode: ActionCode.Charge, damageRange: (5, 10), actionPointCost: 10, allowedBodyParts: [BodyPartCode.Chest,]);
 	}
 	public ActionCode actionCode { get; }
 	public (int min, int max) damageRange { get; private set; }
@@ -147,10 +147,10 @@ public class ActionConfig
 				error = $"{bodyPart.GetName()}未装备武器";
 				return false;
 			}
-			var itemType = ItemConfig.Configs.TryGetValue(key: weaponSlot.item.itemId, value: out var itemConfig)
-				? itemConfig.equipmentType
-				: EquipmentType.None;
-			var hasWeapon = (itemType & EquipmentType.Arm) != 0;
+			var itemType = ItemConfig.configs.TryGetValue(key: weaponSlot.item.itemId, value: out var itemConfig)
+				? itemConfig.EquipmentType
+				: EquipmentTypeCode.None;
+			var hasWeapon = (itemType & EquipmentTypeCode.Arm) != 0;
 			if (!hasWeapon)
 			{
 				error = $"{bodyPart.GetName()}装备的不是武器";

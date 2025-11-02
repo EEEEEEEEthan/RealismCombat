@@ -20,17 +20,11 @@ public class CombatData
 			for (var i = count; i-- > 0;) characters.Add(new(version: version, reader: reader));
 			var stateDataLength = reader.ReadInt32();
 			if (stateDataLength < 0)
-			{
 				stateData = null;
-			}
 			else if (stateDataLength == 0)
-			{
 				stateData = [];
-			}
 			else
-			{
 				stateData = reader.ReadBytes(stateDataLength);
-			}
 		}
 	}
 	public CombatData() { }
@@ -50,10 +44,7 @@ public class CombatData
 			else
 			{
 				writer.Write(stateData.Length);
-				if (stateData.Length > 0)
-				{
-					writer.Write(stateData);
-				}
+				if (stateData.Length > 0) writer.Write(stateData);
 			}
 		}
 	}

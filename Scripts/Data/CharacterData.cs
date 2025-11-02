@@ -26,16 +26,12 @@ public class CharacterData
 	{
 		get
 		{
-			double totalWeight = 70.0;
+			var totalWeight = 70.0;
 			foreach (var bodyPart in bodyParts)
 			{
 				foreach (var slot in bodyPart.slots)
-				{
 					if (slot.item != null)
-					{
 						totalWeight += slot.item.GetTotalWeight();
-					}
-				}
 			}
 			return totalWeight;
 		}
@@ -130,16 +126,16 @@ public static class BodyPartCodeExtensions
 			BodyPartCode.RightArm => 2,
 			_ => 1,
 		};
-	public static EquipmentType GetAllowedTypes(this BodyPartCode part, int slotIndex) =>
+	public static EquipmentTypeCode GetAllowedTypes(this BodyPartCode part, int slotIndex) =>
 		part switch
 		{
-			BodyPartCode.Head => EquipmentType.HelmetLiner,
-			BodyPartCode.Chest => EquipmentType.ChestLiner,
-			BodyPartCode.LeftArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.Arm,
-			BodyPartCode.RightArm => slotIndex == 0 ? EquipmentType.Gauntlet : EquipmentType.Arm,
-			BodyPartCode.LeftLeg => EquipmentType.LegLiner,
-			BodyPartCode.RightLeg => EquipmentType.LegLiner,
-			_ => EquipmentType.None,
+			BodyPartCode.Head => EquipmentTypeCode.HelmetLiner,
+			BodyPartCode.Chest => EquipmentTypeCode.ChestLiner,
+			BodyPartCode.LeftArm => slotIndex == 0 ? EquipmentTypeCode.Gauntlet : EquipmentTypeCode.Arm,
+			BodyPartCode.RightArm => slotIndex == 0 ? EquipmentTypeCode.Gauntlet : EquipmentTypeCode.Arm,
+			BodyPartCode.LeftLeg => EquipmentTypeCode.LegLiner,
+			BodyPartCode.RightLeg => EquipmentTypeCode.LegLiner,
+			_ => EquipmentTypeCode.None,
 		};
 }
 public class BodyPartData : IItemContainer

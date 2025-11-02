@@ -10,7 +10,7 @@ public class GameData
 	public CombatData? combatData;
 	public GameData()
 	{
-		foreach (var config in ItemConfig.Configs.Values) items.Add(new(itemId: config.itemId, count: 2));
+		foreach (var config in ItemConfig.configs.Values) items.Add(new(itemId: config.ItemId, count: 2));
 		playerCharacters.Add(new(name: "ethan", team: 0));
 		playerCharacters.Add(new(name: "alex", team: 0));
 	}

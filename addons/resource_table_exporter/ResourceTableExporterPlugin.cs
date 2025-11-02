@@ -26,7 +26,7 @@ public partial class ResourceTableExporterPlugin : EditorPlugin
 	const string audiosDirectory = "res://Audios/";
 	const string autogenRegionName = "autogen_scenes";
 	const string autogenAudiosRegionName = "autogen_audios";
-	static readonly string[] audioExtensions = { ".mp3", ".ogg", ".wav", };
+	static readonly string[] audioExtensions = [".mp3", ".ogg", ".wav",];
 	static void ResolveNameConflicts(List<SceneInfo> sceneFiles)
 	{
 		var nameCount = new Dictionary<string, int>();

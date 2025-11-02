@@ -27,7 +27,7 @@ public partial class GameNode : Node
 	public class IdleState : State
 	{
 		public const int serializeId = 0;
-		static string GetItemName(uint itemId) => ItemConfig.Configs.TryGetValue(key: itemId, value: out var config) ? config.name : $"物品{itemId}";
+		static string GetItemName(uint itemId) => ItemConfig.configs.TryGetValue(key: itemId, value: out var config) ? config.Name : $"物品{itemId}";
 		static bool CanStack(ItemData item1, ItemData item2)
 		{
 			if (item1.itemId != item2.itemId) return false;
@@ -311,7 +311,7 @@ public partial class GameNode : Node
 		{
 			var selectDialogue = gameNode.Root.CreateDialogue();
 			var options = new List<DialogueOptionData>();
-			EquipmentType? allowedTypes = null;
+			EquipmentTypeCode? allowedTypes = null;
 			if (container is BodyPartData bodyPart)
 			{
 				if (slotIndex >= 0 && slotIndex < bodyPart.slots.Length) allowedTypes = bodyPart.slots[slotIndex].allowedTypes;
@@ -336,7 +336,7 @@ public partial class GameNode : Node
 					var itemName = GetItemName(itemId);
 					var newItem = new ItemData(itemId: itemId, count: 1);
 					var canPlace = false;
-					EquipmentType? itemType = null;
+					EquipmentTypeCode? itemType = null;
 					if (container is BodyPartData bodyPartForCheck)
 					{
 						if (slotIndex >= 0 && slotIndex < bodyPartForCheck.slots.Length) canPlace = bodyPartForCheck.slots[slotIndex].CanPlace(newItem);
@@ -346,7 +346,7 @@ public partial class GameNode : Node
 						if (slotIndex >= 0 && slotIndex < itemContainerForCheck.slots.Length)
 							canPlace = itemContainerForCheck.slots[slotIndex].CanPlace(newItem);
 					}
-					if (ItemConfig.Configs.TryGetValue(key: itemId, value: out var config)) itemType = config.equipmentType;
+					if (ItemConfig.configs.TryGetValue(key: itemId, value: out var config)) itemType = config.EquipmentType;
 					string? description = null;
 					if (itemType.HasValue)
 					{
@@ -465,12 +465,12 @@ public partial class GameNode : Node
 									}
 									// 创建敌人 dove，装备短剑
 									var dove = new CharacterData(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
-									dove.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 7, count: 1)); // 右手装备短剑
+									dove.rightArm.SetSlot(index: 1, value: new(itemId: 7, count: 1)); // 右手装备短剑
 									combatData.characters.Add(dove);
 									// 创建敌人 jack，装备长剑和短刀
 									var jack = new CharacterData(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
-									jack.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 6, count: 1)); // 右手装备长剑
-									jack.leftArm.SetSlot(index: 1, value: new ItemData(itemId: 5, count: 1)); // 左手装备短刀
+									jack.rightArm.SetSlot(index: 1, value: new(itemId: 6, count: 1)); // 右手装备长剑
+									jack.leftArm.SetSlot(index: 1, value: new(itemId: 5, count: 1)); // 左手装备短刀
 									combatData.characters.Add(jack);
 								}
 							}
@@ -485,12 +485,12 @@ public partial class GameNode : Node
 								}
 								// 创建敌人 dove，装备短剑
 								var dove = new CharacterData(name: "dove", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
-								dove.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 7, count: 1)); // 右手装备短剑
+								dove.rightArm.SetSlot(index: 1, value: new(itemId: 7, count: 1)); // 右手装备短剑
 								combatData.characters.Add(dove);
 								// 创建敌人 jack，装备长剑和短刀
 								var jack = new CharacterData(name: "jack", team: 1) { ActionPoint = GD.Randf() * (max - min) + min, };
-								jack.rightArm.SetSlot(index: 1, value: new ItemData(itemId: 6, count: 1)); // 右手装备长剑
-								jack.leftArm.SetSlot(index: 1, value: new ItemData(itemId: 5, count: 1)); // 左手装备短刀
+								jack.rightArm.SetSlot(index: 1, value: new(itemId: 6, count: 1)); // 右手装备长剑
+								jack.leftArm.SetSlot(index: 1, value: new(itemId: 5, count: 1)); // 左手装备短刀
 								combatData.characters.Add(jack);
 							}
 							_ = new CombatState(gameNode: gameNode, combatData: combatData);

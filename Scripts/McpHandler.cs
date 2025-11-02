@@ -19,7 +19,7 @@ class McpHandler
 {
 	class CommandLifeCycle : IDisposable
 	{
-		readonly List<string> messages = new();
+		readonly List<string> messages = [];
 		readonly Action<string> onLog;
 		public string Message => string.Join(separator: "\n", values: messages);
 		public CommandLifeCycle()

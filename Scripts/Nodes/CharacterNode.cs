@@ -73,10 +73,7 @@ partial class CharacterNode : Control
 	{
 		if (CharacterData == null) return;
 		var isAlive = !CharacterData.Dead;
-		if (wasAlive && !isAlive)
-		{
-			deathRedTime = deathRedDuration;
-		}
+		if (wasAlive && !isAlive) deathRedTime = deathRedDuration;
 		wasAlive = isAlive;
 		if (deathRedTime > 0)
 		{

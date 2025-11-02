@@ -1,7 +1,7 @@
 using System;
 namespace RealismCombat.Data;
 /// <summary>
-/// 伤害类型
+///     伤害类型
 /// </summary>
 [Flags]
 public enum DamageType : byte
