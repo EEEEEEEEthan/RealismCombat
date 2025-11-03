@@ -41,4 +41,28 @@ static class SystemTools
 			return builder.ToString();
 		}
 	}
+	[McpServerTool, Description("shutdown program"),]
+	static Task<string> system_shutdown()
+	{
+		using var _ = Log.BeginScope(out var builder);
+		Log.Print("收到关闭程序请求");
+		if (Client == null)
+		{
+			Log.Print("程序未在运行中");
+			return Task.FromResult(builder.ToString());
+		}
+		try
+		{
+			Log.Print("正在关闭程序...");
+			Client.Dispose();
+			Client = null;
+			Log.Print("程序已关闭");
+			return Task.FromResult(builder.ToString());
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+			return Task.FromResult(builder.ToString());
+		}
+	}
 }
