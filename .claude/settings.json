@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(where dotnet:*)",
+      "Read(*)",
+      "mcp__RealismCombatMcp__system_launch_program",
+      "mcp__RealismCombatMcp__game_select_option",
+      "mcp__RealismCombatMcp__game_quit"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enabledMcpjsonServers": [
+    "RealismCombatMcp"
+  ],
+  "enableAllProjectMcpServers": true
+}

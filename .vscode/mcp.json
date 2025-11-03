@@ -1,0 +1,19 @@
+{
+	"servers": {
+		"RealismCombatMcp": {
+			"type": "stdio",
+			"command": "dotnet",
+			"args": [
+				"run",
+				"-c",
+				"Release",
+				"--project",
+				".McpServer",
+				"-p:BaseOutputPath=bin/vscode/",
+				"-p:BaseIntermediateOutputPath=bin/vscode/",
+				"--"
+			]
+		}
+	},
+	"inputs": []
+}
