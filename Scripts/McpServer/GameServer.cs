@@ -49,7 +49,7 @@ public sealed class GameServer : IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.PrintErr($"[GameServer] 启动服务器失败: {ex}");
+			Log.PrintException(ex);
 			throw;
 		}
 	}
@@ -59,12 +59,33 @@ public sealed class GameServer : IDisposable
 		{
 			if (disposed) return;
 			disposed = true;
-			Log.Print("[GameServer] 开始释放服务器资源");
-			cancellationTokenSource.Cancel();
-			CloseClient();
-			listener.Stop();
-			Log.Print("[GameServer] 服务器资源释放完成");
 		}
+		Log.Print("[GameServer] 开始快速释放服务器资源");
+		try
+		{
+			cancellationTokenSource.Cancel();
+		}
+		catch (Exception ex)
+		{
+			Log.PrintException(ex);
+		}
+		try
+		{
+			CloseClient();
+		}
+		catch (Exception ex)
+		{
+			Log.PrintException(ex);
+		}
+		try
+		{
+			listener.Stop();
+		}
+		catch (Exception ex)
+		{
+			Log.PrintException(ex);
+		}
+		Log.Print("[GameServer] 服务器资源释放完成");
 	}
 	async Task AcceptLoop()
 	{
@@ -98,7 +119,7 @@ public sealed class GameServer : IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.PrintErr($"[GameServer] 接受循环异常: {ex}");
+			Log.PrintException(ex);
 		}
 	}
 	async Task HandleClient()
@@ -121,7 +142,7 @@ public sealed class GameServer : IDisposable
 					}
 					catch (Exception ex)
 					{
-						Log.PrintErr($"[GameServer] 读取命令失败: {ex.Message}");
+						Log.PrintException(ex);
 						break;
 					}
 				}
@@ -155,7 +176,7 @@ public sealed class GameServer : IDisposable
 						}
 						catch (Exception ex)
 						{
-							Log.PrintErr($"[GameServer] 发送响应失败: {ex.Message}");
+							Log.PrintException(ex);
 							break;
 						}
 				}
@@ -167,7 +188,7 @@ public sealed class GameServer : IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.PrintErr($"[GameServer] 客户端处理异常: {ex}");
+			Log.PrintException(ex);
 		}
 		finally
 		{

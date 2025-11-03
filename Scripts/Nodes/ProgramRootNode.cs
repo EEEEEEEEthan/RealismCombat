@@ -28,6 +28,7 @@ public partial class ProgramRootNode : Node
 	GameServer? server;
 	int? port;
 	bool shouldQuitOnDisconnect;
+	bool isQuitting;
 	public override void _Ready()
 	{
 		Log.Print("[ProgramRoot] 程序启动");
@@ -44,6 +45,7 @@ public partial class ProgramRootNode : Node
 		{
 			Log.Print("[ProgramRoot] 未指定端口，以普通模式运行");
 		}
+		GetTree().Root.CloseRequested += OnCloseRequested;
 	}
 	public override void _Process(double delta)
 	{
@@ -51,9 +53,22 @@ public partial class ProgramRootNode : Node
 	}
 	public override void _ExitTree()
 	{
-		Log.Print("[ProgramRoot] 程序退出");
-		server?.Dispose();
+		Log.Print("[ProgramRoot] 程序退出，开始清理");
+		try
+		{
+			server?.Dispose();
+		}
+		catch (Exception ex)
+		{
+			Log.PrintException(ex);
+		}
 		server = null;
+		Log.Print("[ProgramRoot] 程序退出完成");
+	}
+	void OnCloseRequested()
+	{
+		Log.Print("[ProgramRoot] 收到窗口关闭请求，强制退出");
+		System.Environment.Exit(0);
 	}
 	void StartServer(int serverPort)
 	{
@@ -64,10 +79,11 @@ public partial class ProgramRootNode : Node
 			server.OnDisconnected += () =>
 			{
 				Log.Print("[ProgramRoot] MCP客户端已断开");
-				if (shouldQuitOnDisconnect)
+				if (shouldQuitOnDisconnect && !isQuitting)
 				{
+					isQuitting = true;
 					Log.Print("[ProgramRoot] 客户端断开，准备退出游戏...");
-					CallDeferred(Node.MethodName.GetTree).AsGodotObject().Call("quit");
+					GetTree().CallDeferred(SceneTree.MethodName.Quit);
 				}
 			};
 			server.OnCommandReceived += (command, respond) => { commandQueue.Enqueue((command, respond)); };
@@ -76,7 +92,7 @@ public partial class ProgramRootNode : Node
 		}
 		catch (Exception ex)
 		{
-			Log.PrintErr($"[ProgramRoot] 启动服务器失败: {ex}");
+			Log.PrintException(ex);
 			GetTree().Quit(1);
 		}
 	}
@@ -101,7 +117,7 @@ public partial class ProgramRootNode : Node
 		}
 		catch (Exception ex)
 		{
-			Log.PrintErr($"[ProgramRoot] 处理命令异常: {ex}");
+			Log.PrintException(ex);
 			respond($"错误: {ex.Message}");
 		}
 	}
