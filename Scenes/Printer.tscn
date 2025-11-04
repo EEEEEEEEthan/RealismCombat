@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://di6fwobnxwwv"]
+
+[ext_resource type="Script" uid="uid://csbs6nioep4l" path="res://Scenes/Printer.cs" id="1_auyqp"]
+
+[node name="RichTextLabel" type="RichTextLabel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机这是一个打字机"
+scroll_active = false
+scroll_following = true
+scroll_following_visible_characters = true
+visible_characters = 0
+visible_ratio = 0.0
+script = ExtResource("1_auyqp")
