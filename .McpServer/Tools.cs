@@ -66,3 +66,29 @@ static class SystemTools
 		}
 	}
 }
+[McpServerToolType]
+static class DebugTools
+{
+	[McpServerTool, Description("get scene tree in JSON format"),]
+	static async Task<string> debug_get_scene_tree()
+	{
+		using var _ = Log.BeginScope(out var builder);
+		Log.Print("收到获取场景树请求");
+		if (SystemTools.Client == null)
+		{
+			Log.Print("程序未在运行中");
+			return builder.ToString();
+		}
+		try
+		{
+			var response = await SystemTools.Client.SendCommand("debug_get_scene_tree", 3000);
+			builder.AppendLine(response);
+			return builder.ToString();
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+			return builder.ToString();
+		}
+	}
+}

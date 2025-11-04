@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Text.Json;
 using Godot;
 using RealismCombat.McpServer;
 namespace RealismCombat.Nodes;
@@ -106,6 +107,14 @@ public partial class ProgramRootNode : Node
 				case "system_launch_program":
 					respond("游戏已启动并连接成功");
 					break;
+				case "system_shutdown":
+					respond("正在关闭游戏");
+					GetTree().CallDeferred(SceneTree.MethodName.Quit);
+					break;
+				case "debug_get_scene_tree":
+					var treeJson = GetSceneTreeJson();
+					respond(treeJson);
+					break;
 				case "ping":
 					respond("pong");
 					break;
@@ -120,5 +129,19 @@ public partial class ProgramRootNode : Node
 			Log.PrintException(ex);
 			respond($"错误: {ex.Message}");
 		}
+	}
+	string GetSceneTreeJson()
+	{
+		var root = GetTree().Root;
+		var treeDict = BuildNodeTree(root);
+		return JsonSerializer.Serialize(treeDict, new JsonSerializerOptions { WriteIndented = true, });
+	}
+	object BuildNodeTree(Node node)
+	{
+		var children = node.GetChildren();
+		if (children.Count == 0) return new { };
+		var childrenDict = new System.Collections.Generic.Dictionary<string, object>();
+		foreach (var child in children) childrenDict[child.Name] = BuildNodeTree(child);
+		return childrenDict;
 	}
 }
