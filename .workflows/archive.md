@@ -1,6 +1,6 @@
 # archive
 
-1. `jb cleanupcode --profile="full" RealismCombat.sln` 格式化代码
+1. `cleanupcode.exe RealismCombat.sln --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码
 
 2. 使用 `git add` 添加所有修改的文件（包括用户可能已添加的其他文件）
 
