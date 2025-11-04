@@ -91,4 +91,26 @@ static class DebugTools
 			return builder.ToString();
 		}
 	}
+	[McpServerTool, Description("get node details by path"),]
+	static async Task<string> debug_get_node_details([Description("node path")] string nodePath)
+	{
+		using var _ = Log.BeginScope(out var builder);
+		Log.Print($"收到获取节点详情请求: {nodePath}");
+		if (SystemTools.Client == null)
+		{
+			Log.Print("程序未在运行中");
+			return builder.ToString();
+		}
+		try
+		{
+			var response = await SystemTools.Client.SendCommand($"debug_get_node_details:{nodePath}", 3000);
+			builder.AppendLine(response);
+			return builder.ToString();
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+			return builder.ToString();
+		}
+	}
 }

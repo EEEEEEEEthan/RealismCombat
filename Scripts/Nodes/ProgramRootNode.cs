@@ -102,6 +102,13 @@ public partial class ProgramRootNode : Node
 		Log.Print($"[ProgramRoot] 处理命令: {command}");
 		try
 		{
+			if (command.StartsWith("debug_get_node_details:"))
+			{
+				var nodePath = command["debug_get_node_details:".Length..];
+				var nodeDetails = GetNodeDetails(nodePath);
+				respond(nodeDetails);
+				return;
+			}
 			switch (command)
 			{
 				case "system_launch_program":
@@ -143,5 +150,13 @@ public partial class ProgramRootNode : Node
 		var childrenDict = new System.Collections.Generic.Dictionary<string, object>();
 		foreach (var child in children) childrenDict[child.Name] = BuildNodeTree(child);
 		return childrenDict;
+	}
+	string GetNodeDetails(string nodePath)
+	{
+		if (!nodePath.StartsWith("/")) nodePath = $"/root/{nodePath}";
+		var node = GetNodeOrNull(nodePath);
+		if (node == null) return $"错误: 找不到节点 '{nodePath}'";
+		var nodeData = GD.VarToStr(node);
+		return nodeData;
 	}
 }
