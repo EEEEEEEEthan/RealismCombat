@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RealismCombat.Extensions;
 namespace RealismCombat.McpServer;
 /// <summary>
 ///     游戏端TCP服务器，用于接收MCP客户端的连接和命令
@@ -20,16 +21,7 @@ public sealed class GameServer : IDisposable
 	BinaryReader? reader;
 	BinaryWriter? writer;
 	bool disposed;
-	public bool IsConnected
-	{
-		get
-		{
-			lock (sync)
-			{
-				return client?.Connected ?? false;
-			}
-		}
-	}
+	bool IsConnected => client?.Connected ?? false;
 	public event Action? OnConnected;
 	public event Action? OnDisconnected;
 	public event Action<string, Action<string>>? OnCommandReceived;
@@ -45,7 +37,7 @@ public sealed class GameServer : IDisposable
 		{
 			listener.Start();
 			Log.Print($"[GameServer] 服务器启动成功，监听端口: {port}");
-			_ = Task.Run(AcceptLoop, cancellationTokenSource.Token);
+			Task.Run(AcceptLoop, cancellationTokenSource.Token);
 		}
 		catch (Exception ex)
 		{
@@ -55,11 +47,8 @@ public sealed class GameServer : IDisposable
 	}
 	public void Dispose()
 	{
-		lock (sync)
-		{
-			if (disposed) return;
-			disposed = true;
-		}
+		if (disposed) return;
+		disposed = true;
 		Log.Print("[GameServer] 开始快速释放服务器资源");
 		try
 		{
@@ -174,21 +163,17 @@ public sealed class GameServer : IDisposable
 							writer.Flush();
 							Log.Print($"[GameServer] 发送响应: {response}");
 						}
-						catch (Exception ex)
+						catch (Exception e)
 						{
-							Log.PrintException(ex);
+							Log.PrintException(e);
 							break;
 						}
 				}
 			}
 		}
-		catch (OperationCanceledException)
+		catch (Exception e)
 		{
-			Log.Print("[GameServer] 客户端处理已取消");
-		}
-		catch (Exception ex)
-		{
-			Log.PrintException(ex);
+			Log.PrintException(e);
 		}
 		finally
 		{
@@ -197,18 +182,15 @@ public sealed class GameServer : IDisposable
 	}
 	void CloseClient()
 	{
-		lock (sync)
-		{
-			reader?.Dispose();
-			writer?.Dispose();
-			stream?.Dispose();
-			client?.Close();
-			reader = null;
-			writer = null;
-			stream = null;
-			client = null;
-			Log.Print("[GameServer] 客户端连接已关闭");
-		}
+		reader?.TryDispose();
+		writer?.TryDispose();
+		stream?.TryDispose();
+		client?.TryDispose();
+		reader = null;
+		writer = null;
+		stream = null;
+		client = null;
+		Log.Print("[GameServer] 客户端连接已关闭");
 		OnDisconnected?.Invoke();
 	}
 }
