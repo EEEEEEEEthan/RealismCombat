@@ -22,6 +22,9 @@ offset_bottom = 224.0
 
 [node name="Printer" type="RichTextLabel" parent="Control/PanelContainer"]
 layout_mode = 2
+scroll_active = false
+scroll_following = true
+scroll_following_visible_characters = true
 visible_characters = 0
 script = ExtResource("2_sief2")
 metadata/_custom_type_script = "uid://csbs6nioep4l"

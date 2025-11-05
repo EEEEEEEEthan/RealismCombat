@@ -9,8 +9,9 @@ public partial class Printer : RichTextLabel
 	{
 		if (property == "text")
 		{
-			VisibleCharacters = 0;
+			var result = base._Set(property, value);
 			UpdateVisibleCharacters();
+			return result;
 		}
 		return base._Set(property, value);
 	}
