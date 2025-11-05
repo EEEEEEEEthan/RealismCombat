@@ -1,6 +1,7 @@
 # archive
 
 1. `cleanupcode.exe RealismCombat.sln --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码
+  如果cleanupcode.exe不存在, 请提示用户 https://www.jetbrains.com/resharper/download/#section=commandline 下载并配置环境变量
 
 2. 使用 `git add` 添加所有修改的文件（包括用户可能已添加的其他文件）
 

@@ -5,6 +5,12 @@ public partial class Printer : RichTextLabel
 {
 	[Export] public float interval = 0.1f;
 	float timer;
+	public Printer()
+	{
+		ScrollActive = false;
+		ScrollFollowing = true;
+		ScrollFollowingVisibleCharacters = true;
+	}
 	public override bool _Set(StringName property, Variant value)
 	{
 		if (property == "text")
