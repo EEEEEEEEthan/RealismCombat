@@ -1,5 +1,5 @@
 using Godot;
-namespace RealismCombat.Scenes;
+namespace RealismCombat;
 [Tool, GlobalClass,]
 public partial class Printer : RichTextLabel
 {

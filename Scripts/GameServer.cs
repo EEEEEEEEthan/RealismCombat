@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using RealismCombat.Extensions;
-namespace RealismCombat.McpServer;
+namespace RealismCombat;
 /// <summary>
 ///     游戏端TCP服务器，用于接收MCP客户端的连接和命令
 /// </summary>
