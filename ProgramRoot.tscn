@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://b3j8yqxvwxr0n"]
+[gd_scene load_steps=2 format=3 uid="uid://b3ooh0m4soqad"]
 
 [ext_resource type="Script" uid="uid://reykk63eehl2" path="res://Gameplay/Nodes/ProgramRootNode.cs" id="1_main"]
 
