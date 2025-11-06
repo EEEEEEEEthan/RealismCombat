@@ -1,30 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://b3ooh0m4soqad"]
+[gd_scene load_steps=2 format=3 uid="uid://b3ooh0m4soqad"]
 
 [ext_resource type="Script" uid="uid://reykk63eehl2" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_main"]
-[ext_resource type="Script" uid="uid://csbs6nioep4l" path="res://Scripts/Nodes/Printer.cs" id="2_sief2"]
 
 [node name="ProgramRoot" type="Node"]
 script = ExtResource("1_main")
-
-[node name="Control" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="Control"]
-layout_mode = 0
-offset_top = 128.0
-offset_right = 256.0
-offset_bottom = 224.0
-
-[node name="Printer" type="RichTextLabel" parent="Control/PanelContainer"]
-layout_mode = 2
-scroll_active = false
-scroll_following = true
-scroll_following_visible_characters = true
-visible_characters = 0
-script = ExtResource("2_sief2")
-metadata/_custom_type_script = "uid://csbs6nioep4l"

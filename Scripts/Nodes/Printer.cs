@@ -5,6 +5,7 @@ public partial class Printer : RichTextLabel
 {
 	[Export] public float interval = 0.1f;
 	float timer;
+	public bool Printing => VisibleCharacters < GetTotalCharacterCount();
 	public Printer()
 	{
 		ScrollActive = false;
