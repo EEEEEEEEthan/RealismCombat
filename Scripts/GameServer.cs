@@ -16,11 +16,13 @@ public sealed class GameServer : IDisposable
 	readonly TcpListener listener;
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly object sync = new();
+	readonly LogListener logListener = new();
 	TcpClient? client;
 	NetworkStream? stream;
 	BinaryReader? reader;
 	BinaryWriter? writer;
 	bool disposed;
+	string? pendingCommand;
 	bool IsConnected => client?.Connected ?? false;
 	public event Action? OnConnected;
 	public event Action? OnDisconnected;
@@ -69,6 +71,14 @@ public sealed class GameServer : IDisposable
 		try
 		{
 			listener.Stop();
+		}
+		catch (Exception ex)
+		{
+			Log.PrintException(ex);
+		}
+		try
+		{
+			logListener.Dispose();
 		}
 		catch (Exception ex)
 		{
@@ -136,26 +146,67 @@ public sealed class GameServer : IDisposable
 					}
 				}
 				Log.Print($"[GameServer] 收到命令: {command}");
+				string response;
+				lock (sync)
+				{
+					if (pendingCommand != null)
+					{
+						response = "正忙";
+					}
+					else
+					{
+						pendingCommand = command;
+						logListener.StartCollecting();
+						response = "未处理的命令";
+					}
+				}
+				if (response == "正忙")
+				{
+					lock (sync)
+					{
+						if (writer != null && IsConnected)
+							try
+							{
+								writer.Write(response);
+								writer.Flush();
+								Log.Print($"[GameServer] 发送响应: {response}");
+							}
+							catch (Exception e)
+							{
+								Log.PrintException(e);
+								break;
+							}
+					}
+					continue;
+				}
 				var responseReceived = false;
-				var response = "未处理的命令";
 				if (OnCommandReceived != null)
 				{
 					OnCommandReceived.Invoke(command,
 						resp =>
 						{
-							response = resp;
-							responseReceived = true;
+							lock (sync)
+							{
+								if (responseReceived) return;
+								var logs = logListener.StopCollecting();
+								var finalResponse = string.IsNullOrEmpty(logs) ? resp : $"{resp}\n{logs}";
+								response = finalResponse;
+								responseReceived = true;
+							}
 						});
 					var timeout = DateTime.UtcNow.AddSeconds(5);
 					while (!responseReceived && DateTime.UtcNow < timeout) await Task.Delay(50, cancellationTokenSource.Token);
 					if (!responseReceived)
-					{
-						response = "命令处理超时";
-						Log.PrintErr($"[GameServer] 命令处理超时: {command}");
-					}
+						lock (sync)
+						{
+							var logs = logListener.StopCollecting();
+							response = string.IsNullOrEmpty(logs) ? "命令处理超时" : $"命令处理超时\n{logs}";
+							Log.PrintErr($"[GameServer] 命令处理超时: {command}");
+						}
 				}
 				lock (sync)
 				{
+					pendingCommand = null;
 					if (writer != null && IsConnected)
 						try
 						{

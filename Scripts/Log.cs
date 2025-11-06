@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 namespace RealismCombat;
 /// <summary>
@@ -6,13 +7,100 @@ namespace RealismCombat;
 /// </summary>
 public static class Log
 {
-	public static void Print(params object[] args) => GD.Print(string.Join(" ", args));
-	public static void PrintErr(params object[] args) => GD.PrintErr(string.Join(" ", args));
-	public static void PrintWarn(params object[] args) => GD.PushWarning(string.Join(" ", args));
+	public static event Action<string>? OnLog;
+	public static event Action<string>? OnLogError;
+	public static event Action<string>? OnLogWarning;
+	public static void Print(params object[] args)
+	{
+		var message = string.Join(" ", args);
+		GD.Print($"{GetTimestamp()} {message}");
+		OnLog?.Invoke(message);
+	}
+	public static void PrintErr(params object[] args)
+	{
+		var message = string.Join(" ", args);
+		GD.PrintErr($"{GetTimestamp()} {message}");
+		OnLogError?.Invoke(message);
+	}
+	public static void PrintWarn(params object[] args)
+	{
+		var message = string.Join(" ", args);
+		GD.PushWarning($"{GetTimestamp()} {message}");
+		OnLogWarning?.Invoke(message);
+	}
 	public static void PrintException(Exception ex)
 	{
-		GD.PrintErr($"异常: {ex.GetType().Name}");
-		GD.PrintErr($"消息: {ex.Message}");
-		GD.PrintErr($"堆栈: {ex.StackTrace}");
+		var fullMessage = $"异常: {ex.GetType().Name}\n消息: {ex.Message}\n堆栈: {ex.StackTrace}";
+		GD.PrintErr($"{GetTimestamp()} {fullMessage}");
+		OnLogError?.Invoke(fullMessage);
+	}
+	static string GetTimestamp() => $"[{DateTime.Now:HH:mm:ss}]";
+}
+/// <summary>
+///     日志监听器，用于收集日志
+/// </summary>
+public sealed class LogListener : IDisposable
+{
+	readonly List<string> logs = new();
+	readonly object sync = new();
+	bool disposed;
+	bool isCollecting;
+	public LogListener()
+	{
+		Log.OnLog += HandleLog;
+		Log.OnLogError += HandleLogError;
+		Log.OnLogWarning += HandleLogWarning;
+	}
+	public void StartCollecting()
+	{
+		lock (sync)
+		{
+			logs.Clear();
+			isCollecting = true;
+		}
+	}
+	public string StopCollecting()
+	{
+		lock (sync)
+		{
+			isCollecting = false;
+			return string.Join("\n", logs);
+		}
+	}
+	public void Clear()
+	{
+		lock (sync)
+		{
+			logs.Clear();
+		}
+	}
+	public void Dispose()
+	{
+		if (disposed) return;
+		disposed = true;
+		Log.OnLog -= HandleLog;
+		Log.OnLogError -= HandleLogError;
+		Log.OnLogWarning -= HandleLogWarning;
+	}
+	void HandleLog(string message)
+	{
+		lock (sync)
+		{
+			if (isCollecting) logs.Add(message);
+		}
+	}
+	void HandleLogError(string message)
+	{
+		lock (sync)
+		{
+			if (isCollecting) logs.Add($"[ERROR] {message}");
+		}
+	}
+	void HandleLogWarning(string message)
+	{
+		lock (sync)
+		{
+			if (isCollecting) logs.Add($"[WARN] {message}");
+		}
 	}
 }
