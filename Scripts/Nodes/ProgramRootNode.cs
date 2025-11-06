@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
@@ -17,11 +18,11 @@ public partial class ProgramRootNode : Node
 	}
 	async void StartGameLoop()
 	{
-		var menu = DialogueManager.CreateMenuDialogue();
-		menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
-		menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
-		while (true)
+		try
 		{
+			var menu = DialogueManager.CreateMenuDialogue();
+			menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
+			menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
 			var choice = await menu;
 			if (choice == 0)
 			{
@@ -33,6 +34,10 @@ public partial class ProgramRootNode : Node
 				GetTree().Quit();
 			}
 			await Task.Delay(100);
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
 		}
 	}
 }

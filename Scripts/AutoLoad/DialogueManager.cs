@@ -11,7 +11,6 @@ public partial class DialogueManager : Node
 		instance.dialogueStack.Add(dialogue);
 		instance.AddChild(dialogue);
 		dialogue.OnDisposing += instance.OnDialogueDisposing;
-		Log.Print($"[DialogueManager] 创建GenericDialogue, 当前堆栈大小: {instance.dialogueStack.Count}");
 		return dialogue;
 	}
 	public static MenuDialogue CreateMenuDialogue()
@@ -20,7 +19,6 @@ public partial class DialogueManager : Node
 		instance.dialogueStack.Add(dialogue);
 		instance.AddChild(dialogue);
 		dialogue.OnDisposing += instance.OnDialogueDisposing;
-		Log.Print($"[DialogueManager] 创建MenuDialogue, 当前堆栈大小: {instance.dialogueStack.Count}");
 		return dialogue;
 	}
 	public static BaseDialogue? GetTopDialogue()

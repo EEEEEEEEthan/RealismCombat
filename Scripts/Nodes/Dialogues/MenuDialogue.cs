@@ -82,6 +82,7 @@ public partial class MenuDialogue : BaseDialogue
 			currentIndex = 0;
 			UpdateUI();
 		}
+		Log.Print($"{options.Count - 1} - {option.title} {option.description}");
 	}
 	public override void HandleInput(InputEvent @event)
 	{
@@ -106,20 +107,27 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			taskCompletionSource?.TrySetResult(currentIndex);
 			GetViewport().SetInputAsHandled();
+			QueueFree();
 		}
 	}
 	public TaskAwaiter<int> GetAwaiter()
 	{
-		if (taskCompletionSource?.Task.IsCompleted ?? false) taskCompletionSource = new();
 		taskCompletionSource ??= new();
 		return taskCompletionSource.Task.GetAwaiter();
 	}
-	public void SetResult(int result)
+	public void SelectAndConfirm(int index)
 	{
-		taskCompletionSource ??= new();
-		taskCompletionSource.TrySetResult(result);
+		Select(index);
+		Confirm();
 	}
-	public void Reset() => taskCompletionSource = new();
+	void McpCheckPoint() { }
+	void Select(int index) => currentIndex = index;
+	void Confirm()
+	{
+		taskCompletionSource?.TrySetResult(currentIndex);
+		GetViewport().SetInputAsHandled();
+		QueueFree();
+	}
 	void UpdateUI()
 	{
 		if (options.Count == 0)
