@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Godot;
-namespace RealismCombat;
+namespace RealismCombat.Nodes;
 /// <summary>
 ///     程序根节点，负责初始化MCP服务器并处理游戏生命周期
 /// </summary>

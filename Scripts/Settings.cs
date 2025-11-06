@@ -9,21 +9,15 @@ namespace RealismCombat;
 public static partial class Settings
 {
 	static readonly Dictionary<string, string> settings = new();
-	static readonly string projectRoot;
 	static readonly string settingsPath;
 	static Settings()
 	{
-		projectRoot = ProjectSettings.GlobalizePath("res://");
+		var projectRoot = ProjectSettings.GlobalizePath("res://");
 		settingsPath = Path.Combine(projectRoot, ".local.settings");
 		LoadSettings();
 	}
 	public static string? Get(string key) => settings.GetValueOrDefault(key);
 	public static string Get(string key, string defaultValue) => settings.GetValueOrDefault(key, defaultValue);
-	public static void Reload()
-	{
-		Log.Print("[Settings] 重新加载配置文件");
-		LoadSettings();
-	}
 	static void LoadSettings()
 	{
 		settings.Clear();
