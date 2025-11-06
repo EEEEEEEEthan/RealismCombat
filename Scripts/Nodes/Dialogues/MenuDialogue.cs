@@ -82,7 +82,7 @@ public partial class MenuDialogue : BaseDialogue
 			UpdateUI();
 		}
 	}
-	protected override void HandleInput(InputEvent @event)
+	public override void HandleInput(InputEvent @event)
 	{
 		if (options.Count == 0) return;
 		if (@event.IsActionPressed("ui_up"))

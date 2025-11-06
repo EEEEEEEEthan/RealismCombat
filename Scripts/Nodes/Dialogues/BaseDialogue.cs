@@ -2,16 +2,10 @@ using Godot;
 namespace RealismCombat.Nodes.Dialogues;
 public abstract partial class BaseDialogue : PanelContainer
 {
-	public bool IsTopDialogue => DialogueManager.IsTopDialogue(this);
-	public override void _Input(InputEvent @event)
-	{
-		if (!IsTopDialogue) return;
-		HandleInput(@event);
-	}
 	public void Close()
 	{
 		DialogueManager.RemoveDialogue(this);
 		QueueFree();
 	}
-	protected virtual void HandleInput(InputEvent @event) { }
+	public virtual void HandleInput(InputEvent @event) { }
 }

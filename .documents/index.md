@@ -71,7 +71,6 @@ var player = new AudioStreamPlayer()
 **使用规则：**
 - 所有音频资源必须在 `ResourceTable` 中定义
 - 直接调用静态方法 `AudioManager.PlayBgm()` 和 `AudioManager.PlaySfx()` 播放音频
-- 使用 `AudioManager.IsInitialized` 检查单例是否已初始化
 - 避免在各个组件中独立创建 `AudioStreamPlayer`
 
 ### UI 系统
@@ -86,14 +85,14 @@ var player = new AudioStreamPlayer()
 `DialogueManager` 作为 Godot AutoLoad 单例提供统一的对话框管理：
 - 在 `project.godot` 中配置为自动加载单例，游戏启动时自动初始化
 - 使用堆栈管理多个对话框，支持对话框的堆叠显示
+- **统一管理输入**：在 `_Input()` 方法中接收所有输入事件，并分发给栈顶对话框处理
 - 只有栈顶的对话框能响应玩家输入，其他对话框被遮挡
 - 提供工厂方法创建对话框：`CreateGenericDialogue()` 和 `CreateMenuDialogue()`
 
 **对话框基类 (BaseDialogue)：**
 - 所有对话框继承自 `BaseDialogue` 抽象类
-- 提供 `IsTopDialogue` 属性判断是否为栈顶对话框
 - 提供 `Close()` 方法关闭对话框并从堆栈中移除
-- 子类重写 `HandleInput()` 方法处理输入，只有栈顶对话框的输入会被处理
+- 子类重写 `HandleInput()` 方法处理输入，由 `DialogueManager` 调用
 
 #### 文字打印机 (Printer)
 

@@ -67,7 +67,7 @@ public partial class GenericDialogue : BaseDialogue
 			if (time > 1) time = 0;
 		}
 	}
-	protected override void HandleInput(InputEvent @event)
+	public override void HandleInput(InputEvent @event)
 	{
 		if (@event.IsPressed() && !@event.IsEcho() && !printer.Printing)
 		{
