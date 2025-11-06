@@ -14,4 +14,5 @@
 - [扩展方法](extensions.md) - 实用的扩展方法
 
 ### 工具与服务
+- [调试指南](debugging.md) - 调试工具和常见问题解决方法
 - [MCP 服务器](mcp-server.md) - 用于测试和调试的 MCP 服务器

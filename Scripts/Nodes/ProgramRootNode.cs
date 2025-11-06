@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 namespace RealismCombat.Nodes;
@@ -26,14 +25,15 @@ public partial class ProgramRootNode : Node
 			var choice = await menu;
 			if (choice == 0)
 			{
-				Log.Print("[ProgramRoot] 玩家选择开始游戏");
+				Log.Print("[ProgramRoot] 玩家选择开始游戏 但是功能还没做完");
+				GameServer.McpCheckpoint();
 			}
 			else
 			{
-				Log.Print("[ProgramRoot] 玩家选择退出游戏");
+				Log.Print("[ProgramRoot] 玩家选择退出游戏 不出意外的话进程应该马上消失了");
+				GameServer.McpCheckpoint();
 				GetTree().Quit();
 			}
-			await Task.Delay(100);
 		}
 		catch (Exception e)
 		{

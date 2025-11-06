@@ -29,7 +29,7 @@ public sealed partial class GameServer : Node
 		add => instance!.OnCommandReceivedInternal += value;
 		remove => instance!.OnCommandReceivedInternal -= value;
 	}
-	public static bool SendResponse()
+	public static bool McpCheckpoint()
 	{
 		if (instance == null) return false;
 		var result = instance.SendResponseInternal();
