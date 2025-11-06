@@ -1,14 +1,14 @@
 using Godot;
 namespace RealismCombat.Nodes;
 [Tool, GlobalClass,]
-public partial class Printer : RichTextLabel
+public partial class PrinterNode : RichTextLabel
 {
 	[Export] public float interval = 0.1f;
 	[Export] public bool enableTypingSound = true;
 	float timer;
 	AudioStreamPlayer? fallbackAudioPlayer;
 	public bool Printing => VisibleCharacters < GetTotalCharacterCount();
-	public Printer()
+	public PrinterNode()
 	{
 		ScrollActive = false;
 		ScrollFollowing = true;

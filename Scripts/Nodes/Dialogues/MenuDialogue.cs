@@ -15,7 +15,7 @@ public partial class MenuDialogue : BaseDialogue
 	readonly List<Label> optionLabels = [];
 	Container optionContainer;
 	Control optionIndexer;
-	Printer printer;
+	PrinterNode printerNode;
 	int currentIndex;
 	public MenuDialogue()
 	{
@@ -33,9 +33,9 @@ public partial class MenuDialogue : BaseDialogue
 			hBoxContainer.AddChild(optionContainer);
 		}
 		{
-			printer = new();
-			hBoxContainer.AddChild(printer);
-			printer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+			printerNode = new();
+			hBoxContainer.AddChild(printerNode);
+			printerNode.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 		}
 		var control = new Control();
 		control.Name = "Control";
@@ -89,7 +89,7 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			currentIndex--;
 			if (currentIndex < 0) currentIndex = options.Count - 1;
-			printer.VisibleCharacters = 0;
+			printerNode.VisibleCharacters = 0;
 			UpdateUI();
 			GetViewport().SetInputAsHandled();
 		}
@@ -97,7 +97,7 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			currentIndex++;
 			if (currentIndex >= options.Count) currentIndex = 0;
-			printer.VisibleCharacters = 0;
+			printerNode.VisibleCharacters = 0;
 			UpdateUI();
 			GetViewport().SetInputAsHandled();
 		}
@@ -111,13 +111,13 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		if (options.Count == 0)
 		{
-			printer.Text = "";
+			printerNode.Text = "";
 			optionIndexer.Visible = false;
 			return;
 		}
 		optionIndexer.Visible = true;
-		printer.Text = options[currentIndex].description;
-		printer.VisibleCharacters = 0;
+		printerNode.Text = options[currentIndex].description;
+		printerNode.VisibleCharacters = 0;
 		// 更新箭头位置，对齐到当前选中的选项
 		if (currentIndex < optionLabels.Count)
 		{

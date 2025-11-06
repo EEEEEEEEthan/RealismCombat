@@ -10,12 +10,7 @@ public partial class ProgramRootNode : Node
 		Log.Print("[ProgramRoot] 程序启动");
 		var godotPath = Settings.Get("godot");
 		if (godotPath != null) Log.Print($"[ProgramRoot] 从配置读取godot路径: {godotPath}");
-		if (LaunchArgs.port.HasValue)
-		{
-			var commandHandler = new CommandHandler(this);
-			AddChild(commandHandler);
-			commandHandler.SetupServerCallbacks();
-		}
+		if (LaunchArgs.port.HasValue) AddChild(new CommandHandlerNode(this));
 	}
 	public override void _ExitTree() => Log.Print("[ProgramRoot] 程序退出完成");
 }

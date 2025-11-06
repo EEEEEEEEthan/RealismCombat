@@ -6,7 +6,7 @@ public partial class GenericDialogue : BaseDialogue
 {
 	readonly List<string> texts = [];
 	int currentTextIndex = -1;
-	Printer printer;
+	PrinterNode printerNode;
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
@@ -16,9 +16,9 @@ public partial class GenericDialogue : BaseDialogue
 		container.Name = "VBoxContainer";
 		AddChild(container);
 		{
-			printer = new();
-			container.AddChild(printer);
-			printer.SizeFlagsVertical = SizeFlags.ExpandFill;
+			printerNode = new();
+			container.AddChild(printerNode);
+			printerNode.SizeFlagsVertical = SizeFlags.ExpandFill;
 		}
 		{
 			icon = new();
@@ -38,7 +38,7 @@ public partial class GenericDialogue : BaseDialogue
 	{
 		texts.Clear();
 		texts.AddRange(newTexts);
-		printer.VisibleCharacters = 0;
+		printerNode.VisibleCharacters = 0;
 		if (texts.Count < 0)
 		{
 			currentTextIndex = -1;
@@ -46,17 +46,17 @@ public partial class GenericDialogue : BaseDialogue
 		else
 		{
 			currentTextIndex = 0;
-			printer.Text = texts[0];
+			printerNode.Text = texts[0];
 		}
 	}
 	public void SetText(string text) => SetTexts([text,]);
 	public override void _Process(double delta)
 	{
 		if (Input.IsAnythingPressed())
-			printer.interval = 0;
+			printerNode.interval = 0;
 		else
-			printer.interval = 0.1f;
-		if (printer.Printing || string.IsNullOrEmpty(printer.Text))
+			printerNode.interval = 0.1f;
+		if (printerNode.Printing || string.IsNullOrEmpty(printerNode.Text))
 		{
 			icon.SelfModulate = Colors.Transparent;
 		}
@@ -69,10 +69,10 @@ public partial class GenericDialogue : BaseDialogue
 	}
 	public override void HandleInput(InputEvent @event)
 	{
-		if (@event.IsPressed() && !@event.IsEcho() && !printer.Printing)
+		if (@event.IsPressed() && !@event.IsEcho() && !printerNode.Printing)
 		{
 			currentTextIndex++;
-			if (currentTextIndex < texts.Count) printer.Text += "\n" + texts[currentTextIndex];
+			if (currentTextIndex < texts.Count) printerNode.Text += "\n" + texts[currentTextIndex];
 		}
 	}
 }

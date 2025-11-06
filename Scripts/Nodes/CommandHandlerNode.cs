@@ -6,22 +6,24 @@ namespace RealismCombat.Nodes;
 /// <summary>
 ///     命令处理器，负责处理来自MCP客户端的指令
 /// </summary>
-public partial class CommandHandler : Node
+public partial class CommandHandlerNode(ProgramRootNode programRoot) : Node
 {
 	readonly ConcurrentQueue<(string command, Action<string> respond)> commandQueue = new();
-	readonly ProgramRootNode programRoot;
-	public CommandHandler(ProgramRootNode programRoot) => this.programRoot = programRoot;
 	public override void _EnterTree()
 	{
 		base._EnterTree();
-		Name = "CommandHandler";
+		Name = nameof(CommandHandlerNode);
 	}
-	public override void _Ready() => Log.Print("[CommandHandler] 命令处理器已就绪");
+	public override void _Ready()
+	{
+		Log.Print("[CommandHandler] 命令处理器已就绪");
+		SetupServerCallbacks();
+	}
 	public override void _Process(double delta)
 	{
 		while (commandQueue.TryDequeue(out var item)) HandleCommand(item.command, item.respond);
 	}
-	public void SetupServerCallbacks()
+	void SetupServerCallbacks()
 	{
 		var server = GetNode<AutoLoad.GameServer>("/root/GameServer");
 		server.OnConnected += () => { Log.Print("[CommandHandler] MCP客户端已连接"); };
