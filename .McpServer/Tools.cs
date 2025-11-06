@@ -15,8 +15,10 @@ static class SystemTools
 		Log.Print("收到启动程序请求");
 		if (Client != null)
 		{
-			Log.Print($"程序已在运行中 - 端口: {Client.port}, 进程ID: {Client.ProcessId}");
-			return builder.ToString();
+			Log.Print($"检测到已存在的客户端（端口: {Client.port}, 进程ID: {Client.ProcessId}），先释放旧客户端");
+			Client.Dispose();
+			Client = null;
+			Log.Print("旧客户端已释放");
 		}
 		try
 		{
