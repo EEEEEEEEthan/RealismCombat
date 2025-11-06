@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
+using RealismCombat.AutoLoad;
 namespace RealismCombat.Nodes.Dialogues;
 public struct MenuOption
 {
@@ -54,6 +55,11 @@ public partial class MenuDialogue : BaseDialogue
 			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
 		CustomMinimumSize = new(256, 96);
+	}
+	public override void Start()
+	{
+		Log.Print("请选择(game_select_option)");
+		GameServer.McpCheckpoint();
 	}
 	public override void _Ready()
 	{

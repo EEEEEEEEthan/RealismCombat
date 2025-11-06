@@ -12,16 +12,19 @@ public partial class ProgramRootNode : Node
 		Log.Print("[ProgramRoot] 程序启动");
 		var godotPath = Settings.Get("godot");
 		if (godotPath != null) Log.Print($"[ProgramRoot] 从配置读取godot路径: {godotPath}");
-		if (LaunchArgs.port.HasValue) AddChild(new CommandHandlerNode(this));
-		StartGameLoop();
+		if (LaunchArgs.port.HasValue)
+			AddChild(new CommandHandlerNode(this));
+		else
+			StartGameLoop();
 	}
-	async void StartGameLoop()
+	public async void StartGameLoop()
 	{
 		try
 		{
 			var menu = DialogueManager.CreateMenuDialogue();
 			menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
 			menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
+			menu.Start();
 			var choice = await menu;
 			if (choice == 0)
 			{

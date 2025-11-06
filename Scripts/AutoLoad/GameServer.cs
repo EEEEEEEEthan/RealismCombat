@@ -62,7 +62,6 @@ public sealed partial class GameServer : Node
 		port = LaunchArgs.port.Value;
 		listener = new(IPAddress.Loopback, port);
 		cancellationTokenSource = new();
-		logListener = new();
 		Log.Print($"[GameServer] 初始化服务器，端口: {port}");
 		try
 		{
@@ -189,7 +188,8 @@ public sealed partial class GameServer : Node
 					Log.Print($"[GameServer] 收到命令: {command}");
 					var mcpCommand = McpCommand.Deserialize(command);
 					responseTask = new();
-					logListener?.StartCollecting();
+					logListener ??= new();
+					logListener.StartCollecting();
 					OnCommandReceivedInternal?.Invoke(mcpCommand);
 					var timeoutTask = Task.Delay(5000, cts.Token);
 					var completedTask = await Task.WhenAny(responseTask.Task, timeoutTask);

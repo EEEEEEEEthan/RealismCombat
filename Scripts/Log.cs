@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Godot;
 namespace RealismCombat;
 /// <summary>
@@ -20,8 +21,10 @@ public static class Log
 	public static void PrintErr(params object[] args)
 	{
 		var message = string.Join(" ", args);
-		GD.PrintErr($"{Timestamp} {message}");
-		OnLogError?.Invoke(message);
+		var stackTrace = new StackTrace(1, true);
+		var fullMessage = $"{message}\n调用栈:\n{stackTrace}";
+		GD.PrintErr($"{Timestamp} {fullMessage}");
+		OnLogError?.Invoke(fullMessage);
 	}
 	public static void PrintWarn(params object[] args)
 	{
