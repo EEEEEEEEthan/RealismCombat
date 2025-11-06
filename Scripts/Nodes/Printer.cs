@@ -7,7 +7,6 @@ public partial class Printer : RichTextLabel
 	[Export] public bool enableTypingSound = true;
 	float timer;
 	AudioStreamPlayer? fallbackAudioPlayer;
-	AudioManager? audioManager;
 	public bool Printing => VisibleCharacters < GetTotalCharacterCount();
 	public Printer()
 	{
@@ -23,8 +22,7 @@ public partial class Printer : RichTextLabel
 	public override void _Ready()
 	{
 		base._Ready();
-		audioManager = GetNodeOrNull<AudioManager>("/root/ProgramRoot/AudioManager");
-		if (audioManager == null)
+		if (!AudioManager.IsInitialized)
 		{
 			fallbackAudioPlayer = new()
 			{
@@ -59,10 +57,10 @@ public partial class Printer : RichTextLabel
 	}
 	void PlayTypingSound()
 	{
-		if (audioManager != null)
-			audioManager.PlaySfx(ResourceTable.typingSound, -10);
+		if (fallbackAudioPlayer != null)
+			fallbackAudioPlayer.Play();
 		else
-			fallbackAudioPlayer?.Play();
+			AudioManager.PlaySfx(ResourceTable.typingSound, -10);
 	}
 	void UpdateVisibleCharacters() => VisibleCharacters = Mathf.Min(VisibleCharacters, GetTotalCharacterCount());
 }
