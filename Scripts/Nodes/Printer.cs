@@ -6,17 +6,26 @@ public partial class Printer : RichTextLabel
 	[Export] public float interval = 0.1f;
 	[Export] public bool enableTypingSound = true;
 	float timer;
-	AudioStreamPlayer audioPlayer;
+	AudioStreamPlayer? fallbackAudioPlayer;
+	AudioManager? audioManager;
 	public bool Printing => VisibleCharacters < GetTotalCharacterCount();
 	public Printer()
 	{
 		ScrollActive = false;
 		ScrollFollowing = true;
 		ScrollFollowingVisibleCharacters = true;
-		audioPlayer = new();
-		audioPlayer.Stream = ResourceTable.typingSound;
-		audioPlayer.VolumeDb = -10;
-		AddChild(audioPlayer);
+	}
+	public override void _Ready()
+	{
+		base._Ready();
+		audioManager = GetNodeOrNull<AudioManager>("/root/ProgramRoot/AudioManager");
+		if (audioManager == null)
+		{
+			fallbackAudioPlayer = new();
+			fallbackAudioPlayer.Stream = ResourceTable.typingSound;
+			fallbackAudioPlayer.VolumeDb = -10;
+			AddChild(fallbackAudioPlayer);
+		}
 	}
 	public override bool _Set(StringName property, Variant value)
 	{
@@ -35,10 +44,17 @@ public partial class Printer : RichTextLabel
 		{
 			var oldVisibleChars = VisibleCharacters;
 			VisibleCharacters += 1;
-			if (enableTypingSound && VisibleCharacters > oldVisibleChars && VisibleCharacters <= GetTotalCharacterCount()) audioPlayer.Play();
+			if (enableTypingSound && VisibleCharacters > oldVisibleChars && VisibleCharacters <= GetTotalCharacterCount()) PlayTypingSound();
 			timer = 0;
 		}
 		UpdateVisibleCharacters();
+	}
+	void PlayTypingSound()
+	{
+		if (audioManager != null)
+			audioManager.PlaySfx(ResourceTable.typingSound, -10);
+		else
+			fallbackAudioPlayer?.Play();
 	}
 	void UpdateVisibleCharacters() => VisibleCharacters = Mathf.Min(VisibleCharacters, GetTotalCharacterCount());
 }

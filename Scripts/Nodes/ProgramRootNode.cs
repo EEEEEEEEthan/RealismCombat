@@ -30,6 +30,7 @@ public partial class ProgramRootNode : Node
 	bool shouldQuitOnDisconnect;
 	bool isQuitting;
 	GenericDialogue dialogue = null!;
+	AudioManager audioManager = null!;
 	public override void _Ready()
 	{
 		Log.Print("[ProgramRoot] 程序启动");
@@ -46,6 +47,7 @@ public partial class ProgramRootNode : Node
 		{
 			Log.Print("[ProgramRoot] 未指定端口，以普通模式运行");
 		}
+		AddChild(audioManager = new() { Name = "AudioManager", });
 		AddChild(dialogue = new());
 	}
 	public override void _Process(double delta)

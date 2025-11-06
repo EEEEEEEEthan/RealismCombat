@@ -16,6 +16,19 @@
 - 新增资源时，先在 `ResourceTable` 中添加对应的 `Loader` 定义
 - 这样可以确保资源的统一管理和延迟加载
 
+### 音频管理
+
+`AudioManager` 提供统一的音频管理：
+- 在 `ProgramRoot` 初始化时创建，挂载为 `/root/ProgramRoot/AudioManager`
+- 使用两个 `AudioStreamPlayer` 分别管理背景音乐（BGM）和音效（SFX）
+- 提供播放、停止、音量控制等功能
+- 其他组件通过全局路径获取 `AudioManager` 实例来播放音频
+
+**使用规则：**
+- 所有音频资源必须在 `ResourceTable` 中定义
+- 通过 `AudioManager` 的 `PlayBgm()` 和 `PlaySfx()` 方法播放音频
+- 避免在各个组件中独立创建 `AudioStreamPlayer`
+
 ### UI 系统
 
 #### 文字打印机 (Printer)
@@ -23,6 +36,7 @@
 `Printer` 组件继承自 `RichTextLabel`，提供逐字打印效果：
 - 支持可配置的打印间隔
 - 提供 `Printing` 属性用于查询是否正在打印
+- 打字音效通过 `AudioManager` 播放
 
 #### 通用对话框 (GenericDialogue)
 
