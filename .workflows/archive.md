@@ -1,12 +1,13 @@
 # archive
 
-1. `cleanupcode.exe RealismCombat.sln --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码
+1. `git status` 查看状态
+  如果有任何代码(.cs文件)变更,使用`cleanupcode.exe RealismCombat.sln --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码. 如果没有代码变更请跳过此步骤
   如果cleanupcode.exe不存在, 请提示用户 https://www.jetbrains.com/resharper/download/#section=commandline 下载并配置环境变量
 
-2. 使用 `git add` 添加所有修改的文件（包括用户可能已添加的其他文件）
+2. 使用 `git add` 添加你修改的所有文件
 
 3. 更新文档
-   - 检查 `git diff --cached` 查看所有已暂存的变更
+   - 检查 `git diff --cached` 查看所有已暂存的变更.这个变更也可能包括除了你add以外,用户add的变更.需要一并检查.
    - 如果有设计概念层面的变更，更新 `根目录/.documents/` 目录下的相关文档
    - 只记录设计概念，不记录更新历史或实现细节
    - 如果没有值得记录的内容，跳过此步骤
