@@ -116,3 +116,29 @@ static class DebugTools
 		}
 	}
 }
+[McpServerToolType]
+static class GameTools
+{
+	[McpServerTool, Description("select menu option"),]
+	static async Task<string> game_select_option([Description("option index")] int id, [Description("option name")] string name)
+	{
+		using var _ = Log.BeginScope(out var builder);
+		Log.Print($"收到选择选项请求: id={id}, name={name}");
+		if (SystemTools.Client == null)
+		{
+			Log.Print("程序未在运行中");
+			return builder.ToString();
+		}
+		try
+		{
+			var response = await SystemTools.Client.SendCommand($"game_select_option id {id} name {name}", 3000);
+			builder.AppendLine(response);
+			return builder.ToString();
+		}
+		catch (Exception e)
+		{
+			Log.PrintException(e);
+			return builder.ToString();
+		}
+	}
+}
