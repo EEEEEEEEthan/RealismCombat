@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat.Nodes;
+namespace RealismCombat.Nodes.Dialogues;
 [Tool, GlobalClass,]
 public partial class GenericDialogue : BaseDialogue
 {

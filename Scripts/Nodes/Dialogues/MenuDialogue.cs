@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat.Nodes;
+namespace RealismCombat.Nodes.Dialogues;
 public struct MenuOption
 {
 	public string title;

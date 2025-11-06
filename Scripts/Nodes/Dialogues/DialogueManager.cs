@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat.Nodes;
+namespace RealismCombat.Nodes.Dialogues;
 public partial class DialogueManager : Node
 {
 	static DialogueManager? instance;

@@ -1,5 +1,5 @@
 using Godot;
-namespace RealismCombat.Nodes;
+namespace RealismCombat.Nodes.Dialogues;
 public abstract partial class BaseDialogue : PanelContainer
 {
 	public bool IsTopDialogue => DialogueManager.IsTopDialogue(this);
