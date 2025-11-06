@@ -23,11 +23,11 @@ public sealed partial class GameServer : Node
 	BinaryReader? reader;
 	BinaryWriter? writer;
 	bool disposed;
-	string? pendingCommand;
+	TaskCompletionSource<bool>? responseTask;
 	bool ClientIsConnected => client?.Connected ?? false;
 	public event Action? OnConnected;
 	public event Action? OnDisconnected;
-	public event Action<string, Action<string>>? OnCommandReceived;
+	public event Action<string>? OnCommandReceived;
 	public override void _Ready()
 	{
 		if (!LaunchArgs.port.HasValue)
@@ -77,6 +77,32 @@ public sealed partial class GameServer : Node
 		logListener?.TryDispose();
 		Log.Print("[GameServer] 服务器资源释放完成");
 	}
+	public bool SendResponse()
+	{
+		var result = SendResponseInternal();
+		responseTask?.TrySetResult(true);
+		return result;
+	}
+	bool SendResponseInternal()
+	{
+		lock (sync)
+		{
+			if (writer == null || !ClientIsConnected) return false;
+			var logs = logListener?.StopCollecting() ?? "";
+			try
+			{
+				writer.Write(logs);
+				writer.Flush();
+				Log.Print($"[GameServer] 发送响应: {logs}");
+				return true;
+			}
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+				return false;
+			}
+		}
+	}
 	async Task AcceptLoop()
 	{
 		if (cancellationTokenSource == null || listener == null) return;
@@ -115,86 +141,57 @@ public sealed partial class GameServer : Node
 	}
 	async Task HandleClient()
 	{
-		var cts = cancellationTokenSource;
-		if (cts == null) return;
 		try
 		{
-			while (!cts.Token.IsCancellationRequested)
+			var cts = cancellationTokenSource;
+			if (cts == null) return;
+			try
 			{
-				string command;
-				lock (sync)
+				while (!cts.Token.IsCancellationRequested)
 				{
-					if (reader == null || !ClientIsConnected)
+					string command;
+					lock (sync)
 					{
-						Log.Print("[GameServer] 客户端已断开");
-						break;
-					}
-					try
-					{
-						command = reader.ReadString();
-					}
-					catch (Exception ex)
-					{
-						Log.PrintException(ex);
-						break;
-					}
-				}
-				Log.Print($"[GameServer] 收到命令: {command}");
-				bool isBusy;
-				lock (sync)
-				{
-					isBusy = pendingCommand != null;
-					if (!isBusy)
-					{
-						pendingCommand = command;
-						logListener?.StartCollecting();
-					}
-				}
-				if (isBusy)
-				{
-					if (!SendResponse("正忙")) break;
-					continue;
-				}
-				var response = "未处理的命令";
-				var responseReceived = false;
-				if (OnCommandReceived != null)
-				{
-					OnCommandReceived.Invoke(command,
-						resp =>
+						if (reader == null || !ClientIsConnected)
 						{
-							lock (sync)
-							{
-								if (responseReceived) return;
-								var logs = logListener?.StopCollecting() ?? "";
-								var finalResponse = string.IsNullOrEmpty(logs) ? resp : $"{resp}\n{logs}";
-								response = finalResponse;
-								responseReceived = true;
-							}
-						});
-					var timeout = DateTime.UtcNow.AddSeconds(5);
-					while (!responseReceived && DateTime.UtcNow < timeout) await Task.Delay(50, cts.Token);
-					if (!responseReceived)
-						lock (sync)
-						{
-							var logs = logListener?.StopCollecting() ?? "";
-							response = string.IsNullOrEmpty(logs) ? "命令处理超时" : $"命令处理超时\n{logs}";
-							Log.PrintErr($"[GameServer] 命令处理超时: {command}");
+							Log.Print("[GameServer] 客户端已断开");
+							break;
 						}
+						try
+						{
+							command = reader.ReadString();
+						}
+						catch (Exception ex)
+						{
+							Log.PrintException(ex);
+							break;
+						}
+					}
+					Log.Print($"[GameServer] 收到命令: {command}");
+					responseTask = new();
+					logListener?.StartCollecting();
+					OnCommandReceived?.Invoke(command);
+					var timeoutTask = Task.Delay(5000, cts.Token);
+					var completedTask = await Task.WhenAny(responseTask.Task, timeoutTask);
+					if (completedTask == timeoutTask)
+					{
+						Log.PrintErr("[GameServer] 等待响应超时");
+						SendResponseInternal();
+					}
 				}
-				lock (sync)
-				{
-					pendingCommand = null;
-				}
-				if (!SendResponse(response)) break;
+			}
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+			}
+			finally
+			{
+				CloseClient();
 			}
 		}
-		catch (Exception e)
+		catch (Exception ex)
 		{
-			Log.PrintException(e);
-		}
-		finally
-		{
-			CloseClient();
+			Log.PrintException(ex);
 		}
 	}
 	void CloseClient()
@@ -209,24 +206,5 @@ public sealed partial class GameServer : Node
 		client = null;
 		Log.Print("[GameServer] 客户端连接已关闭");
 		OnDisconnected?.Invoke();
-	}
-	bool SendResponse(string response)
-	{
-		lock (sync)
-		{
-			if (writer == null || !ClientIsConnected) return false;
-			try
-			{
-				writer.Write(response);
-				writer.Flush();
-				Log.Print($"[GameServer] 发送响应: {response}");
-				return true;
-			}
-			catch (Exception e)
-			{
-				Log.PrintException(e);
-				return false;
-			}
-		}
 	}
 }

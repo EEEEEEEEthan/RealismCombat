@@ -28,16 +28,18 @@ MCP客户端是外部工具，通过MCP协议与游戏通信：
 ### 游戏端服务器 (Scripts/AutoLoad/)
 - GameServer：作为 Godot AutoLoad 单例的 TCP 服务器
 - 在 `_Ready()` 中检查 `LaunchArgs.port` 决定是否启动服务器
-- 接收客户端命令并返回响应
-- 通过事件和回调将命令发送到主线程处理
-- 支持指令挂起：同一时间只处理一个指令，多余指令返回"正忙"
-- 自动收集指令处理期间的日志并随响应返回
+- 接收客户端命令并等待响应
+- 通过 `OnCommandReceived` 事件将命令发送到主线程处理
+- 提供 `SendResponse()` 方法供命令处理者调用，发送响应
+- 使用 `TaskCompletionSource` 等待命令处理完成
+- 自动收集从命令接收到 `SendResponse()` 调用期间的所有日志并随响应返回
 
-### 程序入口 (Scripts/Nodes/)
-- ProgramRootNode：游戏主入口节点
-- 检查 `LaunchArgs.port` 是否存在
-- 设置 GameServer 的事件回调（OnConnected、OnDisconnected、OnCommandReceived）
-- 在主线程中处理命令（通过并发队列）
+### 命令处理器 (Scripts/Nodes/)
+- CommandHandlerNode：负责处理MCP命令的节点
+- 由 ProgramRootNode 在检测到 `LaunchArgs.port` 时创建
+- 订阅 GameServer 的事件（OnConnected、OnDisconnected、OnCommandReceived）
+- 在主线程的 `_Process()` 中处理命令队列
+- 处理逻辑：通过 `Log.Print()` 输出结果，然后调用 `server.SendResponse()` 发送响应
 
 ## 启动流程
 
