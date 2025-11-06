@@ -45,7 +45,6 @@ public partial class ProgramRootNode : Node
 		{
 			Log.Print("[ProgramRoot] 未指定端口，以普通模式运行");
 		}
-		GetTree().Root.CloseRequested += OnCloseRequested;
 	}
 	public override void _Process(double delta)
 	{
@@ -64,11 +63,6 @@ public partial class ProgramRootNode : Node
 		}
 		server = null;
 		Log.Print("[ProgramRoot] 程序退出完成");
-	}
-	void OnCloseRequested()
-	{
-		Log.Print("[ProgramRoot] 收到窗口关闭请求，强制退出");
-		System.Environment.Exit(0);
 	}
 	void StartServer(int serverPort)
 	{
