@@ -105,7 +105,7 @@ static class DebugTools
 		}
 		try
 		{
-			var response = await SystemTools.Client.SendCommand($"debug_get_node_details:{nodePath}", 3000);
+			var response = await SystemTools.Client.SendCommand($"debug_get_node_details nodePath {nodePath}", 3000);
 			builder.AppendLine(response);
 			return builder.ToString();
 		}

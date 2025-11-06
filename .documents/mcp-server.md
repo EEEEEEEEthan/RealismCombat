@@ -28,18 +28,25 @@ MCP客户端是外部工具，通过MCP协议与游戏通信：
 ### 游戏端服务器 (Scripts/AutoLoad/)
 - GameServer：作为 Godot AutoLoad 单例的 TCP 服务器
 - 在 `_Ready()` 中检查 `LaunchArgs.port` 决定是否启动服务器
+- 提供静态 API：`OnConnected`、`OnDisconnected`、`OnCommandReceived`、`SendResponse()`
 - 接收客户端命令并等待响应
-- 通过 `OnCommandReceived` 事件将命令发送到主线程处理
-- 提供 `SendResponse()` 方法供命令处理者调用，发送响应
+- 通过静态事件 `OnCommandReceived` 将 `McpCommand` 发送到主线程处理
+- 提供静态方法 `SendResponse()` 供命令处理者调用，发送响应
 - 使用 `TaskCompletionSource` 等待命令处理完成
 - 自动收集从命令接收到 `SendResponse()` 调用期间的所有日志并随响应返回
 
 ### 命令处理器 (Scripts/Nodes/)
 - CommandHandlerNode：负责处理MCP命令的节点
 - 由 ProgramRootNode 在检测到 `LaunchArgs.port` 时创建
-- 订阅 GameServer 的事件（OnConnected、OnDisconnected、OnCommandReceived）
+- 订阅 GameServer 的静态事件（OnConnected、OnDisconnected、OnCommandReceived）
 - 在主线程的 `_Process()` 中处理命令队列
-- 处理逻辑：通过 `Log.Print()` 输出结果，然后调用 `server.SendResponse()` 发送响应
+- 处理逻辑：通过 `Log.Print()` 输出结果，然后调用静态方法 `GameServer.SendResponse()` 发送响应
+
+### 通讯协议 (Scripts/)
+- McpCommand：命令结构体，封装命令名称和参数
+- 序列化格式：`command key1 value1 key2 value2`
+- 支持无参数命令（仅包含命令名称）
+- 提供 `TryGetArg()` 和 `GetArgOrDefault()` 方法访问参数
 
 ## 启动流程
 

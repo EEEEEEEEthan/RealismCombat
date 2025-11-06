@@ -13,6 +13,29 @@ namespace RealismCombat.AutoLoad;
 /// </summary>
 public sealed partial class GameServer : Node
 {
+	static GameServer? instance;
+	public static event Action? OnConnected
+	{
+		add => instance!.OnConnectedInternal += value;
+		remove => instance!.OnConnectedInternal -= value;
+	}
+	public static event Action? OnDisconnected
+	{
+		add => instance!.OnDisconnectedInternal += value;
+		remove => instance!.OnDisconnectedInternal -= value;
+	}
+	public static event Action<McpCommand>? OnCommandReceived
+	{
+		add => instance!.OnCommandReceivedInternal += value;
+		remove => instance!.OnCommandReceivedInternal -= value;
+	}
+	public static bool SendResponse()
+	{
+		if (instance == null) return false;
+		var result = instance.SendResponseInternal();
+		instance.responseTask?.TrySetResult(true);
+		return result;
+	}
 	readonly object sync = new();
 	int port;
 	TcpListener? listener;
@@ -25,11 +48,12 @@ public sealed partial class GameServer : Node
 	bool disposed;
 	TaskCompletionSource<bool>? responseTask;
 	bool ClientIsConnected => client?.Connected ?? false;
-	public event Action? OnConnected;
-	public event Action? OnDisconnected;
-	public event Action<string>? OnCommandReceived;
+	event Action? OnConnectedInternal;
+	event Action? OnDisconnectedInternal;
+	event Action<McpCommand>? OnCommandReceivedInternal;
 	public override void _Ready()
 	{
+		instance = this;
 		if (!LaunchArgs.port.HasValue)
 		{
 			Log.Print("[GameServer] 未指定端口，服务器不启动");
@@ -76,12 +100,7 @@ public sealed partial class GameServer : Node
 		}
 		logListener?.TryDispose();
 		Log.Print("[GameServer] 服务器资源释放完成");
-	}
-	public bool SendResponse()
-	{
-		var result = SendResponseInternal();
-		responseTask?.TrySetResult(true);
-		return result;
+		instance = null;
 	}
 	bool SendResponseInternal()
 	{
@@ -126,7 +145,7 @@ public sealed partial class GameServer : Node
 					writer = new(stream, Encoding.UTF8, leaveOpen: true);
 					Log.Print("[GameServer] 客户端连接成功");
 				}
-				OnConnected?.Invoke();
+				OnConnectedInternal?.Invoke();
 				_ = Task.Run(HandleClient, cancellationTokenSource.Token);
 			}
 		}
@@ -168,9 +187,10 @@ public sealed partial class GameServer : Node
 						}
 					}
 					Log.Print($"[GameServer] 收到命令: {command}");
+					var mcpCommand = McpCommand.Deserialize(command);
 					responseTask = new();
 					logListener?.StartCollecting();
-					OnCommandReceived?.Invoke(command);
+					OnCommandReceivedInternal?.Invoke(mcpCommand);
 					var timeoutTask = Task.Delay(5000, cts.Token);
 					var completedTask = await Task.WhenAny(responseTask.Task, timeoutTask);
 					if (completedTask == timeoutTask)
@@ -205,6 +225,6 @@ public sealed partial class GameServer : Node
 		stream = null;
 		client = null;
 		Log.Print("[GameServer] 客户端连接已关闭");
-		OnDisconnected?.Invoke();
+		OnDisconnectedInternal?.Invoke();
 	}
 }

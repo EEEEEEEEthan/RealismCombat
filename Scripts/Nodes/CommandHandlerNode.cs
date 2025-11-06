@@ -8,8 +8,7 @@ namespace RealismCombat.Nodes;
 /// </summary>
 public partial class CommandHandlerNode(ProgramRootNode programRoot) : Node
 {
-	readonly ConcurrentQueue<string> commandQueue = new();
-	AutoLoad.GameServer? server;
+	readonly ConcurrentQueue<McpCommand> commandQueue = new();
 	public override void _EnterTree()
 	{
 		base._EnterTree();
@@ -26,59 +25,57 @@ public partial class CommandHandlerNode(ProgramRootNode programRoot) : Node
 	}
 	void SetupServerCallbacks()
 	{
-		server = GetNode<AutoLoad.GameServer>("/root/GameServer");
-		server.OnConnected += () => { Log.Print("[CommandHandler] MCP客户端已连接"); };
-		server.OnDisconnected += () => { Log.Print("[CommandHandler] MCP客户端已断开"); };
-		server.OnCommandReceived += command => { commandQueue.Enqueue(command); };
+		AutoLoad.GameServer.OnConnected += () => { Log.Print("[CommandHandler] MCP客户端已连接"); };
+		AutoLoad.GameServer.OnDisconnected += () => { Log.Print("[CommandHandler] MCP客户端已断开"); };
+		AutoLoad.GameServer.OnCommandReceived += command => { commandQueue.Enqueue(command); };
 	}
-	void HandleCommand(string command)
+	void HandleCommand(McpCommand cmd)
 	{
-		Log.Print($"[CommandHandler] 处理命令: {command}");
-		if (server == null)
-		{
-			Log.PrintErr("[CommandHandler] GameServer未初始化");
-			return;
-		}
+		Log.Print($"[CommandHandler] 处理命令: {cmd.Command}");
 		try
 		{
-			if (command.StartsWith("debug_get_node_details:"))
-			{
-				var nodePath = command["debug_get_node_details:".Length..];
-				var nodeDetails = GetNodeDetails(nodePath);
-				Log.Print(nodeDetails);
-				server.SendResponse();
-				return;
-			}
-			switch (command)
+			switch (cmd.Command)
 			{
 				case "system_launch_program":
 					Log.Print("游戏已启动并连接成功");
-					server.SendResponse();
+					AutoLoad.GameServer.SendResponse();
 					break;
 				case "system_shutdown":
 					Log.Print("正在关闭游戏");
-					server.SendResponse();
+					AutoLoad.GameServer.SendResponse();
 					GetTree().CallDeferred(SceneTree.MethodName.Quit);
 					break;
 				case "debug_get_scene_tree":
 					var treeJson = GetSceneTreeJson();
 					Log.Print(treeJson);
-					server.SendResponse();
+					AutoLoad.GameServer.SendResponse();
+					break;
+				case "debug_get_node_details":
+					if (cmd.TryGetArg("nodePath", out var nodePath))
+					{
+						var nodeDetails = GetNodeDetails(nodePath);
+						Log.Print(nodeDetails);
+					}
+					else
+					{
+						Log.PrintErr("缺少参数: nodePath");
+					}
+					AutoLoad.GameServer.SendResponse();
 					break;
 				case "ping":
 					Log.Print("pong");
-					server.SendResponse();
+					AutoLoad.GameServer.SendResponse();
 					break;
 				default:
-					Log.PrintErr($"未知命令: {command}");
-					server.SendResponse();
+					Log.PrintErr($"未知命令: {cmd.Command}");
+					AutoLoad.GameServer.SendResponse();
 					break;
 			}
 		}
 		catch (Exception ex)
 		{
 			Log.PrintException(ex);
-			server.SendResponse();
+			AutoLoad.GameServer.SendResponse();
 		}
 	}
 	string GetSceneTreeJson()
