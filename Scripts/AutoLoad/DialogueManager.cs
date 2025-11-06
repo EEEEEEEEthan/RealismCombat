@@ -10,6 +10,7 @@ public partial class DialogueManager : Node
 		var dialogue = new GenericDialogue();
 		instance.dialogueStack.Add(dialogue);
 		instance.AddChild(dialogue);
+		dialogue.OnDisposing += instance.OnDialogueDisposing;
 		Log.Print($"[DialogueManager] 创建GenericDialogue, 当前堆栈大小: {instance.dialogueStack.Count}");
 		return dialogue;
 	}
@@ -18,13 +19,9 @@ public partial class DialogueManager : Node
 		var dialogue = new MenuDialogue();
 		instance.dialogueStack.Add(dialogue);
 		instance.AddChild(dialogue);
+		dialogue.OnDisposing += instance.OnDialogueDisposing;
 		Log.Print($"[DialogueManager] 创建MenuDialogue, 当前堆栈大小: {instance.dialogueStack.Count}");
 		return dialogue;
-	}
-	public static void RemoveDialogue(BaseDialogue dialogue)
-	{
-		instance.dialogueStack.Remove(dialogue);
-		Log.Print($"[DialogueManager] 移除Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {instance.dialogueStack.Count}");
 	}
 	public static BaseDialogue? GetTopDialogue()
 	{
@@ -48,5 +45,10 @@ public partial class DialogueManager : Node
 	{
 		var topDialogue = GetTopDialogue();
 		topDialogue?.HandleInput(@event);
+	}
+	void OnDialogueDisposing(BaseDialogue dialogue)
+	{
+		dialogueStack.Remove(dialogue);
+		Log.Print($"[DialogueManager] 移除Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {dialogueStack.Count}");
 	}
 }

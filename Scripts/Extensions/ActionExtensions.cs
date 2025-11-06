@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 namespace RealismCombat.Extensions;
 public static partial class Extensions
 {
-	public static void TryDispose(this IDisposable @this)
+	public static void TryInvoke<T>(this Action<T>? @this, T arg)
 	{
 		try
 		{
-			@this.Dispose();
+			@this?.Invoke(arg);
 		}
 		catch (Exception e)
 		{
