@@ -7,34 +7,34 @@ namespace RealismCombat;
 /// </summary>
 public static class Log
 {
+	static string Timestamp => $"[{DateTime.Now:HH:mm:ss}]";
 	public static event Action<string>? OnLog;
 	public static event Action<string>? OnLogError;
 	public static event Action<string>? OnLogWarning;
 	public static void Print(params object[] args)
 	{
 		var message = string.Join(" ", args);
-		GD.Print($"{GetTimestamp()} {message}");
+		GD.Print($"{Timestamp} {message}");
 		OnLog?.Invoke(message);
 	}
 	public static void PrintErr(params object[] args)
 	{
 		var message = string.Join(" ", args);
-		GD.PrintErr($"{GetTimestamp()} {message}");
+		GD.PrintErr($"{Timestamp} {message}");
 		OnLogError?.Invoke(message);
 	}
 	public static void PrintWarn(params object[] args)
 	{
 		var message = string.Join(" ", args);
-		GD.PushWarning($"{GetTimestamp()} {message}");
+		GD.PushWarning($"{Timestamp} {message}");
 		OnLogWarning?.Invoke(message);
 	}
 	public static void PrintException(Exception ex)
 	{
 		var fullMessage = $"异常: {ex.GetType().Name}\n消息: {ex.Message}\n堆栈: {ex.StackTrace}";
-		GD.PrintErr($"{GetTimestamp()} {fullMessage}");
+		GD.PrintErr($"{Timestamp} {fullMessage}");
 		OnLogError?.Invoke(fullMessage);
 	}
-	static string GetTimestamp() => $"[{DateTime.Now:HH:mm:ss}]";
 }
 /// <summary>
 ///     日志监听器，用于收集日志

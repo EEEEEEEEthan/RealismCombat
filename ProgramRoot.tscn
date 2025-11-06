@@ -1,6 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://b3ooh0m4soqad"]
+[gd_scene load_steps=3 format=3 uid="uid://b3ooh0m4soqad"]
 
 [ext_resource type="Script" uid="uid://reykk63eehl2" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_main"]
+[ext_resource type="Script" uid="uid://cm7tvatxmanib" path="res://Scripts/Nodes/GenericDialogue.cs" id="2_rv01b"]
 
 [node name="ProgramRoot" type="Node"]
 script = ExtResource("1_main")
+
+[node name="GenericDialogue" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(128, 96)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -96.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("2_rv01b")
+metadata/_custom_type_script = "uid://cm7tvatxmanib"
