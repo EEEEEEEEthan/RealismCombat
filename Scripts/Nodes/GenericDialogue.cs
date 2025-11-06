@@ -12,9 +12,8 @@ public partial class GenericDialogue : PanelContainer
 	double time;
 	public GenericDialogue()
 	{
-		const string containerName = "VBoxContainer";
 		container = new();
-		container.Name = containerName;
+		container.Name = "VBoxContainer";
 		AddChild(container);
 		{
 			printer = new();
@@ -23,6 +22,7 @@ public partial class GenericDialogue : PanelContainer
 		}
 		{
 			icon = new();
+			icon.Name = "Icon";
 			container.AddChild(icon);
 			icon.Texture = SpriteTable.arrowDown;
 			icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;

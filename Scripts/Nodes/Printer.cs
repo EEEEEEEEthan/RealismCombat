@@ -15,15 +15,23 @@ public partial class Printer : RichTextLabel
 		ScrollFollowing = true;
 		ScrollFollowingVisibleCharacters = true;
 	}
+	public override void _EnterTree()
+	{
+		base._EnterTree();
+		Name = "Printer";
+	}
 	public override void _Ready()
 	{
 		base._Ready();
 		audioManager = GetNodeOrNull<AudioManager>("/root/ProgramRoot/AudioManager");
 		if (audioManager == null)
 		{
-			fallbackAudioPlayer = new();
-			fallbackAudioPlayer.Stream = ResourceTable.typingSound;
-			fallbackAudioPlayer.VolumeDb = -10;
+			fallbackAudioPlayer = new()
+			{
+				Name = "FallbackAudioPlayer",
+				Stream = ResourceTable.typingSound,
+				VolumeDb = -10,
+			};
 			AddChild(fallbackAudioPlayer);
 		}
 	}

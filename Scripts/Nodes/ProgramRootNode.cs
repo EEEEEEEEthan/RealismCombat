@@ -47,8 +47,10 @@ public partial class ProgramRootNode : Node
 		{
 			Log.Print("[ProgramRoot] 未指定端口，以普通模式运行");
 		}
-		AddChild(audioManager = new() { Name = "AudioManager", });
-		AddChild(dialogue = new());
+		audioManager = new() { Name = "AudioManager", };
+		AddChild(audioManager);
+		dialogue = new();
+		AddChild(dialogue);
 	}
 	public override void _Process(double delta)
 	{
