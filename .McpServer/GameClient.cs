@@ -188,6 +188,19 @@ public sealed class GameClient : IDisposable
 			writer.TryDispose();
 			stream.TryDispose();
 			client.TryDispose();
+			try
+			{
+				if (!process.HasExited)
+				{
+					Log.Print($"正在终止Godot进程 (PID: {ProcessId})");
+					process.Kill();
+					process.WaitForExit(3000);
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.PrintError("终止进程时发生异常", ex);
+			}
 			process.TryDispose();
 			logWriter.TryDispose();
 		}
