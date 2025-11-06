@@ -12,7 +12,7 @@ public partial class ProgramRootNode : Node
 		if (godotPath != null) Log.Print($"[ProgramRoot] 从配置读取godot路径: {godotPath}");
 		if (LaunchArgs.port.HasValue)
 		{
-			var commandHandler = new CommandHandler();
+			var commandHandler = new CommandHandler(this);
 			AddChild(commandHandler);
 			commandHandler.SetupServerCallbacks();
 		}
