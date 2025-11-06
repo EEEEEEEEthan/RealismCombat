@@ -63,6 +63,7 @@ var player = new AudioStreamPlayer()
 ### 音频管理
 
 `AudioManager` 作为 Godot AutoLoad 单例提供统一的音频管理：
+- 位于 `Scripts/AutoLoad/` 目录
 - 在 `project.godot` 中配置为自动加载单例，游戏启动时自动初始化
 - 使用两个 `AudioStreamPlayer` 分别管理背景音乐（BGM）和音效（SFX）
 - 提供静态方法访问，无需获取实例即可使用
@@ -83,6 +84,7 @@ var player = new AudioStreamPlayer()
 #### 对话框管理 (DialogueManager)
 
 `DialogueManager` 作为 Godot AutoLoad 单例提供统一的对话框管理：
+- 位于 `Scripts/AutoLoad/` 目录
 - 在 `project.godot` 中配置为自动加载单例，游戏启动时自动初始化
 - 使用堆栈管理多个对话框，支持对话框的堆叠显示
 - **统一管理输入**：在 `_Input()` 方法中接收所有输入事件，并分发给栈顶对话框处理

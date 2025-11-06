@@ -22,7 +22,7 @@ public partial class Printer : RichTextLabel
 	public override void _Ready()
 	{
 		base._Ready();
-		if (!AudioManager.IsInitialized)
+		if (!AutoLoad.AudioManager.IsInitialized)
 		{
 			fallbackAudioPlayer = new()
 			{
@@ -60,7 +60,7 @@ public partial class Printer : RichTextLabel
 		if (fallbackAudioPlayer != null)
 			fallbackAudioPlayer.Play();
 		else
-			AudioManager.PlaySfx(ResourceTable.typingSound, -10);
+			AutoLoad.AudioManager.PlaySfx(ResourceTable.typingSound, -10);
 	}
 	void UpdateVisibleCharacters() => VisibleCharacters = Mathf.Min(VisibleCharacters, GetTotalCharacterCount());
 }

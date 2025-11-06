@@ -5,36 +5,41 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Godot;
 using RealismCombat.Extensions;
-namespace RealismCombat;
+namespace RealismCombat.AutoLoad;
 /// <summary>
 ///     游戏端TCP服务器，用于接收MCP客户端的连接和命令
 /// </summary>
-public sealed class GameServer : IDisposable
+public sealed partial class GameServer : Node
 {
-	readonly int port;
-	readonly TcpListener listener;
-	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly object sync = new();
-	readonly LogListener logListener = new();
+	int port;
+	TcpListener? listener;
+	CancellationTokenSource? cancellationTokenSource;
+	LogListener? logListener;
 	TcpClient? client;
 	NetworkStream? stream;
 	BinaryReader? reader;
 	BinaryWriter? writer;
 	bool disposed;
 	string? pendingCommand;
-	bool IsConnected => client?.Connected ?? false;
+	bool ClientIsConnected => client?.Connected ?? false;
 	public event Action? OnConnected;
 	public event Action? OnDisconnected;
 	public event Action<string, Action<string>>? OnCommandReceived;
-	public GameServer(int port)
+	public override void _Ready()
 	{
-		this.port = port;
+		if (!LaunchArgs.port.HasValue)
+		{
+			Log.Print("[GameServer] 未指定端口，服务器不启动");
+			return;
+		}
+		port = LaunchArgs.port.Value;
 		listener = new(IPAddress.Loopback, port);
-		Log.Print($"[GameServer] 创建服务器，端口: {port}");
-	}
-	public void Start()
-	{
+		cancellationTokenSource = new();
+		logListener = new();
+		Log.Print($"[GameServer] 初始化服务器，端口: {port}");
 		try
 		{
 			listener.Start();
@@ -47,47 +52,34 @@ public sealed class GameServer : IDisposable
 			throw;
 		}
 	}
-	public void Dispose()
+	public override void _ExitTree()
 	{
 		if (disposed) return;
 		disposed = true;
 		Log.Print("[GameServer] 开始快速释放服务器资源");
 		try
 		{
-			cancellationTokenSource.Cancel();
+			cancellationTokenSource?.Cancel();
 		}
 		catch (Exception ex)
 		{
 			Log.PrintException(ex);
 		}
+		CloseClient();
 		try
 		{
-			CloseClient();
+			listener?.Stop();
 		}
 		catch (Exception ex)
 		{
 			Log.PrintException(ex);
 		}
-		try
-		{
-			listener.Stop();
-		}
-		catch (Exception ex)
-		{
-			Log.PrintException(ex);
-		}
-		try
-		{
-			logListener.Dispose();
-		}
-		catch (Exception ex)
-		{
-			Log.PrintException(ex);
-		}
+		logListener?.TryDispose();
 		Log.Print("[GameServer] 服务器资源释放完成");
 	}
 	async Task AcceptLoop()
 	{
+		if (cancellationTokenSource == null || listener == null) return;
 		try
 		{
 			while (!cancellationTokenSource.Token.IsCancellationRequested)
@@ -123,14 +115,16 @@ public sealed class GameServer : IDisposable
 	}
 	async Task HandleClient()
 	{
+		var cts = cancellationTokenSource;
+		if (cts == null) return;
 		try
 		{
-			while (!cancellationTokenSource.Token.IsCancellationRequested)
+			while (!cts.Token.IsCancellationRequested)
 			{
 				string command;
 				lock (sync)
 				{
-					if (reader == null || !IsConnected)
+					if (reader == null || !ClientIsConnected)
 					{
 						Log.Print("[GameServer] 客户端已断开");
 						break;
@@ -156,7 +150,7 @@ public sealed class GameServer : IDisposable
 					else
 					{
 						pendingCommand = command;
-						logListener.StartCollecting();
+						logListener?.StartCollecting();
 						response = "未处理的命令";
 					}
 				}
@@ -164,7 +158,7 @@ public sealed class GameServer : IDisposable
 				{
 					lock (sync)
 					{
-						if (writer != null && IsConnected)
+						if (writer != null && ClientIsConnected)
 							try
 							{
 								writer.Write(response);
@@ -188,18 +182,18 @@ public sealed class GameServer : IDisposable
 							lock (sync)
 							{
 								if (responseReceived) return;
-								var logs = logListener.StopCollecting();
+								var logs = logListener?.StopCollecting() ?? "";
 								var finalResponse = string.IsNullOrEmpty(logs) ? resp : $"{resp}\n{logs}";
 								response = finalResponse;
 								responseReceived = true;
 							}
 						});
 					var timeout = DateTime.UtcNow.AddSeconds(5);
-					while (!responseReceived && DateTime.UtcNow < timeout) await Task.Delay(50, cancellationTokenSource.Token);
+					while (!responseReceived && DateTime.UtcNow < timeout) await Task.Delay(50, cts.Token);
 					if (!responseReceived)
 						lock (sync)
 						{
-							var logs = logListener.StopCollecting();
+							var logs = logListener?.StopCollecting() ?? "";
 							response = string.IsNullOrEmpty(logs) ? "命令处理超时" : $"命令处理超时\n{logs}";
 							Log.PrintErr($"[GameServer] 命令处理超时: {command}");
 						}
@@ -207,7 +201,7 @@ public sealed class GameServer : IDisposable
 				lock (sync)
 				{
 					pendingCommand = null;
-					if (writer != null && IsConnected)
+					if (writer != null && ClientIsConnected)
 						try
 						{
 							writer.Write(response);

@@ -17,8 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-AudioManager="*res://Scripts/AudioManager.cs"
-DialogueManager="*res://Scripts/Nodes/Dialogues/DialogueManager.cs"
+AudioManager="*res://Scripts/AutoLoad/AudioManager.cs"
+DialogueManager="*res://Scripts/AutoLoad/DialogueManager.cs"
+GameServer="*res://Scripts/AutoLoad/GameServer.cs"
 
 [display]
 

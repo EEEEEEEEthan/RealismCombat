@@ -8,87 +8,26 @@ namespace RealismCombat.Nodes;
 /// </summary>
 public partial class ProgramRootNode : Node
 {
-	static int? ParsePortFromCommandLine()
-	{
-		var args = OS.GetCmdlineUserArgs();
-		Log.Print($"[ProgramRoot] 用户命令行参数: {string.Join(", ", args)}");
-		for (var i = 0; i < args.Length; i++)
-		{
-			var arg = args[i];
-			if (arg.StartsWith("--port="))
-			{
-				var portStr = arg["--port=".Length..];
-				if (int.TryParse(portStr, out var parsedPort)) return parsedPort;
-				Log.PrintErr($"[ProgramRoot] 无效的端口参数: {portStr}");
-			}
-		}
-		return null;
-	}
 	readonly ConcurrentQueue<(string command, Action<string> respond)> commandQueue = new();
-	GameServer? server;
-	int? port;
-	bool shouldQuitOnDisconnect;
 	bool isQuitting;
 	public override void _Ready()
 	{
 		Log.Print("[ProgramRoot] 程序启动");
 		var godotPath = Settings.Get("godot");
 		if (godotPath != null) Log.Print($"[ProgramRoot] 从配置读取godot路径: {godotPath}");
-		port = ParsePortFromCommandLine();
-		if (port.HasValue)
-		{
-			Log.Print($"[ProgramRoot] 从命令行参数获取端口: {port.Value}");
-			shouldQuitOnDisconnect = true;
-			StartServer(port.Value);
-		}
-		else
-		{
-			Log.Print("[ProgramRoot] 未指定端口，以普通模式运行");
-		}
+		if (LaunchArgs.port.HasValue) SetupServerCallbacks();
 	}
 	public override void _Process(double delta)
 	{
 		while (commandQueue.TryDequeue(out var item)) HandleCommand(item.command, item.respond);
 	}
-	public override void _ExitTree()
+	public override void _ExitTree() => Log.Print("[ProgramRoot] 程序退出完成");
+	void SetupServerCallbacks()
 	{
-		Log.Print("[ProgramRoot] 程序退出，开始清理");
-		try
-		{
-			server?.Dispose();
-		}
-		catch (Exception ex)
-		{
-			Log.PrintException(ex);
-		}
-		server = null;
-		Log.Print("[ProgramRoot] 程序退出完成");
-	}
-	void StartServer(int serverPort)
-	{
-		try
-		{
-			server = new(serverPort);
-			server.OnConnected += () => { Log.Print("[ProgramRoot] MCP客户端已连接"); };
-			server.OnDisconnected += () =>
-			{
-				Log.Print("[ProgramRoot] MCP客户端已断开");
-				if (shouldQuitOnDisconnect && !isQuitting)
-				{
-					isQuitting = true;
-					Log.Print("[ProgramRoot] 客户端断开，准备退出游戏...");
-					GetTree().CallDeferred(SceneTree.MethodName.Quit);
-				}
-			};
-			server.OnCommandReceived += (command, respond) => { commandQueue.Enqueue((command, respond)); };
-			server.Start();
-			Log.Print($"[ProgramRoot] MCP服务器已启动，端口: {serverPort}");
-		}
-		catch (Exception ex)
-		{
-			Log.PrintException(ex);
-			GetTree().Quit(1);
-		}
+		var server = GetNode<AutoLoad.GameServer>("/root/GameServer");
+		server.OnConnected += () => { Log.Print("[ProgramRoot] MCP客户端已连接"); };
+		server.OnDisconnected += () => { Log.Print("[ProgramRoot] MCP客户端已断开"); };
+		server.OnCommandReceived += (command, respond) => { commandQueue.Enqueue((command, respond)); };
 	}
 	void HandleCommand(string command, Action<string> respond)
 	{

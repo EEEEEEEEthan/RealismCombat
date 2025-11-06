@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat.Nodes.Dialogues;
+using RealismCombat.Nodes.Dialogues;
+namespace RealismCombat.AutoLoad;
 public partial class DialogueManager : Node
 {
 	static DialogueManager instance = null!;

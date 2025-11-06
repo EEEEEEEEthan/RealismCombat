@@ -20,8 +20,14 @@ MCP客户端是外部工具，通过MCP协议与游戏通信：
 - 通过TCP连接与游戏通信
 - 提供MCP工具接口供AI使用
 
-### 游戏端服务器 (Scripts/)
-- GameServer：TCP服务器，监听指定端口
+### 启动参数管理 (Scripts/)
+- LaunchArgs：静态类，解析并存储命令行参数
+- 在静态构造函数中解析 `--port=xxx` 参数
+- 提供 `port` 静态字段供其他组件访问
+
+### 游戏端服务器 (Scripts/AutoLoad/)
+- GameServer：作为 Godot AutoLoad 单例的 TCP 服务器
+- 在 `_Ready()` 中检查 `LaunchArgs.port` 决定是否启动服务器
 - 接收客户端命令并返回响应
 - 通过事件和回调将命令发送到主线程处理
 - 支持指令挂起：同一时间只处理一个指令，多余指令返回"正忙"
@@ -29,10 +35,9 @@ MCP客户端是外部工具，通过MCP协议与游戏通信：
 
 ### 程序入口 (Scripts/Nodes/)
 - ProgramRootNode：游戏主入口节点
-- 从命令行参数读取`--port=xxx`
-- 初始化GameServer
+- 检查 `LaunchArgs.port` 是否存在
+- 设置 GameServer 的事件回调（OnConnected、OnDisconnected、OnCommandReceived）
 - 在主线程中处理命令（通过并发队列）
-- 客户端断开时自动退出
 
 ## 启动流程
 
