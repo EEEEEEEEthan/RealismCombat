@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Godot;
 namespace RealismCombat.Nodes;
 [Tool, GlobalClass,]
-public partial class GenericDialogue : PanelContainer
+public partial class GenericDialogue : BaseDialogue
 {
 	readonly List<string> texts = [];
 	int currentTextIndex = -1;
@@ -50,14 +50,6 @@ public partial class GenericDialogue : PanelContainer
 		}
 	}
 	public void SetText(string text) => SetTexts([text,]);
-	public override void _Input(InputEvent @event)
-	{
-		if (@event.IsPressed() && !@event.IsEcho() && !printer.Printing)
-		{
-			currentTextIndex++;
-			if (currentTextIndex < texts.Count) printer.Text += "\n" + texts[currentTextIndex];
-		}
-	}
 	public override void _Process(double delta)
 	{
 		if (Input.IsAnythingPressed())
@@ -73,6 +65,14 @@ public partial class GenericDialogue : PanelContainer
 			time += delta;
 			icon.SelfModulate = time > 0.5 ? Colors.White : Colors.Transparent;
 			if (time > 1) time = 0;
+		}
+	}
+	protected override void HandleInput(InputEvent @event)
+	{
+		if (@event.IsPressed() && !@event.IsEcho() && !printer.Printing)
+		{
+			currentTextIndex++;
+			if (currentTextIndex < texts.Count) printer.Text += "\n" + texts[currentTextIndex];
 		}
 	}
 }

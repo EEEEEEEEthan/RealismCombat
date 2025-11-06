@@ -29,7 +29,6 @@ public partial class ProgramRootNode : Node
 	int? port;
 	bool shouldQuitOnDisconnect;
 	bool isQuitting;
-	GenericDialogue dialogue = null!;
 	public override void _Ready()
 	{
 		Log.Print("[ProgramRoot] 程序启动");
@@ -46,8 +45,6 @@ public partial class ProgramRootNode : Node
 		{
 			Log.Print("[ProgramRoot] 未指定端口，以普通模式运行");
 		}
-		dialogue = new();
-		AddChild(dialogue);
 	}
 	public override void _Process(double delta)
 	{

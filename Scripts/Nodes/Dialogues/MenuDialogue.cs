@@ -9,7 +9,7 @@ public struct MenuOption
 	public Action onClick;
 }
 [Tool, GlobalClass,]
-public partial class MenuDialogue : PanelContainer
+public partial class MenuDialogue : BaseDialogue
 {
 	readonly List<MenuOption> options = [];
 	readonly List<Label> optionLabels = [];
@@ -82,7 +82,7 @@ public partial class MenuDialogue : PanelContainer
 			UpdateUI();
 		}
 	}
-	public override void _Input(InputEvent @event)
+	protected override void HandleInput(InputEvent @event)
 	{
 		if (options.Count == 0) return;
 		if (@event.IsActionPressed("ui_up"))

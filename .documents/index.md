@@ -81,6 +81,20 @@ var player = new AudioStreamPlayer()
 - 使用 `[Tool, GlobalClass]` 属性使组件可在编辑器中使用
 - 这种方式提供更好的代码控制和类型安全
 
+#### 对话框管理 (DialogueManager)
+
+`DialogueManager` 作为 Godot AutoLoad 单例提供统一的对话框管理：
+- 在 `project.godot` 中配置为自动加载单例，游戏启动时自动初始化
+- 使用堆栈管理多个对话框，支持对话框的堆叠显示
+- 只有栈顶的对话框能响应玩家输入，其他对话框被遮挡
+- 提供工厂方法创建对话框：`CreateGenericDialogue()` 和 `CreateMenuDialogue()`
+
+**对话框基类 (BaseDialogue)：**
+- 所有对话框继承自 `BaseDialogue` 抽象类
+- 提供 `IsTopDialogue` 属性判断是否为栈顶对话框
+- 提供 `Close()` 方法关闭对话框并从堆栈中移除
+- 子类重写 `HandleInput()` 方法处理输入，只有栈顶对话框的输入会被处理
+
 #### 文字打印机 (Printer)
 
 `Printer` 组件继承自 `RichTextLabel`，提供逐字打印效果：
@@ -91,6 +105,7 @@ var player = new AudioStreamPlayer()
 #### 通用对话框 (GenericDialogue)
 
 `GenericDialogue` 组件提供通用的对话框功能：
+- 继承自 `BaseDialogue`，通过 `DialogueManager.CreateGenericDialogue()` 创建
 - 在构造函数中创建完整的节点层级结构
 - 支持多段文本的追加显示（新文本追加到现有文本之后）
 - 使用 `Printer` 组件实现打字机效果
@@ -101,6 +116,7 @@ var player = new AudioStreamPlayer()
 #### 菜单对话框 (MenuDialogue)
 
 `MenuDialogue` 组件提供交互式菜单功能：
+- 继承自 `BaseDialogue`，通过 `DialogueManager.CreateMenuDialogue()` 创建
 - 在构造函数中创建完整的节点层级结构（选项容器、描述文本、箭头指示器）
 - 支持动态添加和清除选项（`AddOption`、`ClearOptions`）
 - 使用上下方向键在选项间循环导航
