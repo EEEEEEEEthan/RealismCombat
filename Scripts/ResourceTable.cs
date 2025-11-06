@@ -22,6 +22,7 @@ public static class ResourceTable
 public static class SpriteTable
 {
 	public static readonly Cache<AtlasTexture> arrowDown = new(() => CreateAtlas(ResourceTable.icon8, 16, 2, 8, 5));
+	public static readonly Cache<AtlasTexture> arrowRight = new(() => CreateAtlas(ResourceTable.icon8, 8, 0, 8, 8));
 	static AtlasTexture CreateAtlas(Texture2D texture, int x, int y, int width, int height)
 	{
 		var atlas = new AtlasTexture();

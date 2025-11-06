@@ -8,23 +8,52 @@ public struct MenuOption
 	public string description;
 	public Action onClick;
 }
+[Tool, GlobalClass,]
 public partial class MenuDialogue : PanelContainer
 {
 	readonly List<MenuOption> options = [];
 	readonly List<Label> optionLabels = [];
-	/// <summary>
-	///     option容器, 放labels
-	/// </summary>
-	[Export] Container optionContainer = null!;
-	/// <summary>
-	///     一个三角箭头,坐标与当前选择的option对齐
-	/// </summary>
-	[Export] Control optionIndexer = null!;
-	/// <summary>
-	///     显示description
-	/// </summary>
-	[Export] Printer printer = null!;
+	Container optionContainer;
+	Control optionIndexer;
+	Printer printer;
 	int currentIndex;
+	public MenuDialogue()
+	{
+		var marginContainer = new MarginContainer();
+		marginContainer.Name = "MarginContainer";
+		AddChild(marginContainer);
+		marginContainer.AddThemeConstantOverride("margin_left", 3);
+		var hBoxContainer = new HBoxContainer();
+		hBoxContainer.Name = "HBoxContainer";
+		marginContainer.AddChild(hBoxContainer);
+		hBoxContainer.AddThemeConstantOverride("separation", 4);
+		{
+			optionContainer = new VBoxContainer();
+			optionContainer.Name = "VBoxContainer";
+			hBoxContainer.AddChild(optionContainer);
+		}
+		{
+			printer = new();
+			hBoxContainer.AddChild(printer);
+			printer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		}
+		var control = new Control();
+		control.Name = "Control";
+		AddChild(control);
+		{
+			optionIndexer = new();
+			optionIndexer.Name = "Indexer";
+			control.AddChild(optionIndexer);
+			var textureRect = new TextureRect();
+			textureRect.Name = "TextureRect";
+			optionIndexer.AddChild(textureRect);
+			textureRect.Position = new(-5, -4);
+			textureRect.Size = new(8, 8);
+			textureRect.Texture = SpriteTable.arrowRight;
+			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+		}
+		CustomMinimumSize = new(256, 96);
+	}
 	public override void _Ready()
 	{
 		base._Ready();

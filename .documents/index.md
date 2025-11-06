@@ -76,6 +76,11 @@ var player = new AudioStreamPlayer()
 
 ### UI 系统
 
+**设计原则：**
+- 所有 UI 组件均在构造函数中通过代码创建节点结构，不依赖场景文件
+- 使用 `[Tool, GlobalClass]` 属性使组件可在编辑器中使用
+- 这种方式提供更好的代码控制和类型安全
+
 #### 文字打印机 (Printer)
 
 `Printer` 组件继承自 `RichTextLabel`，提供逐字打印效果：
@@ -86,6 +91,7 @@ var player = new AudioStreamPlayer()
 #### 通用对话框 (GenericDialogue)
 
 `GenericDialogue` 组件提供通用的对话框功能：
+- 在构造函数中创建完整的节点层级结构
 - 支持多段文本的追加显示（新文本追加到现有文本之后）
 - 使用 `Printer` 组件实现打字机效果
 - 显示向下箭头图标指示玩家可以继续（闪烁效果）
@@ -95,6 +101,7 @@ var player = new AudioStreamPlayer()
 #### 菜单对话框 (MenuDialogue)
 
 `MenuDialogue` 组件提供交互式菜单功能：
+- 在构造函数中创建完整的节点层级结构（选项容器、描述文本、箭头指示器）
 - 支持动态添加和清除选项（`AddOption`、`ClearOptions`）
 - 使用上下方向键在选项间循环导航
 - 使用 `Printer` 组件显示当前选项的描述文本

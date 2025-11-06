@@ -1,47 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://b3ooh0m4soqad"]
+[gd_scene load_steps=2 format=3 uid="uid://b3ooh0m4soqad"]
 
 [ext_resource type="Script" uid="uid://reykk63eehl2" path="res://Scripts/Nodes/ProgramRootNode.cs" id="1_main"]
-[ext_resource type="Script" path="res://Scripts/Nodes/GenericDialogue.cs" id="2_rv01b"]
-[ext_resource type="Script" uid="uid://csbs6nioep4l" path="res://Scripts/Nodes/Printer.cs" id="2_sief2"]
-[ext_resource type="Script" uid="uid://csre71h23hvnv" path="res://Scripts/Nodes/MenuDialogue.cs" id="3_o6vw2"]
 
 [node name="ProgramRoot" type="Node"]
 script = ExtResource("1_main")
-
-[node name="GenericDialogue" type="PanelContainer" parent="."]
-visible = false
-custom_minimum_size = Vector2(128, 96)
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -96.0
-grow_horizontal = 2
-grow_vertical = 0
-script = ExtResource("2_rv01b")
-
-[node name="MenuDialogue" type="PanelContainer" parent="."]
-offset_top = 128.0
-offset_right = 256.0
-offset_bottom = 224.0
-script = ExtResource("3_o6vw2")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MenuDialogue"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Printer" type="RichTextLabel" parent="MenuDialogue/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "asdfasdf"
-scroll_active = false
-scroll_following = true
-scroll_following_visible_characters = true
-visible_characters = 8
-script = ExtResource("2_sief2")
-metadata/_custom_type_script = "uid://csbs6nioep4l"
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MenuDialogue/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.5
