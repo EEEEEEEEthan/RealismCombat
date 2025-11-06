@@ -11,6 +11,11 @@ public partial class CommandHandler : Node
 	readonly ConcurrentQueue<(string command, Action<string> respond)> commandQueue = new();
 	readonly ProgramRootNode programRoot;
 	public CommandHandler(ProgramRootNode programRoot) => this.programRoot = programRoot;
+	public override void _EnterTree()
+	{
+		base._EnterTree();
+		Name = "CommandHandler";
+	}
 	public override void _Ready() => Log.Print("[CommandHandler] 命令处理器已就绪");
 	public override void _Process(double delta)
 	{
