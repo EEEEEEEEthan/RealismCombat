@@ -4,13 +4,19 @@ namespace RealismCombat.Nodes;
 public partial class Printer : RichTextLabel
 {
 	[Export] public float interval = 0.1f;
+	[Export] public bool enableTypingSound = true;
 	float timer;
+	AudioStreamPlayer audioPlayer;
 	public bool Printing => VisibleCharacters < GetTotalCharacterCount();
 	public Printer()
 	{
 		ScrollActive = false;
 		ScrollFollowing = true;
 		ScrollFollowingVisibleCharacters = true;
+		audioPlayer = new();
+		audioPlayer.Stream = ResourceTable.typingSound;
+		audioPlayer.VolumeDb = -10;
+		AddChild(audioPlayer);
 	}
 	public override bool _Set(StringName property, Variant value)
 	{
@@ -27,7 +33,9 @@ public partial class Printer : RichTextLabel
 		timer += (float)delta;
 		if (timer >= interval)
 		{
+			var oldVisibleChars = VisibleCharacters;
 			VisibleCharacters += 1;
+			if (enableTypingSound && VisibleCharacters > oldVisibleChars && VisibleCharacters <= GetTotalCharacterCount()) audioPlayer.Play();
 			timer = 0;
 		}
 		UpdateVisibleCharacters();

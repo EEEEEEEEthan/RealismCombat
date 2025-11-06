@@ -11,6 +11,7 @@ public class Loader<T>(string path) : Cache<T>(() => GD.Load<T>(path)) where T :
 public static class ResourceTable
 {
 	public static readonly Loader<Texture2D> icon8 = new("res://Textures/Icon8.png");
+	public static readonly Loader<AudioStream> typingSound = new("res://Audios/gameboy-pluck-41265.mp3");
 }
 public static class SpriteTable
 {
