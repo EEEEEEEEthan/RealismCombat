@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ public struct MenuOption
 {
 	public string title;
 	public string description;
-	public Action onClick;
 }
 [Tool, GlobalClass,]
 public partial class MenuDialogue : BaseDialogue
@@ -106,7 +104,6 @@ public partial class MenuDialogue : BaseDialogue
 		}
 		else if (@event.IsActionPressed("ui_accept"))
 		{
-			options[currentIndex].onClick?.Invoke();
 			taskCompletionSource?.TrySetResult(currentIndex);
 			GetViewport().SetInputAsHandled();
 		}
