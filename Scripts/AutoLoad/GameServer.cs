@@ -140,39 +140,22 @@ public sealed partial class GameServer : Node
 					}
 				}
 				Log.Print($"[GameServer] 收到命令: {command}");
-				string response;
+				bool isBusy;
 				lock (sync)
 				{
-					if (pendingCommand != null)
-					{
-						response = "正忙";
-					}
-					else
+					isBusy = pendingCommand != null;
+					if (!isBusy)
 					{
 						pendingCommand = command;
 						logListener?.StartCollecting();
-						response = "未处理的命令";
 					}
 				}
-				if (response == "正忙")
+				if (isBusy)
 				{
-					lock (sync)
-					{
-						if (writer != null && ClientIsConnected)
-							try
-							{
-								writer.Write(response);
-								writer.Flush();
-								Log.Print($"[GameServer] 发送响应: {response}");
-							}
-							catch (Exception e)
-							{
-								Log.PrintException(e);
-								break;
-							}
-					}
+					if (!SendResponse("正忙")) break;
 					continue;
 				}
+				var response = "未处理的命令";
 				var responseReceived = false;
 				if (OnCommandReceived != null)
 				{
@@ -201,19 +184,8 @@ public sealed partial class GameServer : Node
 				lock (sync)
 				{
 					pendingCommand = null;
-					if (writer != null && ClientIsConnected)
-						try
-						{
-							writer.Write(response);
-							writer.Flush();
-							Log.Print($"[GameServer] 发送响应: {response}");
-						}
-						catch (Exception e)
-						{
-							Log.PrintException(e);
-							break;
-						}
 				}
+				if (!SendResponse(response)) break;
 			}
 		}
 		catch (Exception e)
@@ -237,5 +209,24 @@ public sealed partial class GameServer : Node
 		client = null;
 		Log.Print("[GameServer] 客户端连接已关闭");
 		OnDisconnected?.Invoke();
+	}
+	bool SendResponse(string response)
+	{
+		lock (sync)
+		{
+			if (writer == null || !ClientIsConnected) return false;
+			try
+			{
+				writer.Write(response);
+				writer.Flush();
+				Log.Print($"[GameServer] 发送响应: {response}");
+				return true;
+			}
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+				return false;
+			}
+		}
 	}
 }
