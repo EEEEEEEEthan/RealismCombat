@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Godot;
 namespace RealismCombat.Nodes.Dialogues;
 public struct MenuOption
@@ -17,6 +19,7 @@ public partial class MenuDialogue : BaseDialogue
 	Control optionIndexer;
 	PrinterNode printerNode;
 	int currentIndex;
+	TaskCompletionSource<int>? taskCompletionSource;
 	public MenuDialogue()
 	{
 		var marginContainer = new MarginContainer();
@@ -104,9 +107,22 @@ public partial class MenuDialogue : BaseDialogue
 		else if (@event.IsActionPressed("ui_accept"))
 		{
 			options[currentIndex].onClick?.Invoke();
+			taskCompletionSource?.TrySetResult(currentIndex);
 			GetViewport().SetInputAsHandled();
 		}
 	}
+	public TaskAwaiter<int> GetAwaiter()
+	{
+		if (taskCompletionSource?.Task.IsCompleted ?? false) taskCompletionSource = new();
+		taskCompletionSource ??= new();
+		return taskCompletionSource.Task.GetAwaiter();
+	}
+	public void SetResult(int result)
+	{
+		taskCompletionSource ??= new();
+		taskCompletionSource.TrySetResult(result);
+	}
+	public void Reset() => taskCompletionSource = new();
 	void UpdateUI()
 	{
 		if (options.Count == 0)

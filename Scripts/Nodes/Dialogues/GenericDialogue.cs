@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Godot;
 namespace RealismCombat.Nodes.Dialogues;
 [Tool, GlobalClass,]
@@ -10,6 +12,7 @@ public partial class GenericDialogue : BaseDialogue
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
+	TaskCompletionSource<bool>? _taskCompletionSource;
 	public GenericDialogue()
 	{
 		container = new();
@@ -72,7 +75,21 @@ public partial class GenericDialogue : BaseDialogue
 		if (@event.IsPressed() && !@event.IsEcho() && !printerNode.Printing)
 		{
 			currentTextIndex++;
-			if (currentTextIndex < texts.Count) printerNode.Text += "\n" + texts[currentTextIndex];
+			if (currentTextIndex < texts.Count)
+				printerNode.Text += "\n" + texts[currentTextIndex];
+			else
+				_taskCompletionSource?.TrySetResult(true);
 		}
 	}
+	public TaskAwaiter<bool> GetAwaiter()
+	{
+		_taskCompletionSource ??= new();
+		return _taskCompletionSource.Task.GetAwaiter();
+	}
+	public void SetResult()
+	{
+		_taskCompletionSource ??= new();
+		_taskCompletionSource.TrySetResult(true);
+	}
+	public void Reset() => _taskCompletionSource = new();
 }

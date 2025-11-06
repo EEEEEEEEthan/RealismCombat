@@ -127,6 +127,28 @@ var player = new AudioStreamPlayer()
 - 三角箭头指示器自动对齐到当前选中的选项
 - 支持为每个选项绑定点击回调函数
 
+#### 异步等待机制
+
+对话框和游戏节点支持通过 `await` 等待用户交互完成：
+
+**GameNode：**
+- 基础可等待节点类，继承自 `Node`
+- 使用 `TaskCompletionSource` 实现异步等待
+- 提供 `SetResult()`、`SetException()`、`SetCanceled()` 方法控制完成状态
+- 提供 `Reset()` 方法重置状态以便重复使用
+
+**MenuDialogue 异步等待：**
+- 可通过 `await` 等待用户选择，返回选中的选项下标 (int)
+- 用户按下 `ui_accept` 时自动完成等待并返回当前选中的下标
+- 支持反复等待：每次 `await` 时会自动检测并重置已完成的状态
+- 无需手动调用 `Reset()` 即可多次等待同一个菜单
+
+**GenericDialogue 异步等待：**
+- 可通过 `await` 等待用户看完所有文本，返回 bool
+- 用户看完所有文本后按键时自动完成等待
+- 提供 `SetResult()` 方法手动完成等待
+- 提供 `Reset()` 方法重置状态以便重复使用
+
 ### 扩展方法
 
 项目提供了一些实用的扩展方法，定义在 `Scripts/Extensions/` 目录下，使用 `partial class` 模式组织：
