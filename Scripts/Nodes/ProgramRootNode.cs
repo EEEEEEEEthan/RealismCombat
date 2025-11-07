@@ -28,15 +28,14 @@ public partial class ProgramRootNode : Node
 				menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
 				menu.Start();
 				var choice = await menu;
-				var dialogue = DialogueManager.CreateGenericDialogue();
 				if (choice == 0)
 				{
-					dialogue.SetText("玩家选择开始游戏 但是功能还没做完");
-					dialogue.Start();
-					await dialogue;
+					var game = new GameNode();
+					await game;
 				}
 				else
 				{
+					var dialogue = DialogueManager.CreateGenericDialogue();
 					dialogue.SetText("玩家选择退出游戏 不出意外的话进程应该马上消失了");
 					dialogue.Start();
 					await dialogue;
