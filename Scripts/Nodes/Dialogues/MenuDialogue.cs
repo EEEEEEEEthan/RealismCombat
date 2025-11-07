@@ -126,7 +126,6 @@ public partial class MenuDialogue : BaseDialogue
 		Select(index);
 		Confirm();
 	}
-	void McpCheckPoint() { }
 	void Select(int index) => currentIndex = index;
 	void Confirm()
 	{

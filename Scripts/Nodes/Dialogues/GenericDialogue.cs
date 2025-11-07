@@ -12,7 +12,7 @@ public partial class GenericDialogue : BaseDialogue
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
-	TaskCompletionSource<bool>? _taskCompletionSource;
+	TaskCompletionSource<bool>? taskCompletionSource;
 	public GenericDialogue()
 	{
 		container = new();
@@ -50,6 +50,7 @@ public partial class GenericDialogue : BaseDialogue
 		{
 			currentTextIndex = 0;
 			printerNode.Text = texts[0];
+			Log.Print(printerNode.Text);
 		}
 	}
 	public void SetText(string text) => SetTexts([text,]);
@@ -69,27 +70,40 @@ public partial class GenericDialogue : BaseDialogue
 			icon.SelfModulate = time > 0.5 ? Colors.White : Colors.Transparent;
 			if (time > 1) time = 0;
 		}
+		if (LaunchArgs.port != null)
+		{
+			printerNode.interval = 0;
+			TryNext();
+		}
 	}
 	public override void HandleInput(InputEvent @event)
 	{
-		if (@event.IsPressed() && !@event.IsEcho() && !printerNode.Printing)
-		{
-			currentTextIndex++;
-			if (currentTextIndex < texts.Count)
-				printerNode.Text += "\n" + texts[currentTextIndex];
-			else
-				_taskCompletionSource?.TrySetResult(true);
-		}
+		if (@event.IsPressed() && !@event.IsEcho()) TryNext();
 	}
 	public TaskAwaiter<bool> GetAwaiter()
 	{
-		_taskCompletionSource ??= new();
-		return _taskCompletionSource.Task.GetAwaiter();
+		taskCompletionSource ??= new();
+		return taskCompletionSource.Task.GetAwaiter();
 	}
 	public void SetResult()
 	{
-		_taskCompletionSource ??= new();
-		_taskCompletionSource.TrySetResult(true);
+		taskCompletionSource ??= new();
+		taskCompletionSource.TrySetResult(true);
 	}
-	public void Reset() => _taskCompletionSource = new();
+	public void Reset() => taskCompletionSource = new();
+	void TryNext()
+	{
+		if (printerNode.Printing) return;
+		currentTextIndex++;
+		if (currentTextIndex < texts.Count)
+		{
+			var txt = texts[currentTextIndex];
+			printerNode.Text += "\n" + txt;
+			Log.Print(txt);
+		}
+		else
+		{
+			taskCompletionSource?.TrySetResult(true);
+		}
+	}
 }

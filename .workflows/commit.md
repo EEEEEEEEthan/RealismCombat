@@ -1,4 +1,4 @@
-# archive
+# commit
 
 1. `git status` 查看状态
   如果有任何代码(.cs文件)变更,使用`cleanupcode.exe RealismCombat.sln --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码. 如果没有代码变更请跳过此步骤
