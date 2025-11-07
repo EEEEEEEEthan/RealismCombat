@@ -106,12 +106,11 @@ public sealed partial class GameServer : Node
 		lock (sync)
 		{
 			if (writer == null || !ClientIsConnected) return false;
-			var logs = logListener?.StopCollecting() ?? "";
+			var logs = logListener?.StopCollecting() ?? "执行完毕";
 			try
 			{
 				writer.Write(logs);
 				writer.Flush();
-				Log.Print($"[GameServer] 响应已发送 (长度: {logs.Length} 字符)");
 				return true;
 			}
 			catch (Exception e)
