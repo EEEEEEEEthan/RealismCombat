@@ -26,7 +26,7 @@ public static class Log
 		GD.PrintErr($"{Timestamp} {fullMessage}");
 		OnLogError?.Invoke(fullMessage);
 	}
-	public static void PrintWarn(params object[] args)
+	public static void PrintWarning(params object[] args)
 	{
 		var message = string.Join(" ", args);
 		GD.PushWarning($"{Timestamp} {message}");

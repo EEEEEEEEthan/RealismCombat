@@ -127,13 +127,12 @@ public sealed partial class GameServer : Node
 		{
 			while (!cancellationTokenSource.Token.IsCancellationRequested)
 			{
-				Log.Print("[GameServer] 等待客户端连接...");
 				var acceptedClient = await listener.AcceptTcpClientAsync(cancellationTokenSource.Token);
 				lock (sync)
 				{
 					if (client != null)
 					{
-						Log.Print("[GameServer] 已有客户端连接，拒绝新连接");
+						Log.PrintWarning("[GameServer] 已有客户端连接，拒绝新连接");
 						acceptedClient.Close();
 						continue;
 					}
@@ -146,10 +145,6 @@ public sealed partial class GameServer : Node
 				OnConnectedInternal?.Invoke();
 				_ = Task.Run(HandleClient, cancellationTokenSource.Token);
 			}
-		}
-		catch (OperationCanceledException)
-		{
-			Log.Print("[GameServer] 接受循环已取消");
 		}
 		catch (Exception ex)
 		{
@@ -184,19 +179,12 @@ public sealed partial class GameServer : Node
 							break;
 						}
 					}
-					Log.Print($"[GameServer] 收到命令: {command}");
 					var mcpCommand = McpCommand.Deserialize(command);
 					response = new();
 					logListener ??= new();
 					logListener.StartCollecting();
 					OnCommandReceivedInternal?.Invoke(mcpCommand);
-					var timeout = Task.Delay(5000, cts.Token);
-					var completed = await Task.WhenAny(response.Task, timeout);
-					if (completed == timeout)
-					{
-						Log.PrintErr("[GameServer] 等待响应超时");
-						SendResponseInternal();
-					}
+					await response.Task;
 				}
 			}
 			catch (Exception e)
