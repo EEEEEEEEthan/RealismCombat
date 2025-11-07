@@ -12,10 +12,7 @@ public partial class GameNode : Node
 		taskCompletionSource ??= new();
 		return taskCompletionSource.Task.GetAwaiter();
 	}
-	public override void _Ready()
-	{
-		StartGameLoop();
-	}
+	public override void _Ready() => StartGameLoop();
 	async void StartGameLoop()
 	{
 		try
