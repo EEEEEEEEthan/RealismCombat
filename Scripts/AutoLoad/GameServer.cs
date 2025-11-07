@@ -33,7 +33,7 @@ public sealed partial class GameServer : Node
 	{
 		if (instance == null) return false;
 		var result = instance.SendResponseInternal();
-		instance.responseTask?.TrySetResult(true);
+		instance.response?.TrySetResult(true);
 		return result;
 	}
 	readonly object sync = new();
@@ -46,7 +46,7 @@ public sealed partial class GameServer : Node
 	BinaryReader? reader;
 	BinaryWriter? writer;
 	bool disposed;
-	TaskCompletionSource<bool>? responseTask;
+	TaskCompletionSource<bool>? response;
 	bool ClientIsConnected => client?.Connected ?? false;
 	event Action? OnConnectedInternal;
 	event Action? OnDisconnectedInternal;
@@ -187,13 +187,13 @@ public sealed partial class GameServer : Node
 					}
 					Log.Print($"[GameServer] 收到命令: {command}");
 					var mcpCommand = McpCommand.Deserialize(command);
-					responseTask = new();
+					response = new();
 					logListener ??= new();
 					logListener.StartCollecting();
 					OnCommandReceivedInternal?.Invoke(mcpCommand);
-					var timeoutTask = Task.Delay(5000, cts.Token);
-					var completedTask = await Task.WhenAny(responseTask.Task, timeoutTask);
-					if (completedTask == timeoutTask)
+					var timeout = Task.Delay(5000, cts.Token);
+					var completed = await Task.WhenAny(response.Task, timeout);
+					if (completed == timeout)
 					{
 						Log.PrintErr("[GameServer] 等待响应超时");
 						SendResponseInternal();
