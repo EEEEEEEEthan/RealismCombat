@@ -47,10 +47,10 @@ public partial class CommandHandlerNode(ProgramRootNode programRoot) : Node
 		{
 			switch (cmd.Command)
 			{
-				case "system_launch_program":
-					programRoot.StartGameLoop();
-					GameServer.McpCheckpoint();
-					break;
+			case "system_launch_program":
+				programRoot.StartGameLoop();
+				GameServer.McpCheckpoint();
+				break;
 				case "debug_get_scene_tree":
 					var treeJson = GetSceneTreeJson();
 					Log.Print(treeJson);

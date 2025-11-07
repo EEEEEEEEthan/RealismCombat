@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using RealismCombat.AutoLoad;
+using RealismCombat.Extensions;
 namespace RealismCombat.Nodes;
 /// <summary>
 ///     程序根节点，负责初始化游戏生命周期
@@ -21,7 +22,7 @@ public partial class ProgramRootNode : Node
 	{
 		try
 		{
-			while (true)
+			while (this.Valid())
 			{
 				var menu = DialogueManager.CreateMenuDialogue();
 				menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
@@ -31,6 +32,7 @@ public partial class ProgramRootNode : Node
 				if (choice == 0)
 				{
 					var game = new GameNode();
+					AddChild(game);
 					await game;
 				}
 				else

@@ -104,6 +104,7 @@ public partial class GenericDialogue : BaseDialogue
 		else
 		{
 			taskCompletionSource?.TrySetResult(true);
+			QueueFree();
 		}
 	}
 }
