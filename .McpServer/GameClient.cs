@@ -157,7 +157,6 @@ public sealed class GameClient : IDisposable
 			if (completed == read)
 			{
 				var response = await read.ConfigureAwait(false);
-				Log.Print($"命令响应: {response}");
 				return response;
 			}
 			Log.PrintError($"命令超时: {command}");
