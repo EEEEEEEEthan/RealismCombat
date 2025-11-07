@@ -21,21 +21,24 @@ public partial class ProgramRootNode : Node
 	{
 		try
 		{
-			var menu = DialogueManager.CreateMenuDialogue();
-			menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
-			menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
-			menu.Start();
-			var choice = await menu;
-			if (choice == 0)
+			while (true)
 			{
-				Log.Print("[ProgramRoot] 玩家选择开始游戏 但是功能还没做完");
-				GameServer.McpCheckpoint();
-			}
-			else
-			{
-				Log.Print("[ProgramRoot] 玩家选择退出游戏 不出意外的话进程应该马上消失了");
-				GameServer.McpCheckpoint();
-				GetTree().Quit();
+				var menu = DialogueManager.CreateMenuDialogue();
+				menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
+				menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
+				menu.Start();
+				var choice = await menu;
+				if (choice == 0)
+				{
+					Log.Print("[ProgramRoot] 玩家选择开始游戏 但是功能还没做完");
+					GameServer.McpCheckpoint();
+				}
+				else
+				{
+					Log.Print("[ProgramRoot] 玩家选择退出游戏 不出意外的话进程应该马上消失了");
+					GameServer.McpCheckpoint();
+					GetTree().Quit();
+				}
 			}
 		}
 		catch (Exception e)
