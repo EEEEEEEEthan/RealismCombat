@@ -34,14 +34,14 @@ public partial class ProgramRootNode : Node
 					dialogue.SetText("玩家选择开始游戏 但是功能还没做完");
 					dialogue.Start();
 					await dialogue;
-					GameServer.McpCheckpoint();
 				}
 				else
 				{
 					dialogue.SetText("玩家选择退出游戏 不出意外的话进程应该马上消失了");
 					dialogue.Start();
-					GameServer.McpCheckpoint();
+					await dialogue;
 					GetTree().Quit();
+					return;
 				}
 			}
 		}

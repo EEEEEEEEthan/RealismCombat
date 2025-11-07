@@ -42,7 +42,7 @@ public partial class GenericDialogue : BaseDialogue
 		texts.Clear();
 		texts.AddRange(newTexts);
 		printerNode.VisibleCharacters = 0;
-		if (texts.Count < 0)
+		if (texts.Count == 0)
 		{
 			currentTextIndex = -1;
 		}
