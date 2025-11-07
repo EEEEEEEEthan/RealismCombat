@@ -111,7 +111,7 @@ public sealed partial class GameServer : Node
 			{
 				writer.Write(logs);
 				writer.Flush();
-				Log.Print($"[GameServer] 发送响应: {logs}");
+				Log.Print($"[GameServer] 响应已发送 (长度: {logs.Length} 字符)");
 				return true;
 			}
 			catch (Exception e)

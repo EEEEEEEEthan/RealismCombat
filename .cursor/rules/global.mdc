@@ -12,4 +12,3 @@ alwaysApply: true
 
 ## 测试
 完成修改之后需要使用mcp工具自测。
-自测无误后使用`cleanupcode.exe RealismCombat.sln --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码
