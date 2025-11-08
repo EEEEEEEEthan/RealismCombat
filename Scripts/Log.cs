@@ -44,7 +44,7 @@ public static class Log
 /// </summary>
 public sealed class LogListener : IDisposable
 {
-	readonly List<string> logs = new();
+	readonly List<string> logs = [];
 	readonly object sync = new();
 	bool disposed;
 	bool isCollecting;
