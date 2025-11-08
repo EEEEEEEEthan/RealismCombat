@@ -58,12 +58,18 @@ public partial class ProgramRootNode : Node
 						await game;
 						break;
 					}
-					default:
+					case 2:
 					{
 						var dialogue = DialogueManager.CreateGenericDialogue("玩家选择退出游戏 不出意外的话进程应该马上消失了");
 						await dialogue;
 						GetTree().Quit();
 						return;
+					}
+					default:
+					{
+						var dialogue = DialogueManager.CreateGenericDialogue("收到未知的菜单选项");
+						await dialogue;
+						break;
 					}
 				}
 			}
