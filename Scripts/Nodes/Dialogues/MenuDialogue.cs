@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
@@ -67,14 +66,6 @@ public partial class MenuDialogue : BaseDialogue
 		base._Ready();
 		UpdateUI();
 	}
-	public void ClearOptions()
-	{
-		options.Clear();
-		foreach (var label in optionLabels) label.QueueFree();
-		optionLabels.Clear();
-		currentIndex = 0;
-		UpdateUI();
-	}
 	public void AddOption(MenuOption option)
 	{
 		options.Add(option);
@@ -112,27 +103,32 @@ public partial class MenuDialogue : BaseDialogue
 		}
 		else if (@event.IsActionPressed("ui_accept"))
 		{
-			taskCompletionSource?.TrySetResult(currentIndex);
 			GetViewport().SetInputAsHandled();
+			var index = currentIndex;
 			Close();
+			taskCompletionSource?.TrySetResult(index);
 		}
-	}
-	public TaskAwaiter<int> GetAwaiter()
-	{
-		taskCompletionSource ??= new();
-		return taskCompletionSource.Task.GetAwaiter();
 	}
 	public void SelectAndConfirm(int index)
 	{
 		Select(index);
 		Confirm();
 	}
+	public void ClearOptions()
+	{
+		options.Clear();
+		foreach (var label in optionLabels) label.QueueFree();
+		optionLabels.Clear();
+		currentIndex = 0;
+		UpdateUI();
+	}
 	void Select(int index) => currentIndex = index;
 	void Confirm()
 	{
-		taskCompletionSource?.TrySetResult(currentIndex);
 		GetViewport().SetInputAsHandled();
+		var index = currentIndex;
 		Close();
+		taskCompletionSource?.TrySetResult(index);
 	}
 	void UpdateUI()
 	{

@@ -46,6 +46,8 @@ public partial class ProgramRootNode : Node
 						await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
 						using var reader = new BinaryReader(stream);
 						var game = new GameNode(file, reader);
+						AddChild(game);
+						await game;
 						break;
 					}
 					default:

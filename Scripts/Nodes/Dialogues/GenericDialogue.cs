@@ -90,8 +90,8 @@ public partial class GenericDialogue : BaseDialogue
 		}
 		else
 		{
-			taskCompletionSource?.TrySetResult(true);
 			Close();
+			taskCompletionSource?.TrySetResult(true);
 		}
 	}
 }
