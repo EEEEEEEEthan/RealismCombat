@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
@@ -13,12 +15,14 @@ public partial class MenuDialogue : BaseDialogue
 {
 	readonly List<MenuOption> options = [];
 	readonly List<Label> optionLabels = [];
+	readonly TaskCompletionSource<int> taskCompletionSource = new();
 	Container optionContainer;
 	Control optionIndexer;
 	PrinterNode printerNode;
 	int currentIndex;
-	TaskCompletionSource<int>? taskCompletionSource;
-	public MenuDialogue()
+	bool awaitSignalSent;
+	public MenuDialogue() : this(Array.Empty<MenuOption>()) { }
+	public MenuDialogue(IEnumerable<MenuOption> initialOptions)
 	{
 		var marginContainer = new MarginContainer();
 		marginContainer.Name = "MarginContainer";
@@ -53,34 +57,17 @@ public partial class MenuDialogue : BaseDialogue
 			textureRect.Texture = SpriteTable.arrowRight;
 			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
-	}
-	public Task<int> StartTask()
-	{
-		taskCompletionSource = new();
-		Log.Print("请选择(game_select_option)");
-		GameServer.McpCheckpoint();
-		return taskCompletionSource.Task;
+		ConfigureOptions(initialOptions);
 	}
 	public override void _Ready()
 	{
 		base._Ready();
 		UpdateUI();
 	}
-	public void AddOption(MenuOption option)
+	public TaskAwaiter<int> GetAwaiter()
 	{
-		options.Add(option);
-		var label = new Label
-		{
-			Text = option.title,
-		};
-		optionContainer.AddChild(label);
-		optionLabels.Add(label);
-		if (options.Count == 1)
-		{
-			currentIndex = 0;
-			UpdateUI();
-		}
-		Log.Print($"{options.Count - 1} - {option.title} {option.description}");
+		EnsureAwaitSignal();
+		return taskCompletionSource.Task.GetAwaiter();
 	}
 	public override void HandleInput(InputEvent @event)
 	{
@@ -106,7 +93,7 @@ public partial class MenuDialogue : BaseDialogue
 			GetViewport().SetInputAsHandled();
 			var index = currentIndex;
 			Close();
-			taskCompletionSource?.TrySetResult(index);
+			taskCompletionSource.TrySetResult(index);
 		}
 	}
 	public void SelectAndConfirm(int index)
@@ -122,13 +109,41 @@ public partial class MenuDialogue : BaseDialogue
 		currentIndex = 0;
 		UpdateUI();
 	}
+	void ConfigureOptions(IEnumerable<MenuOption> initialOptions)
+	{
+		foreach (var option in initialOptions) AddOption(option);
+		if (options.Count > 0) EnsureAwaitSignal();
+	}
+	void AddOption(MenuOption option)
+	{
+		options.Add(option);
+		var label = new Label
+		{
+			Text = option.title,
+		};
+		optionContainer.AddChild(label);
+		optionLabels.Add(label);
+		if (options.Count == 1)
+		{
+			currentIndex = 0;
+			UpdateUI();
+		}
+		Log.Print($"{options.Count - 1} - {option.title} {option.description}");
+	}
 	void Select(int index) => currentIndex = index;
 	void Confirm()
 	{
 		GetViewport().SetInputAsHandled();
 		var index = currentIndex;
 		Close();
-		taskCompletionSource?.TrySetResult(index);
+		taskCompletionSource.TrySetResult(index);
+	}
+	void EnsureAwaitSignal()
+	{
+		if (awaitSignalSent) return;
+		awaitSignalSent = true;
+		Log.Print("请选择(game_select_option)");
+		GameServer.McpCheckpoint();
 	}
 	void UpdateUI()
 	{

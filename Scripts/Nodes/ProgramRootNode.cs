@@ -3,6 +3,7 @@ using System.IO;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
+using RealismCombat.Nodes.Dialogues;
 using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
 /// <summary>
@@ -26,11 +27,12 @@ public partial class ProgramRootNode : Node
 		{
 			while (this.Valid())
 			{
-				var menu = DialogueManager.CreateMenuDialogue();
-				menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
-				menu.AddOption(new() { title = "读取游戏", description = "读取冒险", });
-				menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
-				var choice = await menu.StartTask();
+				var menu = DialogueManager.CreateMenuDialogue(
+					new MenuOption { title = "开始游戏", description = "开始新的冒险", },
+					new MenuOption { title = "读取游戏", description = "读取冒险", },
+					new MenuOption { title = "退出游戏", description = "关闭游戏程序", }
+				);
+				var choice = await menu;
 				const string file = "savegame.dat";
 				switch (choice)
 				{

@@ -11,9 +11,9 @@ public partial class DialogueManager : Node
 		AddDialogue(dialogue);
 		return dialogue;
 	}
-	public static MenuDialogue CreateMenuDialogue()
+	public static MenuDialogue CreateMenuDialogue(params MenuOption[] options)
 	{
-		var dialogue = new MenuDialogue();
+		var dialogue = new MenuDialogue(options);
 		AddDialogue(dialogue);
 		return dialogue;
 	}

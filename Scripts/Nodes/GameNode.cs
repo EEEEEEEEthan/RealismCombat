@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
+using RealismCombat.Nodes.Dialogues;
 using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
 public partial class GameNode : Node
@@ -74,11 +75,12 @@ public partial class GameNode : Node
 		{
 			while (true)
 			{
-				var menu = DialogueManager.CreateMenuDialogue();
-				menu.AddOption(new() { title = "开始战斗", description = "进入战斗场景", });
-				menu.AddOption(new() { title = "查看状态", description = "查看角色状态", });
-				menu.AddOption(new() { title = "退出游戏", description = "返回主菜单", });
-				var choice = await menu.StartTask();
+				var menu = DialogueManager.CreateMenuDialogue(
+					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
+					new MenuOption { title = "查看状态", description = "查看角色状态", },
+					new MenuOption { title = "退出游戏", description = "返回主菜单", }
+				);
+				var choice = await menu;
 				switch (choice)
 				{
 					case 0:
