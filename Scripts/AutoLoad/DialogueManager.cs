@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.AutoLoad;
@@ -8,32 +7,26 @@ public partial class DialogueManager : Node
 	public static GenericDialogue CreateGenericDialogue()
 	{
 		var dialogue = new GenericDialogue();
-		instance.dialogueStack.Add(dialogue);
-		instance.AddChild(dialogue);
-		dialogue.OnDisposing += instance.OnDialogueDisposing;
+		AddDialogue(dialogue);
 		return dialogue;
 	}
 	public static MenuDialogue CreateMenuDialogue()
 	{
 		var dialogue = new MenuDialogue();
-		instance.dialogueStack.Add(dialogue);
-		instance.AddChild(dialogue);
-		dialogue.OnDisposing += instance.OnDialogueDisposing;
+		AddDialogue(dialogue);
 		return dialogue;
 	}
-	public static BaseDialogue? GetTopDialogue()
-	{
-		if (instance.dialogueStack.Count == 0) return null;
-		return instance.dialogueStack[^1];
-	}
-	public static int GetDialogueCount() => instance.dialogueStack.Count;
+	public static BaseDialogue? GetTopDialogue() => instance.currentDialogue;
+	public static int GetDialogueCount() => instance.currentDialogue is null ? 0 : 1;
 	static void AddDialogue(BaseDialogue dialogue)
 	{
-		instance.dialogueStack.Add(dialogue);
+		instance.ClearCurrentDialogue();
+		instance.currentDialogue = dialogue;
 		instance.AddChild(dialogue);
-		Log.Print($"[DialogueManager] 添加Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {instance.dialogueStack.Count}");
+		dialogue.OnDisposing += instance.OnDialogueDisposing;
+		Log.Print($"[DialogueManager] 添加Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {GetDialogueCount()}");
 	}
-	readonly List<BaseDialogue> dialogueStack = [];
+	BaseDialogue? currentDialogue;
 	public override void _Ready()
 	{
 		instance = this;
@@ -44,5 +37,17 @@ public partial class DialogueManager : Node
 		var topDialogue = GetTopDialogue();
 		topDialogue?.HandleInput(@event);
 	}
-	void OnDialogueDisposing(BaseDialogue dialogue) => dialogueStack.Remove(dialogue);
+	void OnDialogueDisposing(BaseDialogue dialogue)
+	{
+		if (currentDialogue != dialogue) return;
+		currentDialogue.OnDisposing -= OnDialogueDisposing;
+		currentDialogue = null;
+	}
+	void ClearCurrentDialogue()
+	{
+		if (currentDialogue is null) return;
+		currentDialogue.OnDisposing -= OnDialogueDisposing;
+		if (currentDialogue.IsInsideTree()) currentDialogue.QueueFree();
+		currentDialogue = null;
+	}
 }
