@@ -131,7 +131,8 @@ static class GameTools
 		}
 		try
 		{
-			var response = await SystemTools.Client.SendCommand($"game_select_option id {id} name {name}", 3000);
+			var sanitizedName = name.Replace(" ", string.Empty);
+			var response = await SystemTools.Client.SendCommand($"game_select_option id {id} name {sanitizedName}", 3000);
 			builder.AppendLine(response);
 			return builder.ToString();
 		}
