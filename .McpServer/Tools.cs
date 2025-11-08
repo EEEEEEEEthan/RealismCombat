@@ -12,7 +12,6 @@ static class SystemTools
 	static async Task<string> system_launch_program()
 	{
 		using var _ = Log.BeginScope(out var builder);
-		Log.Print("收到启动程序请求");
 		if (Client != null)
 		{
 			Log.Print($"检测到已存在的客户端（端口: {Client.port}, 进程ID: {Client.ProcessId}），先释放旧客户端");
@@ -47,7 +46,6 @@ static class SystemTools
 	static Task<string> system_shutdown()
 	{
 		using var _ = Log.BeginScope(out var builder);
-		Log.Print("收到关闭程序请求");
 		if (Client == null)
 		{
 			Log.Print("程序未在运行中");
@@ -75,7 +73,6 @@ static class DebugTools
 	static async Task<string> debug_get_scene_tree()
 	{
 		using var _ = Log.BeginScope(out var builder);
-		Log.Print("收到获取场景树请求");
 		if (SystemTools.Client == null)
 		{
 			Log.Print("程序未在运行中");
@@ -97,7 +94,6 @@ static class DebugTools
 	static async Task<string> debug_get_node_details([Description("node path")] string nodePath)
 	{
 		using var _ = Log.BeginScope(out var builder);
-		Log.Print($"收到获取节点详情请求: {nodePath}");
 		if (SystemTools.Client == null)
 		{
 			Log.Print("程序未在运行中");
@@ -123,7 +119,6 @@ static class GameTools
 	static async Task<string> game_select_option([Description("option index")] int id, [Description("option name")] string name)
 	{
 		using var _ = Log.BeginScope(out var builder);
-		Log.Print($"收到选择选项请求: id={id}, name={name}");
 		if (SystemTools.Client == null)
 		{
 			Log.Print("程序未在运行中");
