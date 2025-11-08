@@ -28,8 +28,7 @@ public partial class GameNode : Node
 				menu.AddOption(new() { title = "开始战斗", description = "进入战斗场景", });
 				menu.AddOption(new() { title = "查看状态", description = "查看角色状态", });
 				menu.AddOption(new() { title = "退出游戏", description = "返回主菜单", });
-				menu.Start();
-				var choice = await menu;
+				var choice = await menu.Start();
 				switch (choice)
 				{
 					case 0:

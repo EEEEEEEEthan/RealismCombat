@@ -44,9 +44,5 @@ public partial class DialogueManager : Node
 		var topDialogue = GetTopDialogue();
 		topDialogue?.HandleInput(@event);
 	}
-	void OnDialogueDisposing(BaseDialogue dialogue)
-	{
-		dialogueStack.Remove(dialogue);
-		Log.Print($"[DialogueManager] 移除Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {dialogueStack.Count}");
-	}
+	void OnDialogueDisposing(BaseDialogue dialogue) => dialogueStack.Remove(dialogue);
 }

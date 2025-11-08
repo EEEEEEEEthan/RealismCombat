@@ -55,10 +55,12 @@ public partial class MenuDialogue : BaseDialogue
 			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
 	}
-	public override void Start()
+	public new Task<int> Start()
 	{
+		taskCompletionSource = new();
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
+		return taskCompletionSource.Task;
 	}
 	public override void _Ready()
 	{
