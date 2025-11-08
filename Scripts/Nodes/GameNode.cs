@@ -28,23 +28,21 @@ public partial class GameNode : Node
 				menu.AddOption(new() { title = "开始战斗", description = "进入战斗场景", });
 				menu.AddOption(new() { title = "查看状态", description = "查看角色状态", });
 				menu.AddOption(new() { title = "退出游戏", description = "返回主菜单", });
-				var choice = await menu.Start();
+				var choice = await menu.StartTask();
 				switch (choice)
 				{
 					case 0:
 					{
 						var dialogue = DialogueManager.CreateGenericDialogue();
 						dialogue.SetText("战斗系统尚未实现");
-						dialogue.Start();
-						await dialogue;
+						await dialogue.StartTask();
 						break;
 					}
 					case 1:
 					{
 						var dialogue = DialogueManager.CreateGenericDialogue();
 						dialogue.SetText("状态系统尚未实现");
-						dialogue.Start();
-						await dialogue;
+						await dialogue.StartTask();
 						break;
 					}
 					case 3:

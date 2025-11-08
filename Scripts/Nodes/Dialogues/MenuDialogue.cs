@@ -55,7 +55,7 @@ public partial class MenuDialogue : BaseDialogue
 			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
 	}
-	public new Task<int> Start()
+	public Task<int> StartTask()
 	{
 		taskCompletionSource = new();
 		Log.Print("请选择(game_select_option)");

@@ -16,7 +16,6 @@ public abstract partial class BaseDialogue : PanelContainer
 	}
 	public void Close() => QueueFree();
 	public virtual void HandleInput(InputEvent @event) { }
-	public virtual void Start() { }
 	protected override void Dispose(bool disposing)
 	{
 		if (disposing) OnDisposing.TryInvoke(this);

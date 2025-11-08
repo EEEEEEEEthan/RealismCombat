@@ -48,6 +48,11 @@ public partial class GenericDialogue : BaseDialogue
 		}
 	}
 	public void SetText(string text) => SetTexts([text,]);
+	public Task<bool> StartTask()
+	{
+		taskCompletionSource = new();
+		return taskCompletionSource.Task;
+	}
 	public override void _Process(double delta)
 	{
 		if (Input.IsAnythingPressed())
