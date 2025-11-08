@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -21,7 +20,6 @@ public partial class MenuDialogue : BaseDialogue
 	PrinterNode printerNode;
 	int currentIndex;
 	bool awaitSignalSent;
-	public MenuDialogue() : this(Array.Empty<MenuOption>()) { }
 	public MenuDialogue(IEnumerable<MenuOption> initialOptions)
 	{
 		var marginContainer = new MarginContainer();
@@ -57,13 +55,20 @@ public partial class MenuDialogue : BaseDialogue
 			textureRect.Texture = SpriteTable.arrowRight;
 			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
-		ConfigureOptions(initialOptions);
+		foreach (var option in initialOptions)
+		{
+			options.Add(option);
+			var label = new Label
+			{
+				Text = option.title,
+			};
+			optionContainer.AddChild(label);
+			optionLabels.Add(label);
+			Log.Print($"{options.Count - 1} - {option.title} {option.description}");
+		}
+		if (options.Count > 0) EnsureAwaitSignal();
 	}
-	public override void _Ready()
-	{
-		base._Ready();
-		UpdateUI();
-	}
+	MenuDialogue() : this([]) { }
 	public TaskAwaiter<int> GetAwaiter()
 	{
 		EnsureAwaitSignal();
@@ -77,7 +82,8 @@ public partial class MenuDialogue : BaseDialogue
 			currentIndex--;
 			if (currentIndex < 0) currentIndex = options.Count - 1;
 			printerNode.VisibleCharacters = 0;
-			UpdateUI();
+			UpdateIndexer();
+			RestartPrint();
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_down"))
@@ -85,7 +91,8 @@ public partial class MenuDialogue : BaseDialogue
 			currentIndex++;
 			if (currentIndex >= options.Count) currentIndex = 0;
 			printerNode.VisibleCharacters = 0;
-			UpdateUI();
+			UpdateIndexer();
+			RestartPrint();
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_accept"))
@@ -101,36 +108,11 @@ public partial class MenuDialogue : BaseDialogue
 		Select(index);
 		Confirm();
 	}
-	public void ClearOptions()
+	void Select(int index)
 	{
-		options.Clear();
-		foreach (var label in optionLabels) label.QueueFree();
-		optionLabels.Clear();
-		currentIndex = 0;
-		UpdateUI();
+		currentIndex = index;
+		UpdateIndexer();
 	}
-	void ConfigureOptions(IEnumerable<MenuOption> initialOptions)
-	{
-		foreach (var option in initialOptions) AddOption(option);
-		if (options.Count > 0) EnsureAwaitSignal();
-	}
-	void AddOption(MenuOption option)
-	{
-		options.Add(option);
-		var label = new Label
-		{
-			Text = option.title,
-		};
-		optionContainer.AddChild(label);
-		optionLabels.Add(label);
-		if (options.Count == 1)
-		{
-			currentIndex = 0;
-			UpdateUI();
-		}
-		Log.Print($"{options.Count - 1} - {option.title} {option.description}");
-	}
-	void Select(int index) => currentIndex = index;
 	void Confirm()
 	{
 		GetViewport().SetInputAsHandled();
@@ -145,7 +127,7 @@ public partial class MenuDialogue : BaseDialogue
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
 	}
-	void UpdateUI()
+	void RestartPrint()
 	{
 		if (options.Count == 0)
 		{
@@ -156,14 +138,13 @@ public partial class MenuDialogue : BaseDialogue
 		optionIndexer.Visible = true;
 		printerNode.Text = options[currentIndex].description;
 		printerNode.VisibleCharacters = 0;
-		// 更新箭头位置，对齐到当前选中的选项
-		if (currentIndex < optionLabels.Count)
-		{
-			var selectedLabel = optionLabels[currentIndex];
-			optionIndexer.GlobalPosition = new(
-				optionIndexer.GlobalPosition.X,
-				selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - optionIndexer.Size.Y / 2
-			);
-		}
+	}
+	void UpdateIndexer()
+	{
+		var selectedLabel = optionLabels[currentIndex];
+		optionIndexer.GlobalPosition = new(
+			optionIndexer.GlobalPosition.X,
+			selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - optionIndexer.Size.Y / 2
+		);
 	}
 }
