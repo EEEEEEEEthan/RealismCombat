@@ -43,6 +43,13 @@ public partial class ProgramRootNode : Node
 					}
 					case 1:
 					{
+						if (!File.Exists(file))
+						{
+							var dialogue = DialogueManager.CreateGenericDialogue();
+							dialogue.SetText("未找到存档文件");
+							await dialogue.StartTask();
+							break;
+						}
 						await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
 						using var reader = new BinaryReader(stream);
 						var game = new GameNode(file, reader);
