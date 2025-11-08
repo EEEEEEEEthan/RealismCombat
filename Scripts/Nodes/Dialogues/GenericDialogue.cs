@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 namespace RealismCombat.Nodes.Dialogues;
@@ -79,17 +78,6 @@ public partial class GenericDialogue : BaseDialogue
 	{
 		if (@event.IsPressed() && !@event.IsEcho()) TryNext();
 	}
-	public TaskAwaiter<bool> GetAwaiter()
-	{
-		taskCompletionSource ??= new();
-		return taskCompletionSource.Task.GetAwaiter();
-	}
-	public void SetResult()
-	{
-		taskCompletionSource ??= new();
-		taskCompletionSource.TrySetResult(true);
-	}
-	public void Reset() => taskCompletionSource = new();
 	void TryNext()
 	{
 		if (printerNode.Printing) return;
