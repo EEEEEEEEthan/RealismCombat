@@ -4,11 +4,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
-namespace RealismCombat.Nodes.Combats;
+namespace RealismCombat.Combats;
 public class Combat
 {
-	readonly RealismCombat.Combats.PlayerInput playerInput;
-	readonly RealismCombat.Combats.AIInput aiInput;
+	readonly PlayerInput playerInput;
+	readonly AIInput aiInput;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
@@ -41,7 +41,7 @@ public class Combat
 				}
 				while (TryGetActor(out var actor))
 				{
-					RealismCombat.Combats.CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
+					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
 					var action = await input.MakeDecisionTask(actor);
 					await action.ExecuteTask();
 					if (CheckBattleOutcome()) break;

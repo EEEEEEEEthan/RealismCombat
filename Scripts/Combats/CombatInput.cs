@@ -3,15 +3,14 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
-using RealismCombat.Nodes.Combats;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Combats;
-public abstract class Action(Character actor)
+public abstract class CombatAction(Character actor)
 {
 	protected readonly Character actor = actor;
 	public abstract Task ExecuteTask();
 }
-public class Attack(Character actor, Character? target = null) : Action(actor)
+public class Attack(Character actor, Character? target = null) : CombatAction(actor)
 {
 	Character? selectedTarget = target;
 	public void SetTarget(Character target) => selectedTarget = target;
@@ -35,7 +34,7 @@ public class Attack(Character actor, Character? target = null) : Action(actor)
 }
 public abstract class CombatInput(Combat combat)
 {
-	public abstract Task<Action> MakeDecisionTask(Character character);
+	public abstract Task<CombatAction> MakeDecisionTask(Character character);
 	protected Character[] GetOpponents(Character character) => combat.Allies.Contains(character) ? combat.Enemies : combat.Allies;
 	protected Character[] GetAliveOpponents(Character character) => GetOpponents(character).Where(c => c.IsAlive).ToArray();
 	protected Character? GetRandomOpponent(Character character)
@@ -49,7 +48,7 @@ public abstract class CombatInput(Combat combat)
 }
 public class PlayerInput(Combat combat) : CombatInput(combat)
 {
-	public override async Task<Action> MakeDecisionTask(Character character)
+	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
 		await DialogueManager.CreateMenuDialogue(
 			new MenuOption { title = "攻击", description = "攻击敌人", }
@@ -77,11 +76,11 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 }
 public class AIInput(Combat combat) : CombatInput(combat)
 {
-	public override Task<Action> MakeDecisionTask(Character character)
+	public override Task<CombatAction> MakeDecisionTask(Character character)
 	{
 		var attack = new Attack(character);
 		var target = GetRandomOpponent(character);
 		if (target != null) attack.SetTarget(target);
-		return Task.FromResult<Action>(attack);
+		return Task.FromResult<CombatAction>(attack);
 	}
 }
