@@ -18,7 +18,7 @@ public partial class MenuDialogue : BaseDialogue
 	Container optionContainer;
 	Control optionIndexer;
 	PrinterNode printerNode;
-	int currentIndex;
+	int currentIndex = -1;
 	public MenuDialogue(IEnumerable<MenuOption> initialOptions)
 	{
 		var marginContainer = new MarginContainer();
@@ -65,6 +65,7 @@ public partial class MenuDialogue : BaseDialogue
 			optionLabels.Add(label);
 			Log.Print($"{options.Count - 1} - {option.title} {option.description}");
 		}
+		Select(0);
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
 	}
@@ -75,20 +76,16 @@ public partial class MenuDialogue : BaseDialogue
 		if (options.Count == 0) return;
 		if (@event.IsActionPressed("ui_up"))
 		{
-			currentIndex--;
-			if (currentIndex < 0) currentIndex = options.Count - 1;
-			printerNode.VisibleCharacters = 0;
-			UpdateIndexer();
-			RestartPrint();
+			var index = currentIndex;
+			if (--index <= 0) index = options.Count - 1;
+			Select(index);
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_down"))
 		{
-			currentIndex++;
-			if (currentIndex >= options.Count) currentIndex = 0;
-			printerNode.VisibleCharacters = 0;
-			UpdateIndexer();
-			RestartPrint();
+			var index = currentIndex;
+			if (++index >= options.Count) index = 0;
+			Select(index);
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_accept"))
@@ -106,34 +103,20 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	void Select(int index)
 	{
+		if (currentIndex == index) return;
 		currentIndex = index;
-		UpdateIndexer();
-	}
-	void Confirm()
-	{
-		GetViewport().SetInputAsHandled();
-		var index = currentIndex;
-		Close();
-		taskCompletionSource.TrySetResult(index);
-	}
-	void RestartPrint()
-	{
-		if (options.Count == 0)
-		{
-			printerNode.Text = "";
-			optionIndexer.Visible = false;
-			return;
-		}
-		optionIndexer.Visible = true;
-		printerNode.Text = options[currentIndex].description;
-		printerNode.VisibleCharacters = 0;
-	}
-	void UpdateIndexer()
-	{
 		var selectedLabel = optionLabels[currentIndex];
 		optionIndexer.GlobalPosition = new(
 			optionIndexer.GlobalPosition.X,
 			selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - optionIndexer.Size.Y / 2
 		);
+		printerNode.Text = options[currentIndex].description;
+		printerNode.VisibleCharacters = 0;
+	}
+	void Confirm()
+	{
+		GetViewport().SetInputAsHandled();
+		Close();
+		taskCompletionSource.TrySetResult(currentIndex);
 	}
 }
