@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
@@ -26,57 +27,64 @@ public partial class ProgramRootNode : Node
 		try
 		{
 			while (this.Valid())
-			{
-				var menu = DialogueManager.CreateMenuDialogue(
-					new MenuOption { title = "开始游戏", description = "开始新的冒险", },
-					new MenuOption { title = "读取游戏", description = "读取冒险", },
-					new MenuOption { title = "退出游戏", description = "关闭游戏程序", }
-				);
-				var choice = await menu;
-				const string file = "savegame.dat";
-				switch (choice)
+				try
 				{
-					case 0:
-					{
-						var game = new GameNode(file);
-						AddChild(game);
-						await game;
-						break;
-					}
-					case 1:
-					{
-						if (!File.Exists(file))
-						{
-							var dialogue = DialogueManager.CreateGenericDialogue("未找到存档文件");
-							await dialogue;
-							break;
-						}
-						await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
-						using var reader = new BinaryReader(stream);
-						var game = new GameNode(file, reader);
-						AddChild(game);
-						await game;
-						break;
-					}
-					case 2:
-					{
-						var dialogue = DialogueManager.CreateGenericDialogue("玩家选择退出游戏 不出意外的话进程应该马上消失了");
-						await dialogue;
-						GetTree().Quit();
-						return;
-					}
-					default:
-					{
-						var dialogue = DialogueManager.CreateGenericDialogue("收到未知的菜单选项");
-						await dialogue;
-						break;
-					}
+					await Routine();
 				}
-			}
+				catch (Exception e)
+				{
+					Log.PrintException(e);
+				}
 		}
 		catch (Exception e)
 		{
 			Log.PrintException(e);
+		}
+	}
+	async Task Routine()
+	{
+		var menu = DialogueManager.CreateMenuDialogue(
+			new MenuOption { title = "开始游戏", description = "开始新的冒险", },
+			new MenuOption { title = "读取游戏", description = "读取冒险", },
+			new MenuOption { title = "退出游戏", description = "关闭游戏程序", }
+		);
+		var choice = await menu;
+		const string file = "savegame.dat";
+		switch (choice)
+		{
+			case 0:
+			{
+				var game = new GameNode(file);
+				AddChild(game);
+				await game;
+				break;
+			}
+			case 1:
+			{
+				if (!File.Exists(file))
+				{
+					var dialogue = DialogueManager.CreateGenericDialogue("未找到存档文件");
+					await dialogue;
+					break;
+				}
+				await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
+				using var reader = new BinaryReader(stream);
+				var game = new GameNode(file, reader);
+				AddChild(game);
+				await game;
+				break;
+			}
+			case 2:
+			{
+				var dialogue = DialogueManager.CreateGenericDialogue("玩家选择退出游戏 不出意外的话进程应该马上消失了");
+				await dialogue;
+				GetTree().Quit();
+				return;
+			}
+			default:
+			{
+				throw new InvalidOperationException("未知的菜单选项");
+			}
 		}
 	}
 }
