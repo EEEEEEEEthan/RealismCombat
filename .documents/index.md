@@ -8,6 +8,7 @@
 - [开发规范](coding-standards.md) - 节点命名规范等开发约定
 
 ### 核心系统
+- [战斗系统](combat-system.md) - 战斗流程、输入决策与角色属性
 - [资源管理](resource-management.md) - ResourceTable、延迟加载机制
 - [音频管理](audio-management.md) - AudioManager 单例系统
 - [UI 系统](ui-system.md) - DialogueManager、对话框、菜单、异步等待机制
