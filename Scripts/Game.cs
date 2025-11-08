@@ -2,14 +2,13 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Combats;
 using RealismCombat.Nodes.Dialogues;
 using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
-public partial class Game : Node
+public class Game
 {
 	public record Snapshot
 	{
@@ -62,11 +61,7 @@ public partial class Game : Node
 		var snapshot = GetSnapshot();
 		snapshot.Serialize(writer);
 	}
-	void Quit()
-	{
-		taskCompletionSource?.SetResult();
-		QueueFree();
-	}
+	void Quit() => taskCompletionSource?.SetResult();
 	async void StartGameLoop()
 	{
 		try
@@ -87,7 +82,6 @@ public partial class Game : Node
 							[new("Hero"),],
 							[new("Goblin"),]
 						);
-						AddChild(combat);
 						await combat;
 						break;
 					}

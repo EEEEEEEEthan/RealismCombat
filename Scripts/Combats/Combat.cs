@@ -2,27 +2,24 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
-using RealismCombat.Extensions;
 namespace RealismCombat.Nodes.Combats;
-public partial class Combat : Node
+public class Combat
 {
-	readonly PlayerInput playerInput;
-	readonly AIInput aiInput;
+	readonly RealismCombat.Combats.PlayerInput playerInput;
+	readonly RealismCombat.Combats.AIInput aiInput;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
 	public Combat(Character[] allies, Character[] enemies)
 	{
-		this.Allies = allies;
-		this.Enemies = enemies;
+		Allies = allies;
+		Enemies = enemies;
 		playerInput = new(this);
 		aiInput = new(this);
 		StartLoop();
 	}
-	Combat() { }
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	async void StartLoop()
 	{
@@ -31,7 +28,7 @@ public partial class Combat : Node
 			var dialogue = DialogueManager.CreateGenericDialogue("战斗开始了!");
 			await dialogue;
 			var ticks = 0;
-			while (this.Valid())
+			while (true)
 			{
 				if (CheckBattleOutcome()) break;
 				Log.Print($"第{ticks}个tick");
@@ -44,7 +41,7 @@ public partial class Combat : Node
 				}
 				while (TryGetActor(out var actor))
 				{
-					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
+					RealismCombat.Combats.CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
 					var action = await input.MakeDecisionTask(actor);
 					await action.ExecuteTask();
 					if (CheckBattleOutcome()) break;

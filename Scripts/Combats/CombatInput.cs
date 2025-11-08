@@ -3,11 +3,12 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Nodes.Combats;
 using RealismCombat.Nodes.Dialogues;
-namespace RealismCombat.Nodes.Combats;
+namespace RealismCombat.Combats;
 public abstract class Action(Character actor)
 {
-	public readonly Character actor = actor;
+	protected readonly Character actor = actor;
 	public abstract Task ExecuteTask();
 }
 public class Attack(Character actor, Character? target = null) : Action(actor)
@@ -32,10 +33,8 @@ public class Attack(Character actor, Character? target = null) : Action(actor)
 		if (actor.actionPoint.value < 0) actor.actionPoint.value = 0;
 	}
 }
-public abstract partial class CombatInput : Node
+public abstract class CombatInput(Combat combat)
 {
-	readonly Combat combat;
-	protected CombatInput(Combat combat) => this.combat = combat;
 	public abstract Task<Action> MakeDecisionTask(Character character);
 	protected Character[] GetOpponents(Character character) => combat.Allies.Contains(character) ? combat.Enemies : combat.Allies;
 	protected Character[] GetAliveOpponents(Character character) => GetOpponents(character).Where(c => c.IsAlive).ToArray();
@@ -48,9 +47,8 @@ public abstract partial class CombatInput : Node
 		return alive[index];
 	}
 }
-public partial class PlayerInput : CombatInput
+public class PlayerInput(Combat combat) : CombatInput(combat)
 {
-	public PlayerInput(Combat combat) : base(combat) { }
 	public override async Task<Action> MakeDecisionTask(Character character)
 	{
 		await DialogueManager.CreateMenuDialogue(
@@ -77,9 +75,8 @@ public partial class PlayerInput : CombatInput
 		return attack;
 	}
 }
-public partial class AIInput : CombatInput
+public class AIInput(Combat combat) : CombatInput(combat)
 {
-	public AIInput(Combat combat) : base(combat) { }
 	public override Task<Action> MakeDecisionTask(Character character)
 	{
 		var attack = new Attack(character);

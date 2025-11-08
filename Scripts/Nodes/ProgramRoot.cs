@@ -57,7 +57,6 @@ public partial class ProgramRoot : Node
 			case 0:
 			{
 				var game = new Game(file);
-				AddChild(game);
 				await game;
 				break;
 			}
@@ -72,7 +71,6 @@ public partial class ProgramRoot : Node
 				await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
 				using var reader = new BinaryReader(stream);
 				var game = new Game(file, reader);
-				AddChild(game);
 				await game;
 				break;
 			}
