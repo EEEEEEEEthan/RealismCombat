@@ -54,7 +54,6 @@ public partial class MenuDialogue : BaseDialogue
 			textureRect.Texture = SpriteTable.arrowRight;
 			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
-		CustomMinimumSize = new(256, 96);
 	}
 	public override void Start()
 	{

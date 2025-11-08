@@ -13,4 +13,13 @@ public abstract partial class BaseDialogue : PanelContainer
 		if (disposing) OnDisposing.TryInvoke(this);
 		base.Dispose(disposing);
 	}
+	protected BaseDialogue()
+	{
+		CustomMinimumSize = new(128, 96);
+		SetAnchorsPreset(LayoutPreset.BottomWide);
+		SetOffset(Side.Left, 0);
+		SetOffset(Side.Right, 0);
+		SetOffset(Side.Bottom, 0);
+		SetOffset(Side.Top, -CustomMinimumSize.Y);
+	}
 }

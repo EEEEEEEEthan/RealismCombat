@@ -30,12 +30,6 @@ public partial class GenericDialogue : BaseDialogue
 			icon.Texture = SpriteTable.arrowDown;
 			icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
-		CustomMinimumSize = new(128, 96);
-		SetAnchorsPreset(LayoutPreset.BottomWide);
-		SetOffset(Side.Left, 0);
-		SetOffset(Side.Right, 0);
-		SetOffset(Side.Bottom, 0);
-		SetOffset(Side.Top, -CustomMinimumSize.Y);
 	}
 	public void SetTexts(IEnumerable<string> newTexts)
 	{

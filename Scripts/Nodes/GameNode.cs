@@ -7,12 +7,17 @@ namespace RealismCombat.Nodes;
 public partial class GameNode : Node
 {
 	TaskCompletionSource? taskCompletionSource;
+	public GameNode() => StartGameLoop();
 	public TaskAwaiter GetAwaiter()
 	{
 		taskCompletionSource ??= new();
 		return taskCompletionSource.Task.GetAwaiter();
 	}
-	public override void _Ready() => StartGameLoop();
+	void Quit()
+	{
+		taskCompletionSource?.SetResult();
+		QueueFree();
+	}
 	async void StartGameLoop()
 	{
 		try
@@ -25,37 +30,40 @@ public partial class GameNode : Node
 				menu.AddOption(new() { title = "退出游戏", description = "返回主菜单", });
 				menu.Start();
 				var choice = await menu;
-				if (choice == 0)
+				switch (choice)
 				{
-					var dialogue = DialogueManager.CreateGenericDialogue();
-					dialogue.SetText("战斗系统尚未实现");
-					dialogue.Start();
-					await dialogue;
-				}
-				else if (choice == 1)
-				{
-					var dialogue = DialogueManager.CreateGenericDialogue();
-					dialogue.SetText("状态系统尚未实现");
-					dialogue.Start();
-					await dialogue;
-				}
-				else
-				{
-					var dialogue = DialogueManager.CreateGenericDialogue();
-					dialogue.SetText("返回主菜单");
-					dialogue.Start();
-					await dialogue;
-					taskCompletionSource?.SetResult();
-					QueueFree();
-					return;
+					case 0:
+					{
+						var dialogue = DialogueManager.CreateGenericDialogue();
+						dialogue.SetText("战斗系统尚未实现");
+						dialogue.Start();
+						await dialogue;
+						break;
+					}
+					case 1:
+					{
+						var dialogue = DialogueManager.CreateGenericDialogue();
+						dialogue.SetText("状态系统尚未实现");
+						dialogue.Start();
+						await dialogue;
+						break;
+					}
+					case 3:
+					{
+						Quit();
+						return;
+					}
+					default:
+					{
+						throw new InvalidOperationException($"未知的菜单选项: {choice}");
+					}
 				}
 			}
 		}
 		catch (Exception e)
 		{
 			Log.PrintException(e);
-			taskCompletionSource?.SetResult();
-			QueueFree();
+			Quit();
 		}
 	}
 }
