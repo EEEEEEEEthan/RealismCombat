@@ -78,11 +78,6 @@ public partial class GameNode : Node
 				var menu = DialogueManager.CreateMenuDialogue(
 					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
 					new MenuOption { title = "查看状态", description = "查看角色状态", },
-					new MenuOption { title = "技能配置", description = "调整战斗中可用技能", },
-					new MenuOption { title = "背包", description = "管理携带物品", },
-					new MenuOption { title = "任务日志", description = "查看当前任务进度", },
-					new MenuOption { title = "保存进度", description = "保存当前游戏状态", },
-					new MenuOption { title = "系统设置", description = "调整游戏内设置", },
 					new MenuOption { title = "退出游戏", description = "返回主菜单", }
 				);
 				var choice = await menu;
@@ -101,37 +96,6 @@ public partial class GameNode : Node
 						break;
 					}
 					case 2:
-					{
-						var dialogue = DialogueManager.CreateGenericDialogue("技能配置功能尚未实现");
-						await dialogue;
-						break;
-					}
-					case 3:
-					{
-						var dialogue = DialogueManager.CreateGenericDialogue("背包系统尚未实现");
-						await dialogue;
-						break;
-					}
-					case 4:
-					{
-						var dialogue = DialogueManager.CreateGenericDialogue("任务日志尚未实现");
-						await dialogue;
-						break;
-					}
-					case 5:
-					{
-						Save();
-						var dialogue = DialogueManager.CreateGenericDialogue("进度已保存");
-						await dialogue;
-						break;
-					}
-					case 6:
-					{
-						var dialogue = DialogueManager.CreateGenericDialogue("系统设置尚未实现");
-						await dialogue;
-						break;
-					}
-					case 7:
 					{
 						Quit();
 						return;
