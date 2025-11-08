@@ -4,10 +4,14 @@ using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.AutoLoad;
 public partial class DialogueManager : Node
 {
-	static DialogueManager instance = null!;
-	public static GenericDialogue CreateGenericDialogue()
+	public interface IDialogue
 	{
-		var dialogue = new GenericDialogue();
+		void HandleInput(InputEvent @event);
+	}
+	static DialogueManager instance = null!;
+	public static GenericDialogue CreateGenericDialogue(params string[] initialTexts)
+	{
+		var dialogue = new GenericDialogue(initialTexts);
 		AddDialogue(dialogue);
 		return dialogue;
 	}
@@ -36,7 +40,7 @@ public partial class DialogueManager : Node
 	public override void _Input(InputEvent @event)
 	{
 		var topDialogue = GetTopDialogue();
-		topDialogue?.HandleInput(@event);
+		if (topDialogue is IDialogue dialogue) dialogue.HandleInput(@event);
 	}
 	void OnDialogueDisposing(BaseDialogue dialogue)
 	{

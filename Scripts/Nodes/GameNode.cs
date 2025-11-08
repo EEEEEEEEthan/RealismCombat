@@ -85,16 +85,14 @@ public partial class GameNode : Node
 				{
 					case 0:
 					{
-						var dialogue = DialogueManager.CreateGenericDialogue();
-						dialogue.SetText("战斗系统尚未实现");
-						await dialogue.StartTask();
+						var dialogue = DialogueManager.CreateGenericDialogue("战斗系统尚未实现");
+						await dialogue;
 						break;
 					}
 					case 1:
 					{
-						var dialogue = DialogueManager.CreateGenericDialogue();
-						dialogue.SetText("状态系统尚未实现");
-						await dialogue.StartTask();
+						var dialogue = DialogueManager.CreateGenericDialogue("状态系统尚未实现");
+						await dialogue;
 						break;
 					}
 					case 2:

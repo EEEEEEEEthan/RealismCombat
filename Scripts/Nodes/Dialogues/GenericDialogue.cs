@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 namespace RealismCombat.Nodes.Dialogues;
@@ -6,13 +7,13 @@ namespace RealismCombat.Nodes.Dialogues;
 public partial class GenericDialogue : BaseDialogue
 {
 	readonly List<string> texts = [];
-	int currentTextIndex = -1;
+	readonly TaskCompletionSource<bool> taskCompletionSource = new();
+	int currentTextIndex;
 	PrinterNode printerNode;
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
-	TaskCompletionSource<bool>? taskCompletionSource;
-	public GenericDialogue()
+	public GenericDialogue(IEnumerable<string> initialTexts)
 	{
 		container = new();
 		container.Name = "VBoxContainer";
@@ -29,29 +30,15 @@ public partial class GenericDialogue : BaseDialogue
 			icon.Texture = SpriteTable.arrowDown;
 			icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
-	}
-	public void SetTexts(IEnumerable<string> newTexts)
-	{
-		texts.Clear();
-		texts.AddRange(newTexts);
+		texts.AddRange(initialTexts);
 		printerNode.VisibleCharacters = 0;
-		if (texts.Count == 0)
-		{
-			currentTextIndex = -1;
-		}
-		else
-		{
-			currentTextIndex = 0;
-			printerNode.Text = texts[0];
-			Log.Print(printerNode.Text);
-		}
+		if (texts.Count == 0) throw new System.ArgumentException("GenericDialogue需要至少一个文本");
+		currentTextIndex = 0;
+		printerNode.Text = texts[0];
+		Log.Print(printerNode.Text);
 	}
-	public void SetText(string text) => SetTexts([text,]);
-	public Task<bool> StartTask()
-	{
-		taskCompletionSource = new();
-		return taskCompletionSource.Task;
-	}
+	public GenericDialogue() : this([]) { }
+	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public override void _Process(double delta)
 	{
 		if (Input.IsAnythingPressed())
@@ -74,7 +61,7 @@ public partial class GenericDialogue : BaseDialogue
 			TryNext();
 		}
 	}
-	public override void HandleInput(InputEvent @event)
+	protected override void HandleInput(InputEvent @event)
 	{
 		if (@event.IsPressed() && !@event.IsEcho()) TryNext();
 	}
@@ -91,7 +78,7 @@ public partial class GenericDialogue : BaseDialogue
 		else
 		{
 			Close();
-			taskCompletionSource?.TrySetResult(true);
+			taskCompletionSource.TrySetResult(true);
 		}
 	}
 }

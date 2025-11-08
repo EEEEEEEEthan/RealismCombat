@@ -47,9 +47,8 @@ public partial class ProgramRootNode : Node
 					{
 						if (!File.Exists(file))
 						{
-							var dialogue = DialogueManager.CreateGenericDialogue();
-							dialogue.SetText("未找到存档文件");
-							await dialogue.StartTask();
+							var dialogue = DialogueManager.CreateGenericDialogue("未找到存档文件");
+							await dialogue;
 							break;
 						}
 						await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
@@ -61,9 +60,8 @@ public partial class ProgramRootNode : Node
 					}
 					default:
 					{
-						var dialogue = DialogueManager.CreateGenericDialogue();
-						dialogue.SetText("玩家选择退出游戏 不出意外的话进程应该马上消失了");
-						await dialogue.StartTask();
+						var dialogue = DialogueManager.CreateGenericDialogue("玩家选择退出游戏 不出意外的话进程应该马上消失了");
+						await dialogue;
 						GetTree().Quit();
 						return;
 					}

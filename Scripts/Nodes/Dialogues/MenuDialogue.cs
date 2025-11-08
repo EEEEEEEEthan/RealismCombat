@@ -71,7 +71,12 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	MenuDialogue() : this([]) { }
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
-	public override void HandleInput(InputEvent @event)
+	public void SelectAndConfirm(int index)
+	{
+		Select(index);
+		Confirm();
+	}
+	protected override void HandleInput(InputEvent @event)
 	{
 		if (options.Count == 0) return;
 		if (@event.IsActionPressed("ui_up"))
@@ -95,11 +100,6 @@ public partial class MenuDialogue : BaseDialogue
 			Close();
 			taskCompletionSource.TrySetResult(index);
 		}
-	}
-	public void SelectAndConfirm(int index)
-	{
-		Select(index);
-		Confirm();
 	}
 	void Select(int index)
 	{

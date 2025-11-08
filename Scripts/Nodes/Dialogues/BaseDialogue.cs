@@ -1,8 +1,9 @@
 using System;
 using Godot;
+using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
 namespace RealismCombat.Nodes.Dialogues;
-public abstract partial class BaseDialogue : PanelContainer
+public abstract partial class BaseDialogue : PanelContainer, DialogueManager.IDialogue
 {
 	bool hasClosed;
 	public event Action<BaseDialogue>? OnDisposing;
@@ -15,7 +16,7 @@ public abstract partial class BaseDialogue : PanelContainer
 		SetOffset(Side.Bottom, 0);
 		SetOffset(Side.Top, -CustomMinimumSize.Y);
 	}
-	public virtual void HandleInput(InputEvent @event) { }
+	protected virtual void HandleInput(InputEvent @event) { }
 	protected void Close()
 	{
 		if (hasClosed) return;
@@ -32,4 +33,5 @@ public abstract partial class BaseDialogue : PanelContainer
 		}
 		base.Dispose(disposing);
 	}
+	void DialogueManager.IDialogue.HandleInput(InputEvent @event) => HandleInput(@event);
 }
