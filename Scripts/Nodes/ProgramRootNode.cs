@@ -51,7 +51,7 @@ public partial class ProgramRootNode : Node
 			new MenuOption { title = "退出游戏", description = "关闭游戏程序", }
 		);
 		var choice = await menu;
-		const string file = "savegame.dat";
+		const string file = "save.dat";
 		switch (choice)
 		{
 			case 0:
