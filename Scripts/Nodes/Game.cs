@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
+using RealismCombat.Nodes.Combats;
 using RealismCombat.Nodes.Dialogues;
 using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
@@ -30,7 +31,7 @@ public partial class Game : Node
 		}
 	}
 	readonly string saveFilePath;
-	TaskCompletionSource? taskCompletionSource;
+	readonly TaskCompletionSource taskCompletionSource = new();
 	/// <summary>
 	///     新游戏
 	/// </summary>
@@ -53,11 +54,7 @@ public partial class Game : Node
 	}
 	Game() { }
 	public Snapshot GetSnapshot() => new(this);
-	public TaskAwaiter GetAwaiter()
-	{
-		taskCompletionSource ??= new();
-		return taskCompletionSource.Task.GetAwaiter();
-	}
+	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	void Save()
 	{
 		using var stream = new FileStream(saveFilePath, FileMode.Create, FileAccess.Write);
@@ -86,8 +83,11 @@ public partial class Game : Node
 				{
 					case 0:
 					{
-						var dialogue = DialogueManager.CreateGenericDialogue("战斗系统尚未实现");
-						await dialogue;
+						var combat = new Combat(
+							[new("Hero"),],
+							[new("Goblin"),]
+						);
+						await combat;
 						break;
 					}
 					case 1:
