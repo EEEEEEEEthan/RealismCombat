@@ -87,6 +87,7 @@ public partial class Game : Node
 							[new("Hero"),],
 							[new("Goblin"),]
 						);
+						AddChild(combat);
 						await combat;
 						break;
 					}

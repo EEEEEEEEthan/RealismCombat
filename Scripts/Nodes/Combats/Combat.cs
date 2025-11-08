@@ -8,15 +8,17 @@ using RealismCombat.Extensions;
 namespace RealismCombat.Nodes.Combats;
 public partial class Combat : Node
 {
-	readonly Character[] allies;
-	readonly Character[] enemies;
-	readonly PlayerInput playerInput = new();
-	readonly AIInput aiInput = new();
+	readonly PlayerInput playerInput;
+	readonly AIInput aiInput;
 	readonly TaskCompletionSource taskCompletionSource = new();
+	internal Character[] Allies { get; }
+	internal Character[] Enemies { get; }
 	public Combat(Character[] allies, Character[] enemies)
 	{
-		this.allies = allies;
-		this.enemies = enemies;
+		this.Allies = allies;
+		this.Enemies = enemies;
+		playerInput = new(this);
+		aiInput = new(this);
 		StartLoop();
 	}
 	Combat() { }
@@ -30,6 +32,7 @@ public partial class Combat : Node
 			var ticks = 0;
 			while (this.Valid())
 			{
+				if (CheckBattleOutcome()) break;
 				Log.Print($"第{ticks}个tick");
 				++ticks;
 				if (ticks >= 32)
@@ -40,12 +43,14 @@ public partial class Combat : Node
 				}
 				while (TryGetActor(out var actor))
 				{
-					CombatInput input = allies.Contains(actor) ? playerInput : aiInput;
+					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
 					var action = await input.MakeDecisionTask(actor);
 					await action.ExecuteTask();
+					if (CheckBattleOutcome()) break;
 				}
+				if (CheckBattleOutcome()) break;
 				await Task.Delay(1000);
-				foreach (var character in allies.Union(enemies)) character.actionPoint.value += character.speed.value;
+				foreach (var character in Allies.Union(Enemies).Where(c => c.IsAlive)) character.actionPoint.value += character.speed.value;
 			}
 		}
 		catch (Exception e)
@@ -55,8 +60,24 @@ public partial class Combat : Node
 	}
 	bool TryGetActor(out Character actor)
 	{
-		var result = allies.Union(enemies).FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
+		var result = Allies.Union(Enemies).Where(c => c.IsAlive).FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
 		actor = result!;
 		return result != null;
+	}
+	bool CheckBattleOutcome()
+	{
+		if (!Allies.Any(c => c.IsAlive))
+		{
+			Log.Print("战斗失败");
+			taskCompletionSource.TrySetResult();
+			return true;
+		}
+		if (!Enemies.Any(c => c.IsAlive))
+		{
+			Log.Print("敌人被消灭，你胜利了");
+			taskCompletionSource.TrySetResult();
+			return true;
+		}
+		return false;
 	}
 }

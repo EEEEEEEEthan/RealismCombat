@@ -6,6 +6,7 @@ public partial class Character : Node
 	public readonly PropertyInt speed;
 	public readonly PropertySingle actionPoint;
 	public readonly string name;
+	public bool IsAlive => hp.value > 0;
 	public Character(string name)
 	{
 		hp = new() { maxValue = 10, value = 10, };
