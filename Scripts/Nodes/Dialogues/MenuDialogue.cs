@@ -17,7 +17,7 @@ public partial class MenuDialogue : BaseDialogue
 	readonly TaskCompletionSource<int> taskCompletionSource = new();
 	Container optionContainer;
 	Control optionIndexer;
-	PrinterNode printerNode;
+	Printer printer;
 	int currentIndex = -1;
 	public MenuDialogue(IEnumerable<MenuOption> initialOptions)
 	{
@@ -35,9 +35,9 @@ public partial class MenuDialogue : BaseDialogue
 			hBoxContainer.AddChild(optionContainer);
 		}
 		{
-			printerNode = new();
-			hBoxContainer.AddChild(printerNode);
-			printerNode.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+			printer = new();
+			hBoxContainer.AddChild(printer);
+			printer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 		}
 		var control = new Control();
 		control.Name = "Control";
@@ -107,8 +107,8 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		if (currentIndex == index) return;
 		currentIndex = index;
-		printerNode.Text = options[currentIndex].description;
-		printerNode.VisibleCharacters = 0;
+		printer.Text = options[currentIndex].description;
+		printer.VisibleCharacters = 0;
 		UpdateIndexer();
 	}
 	void UpdateIndexer()

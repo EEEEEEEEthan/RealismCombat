@@ -8,12 +8,12 @@ using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
-public partial class GameNode : Node
+public partial class Game : Node
 {
 	public record Snapshot
 	{
 		readonly GameVersion version;
-		public Snapshot(GameNode game) => version = GameVersion.newest;
+		public Snapshot(Game game) => version = GameVersion.newest;
 		public Snapshot(BinaryReader reader)
 		{
 			using (reader.ReadScope())
@@ -35,7 +35,7 @@ public partial class GameNode : Node
 	///     新游戏
 	/// </summary>
 	/// <param name="saveFilePath"></param>
-	public GameNode(string saveFilePath) : this()
+	public Game(string saveFilePath) : this()
 	{
 		this.saveFilePath = saveFilePath;
 		StartGameLoop();
@@ -45,13 +45,13 @@ public partial class GameNode : Node
 	/// </summary>
 	/// <param name="saveFilePath"></param>
 	/// <param name="reader"></param>
-	public GameNode(string saveFilePath, BinaryReader reader) : this()
+	public Game(string saveFilePath, BinaryReader reader) : this()
 	{
 		this.saveFilePath = saveFilePath;
 		_ = new Snapshot(reader);
 		StartGameLoop();
 	}
-	GameNode() { }
+	Game() { }
 	public Snapshot GetSnapshot() => new(this);
 	public TaskAwaiter GetAwaiter()
 	{

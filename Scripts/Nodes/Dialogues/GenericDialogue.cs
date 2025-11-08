@@ -9,7 +9,7 @@ public partial class GenericDialogue : BaseDialogue
 	readonly List<string> texts = [];
 	readonly TaskCompletionSource<bool> taskCompletionSource = new();
 	int currentTextIndex;
-	PrinterNode printerNode;
+	Printer printer;
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
@@ -19,9 +19,9 @@ public partial class GenericDialogue : BaseDialogue
 		container.Name = "VBoxContainer";
 		AddChild(container);
 		{
-			printerNode = new();
-			container.AddChild(printerNode);
-			printerNode.SizeFlagsVertical = SizeFlags.ExpandFill;
+			printer = new();
+			container.AddChild(printer);
+			printer.SizeFlagsVertical = SizeFlags.ExpandFill;
 		}
 		{
 			icon = new();
@@ -31,21 +31,21 @@ public partial class GenericDialogue : BaseDialogue
 			icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		}
 		texts.AddRange(initialTexts);
-		printerNode.VisibleCharacters = 0;
+		printer.VisibleCharacters = 0;
 		if (texts.Count == 0) throw new System.ArgumentException("GenericDialogue需要至少一个文本");
 		currentTextIndex = 0;
-		printerNode.Text = texts[0];
-		Log.Print(printerNode.Text);
+		printer.Text = texts[0];
+		Log.Print(printer.Text);
 	}
 	public GenericDialogue() : this([]) { }
 	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public override void _Process(double delta)
 	{
 		if (Input.IsAnythingPressed())
-			printerNode.interval = 0;
+			printer.interval = 0;
 		else
-			printerNode.interval = 0.1f;
-		if (printerNode.Printing || string.IsNullOrEmpty(printerNode.Text))
+			printer.interval = 0.1f;
+		if (printer.Printing || string.IsNullOrEmpty(printer.Text))
 		{
 			icon.SelfModulate = Colors.Transparent;
 		}
@@ -57,7 +57,7 @@ public partial class GenericDialogue : BaseDialogue
 		}
 		if (LaunchArgs.port != null)
 		{
-			printerNode.interval = 0;
+			printer.interval = 0;
 			TryNext();
 		}
 	}
@@ -67,12 +67,12 @@ public partial class GenericDialogue : BaseDialogue
 	}
 	void TryNext()
 	{
-		if (printerNode.Printing) return;
+		if (printer.Printing) return;
 		currentTextIndex++;
 		if (currentTextIndex < texts.Count)
 		{
 			var txt = texts[currentTextIndex];
-			printerNode.Text += "\n" + txt;
+			printer.Text += "\n" + txt;
 			Log.Print(txt);
 		}
 		else

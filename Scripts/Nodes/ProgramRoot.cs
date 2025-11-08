@@ -10,7 +10,7 @@ namespace RealismCombat.Nodes;
 /// <summary>
 ///     程序根节点，负责初始化游戏生命周期
 /// </summary>
-public partial class ProgramRootNode : Node
+public partial class ProgramRoot : Node
 {
 	public override void _Ready()
 	{
@@ -18,7 +18,7 @@ public partial class ProgramRootNode : Node
 		var godotPath = Settings.Get("godot");
 		if (godotPath != null) Log.Print($"[ProgramRoot] 从配置读取godot路径: {godotPath}");
 		if (LaunchArgs.port.HasValue)
-			AddChild(new CommandHandlerNode(this));
+			AddChild(new CommandHandler(this));
 		else
 			StartGameLoop();
 	}
@@ -56,7 +56,7 @@ public partial class ProgramRootNode : Node
 		{
 			case 0:
 			{
-				var game = new GameNode(file);
+				var game = new Game(file);
 				AddChild(game);
 				await game;
 				break;
@@ -71,7 +71,7 @@ public partial class ProgramRootNode : Node
 				}
 				await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
 				using var reader = new BinaryReader(stream);
-				var game = new GameNode(file, reader);
+				var game = new Game(file, reader);
 				AddChild(game);
 				await game;
 				break;

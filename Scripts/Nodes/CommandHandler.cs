@@ -8,13 +8,13 @@ namespace RealismCombat.Nodes;
 /// <summary>
 ///     命令处理器，负责处理来自MCP客户端的指令
 /// </summary>
-public partial class CommandHandlerNode(ProgramRootNode programRoot) : Node
+public partial class CommandHandler(ProgramRoot programRoot) : Node
 {
 	readonly ConcurrentQueue<McpCommand> commandQueue = new();
 	public override void _EnterTree()
 	{
 		base._EnterTree();
-		Name = nameof(CommandHandlerNode);
+		Name = nameof(CommandHandler);
 	}
 	public override void _Ready()
 	{
