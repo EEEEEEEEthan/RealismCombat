@@ -68,6 +68,8 @@ public partial class MenuDialogue : BaseDialogue
 		Select(0);
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
+		Ready += UpdateIndexer;
+		ItemRectChanged += UpdateIndexer;
 	}
 	MenuDialogue() : this([]) { }
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
@@ -82,7 +84,7 @@ public partial class MenuDialogue : BaseDialogue
 		if (@event.IsActionPressed("ui_up"))
 		{
 			var index = currentIndex;
-			if (--index <= 0) index = options.Count - 1;
+			if (--index < 0) index = options.Count - 1;
 			Select(index);
 			GetViewport().SetInputAsHandled();
 		}
@@ -105,13 +107,17 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		if (currentIndex == index) return;
 		currentIndex = index;
+		printerNode.Text = options[currentIndex].description;
+		printerNode.VisibleCharacters = 0;
+		UpdateIndexer();
+	}
+	void UpdateIndexer()
+	{
 		var selectedLabel = optionLabels[currentIndex];
 		optionIndexer.GlobalPosition = new(
 			optionIndexer.GlobalPosition.X,
 			selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - optionIndexer.Size.Y / 2
 		);
-		printerNode.Text = options[currentIndex].description;
-		printerNode.VisibleCharacters = 0;
 	}
 	void Confirm()
 	{
