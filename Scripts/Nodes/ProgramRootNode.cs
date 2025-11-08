@@ -29,19 +29,21 @@ public partial class ProgramRootNode : Node
 			while (this.Valid())
 				try
 				{
-					await Routine();
+					if (!await Routine()) break;
 				}
 				catch (Exception e)
 				{
 					Log.PrintException(e);
 				}
+			await Task.Delay(1);
+			GetTree().Quit();
 		}
 		catch (Exception e)
 		{
 			Log.PrintException(e);
 		}
 	}
-	async Task Routine()
+	async Task<bool> Routine()
 	{
 		var menu = DialogueManager.CreateMenuDialogue(
 			new MenuOption { title = "开始游戏", description = "开始新的冒险", },
@@ -76,15 +78,17 @@ public partial class ProgramRootNode : Node
 			}
 			case 2:
 			{
-				var dialogue = DialogueManager.CreateGenericDialogue("玩家选择退出游戏 不出意外的话进程应该马上消失了");
-				await dialogue;
+				Log.Print("游戏即将退出...");
+				GameServer.McpCheckpoint();
+				await Task.Delay(1);
 				GetTree().Quit();
-				return;
+				return false;
 			}
 			default:
 			{
 				throw new InvalidOperationException("未知的菜单选项");
 			}
 		}
+		return true;
 	}
 }
