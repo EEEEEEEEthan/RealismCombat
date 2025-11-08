@@ -35,7 +35,7 @@ public partial class GameNode : Node
 	///     新游戏
 	/// </summary>
 	/// <param name="saveFilePath"></param>
-	public GameNode(string saveFilePath)
+	public GameNode(string saveFilePath) : this()
 	{
 		this.saveFilePath = saveFilePath;
 		StartGameLoop();
@@ -45,12 +45,13 @@ public partial class GameNode : Node
 	/// </summary>
 	/// <param name="saveFilePath"></param>
 	/// <param name="reader"></param>
-	public GameNode(string saveFilePath, BinaryReader reader)
+	public GameNode(string saveFilePath, BinaryReader reader) : this()
 	{
 		this.saveFilePath = saveFilePath;
 		_ = new Snapshot(reader);
 		StartGameLoop();
 	}
+	GameNode() { }
 	public Snapshot GetSnapshot() => new(this);
 	public TaskAwaiter GetAwaiter()
 	{
