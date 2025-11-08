@@ -7,12 +7,14 @@ namespace RealismCombat.Nodes.Dialogues;
 public partial class GenericDialogue : BaseDialogue
 {
 	readonly List<string> texts = [];
-	readonly TaskCompletionSource<bool> taskCompletionSource = new();
-	int currentTextIndex;
+	readonly TaskCompletionSource tcsDestroyed = new();
+	TaskCompletionSource? tcsPrintDone;
+	int currentTextIndex = -1;
 	Printer printer;
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
+	public Task PrintDone => (tcsPrintDone ??= new()).Task;
 	public GenericDialogue(IEnumerable<string> initialTexts)
 	{
 		container = new();
@@ -32,13 +34,18 @@ public partial class GenericDialogue : BaseDialogue
 		}
 		texts.AddRange(initialTexts);
 		printer.VisibleCharacters = 0;
-		if (texts.Count == 0) throw new System.ArgumentException("GenericDialogue需要至少一个文本");
-		currentTextIndex = 0;
-		printer.Text = texts[0];
-		Log.Print(printer.Text);
+		if (texts.Count > 0)
+		{
+			currentTextIndex = 0;
+			printer.Text = texts[0];
+			Log.Print(printer.Text);
+		}
+		else
+		{
+			printer.Text = string.Empty;
+		}
 	}
 	public GenericDialogue() : this([]) { }
-	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public override void _Process(double delta)
 	{
 		if (Input.IsAnythingPressed())
@@ -61,24 +68,55 @@ public partial class GenericDialogue : BaseDialogue
 			TryNext();
 		}
 	}
+	/// <summary>
+	///     追加新的文本内容
+	/// </summary>
+	/// <param name="text">要追加的文本</param>
+	public void AddText(string text)
+	{
+		if (string.IsNullOrEmpty(text)) return;
+		texts.Add(text);
+		if (currentTextIndex >= 0) return;
+		currentTextIndex = 0;
+		printer.Text = text;
+		printer.VisibleCharacters = 0;
+		Log.Print(text);
+	}
+	public TaskAwaiter GetAwaiter() => tcsDestroyed.Task.GetAwaiter();
 	protected override void HandleInput(InputEvent @event)
 	{
 		if (@event.IsPressed() && !@event.IsEcho()) TryNext();
 	}
 	void TryNext()
 	{
+		if (currentTextIndex < 0) return;
 		if (printer.Printing) return;
 		currentTextIndex++;
 		if (currentTextIndex < texts.Count)
 		{
-			var txt = texts[currentTextIndex];
-			printer.Text += "\n" + txt;
-			Log.Print(txt);
+			printNext();
 		}
 		else
 		{
-			Close();
-			taskCompletionSource.TrySetResult(true);
+			var taskCompletionSource = tcsPrintDone;
+			tcsPrintDone = null;
+			taskCompletionSource?.TrySetResult();
+			if (currentTextIndex < texts.Count)
+			{
+				printNext();
+			}
+			else
+			{
+				Close();
+				tcsDestroyed.SetResult();
+			}
+		}
+		return;
+		void printNext()
+		{
+			var txt = texts[currentTextIndex];
+			printer.Text += "\n" + txt;
+			Log.Print(txt);
 		}
 	}
 }

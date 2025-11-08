@@ -39,16 +39,11 @@ public partial class Combat : Node
 					break;
 				}
 				while (TryGetActor(out var actor))
-					if (allies.Contains(actor))
-					{
-						var action = await playerInput.MakeDecisionTask();
-						await action.ExecuteTask();
-					}
-					else
-					{
-						var action = await aiInput.MakeDecisionTask();
-						await action.ExecuteTask();
-					}
+				{
+					CombatInput input = allies.Contains(actor) ? playerInput : aiInput;
+					var action = await input.MakeDecisionTask(actor);
+					await action.ExecuteTask();
+				}
 				await Task.Delay(1000);
 				foreach (var character in allies.Union(enemies)) character.actionPoint.value += character.speed.value;
 			}

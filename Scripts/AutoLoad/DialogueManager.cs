@@ -28,7 +28,7 @@ public partial class DialogueManager : Node
 		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
 		instance.currentDialogue = dialogue;
 		instance.AddChild(dialogue);
-		dialogue.OnDisposing += instance.OnDialogueDisposing;
+		dialogue.OnClosed += instance.DialogueClosed;
 		Log.Print($"[DialogueManager] 添加Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {GetDialogueCount()}");
 	}
 	BaseDialogue? currentDialogue;
@@ -42,10 +42,10 @@ public partial class DialogueManager : Node
 		var topDialogue = GetTopDialogue();
 		if (topDialogue is IDialogue dialogue) dialogue.HandleInput(@event);
 	}
-	void OnDialogueDisposing(BaseDialogue dialogue)
+	void DialogueClosed(BaseDialogue dialogue)
 	{
 		if (currentDialogue != dialogue) return;
-		currentDialogue.OnDisposing -= OnDialogueDisposing;
+		currentDialogue.OnClosed -= DialogueClosed;
 		currentDialogue = null;
 	}
 }

@@ -6,7 +6,7 @@ namespace RealismCombat.Nodes.Dialogues;
 public abstract partial class BaseDialogue : PanelContainer, DialogueManager.IDialogue
 {
 	bool hasClosed;
-	public event Action<BaseDialogue>? OnDisposing;
+	public event Action<BaseDialogue>? OnClosed;
 	protected BaseDialogue()
 	{
 		CustomMinimumSize = new(128, 96);
@@ -21,7 +21,7 @@ public abstract partial class BaseDialogue : PanelContainer, DialogueManager.IDi
 	{
 		if (hasClosed) return;
 		hasClosed = true;
-		OnDisposing.TryInvoke(this);
+		OnClosed.TryInvoke(this);
 		QueueFree();
 	}
 	protected override void Dispose(bool disposing)
@@ -29,7 +29,7 @@ public abstract partial class BaseDialogue : PanelContainer, DialogueManager.IDi
 		if (disposing && !hasClosed)
 		{
 			hasClosed = true;
-			OnDisposing.TryInvoke(this);
+			OnClosed.TryInvoke(this);
 		}
 		base.Dispose(disposing);
 	}
