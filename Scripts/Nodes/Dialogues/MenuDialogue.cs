@@ -19,7 +19,6 @@ public partial class MenuDialogue : BaseDialogue
 	Control optionIndexer;
 	PrinterNode printerNode;
 	int currentIndex;
-	bool awaitSignalSent;
 	public MenuDialogue(IEnumerable<MenuOption> initialOptions)
 	{
 		var marginContainer = new MarginContainer();
@@ -66,14 +65,11 @@ public partial class MenuDialogue : BaseDialogue
 			optionLabels.Add(label);
 			Log.Print($"{options.Count - 1} - {option.title} {option.description}");
 		}
-		if (options.Count > 0) EnsureAwaitSignal();
+		Log.Print("请选择(game_select_option)");
+		GameServer.McpCheckpoint();
 	}
 	MenuDialogue() : this([]) { }
-	public TaskAwaiter<int> GetAwaiter()
-	{
-		EnsureAwaitSignal();
-		return taskCompletionSource.Task.GetAwaiter();
-	}
+	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public override void HandleInput(InputEvent @event)
 	{
 		if (options.Count == 0) return;
@@ -119,13 +115,6 @@ public partial class MenuDialogue : BaseDialogue
 		var index = currentIndex;
 		Close();
 		taskCompletionSource.TrySetResult(index);
-	}
-	void EnsureAwaitSignal()
-	{
-		if (awaitSignalSent) return;
-		awaitSignalSent = true;
-		Log.Print("请选择(game_select_option)");
-		GameServer.McpCheckpoint();
 	}
 	void RestartPrint()
 	{
