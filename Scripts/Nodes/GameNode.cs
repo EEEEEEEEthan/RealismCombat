@@ -1,17 +1,67 @@
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
+using RealismCombat.Extensions;
+using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
 public partial class GameNode : Node
 {
+	public record Snapshot
+	{
+		readonly GameVersion version;
+		public Snapshot(GameNode game) => version = GameVersion.newest;
+		public Snapshot(BinaryReader reader)
+		{
+			using (reader.ReadScope())
+			{
+				version = new(reader);
+			}
+		}
+		public void Serialize(BinaryWriter writer)
+		{
+			using (writer.WriteScope())
+			{
+				version.Serialize(writer);
+			}
+		}
+	}
+	readonly string saveFilePath;
 	TaskCompletionSource? taskCompletionSource;
-	public GameNode() => StartGameLoop();
+	/// <summary>
+	///     新游戏
+	/// </summary>
+	/// <param name="saveFilePath"></param>
+	public GameNode(string saveFilePath)
+	{
+		this.saveFilePath = saveFilePath;
+		StartGameLoop();
+	}
+	/// <summary>
+	///     读取游戏
+	/// </summary>
+	/// <param name="saveFilePath"></param>
+	/// <param name="reader"></param>
+	public GameNode(string saveFilePath, BinaryReader reader)
+	{
+		this.saveFilePath = saveFilePath;
+		_ = new Snapshot(reader);
+		StartGameLoop();
+	}
+	public Snapshot GetSnapshot() => new(this);
 	public TaskAwaiter GetAwaiter()
 	{
 		taskCompletionSource ??= new();
 		return taskCompletionSource.Task.GetAwaiter();
+	}
+	void Save()
+	{
+		using var stream = new FileStream(saveFilePath, FileMode.Create, FileAccess.Write);
+		using var writer = new BinaryWriter(stream);
+		var snapshot = GetSnapshot();
+		snapshot.Serialize(writer);
 	}
 	void Quit()
 	{
@@ -45,7 +95,7 @@ public partial class GameNode : Node
 						await dialogue.StartTask();
 						break;
 					}
-					case 3:
+					case 2:
 					{
 						Quit();
 						return;

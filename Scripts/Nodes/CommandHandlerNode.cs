@@ -69,7 +69,7 @@ public partial class CommandHandlerNode(ProgramRootNode programRoot) : Node
 					break;
 				}
 				default:
-					Log.PrintErr($"未知命令: {cmd.Command}");
+					Log.PrintError($"未知命令: {cmd.Command}");
 					GameServer.McpCheckpoint();
 					break;
 			}

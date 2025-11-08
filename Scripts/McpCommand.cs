@@ -11,7 +11,7 @@ public readonly struct McpCommand
 		if (parts.Length == 1) return new(command);
 		if ((parts.Length - 1) % 2 != 0)
 		{
-			Log.PrintErr($"[McpCommand] 参数数量不匹配: {data}");
+			Log.PrintError($"[McpCommand] 参数数量不匹配: {data}");
 			return new(command);
 		}
 		var args = new Dictionary<string, string>();

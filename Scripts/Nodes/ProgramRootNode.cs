@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Extensions;
+using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
 /// <summary>
 ///     程序根节点，负责初始化游戏生命周期
@@ -26,21 +28,34 @@ public partial class ProgramRootNode : Node
 			{
 				var menu = DialogueManager.CreateMenuDialogue();
 				menu.AddOption(new() { title = "开始游戏", description = "开始新的冒险", });
+				menu.AddOption(new() { title = "读取游戏", description = "读取冒险", });
 				menu.AddOption(new() { title = "退出游戏", description = "关闭游戏程序", });
 				var choice = await menu.StartTask();
-				if (choice == 0)
+				const string file = "savegame.dat";
+				switch (choice)
 				{
-					var game = new GameNode();
-					AddChild(game);
-					await game;
-				}
-				else
-				{
-					var dialogue = DialogueManager.CreateGenericDialogue();
-					dialogue.SetText("玩家选择退出游戏 不出意外的话进程应该马上消失了");
-					await dialogue.StartTask();
-					GetTree().Quit();
-					return;
+					case 0:
+					{
+						var game = new GameNode(file);
+						AddChild(game);
+						await game;
+						break;
+					}
+					case 1:
+					{
+						await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
+						using var reader = new BinaryReader(stream);
+						var game = new GameNode(file, reader);
+						break;
+					}
+					default:
+					{
+						var dialogue = DialogueManager.CreateGenericDialogue();
+						dialogue.SetText("玩家选择退出游戏 不出意外的话进程应该马上消失了");
+						await dialogue.StartTask();
+						GetTree().Quit();
+						return;
+					}
 				}
 			}
 		}

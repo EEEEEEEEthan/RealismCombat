@@ -28,7 +28,7 @@ public partial class AudioManager : Node
 	{
 		if (instance?.bgmPlayer == null)
 		{
-			Log.PrintErr("[AudioManager] BGM播放器未初始化");
+			Log.PrintError("[AudioManager] BGM播放器未初始化");
 			return;
 		}
 		instance.bgmPlayer.Stream = stream;
@@ -43,7 +43,7 @@ public partial class AudioManager : Node
 	{
 		if (instance?.bgmPlayer == null)
 		{
-			Log.PrintErr("[AudioManager] BGM播放器未初始化");
+			Log.PrintError("[AudioManager] BGM播放器未初始化");
 			return;
 		}
 		instance.bgmPlayer.Stop();
@@ -58,7 +58,7 @@ public partial class AudioManager : Node
 	{
 		if (instance?.sfxPlayer == null)
 		{
-			Log.PrintErr("[AudioManager] 音效播放器未初始化");
+			Log.PrintError("[AudioManager] 音效播放器未初始化");
 			return;
 		}
 		instance.sfxPlayer.Stream = stream;
@@ -73,7 +73,7 @@ public partial class AudioManager : Node
 	{
 		if (instance?.bgmPlayer == null)
 		{
-			Log.PrintErr("[AudioManager] BGM播放器未初始化");
+			Log.PrintError("[AudioManager] BGM播放器未初始化");
 			return;
 		}
 		instance.bgmPlayer.VolumeDb = volumeDb;
@@ -86,7 +86,7 @@ public partial class AudioManager : Node
 	{
 		if (instance?.sfxPlayer == null)
 		{
-			Log.PrintErr("[AudioManager] 音效播放器未初始化");
+			Log.PrintError("[AudioManager] 音效播放器未初始化");
 			return;
 		}
 		instance.sfxPlayer.VolumeDb = volumeDb;
@@ -97,7 +97,7 @@ public partial class AudioManager : Node
 	{
 		if (instance != null)
 		{
-			Log.PrintErr("[AudioManager] 单例已存在，销毁重复实例");
+			Log.PrintError("[AudioManager] 单例已存在，销毁重复实例");
 			QueueFree();
 			return;
 		}

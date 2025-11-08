@@ -23,7 +23,7 @@ public static class LaunchArgs
 				}
 				else
 				{
-					Log.PrintErr($"[LaunchArgs] 无效的端口参数: {portStr}");
+					Log.PrintError($"[LaunchArgs] 无效的端口参数: {portStr}");
 				}
 			}
 		}

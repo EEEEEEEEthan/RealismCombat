@@ -23,7 +23,7 @@ public static partial class Settings
 		settings.Clear();
 		if (!File.Exists(settingsPath))
 		{
-			Log.PrintErr($"[Settings] 配置文件不存在: {settingsPath}");
+			Log.PrintError($"[Settings] 配置文件不存在: {settingsPath}");
 			return;
 		}
 		var regex = ConfigRegex();

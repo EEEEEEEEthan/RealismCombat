@@ -18,7 +18,7 @@ public static class Log
 		GD.Print($"{Timestamp} {message}");
 		OnLog?.Invoke(message);
 	}
-	public static void PrintErr(params object[] args)
+	public static void PrintError(params object[] args)
 	{
 		var message = string.Join(" ", args);
 		var stackTrace = new StackTrace(1, true);
