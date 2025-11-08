@@ -114,7 +114,7 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			taskCompletionSource?.TrySetResult(currentIndex);
 			GetViewport().SetInputAsHandled();
-			QueueFree();
+			Close();
 		}
 	}
 	public TaskAwaiter<int> GetAwaiter()
@@ -132,7 +132,7 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		taskCompletionSource?.TrySetResult(currentIndex);
 		GetViewport().SetInputAsHandled();
-		QueueFree();
+		Close();
 	}
 	void UpdateUI()
 	{

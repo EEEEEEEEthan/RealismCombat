@@ -11,15 +11,15 @@
 `DialogueManager` 作为 Godot AutoLoad 单例提供统一的对话框管理：
 - 位于 `Scripts/AutoLoad/` 目录
 - 在 `project.godot` 中配置为自动加载单例，游戏启动时自动初始化
-- 始终只维护一个当前对话框，创建新对话框时会自动释放旧对话框
+- 始终只维护一个当前对话框，如在已有对话框时尝试创建新对话框会立刻抛出异常
 - **统一管理输入**：在 `_Input()` 方法中接收所有输入事件，并分发给当前对话框处理
 - 通过工厂方法创建对话框：`CreateGenericDialogue()` 和 `CreateMenuDialogue()`
 
 ### 对话框基类 (BaseDialogue)
 
 - 所有对话框继承自 `BaseDialogue` 抽象类
-- 提供 `Close()` 方法关闭对话框
-- 在 `Dispose()` 时触发 `OnDisposing` 事件，由 `DialogueManager` 监听并清理当前对话框
+- 通过受保护的 `Close()` 方法关闭对话框，子类需要调用该方法而不是直接 `QueueFree()`
+- 在 `Close()` 时触发 `OnDisposing` 事件，由 `DialogueManager` 监听并清理当前对话框
 - 使用事件机制解耦对话框与管理器的依赖关系
 - 子类重写 `HandleInput()` 方法处理输入，由 `DialogueManager` 调用
 

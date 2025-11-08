@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.AutoLoad;
@@ -20,7 +21,7 @@ public partial class DialogueManager : Node
 	public static int GetDialogueCount() => instance.currentDialogue is null ? 0 : 1;
 	static void AddDialogue(BaseDialogue dialogue)
 	{
-		instance.ClearCurrentDialogue();
+		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
 		instance.currentDialogue = dialogue;
 		instance.AddChild(dialogue);
 		dialogue.OnDisposing += instance.OnDialogueDisposing;
@@ -41,13 +42,6 @@ public partial class DialogueManager : Node
 	{
 		if (currentDialogue != dialogue) return;
 		currentDialogue.OnDisposing -= OnDialogueDisposing;
-		currentDialogue = null;
-	}
-	void ClearCurrentDialogue()
-	{
-		if (currentDialogue is null) return;
-		currentDialogue.OnDisposing -= OnDialogueDisposing;
-		if (currentDialogue.IsInsideTree()) currentDialogue.QueueFree();
 		currentDialogue = null;
 	}
 }
