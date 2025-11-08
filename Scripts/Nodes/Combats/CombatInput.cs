@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
+using RealismCombat.Characters;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Nodes.Combats;
 public abstract class Action(Character actor)

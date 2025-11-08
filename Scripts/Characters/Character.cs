@@ -1,6 +1,5 @@
-using Godot;
-namespace RealismCombat.Nodes;
-public partial class Character : Node
+namespace RealismCombat.Characters;
+public class Character
 {
 	public readonly PropertyInt hp;
 	public readonly PropertyInt speed;
@@ -15,3 +14,4 @@ public partial class Character : Node
 		this.name = name;
 	}
 }
+

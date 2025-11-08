@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
+using RealismCombat.Characters;
 using RealismCombat.Extensions;
 namespace RealismCombat.Nodes.Combats;
 public partial class Combat : Node
