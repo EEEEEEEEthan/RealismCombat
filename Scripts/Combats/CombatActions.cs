@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
@@ -6,10 +7,7 @@ namespace RealismCombat.Combats;
 public abstract class CombatAction(Combat combat, Character actor, double precastActionPointCost, double postcastActionPointCost)
 {
 	public readonly Combat combat = combat;
-	public readonly double startTime = combat.Time;
 	protected readonly Character actor = actor;
-	double ElapsedTime => combat.Time - startTime;
-	double ElapsedActionPoints => ElapsedTime * actor.speed.value;
 	public async Task StartTask()
 	{
 		actor.actionPoint.value -= precastActionPointCost;
@@ -28,28 +26,21 @@ public abstract class CombatAction(Combat combat, Character actor, double precas
 	protected abstract Task OnStartTask();
 	protected abstract Task OnExecute();
 }
-public class Attack(Combat combat, Character actor, Character? target = null) : CombatAction(combat, actor, 3, 3)
+public class Attack(Combat combat, Character actor, Character target) : CombatAction(combat, actor, 3, 3)
 {
-	Character? selectedTarget = target;
-	public void SetTarget(Character target) => selectedTarget = target;
-	protected override async Task OnStartTask()
-	{
-		if (selectedTarget == null) return;
-		await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑!");
-	}
+	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
+	readonly Character selectedTarget = target;
+	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑!");
 	protected override async Task OnExecute()
 	{
-		var damage = (int)(GD.Randi() % 3u) + 1;
-		var newHp = selectedTarget.hp.value - damage;
-		if (newHp < 0) newHp = 0;
-		if (newHp > selectedTarget.hp.maxValue) newHp = selectedTarget.hp.maxValue;
-		selectedTarget.hp.value = newHp;
-		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{selectedTarget.name}!");
+		var target = selectedTarget;
+		var damage = CalculateDamage();
+		target.hp.value = Mathf.Clamp(target.hp.value - damage, 0, target.hp.maxValue);
+		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}!");
 		await dialogue.PrintDone;
-		dialogue.AddText($"{selectedTarget.name}受到了{damage}点伤害，剩余{selectedTarget.hp.value}/{selectedTarget.hp.maxValue}");
-		if (!selectedTarget.IsAlive) dialogue.AddText($"{selectedTarget.name}倒下了");
+		dialogue.AddText($"{target.name}受到了{damage}点伤害，剩余{target.hp.value}/{target.hp.maxValue}");
+		if (!target.IsAlive) dialogue.AddText($"{target.name}倒下了");
 		await dialogue;
-		actor.actionPoint.value -= 5;
-		if (actor.actionPoint.value < 0) actor.actionPoint.value = 0;
+		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
 	}
 }

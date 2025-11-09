@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -26,14 +27,8 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		await DialogueManager.CreateMenuDialogue(
 			new MenuOption { title = "攻击", description = "攻击敌人", }
 		);
-		var attack = new Attack(combat, character);
 		var aliveOpponents = GetAliveOpponents(character);
-		if (aliveOpponents.Length == 0) return attack;
-		if (aliveOpponents.Length == 1)
-		{
-			attack.SetTarget(aliveOpponents[0]);
-			return attack;
-		}
+		if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
 		var options = aliveOpponents
 			.Select(o => new MenuOption
 			{
@@ -43,17 +38,15 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			.ToArray();
 		var menu = DialogueManager.CreateMenuDialogue(options);
 		var selected = await menu;
-		attack.SetTarget(aliveOpponents[selected]);
-		return attack;
+		return new Attack(combat, character, aliveOpponents[selected]);
 	}
 }
 public class AIInput(Combat combat) : CombatInput(combat)
 {
 	public override Task<CombatAction> MakeDecisionTask(Character character)
 	{
-		var attack = new Attack(combat, character);
 		var target = GetRandomOpponent(character);
-		if (target != null) attack.SetTarget(target);
-		return Task.FromResult<CombatAction>(attack);
+		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
+		return Task.FromResult<CombatAction>(new Attack(combat, character, target));
 	}
 }
