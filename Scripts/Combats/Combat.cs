@@ -45,6 +45,7 @@ public class Combat
 				}
 				while (TryGetActor(out var actor))
 				{
+					Log.Print($"{actor.name}的回合!");
 					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
 					var action = await input.MakeDecisionTask(actor);
 					actor.combatAction = action;

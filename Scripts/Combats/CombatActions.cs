@@ -34,6 +34,7 @@ public class Attack(Character actor, Character target, Combat combat) : CombatAc
 	{
 		var damage = CalculateDamage();
 		target.hp.value = Mathf.Clamp(target.hp.value - damage, 0, target.hp.maxValue);
+		AudioManager.PlaySfx(ResourceTable.retroHurt1);
 		var node = combat.TryGetCharacterNode(target);
 		node?.Shake();
 		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}!");
