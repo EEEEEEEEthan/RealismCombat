@@ -1,9 +1,10 @@
-[gd_resource type="Theme" load_steps=15 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=19 format=3 uid="uid://bpxr1w3o076bd"]
 
 [ext_resource type="FontFile" uid="uid://cwaryh10sp0rr" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
 [ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
 [ext_resource type="FontFile" uid="uid://bepbhrp0yisid" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
 [ext_resource type="Texture2D" uid="uid://btyud6kopkj6b" path="res://Textures/UserInterface.png" id="2_k1aya"]
+[ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icon8.png" id="4_c6xh3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j4jqe"]
 atlas = ExtResource("2_k1aya")
@@ -61,6 +62,18 @@ texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 5.0
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c6xh3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iqtbs"]
+atlas = ExtResource("4_c6xh3")
+region = Rect2(3, 10, 2, 4)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7m1lf"]
+texture = SubResource("AtlasTexture_iqtbs")
+texture_margin_top = 1.0
+texture_margin_bottom = 1.0
+axis_stretch_horizontal = 1
+
 [resource]
 default_font = ExtResource("1_k1aya")
 default_font_size = 10
@@ -88,6 +101,8 @@ PanelContainer_Orange/base_type = &"PanelContainer"
 PanelContainer_Orange/styles/panel = SubResource("StyleBoxTexture_y2aw4")
 PanelContainer_Red/base_type = &"PanelContainer"
 PanelContainer_Red/styles/panel = SubResource("StyleBoxTexture_j4jqe")
+ProgressBar/styles/background = SubResource("StyleBoxEmpty_c6xh3")
+ProgressBar/styles/fill = SubResource("StyleBoxTexture_7m1lf")
 RichTextLabel_Small/base_type = &"RichTextLabel"
 RichTextLabel_Small/font_sizes/normal_font_size = 8
 RichTextLabel_Small/fonts/normal_font = ExtResource("2_23v3e")

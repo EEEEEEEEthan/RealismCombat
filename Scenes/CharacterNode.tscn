@@ -6,8 +6,8 @@
 [node name="CharacterNode" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 73.0
-offset_bottom = 67.0
+offset_right = 48.0
+offset_bottom = 39.0
 script = ExtResource("1_cptgj")
 
 [node name="Container" type="PanelContainer" parent="."]
@@ -32,3 +32,16 @@ text = "Ethan"
 
 [node name="Property" parent="Container/Mask" instance=ExtResource("2_lbkts")]
 layout_mode = 0
+offset_left = -1.0
+offset_top = 11.0
+offset_right = 35.0
+offset_bottom = 19.0
+Title = "头部"
+
+[node name="Property2" parent="Container/Mask" instance=ExtResource("2_lbkts")]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 20.0
+offset_right = 35.0
+offset_bottom = 28.0
+Title = "躯干"
