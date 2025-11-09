@@ -7,6 +7,7 @@ using RealismCombat.AutoLoad;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
+using RealismCombat.Nodes.Games;
 using FileAccess = System.IO.FileAccess;
 namespace RealismCombat.Nodes;
 public class Game
@@ -81,7 +82,7 @@ public class Game
 					case 0:
 					{
 						PackedScene combatNodeScene = ResourceTable.combatNodeScene;
-						var combatNode = combatNodeScene.Instantiate();
+						var combatNode = combatNodeScene.Instantiate<CombatNode>();
 						gameNode.AddChild(combatNode);
 						var combat = new Combat(
 							[new("Hero"),],

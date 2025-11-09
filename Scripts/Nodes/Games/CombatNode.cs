@@ -1,5 +1,6 @@
+using Godot;
 namespace RealismCombat.Nodes.Games;
-public class CombatNode
+public partial class CombatNode: Node
 {
 	
 }

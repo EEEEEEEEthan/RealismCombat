@@ -1,4 +1,5 @@
 using Godot;
+namespace RealismCombat.Nodes.Games;
 public partial class GameNode : Node
 {
 	// Called when the node enters the scene tree for the first time.

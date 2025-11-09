@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
 public class Combat
 {
@@ -14,7 +14,7 @@ public class Combat
 	public double Time { get; private set; }
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
-	public Combat(Character[] allies, Character[] enemies, Node combatNode)
+	public Combat(Character[] allies, Character[] enemies, CombatNode combatNode)
 	{
 		Allies = allies;
 		Enemies = enemies;
@@ -29,17 +29,9 @@ public class Combat
 		{
 			var dialogue = DialogueManager.CreateGenericDialogue("战斗开始了!");
 			await dialogue;
-			var ticks = 0;
 			while (true)
 			{
 				if (CheckBattleOutcome()) break;
-				++ticks;
-				if (ticks >= 32)
-				{
-					Log.Print("敌人逃走了，你胜利了");
-					taskCompletionSource.SetResult();
-					break;
-				}
 				foreach (var character in Allies.Union(Enemies).Where(c => c.IsAlive))
 				{
 					var action = character.combatAction;
