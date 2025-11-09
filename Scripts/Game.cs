@@ -9,7 +9,7 @@ using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
 using RealismCombat.Nodes.Games;
 using FileAccess = System.IO.FileAccess;
-namespace RealismCombat.Nodes;
+namespace RealismCombat;
 public class Game
 {
 	public record Snapshot
