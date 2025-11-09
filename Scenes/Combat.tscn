@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0ar0vjvme5k0"]
+
+[ext_resource type="PackedScene" uid="uid://bomncrbost0bs" path="res://Scenes/CharacterNode.tscn" id="1_885kv"]
+
+[node name="Combat" type="Node"]
+
+[node name="CharacterNode" parent="." instance=ExtResource("1_885kv")]

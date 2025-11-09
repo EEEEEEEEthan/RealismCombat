@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://sotmtihdfbbj"]
+
+[ext_resource type="Shader" uid="uid://chxpqta77s2p1" path="res://Scenes/jumping_property.gdshader" id="1_evdef"]
+[ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icon8.png" id="1_xqiat"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d657s"]
+shader = ExtResource("1_evdef")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ryr72"]
+atlas = ExtResource("1_xqiat")
+region = Rect2(4, 8, 2, 4)
+margin = Rect2(1, 1, 1, 2)
+
+[node name="Property" type="Control"]
+custom_minimum_size = Vector2(36, 8)
+layout_mode = 3
+anchors_preset = 0
+offset_top = 32.0
+offset_right = 36.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 16.0
+grow_vertical = 2
+theme_type_variation = &"Label_Small"
+text = "头部"
+
+[node name="TextureRect" type="NinePatchRect" parent="."]
+material = SubResource("ShaderMaterial_d657s")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 17.0
+offset_top = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_ryr72")
+region_rect = Rect2(1, 0, 2, 6)
+axis_stretch_horizontal = 1

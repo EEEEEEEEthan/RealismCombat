@@ -1,5 +1,6 @@
-[gd_resource type="Theme" load_steps=14 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=15 format=3 uid="uid://bpxr1w3o076bd"]
 
+[ext_resource type="FontFile" uid="uid://cwaryh10sp0rr" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
 [ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
 [ext_resource type="FontFile" uid="uid://bepbhrp0yisid" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
 [ext_resource type="Texture2D" uid="uid://btyud6kopkj6b" path="res://Textures/UserInterface.png" id="2_k1aya"]
@@ -64,6 +65,19 @@ texture_margin_bottom = 5.0
 default_font = ExtResource("1_k1aya")
 default_font_size = 10
 HBoxContainer/constants/separation = 0
+Label_Large/base_type = &"Label"
+Label_Large/font_sizes/font_size = 12
+Label_Large/fonts/font = ExtResource("1_j4jqe")
+Label_LargeWithShadow/base_type = &"Label"
+Label_LargeWithShadow/colors/font_shadow_color = Color(0, 0, 0, 1)
+Label_LargeWithShadow/constants/shadow_offset_x = 1
+Label_LargeWithShadow/constants/shadow_offset_y = 1
+Label_LargeWithShadow/constants/shadow_outline_size = 0
+Label_LargeWithShadow/font_sizes/font_size = 12
+Label_LargeWithShadow/fonts/font = ExtResource("1_j4jqe")
+Label_Small/base_type = &"Label"
+Label_Small/font_sizes/font_size = 8
+Label_Small/fonts/font = ExtResource("2_23v3e")
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer_Blue/base_type = &"PanelContainer"
@@ -77,7 +91,4 @@ PanelContainer_Red/styles/panel = SubResource("StyleBoxTexture_j4jqe")
 RichTextLabel_Small/base_type = &"RichTextLabel"
 RichTextLabel_Small/font_sizes/normal_font_size = 8
 RichTextLabel_Small/fonts/normal_font = ExtResource("2_23v3e")
-SmallLabel/base_type = &"Label"
-SmallLabel/font_sizes/font_size = 8
-SmallLabel/fonts/font = ExtResource("2_23v3e")
 VBoxContainer/constants/separation = 0
