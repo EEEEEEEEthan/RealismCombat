@@ -11,4 +11,6 @@ C表示细微问题,你可以直接处理
 [B]是否修改过`.McpServer`, `Dialogues`
 [B]新增或删掉的内容是否包含`McpRespond`
 
+AB类问题，如果有相关文档的条例，请引用一下指明出处
+
 如果没有以上问题,你直接执行[archive](archive.md)
