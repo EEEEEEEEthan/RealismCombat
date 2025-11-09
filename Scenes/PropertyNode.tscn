@@ -21,6 +21,8 @@ offset_bottom = 40.0
 theme_override_constants/separation = 1
 script = ExtResource("1_evdef")
 Title = "属性"
+Current = 6.18
+Max = 10.0
 
 [node name="Label" type="Label" parent="."]
 custom_minimum_size = Vector2(16, 8)

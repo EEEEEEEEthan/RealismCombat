@@ -4,7 +4,8 @@ namespace RealismCombat.Nodes.Games;
 public partial class PropertyNode : Node
 {
 	string title = null!;
-	(double current, double max) value;
+	double current;
+	double max;
 	Label? label;
 	ProgressBar? progressBar;
 	public Label Label => label ??= GetNode<Label>("Label");
@@ -21,10 +22,30 @@ public partial class PropertyNode : Node
 	}
 	public (double current, double max) Value
 	{
-		get => value;
+		get => (Current, Max);
 		set
 		{
-			this.value = value;
+			Max = value.max;
+			Current = value.current;
+		}
+	}
+	[Export]
+	double Current
+	{
+		get => current;
+		set
+		{
+			current = value;
+			UpdateValue();
+		}
+	}
+	[Export]
+	double Max
+	{
+		get => max;
+		set
+		{
+			max = value;
 			UpdateValue();
 		}
 	}
@@ -37,7 +58,7 @@ public partial class PropertyNode : Node
 	void UpdateTitle() => Label.Text = title;
 	void UpdateValue()
 	{
-		ProgressBar.MaxValue = value.max;
-		ProgressBar.Value = value.current;
+		ProgressBar.MaxValue = Max;
+		ProgressBar.Value = Current;
 	}
 }
