@@ -10,6 +10,7 @@ public class Combat
 {
 	readonly PlayerInput playerInput;
 	readonly AIInput aiInput;
+	readonly CombatNode combatNode;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	public double Time { get; private set; }
 	internal Character[] Allies { get; }
@@ -18,12 +19,14 @@ public class Combat
 	{
 		Allies = allies;
 		Enemies = enemies;
+		this.combatNode = combatNode;
 		combatNode.Initialize(Allies, Enemies);
 		playerInput = new(this);
 		aiInput = new(this);
 		StartLoop();
 	}
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
+	public CharacterNode? TryGetCharacterNode(Character character) => combatNode.TryGetCharacterNode(character);
 	async void StartLoop()
 	{
 		try

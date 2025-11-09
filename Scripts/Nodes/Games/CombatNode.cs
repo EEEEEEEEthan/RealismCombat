@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using RealismCombat.Characters;
 namespace RealismCombat.Nodes.Games;
@@ -8,6 +9,7 @@ public partial class CombatNode : Node
 		PackedScene scene = ResourceTable.characterNodeScene;
 		return scene.Instantiate<CharacterNode>();
 	}
+	readonly Dictionary<Character, CharacterNode> characterNodes = new();
 	VBoxContainer? playerTeamContainer;
 	VBoxContainer? enemyTeamContainer;
 	VBoxContainer PlayerTeamContainer => playerTeamContainer ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
@@ -16,7 +18,23 @@ public partial class CombatNode : Node
 	{
 		foreach (var child in PlayerTeamContainer.GetChildren()) child.QueueFree();
 		foreach (var child in EnemyTeamContainer.GetChildren()) child.QueueFree();
-		foreach (var _ in allies) PlayerTeamContainer.AddChild(CreateCharacterNode());
-		foreach (var _ in enemies) EnemyTeamContainer.AddChild(CreateCharacterNode());
+		characterNodes.Clear();
+		foreach (var character in allies)
+		{
+			var node = CreateCharacterNode();
+			PlayerTeamContainer.AddChild(node);
+			characterNodes[character] = node;
+		}
+		foreach (var character in enemies)
+		{
+			var node = CreateCharacterNode();
+			EnemyTeamContainer.AddChild(node);
+			characterNodes[character] = node;
+		}
+	}
+	public CharacterNode? TryGetCharacterNode(Character character)
+	{
+		if (characterNodes.TryGetValue(character, out var node)) return node;
+		return null;
 	}
 }

@@ -8,6 +8,7 @@ using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Combats;
 public abstract class CombatInput(Combat combat)
 {
+	protected Combat CurrentCombat => combat;
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
 	protected Character[] GetOpponents(Character character) => combat.Allies.Contains(character) ? combat.Enemies : combat.Allies;
 	protected Character[] GetAliveOpponents(Character character) => GetOpponents(character).Where(c => c.IsAlive).ToArray();
@@ -38,7 +39,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			.ToArray();
 		var menu = DialogueManager.CreateMenuDialogue(options);
 		var selected = await menu;
-		return new Attack(character, aliveOpponents[selected]);
+		return new Attack(character, aliveOpponents[selected], CurrentCombat);
 	}
 }
 public class AIInput(Combat combat) : CombatInput(combat)
@@ -47,6 +48,6 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	{
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
-		return Task.FromResult<CombatAction>(new Attack(character, target));
+		return Task.FromResult<CombatAction>(new Attack(character, target, CurrentCombat));
 	}
 }

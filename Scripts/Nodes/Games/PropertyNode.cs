@@ -55,10 +55,10 @@ public partial class PropertyNode : Node
 		UpdateTitle();
 		UpdateValue();
 	}
-	void UpdateTitle() => Label.Text = title;
+	void UpdateTitle() => Label?.Text = title;
 	void UpdateValue()
 	{
-		ProgressBar.MaxValue = Max;
-		ProgressBar.Value = Current;
+		ProgressBar?.MaxValue = Max;
+		ProgressBar?.Value = Current;
 	}
 }

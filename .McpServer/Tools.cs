@@ -80,7 +80,7 @@ static class DebugTools
 		}
 		try
 		{
-			var response = await SystemTools.Client.SendCommand("debug_get_scene_tree", 3000);
+			var response = await SystemTools.Client.SendCommand("debug_get_scene_tree", 10000);
 			builder.AppendLine(response);
 			return builder.ToString();
 		}
@@ -127,7 +127,7 @@ static class GameTools
 		try
 		{
 			var sanitizedName = name.Replace(" ", string.Empty);
-			var response = await SystemTools.Client.SendCommand($"game_select_option id {id} name {sanitizedName}", 3000);
+			var response = await SystemTools.Client.SendCommand($"game_select_option id {id} name {sanitizedName}", 30000);
 			builder.AppendLine(response);
 			return builder.ToString();
 		}
