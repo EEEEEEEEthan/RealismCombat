@@ -3,7 +3,7 @@ using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 namespace RealismCombat.Combats;
-public abstract class CombatAction(Combat combat, Character actor, double ap1, double ap2)
+public abstract class CombatAction(Combat combat, Character actor, double precastActionPointCost, double postcastActionPointCost)
 {
 	public readonly Combat combat = combat;
 	public readonly double startTime = combat.Time;
@@ -12,14 +12,14 @@ public abstract class CombatAction(Combat combat, Character actor, double ap1, d
 	double ElapsedActionPoints => ElapsedTime * actor.speed.value;
 	public async Task StartTask()
 	{
-		actor.actionPoint.value -= ap1;
+		actor.actionPoint.value -= precastActionPointCost;
 		await OnStartTask();
 	}
 	public async Task<bool> UpdateTask()
 	{
 		if (actor.actionPoint.value >= actor.actionPoint.maxValue)
 		{
-			actor.actionPoint.value -= ap2;
+			actor.actionPoint.value -= postcastActionPointCost;
 			await OnExecute();
 			return false;
 		}
