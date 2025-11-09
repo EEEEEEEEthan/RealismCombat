@@ -56,8 +56,18 @@ public partial class ProgramRoot : Node
 		{
 			case 0:
 			{
-				var game = new Game(file);
-				await game;
+				PackedScene gameNodeScene = ResourceTable.gameNodeScene;
+				var gameNode = gameNodeScene.Instantiate();
+				AddChild(gameNode);
+				var game = new Game(file, gameNode);
+				try
+				{
+					await game;
+				}
+				finally
+				{
+					gameNode.QueueFree();
+				}
 				break;
 			}
 			case 1:
@@ -70,8 +80,18 @@ public partial class ProgramRoot : Node
 				}
 				await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
 				using var reader = new BinaryReader(stream);
-				var game = new Game(file, reader);
-				await game;
+				PackedScene gameNodeScene = ResourceTable.gameNodeScene;
+				var gameNode = gameNodeScene.Instantiate();
+				AddChild(gameNode);
+				var game = new Game(file, reader, gameNode);
+				try
+				{
+					await game;
+				}
+				finally
+				{
+					gameNode.QueueFree();
+				}
 				break;
 			}
 			case 2:

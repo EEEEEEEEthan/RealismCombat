@@ -18,6 +18,8 @@ public static class ResourceTable
 	public static readonly Loader<AudioStream> retroClick = new("res://Audios/retro-click-236673.mp3");
 	public static readonly Loader<AudioStream> retroHurt1 = new("res://Audios/retro-hurt-1-236672.mp3");
 	public static readonly Loader<AudioStream> selection3 = new("res://Audios/selection3.wav");
+	public static readonly Loader<PackedScene> gameNodeScene = new("res://Scenes/GameNode.tscn");
+	public static readonly Loader<PackedScene> combatNodeScene = new("res://Scenes/CombatNode.tscn");
 }
 public static class SpriteTable
 {

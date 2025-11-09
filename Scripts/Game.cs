@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
@@ -29,13 +30,14 @@ public class Game
 			}
 		}
 	}
-	readonly string saveFilePath;
+	readonly string saveFilePath = string.Empty;
 	readonly TaskCompletionSource taskCompletionSource = new();
+	readonly Node gameNode;
 	/// <summary>
 	///     新游戏
 	/// </summary>
 	/// <param name="saveFilePath"></param>
-	public Game(string saveFilePath) : this()
+	public Game(string saveFilePath, Node gameNode) : this(gameNode)
 	{
 		this.saveFilePath = saveFilePath;
 		StartGameLoop();
@@ -45,13 +47,13 @@ public class Game
 	/// </summary>
 	/// <param name="saveFilePath"></param>
 	/// <param name="reader"></param>
-	public Game(string saveFilePath, BinaryReader reader) : this()
+	public Game(string saveFilePath, BinaryReader reader, Node gameNode) : this(gameNode)
 	{
 		this.saveFilePath = saveFilePath;
 		_ = new Snapshot(reader);
 		StartGameLoop();
 	}
-	Game() { }
+	Game(Node gameNode) => this.gameNode = gameNode;
 	public Snapshot GetSnapshot() => new(this);
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	void Save()
@@ -78,11 +80,22 @@ public class Game
 				{
 					case 0:
 					{
+						PackedScene combatNodeScene = ResourceTable.combatNodeScene;
+						var combatNode = combatNodeScene.Instantiate();
+						gameNode.AddChild(combatNode);
 						var combat = new Combat(
 							[new("Hero"),],
-							[new("Goblin"),]
+							[new("Goblin"),],
+							combatNode
 						);
-						await combat;
+						try
+						{
+							await combat;
+						}
+						finally
+						{
+							combatNode.QueueFree();
+						}
 						break;
 					}
 					case 1:

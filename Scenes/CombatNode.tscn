@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://c0ar0vjvme5k0"]
+[gd_scene load_steps=2 format=3 uid="uid://c0ar0vjvme5k0"]
+
+[ext_resource type="Script" uid="uid://crhvllmmeetue" path="res://Scripts/Nodes/Games/CombatNode.cs" id="1_f422j"]
 
 [node name="Combat" type="Node"]
 
@@ -29,3 +31,4 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
+script = ExtResource("1_f422j")

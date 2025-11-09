@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 namespace RealismCombat.Combats;
@@ -13,7 +14,7 @@ public class Combat
 	public double Time { get; private set; }
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
-	public Combat(Character[] allies, Character[] enemies)
+	public Combat(Character[] allies, Character[] enemies, Node combatNode)
 	{
 		Allies = allies;
 		Enemies = enemies;
@@ -64,6 +65,7 @@ public class Combat
 		catch (Exception e)
 		{
 			Log.PrintException(e);
+			taskCompletionSource.TrySetResult();
 		}
 	}
 	bool TryGetActor(out Character actor)

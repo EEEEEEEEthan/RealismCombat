@@ -13,7 +13,7 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("1_cptgj")
 
-[node name="Container" type="PanelContainer" parent="."]
+[node name="RootContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,18 +22,18 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"PanelContainer_Gray"
 
-[node name="Mask" type="Control" parent="Container"]
+[node name="Mask" type="Control" parent="RootContainer"]
 clip_contents = true
 layout_mode = 2
 
-[node name="Name" type="Label" parent="Container/Mask"]
+[node name="Name" type="Label" parent="RootContainer/Mask"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 10.0
 theme_type_variation = &"Label_LargeWithShadow"
 text = "Ethan"
 
-[node name="Property" parent="Container/Mask" instance=ExtResource("2_lbkts")]
+[node name="Property" parent="RootContainer/Mask" instance=ExtResource("2_lbkts")]
 layout_mode = 0
 offset_left = -1.0
 offset_top = 11.0
@@ -42,7 +42,7 @@ offset_bottom = 19.0
 Title = "头部"
 Current = 10.0
 
-[node name="Property2" parent="Container/Mask" instance=ExtResource("2_lbkts")]
+[node name="Property2" parent="RootContainer/Mask" instance=ExtResource("2_lbkts")]
 layout_mode = 0
 offset_left = -1.0
 offset_top = 20.0
