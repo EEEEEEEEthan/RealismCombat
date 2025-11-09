@@ -1,16 +1,16 @@
 using System.IO;
 using RealismCombat.Extensions;
 namespace RealismCombat;
-public class PropertySingle
+public class PropertyDouble
 {
-	public float value;
-	public float maxValue;
-	public PropertySingle(float value, float maxValue)
+	public double value;
+	public double maxValue;
+	public PropertyDouble(double value, double maxValue)
 	{
 		this.value = value;
 		this.maxValue = maxValue;
 	}
-	public PropertySingle(BinaryReader reader)
+	public PropertyDouble(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{

@@ -11,12 +11,14 @@ public partial class DialogueManager : Node
 	static DialogueManager instance = null!;
 	public static GenericDialogue CreateGenericDialogue(params string[] initialTexts)
 	{
+		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
 		var dialogue = new GenericDialogue(initialTexts);
 		AddDialogue(dialogue);
 		return dialogue;
 	}
 	public static MenuDialogue CreateMenuDialogue(params MenuOption[] options)
 	{
+		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
 		var dialogue = new MenuDialogue(options);
 		AddDialogue(dialogue);
 		return dialogue;
@@ -25,11 +27,9 @@ public partial class DialogueManager : Node
 	public static int GetDialogueCount() => instance.currentDialogue is null ? 0 : 1;
 	static void AddDialogue(BaseDialogue dialogue)
 	{
-		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
 		instance.currentDialogue = dialogue;
 		instance.AddChild(dialogue);
 		dialogue.OnClosed += instance.DialogueClosed;
-		Log.Print($"[DialogueManager] 添加Dialogue: {dialogue.GetType().Name}, 当前堆栈大小: {GetDialogueCount()}");
 	}
 	BaseDialogue? currentDialogue;
 	public override void _Ready()

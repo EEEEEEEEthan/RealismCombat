@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using RealismCombat.Combats;
 using RealismCombat.Extensions;
 namespace RealismCombat.Characters;
 public class Character
 {
 	[Obsolete] public readonly PropertyInt hp;
 	public readonly PropertyInt speed;
-	public readonly PropertySingle actionPoint;
+	public readonly PropertyDouble actionPoint;
 	public readonly string name;
 	public readonly BodyPart head;
 	public readonly BodyPart leftArm;
@@ -16,6 +17,7 @@ public class Character
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
 	public IReadOnlyList<BodyPart> bodyParts;
+	public CombatAction? combatAction;
 	public bool IsAlive => hp.value > 0;
 	public Character(string name)
 	{

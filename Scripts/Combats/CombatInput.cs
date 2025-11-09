@@ -5,33 +5,6 @@ using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 using RealismCombat.Nodes.Dialogues;
 namespace RealismCombat.Combats;
-public abstract class CombatAction(Character actor)
-{
-	protected readonly Character actor = actor;
-	public abstract Task ExecuteTask();
-}
-public class Attack(Character actor, Character? target = null) : CombatAction(actor)
-{
-	Character? selectedTarget = target;
-	public void SetTarget(Character target) => selectedTarget = target;
-	public override async Task ExecuteTask()
-	{
-		if (selectedTarget == null) return;
-		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}发起攻击!");
-		await dialogue.PrintDone;
-		var damage = (int)(GD.Randi() % 3u) + 1;
-		var newHp = selectedTarget.hp.value - damage;
-		if (newHp < 0) newHp = 0;
-		if (newHp > selectedTarget.hp.maxValue) newHp = selectedTarget.hp.maxValue;
-		selectedTarget.hp.value = newHp;
-		dialogue.AddText($"{selectedTarget.name}受到了{damage}点伤害，剩余{selectedTarget.hp.value}/{selectedTarget.hp.maxValue}");
-		if (!selectedTarget.IsAlive) dialogue.AddText($"{selectedTarget.name}倒下了");
-		dialogue.AddText($"{actor.name}消耗了5行动力");
-		await dialogue;
-		actor.actionPoint.value -= 5;
-		if (actor.actionPoint.value < 0) actor.actionPoint.value = 0;
-	}
-}
 public abstract class CombatInput(Combat combat)
 {
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
@@ -53,7 +26,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		await DialogueManager.CreateMenuDialogue(
 			new MenuOption { title = "攻击", description = "攻击敌人", }
 		);
-		var attack = new Attack(character);
+		var attack = new Attack(combat, character);
 		var aliveOpponents = GetAliveOpponents(character);
 		if (aliveOpponents.Length == 0) return attack;
 		if (aliveOpponents.Length == 1)
@@ -78,7 +51,7 @@ public class AIInput(Combat combat) : CombatInput(combat)
 {
 	public override Task<CombatAction> MakeDecisionTask(Character character)
 	{
-		var attack = new Attack(character);
+		var attack = new Attack(combat, character);
 		var target = GetRandomOpponent(character);
 		if (target != null) attack.SetTarget(target);
 		return Task.FromResult<CombatAction>(attack);
