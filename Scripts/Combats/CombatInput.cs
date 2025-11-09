@@ -38,7 +38,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			.ToArray();
 		var menu = DialogueManager.CreateMenuDialogue(options);
 		var selected = await menu;
-		return new Attack(combat, character, aliveOpponents[selected]);
+		return new Attack(character, aliveOpponents[selected]);
 	}
 }
 public class AIInput(Combat combat) : CombatInput(combat)
@@ -47,6 +47,6 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	{
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
-		return Task.FromResult<CombatAction>(new Attack(combat, character, target));
+		return Task.FromResult<CombatAction>(new Attack(character, target));
 	}
 }

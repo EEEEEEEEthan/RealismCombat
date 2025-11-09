@@ -4,20 +4,19 @@ using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 namespace RealismCombat.Combats;
-public abstract class CombatAction(Combat combat, Character actor, double precastActionPointCost, double postcastActionPointCost)
+public abstract class CombatAction(Character actor, double preCastActionPointCost, double postCastActionPointCost)
 {
-	public readonly Combat combat = combat;
 	protected readonly Character actor = actor;
 	public async Task StartTask()
 	{
-		actor.actionPoint.value -= precastActionPointCost;
+		actor.actionPoint.value -= preCastActionPointCost;
 		await OnStartTask();
 	}
 	public async Task<bool> UpdateTask()
 	{
 		if (actor.actionPoint.value >= actor.actionPoint.maxValue)
 		{
-			actor.actionPoint.value -= postcastActionPointCost;
+			actor.actionPoint.value -= postCastActionPointCost;
 			await OnExecute();
 			return false;
 		}
@@ -26,14 +25,12 @@ public abstract class CombatAction(Combat combat, Character actor, double precas
 	protected abstract Task OnStartTask();
 	protected abstract Task OnExecute();
 }
-public class Attack(Combat combat, Character actor, Character target) : CombatAction(combat, actor, 3, 3)
+public class Attack(Character actor, Character target) : CombatAction(actor, 3, 3)
 {
 	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
-	readonly Character selectedTarget = target;
 	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑!");
 	protected override async Task OnExecute()
 	{
-		var target = selectedTarget;
 		var damage = CalculateDamage();
 		target.hp.value = Mathf.Clamp(target.hp.value - damage, 0, target.hp.maxValue);
 		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}!");
