@@ -18,6 +18,7 @@ public class Combat
 	{
 		Allies = allies;
 		Enemies = enemies;
+		combatNode.Initialize(Allies, Enemies);
 		playerInput = new(this);
 		aiInput = new(this);
 		StartLoop();

@@ -20,6 +20,7 @@ public static class ResourceTable
 	public static readonly Loader<AudioStream> selection3 = new("res://Audios/selection3.wav");
 	public static readonly Loader<PackedScene> gameNodeScene = new("res://Scenes/GameNode.tscn");
 	public static readonly Loader<PackedScene> combatNodeScene = new("res://Scenes/CombatNode.tscn");
+	public static readonly Loader<PackedScene> characterNodeScene = new("res://Scenes/CharacterNode.tscn");
 }
 public static class SpriteTable
 {

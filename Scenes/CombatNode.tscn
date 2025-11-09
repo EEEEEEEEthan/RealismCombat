@@ -5,7 +5,7 @@
 [node name="Combat" type="Node"]
 script = ExtResource("1_f422j")
 
-[node name="Control" type="Control" parent="."]
+[node name="SafeArea" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,7 +14,7 @@ offset_bottom = -95.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PlayerTeamContainer" type="VBoxContainer" parent="Control"]
+[node name="PlayerTeamContainer" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,7 +23,7 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="EnemyTeamContainer" type="VBoxContainer" parent="Control"]
+[node name="EnemyTeamContainer" type="VBoxContainer" parent="SafeArea"]
 layout_direction = 3
 layout_mode = 1
 anchors_preset = 15
