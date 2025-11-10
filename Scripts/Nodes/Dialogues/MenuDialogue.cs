@@ -15,12 +15,15 @@ public partial class MenuDialogue : BaseDialogue
 	readonly List<MenuOption> options = [];
 	readonly List<Label> optionLabels = [];
 	readonly TaskCompletionSource<int> taskCompletionSource = new();
+	readonly bool allowEscapeReturn;
+	readonly int returnOptionIndex = -1;
 	Container optionContainer;
 	Control optionIndexer;
 	Printer printer;
 	int currentIndex = -1;
-	public MenuDialogue(IEnumerable<MenuOption> initialOptions)
+	public MenuDialogue(IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn)
 	{
+		this.allowEscapeReturn = allowEscapeReturn;
 		var marginContainer = new MarginContainer();
 		marginContainer.Name = "MarginContainer";
 		AddChild(marginContainer);
@@ -65,13 +68,31 @@ public partial class MenuDialogue : BaseDialogue
 			optionLabels.Add(label);
 			Log.Print($"{options.Count - 1} - {option.title} {option.description}");
 		}
-		Select(0);
+		if (allowEscapeReturn)
+		{
+			returnOptionIndex = options.Count;
+			var returnOption = new MenuOption
+			{
+				title = "返回",
+				description = string.Empty,
+			};
+			options.Add(returnOption);
+			var returnLabel = new Label
+			{
+				Text = returnOption.title,
+			};
+			optionContainer.AddChild(returnLabel);
+			optionLabels.Add(returnLabel);
+			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
+		}
+		if (options.Count > 0) Select(0);
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
 		Ready += UpdateIndexer;
 		ItemRectChanged += UpdateIndexer;
 	}
-	MenuDialogue() : this([]) { }
+	public MenuDialogue(IEnumerable<MenuOption> initialOptions) : this(initialOptions, false) { }
+	MenuDialogue() : this([], false) { }
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public void SelectAndConfirm(int index)
 	{
@@ -102,10 +123,18 @@ public partial class MenuDialogue : BaseDialogue
 			Close();
 			taskCompletionSource.TrySetResult(index);
 		}
+		else if (allowEscapeReturn && @event.IsActionPressed("ui_cancel"))
+		{
+			GetViewport().SetInputAsHandled();
+			var index = returnOptionIndex;
+			Close();
+			taskCompletionSource.TrySetResult(index);
+		}
 	}
 	void Select(int index)
 	{
 		if (currentIndex == index) return;
+		if (index < 0 || index >= options.Count) return;
 		currentIndex = index;
 		printer.Text = options[currentIndex].description;
 		printer.VisibleCharacters = 0;
@@ -113,6 +142,7 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	void UpdateIndexer()
 	{
+		if (currentIndex < 0 || currentIndex >= optionLabels.Count) return;
 		var selectedLabel = optionLabels[currentIndex];
 		optionIndexer.GlobalPosition = new(
 			optionIndexer.GlobalPosition.X,
