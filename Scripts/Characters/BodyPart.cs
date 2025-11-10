@@ -17,15 +17,14 @@ public enum BodyPartCode
 public class BodyPart : ICombatTarget
 {
 	public readonly BodyPartCode id;
-	public readonly PropertyInt hp;
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
-	public bool IsTargetAlive => hp.value > 0;
+	public bool IsTargetAlive => HitPoint.value > 0;
 	/// <summary>
 	///     目标的生命值属性
 	/// </summary>
-	public PropertyInt HitPoint => hp;
+	public PropertyInt HitPoint { get; }
 	/// <summary>
 	///     目标在日志或界面上的名称
 	/// </summary>
@@ -34,14 +33,14 @@ public class BodyPart : ICombatTarget
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
-		hp = new(10, 10);
+		HitPoint = new(10, 10);
 	}
 	public BodyPart(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{
 			id = (BodyPartCode)reader.ReadInt32();
-			hp = new(reader);
+			HitPoint = new(reader);
 		}
 	}
 	public void Serialize(BinaryWriter writer)
@@ -49,7 +48,7 @@ public class BodyPart : ICombatTarget
 		using (writer.WriteScope())
 		{
 			writer.Write((int)id);
-			hp.Serialize(writer);
+			HitPoint.Serialize(writer);
 		}
 	}
 }

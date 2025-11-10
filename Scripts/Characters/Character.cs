@@ -64,8 +64,8 @@ public class Character
 		var max = 0;
 		foreach (var bodyPart in bodyParts)
 		{
-			total += bodyPart.hp.value;
-			max += bodyPart.hp.maxValue;
+			total += bodyPart.HitPoint.value;
+			max += bodyPart.HitPoint.maxValue;
 		}
 		return (total, max);
 	}
