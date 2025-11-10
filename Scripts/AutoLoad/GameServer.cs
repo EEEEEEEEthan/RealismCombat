@@ -79,7 +79,6 @@ public sealed partial class GameServer : Node
 	{
 		if (disposed) return;
 		disposed = true;
-		Log.Print("[GameServer] 开始快速释放服务器资源");
 		try
 		{
 			cancellationTokenSource?.Cancel();
@@ -98,7 +97,6 @@ public sealed partial class GameServer : Node
 			Log.PrintException(ex);
 		}
 		logListener?.TryDispose();
-		Log.Print("[GameServer] 服务器资源释放完成");
 		instance = null;
 	}
 	bool SendResponseInternal()
@@ -211,7 +209,6 @@ public sealed partial class GameServer : Node
 		writer = null;
 		stream = null;
 		client = null;
-		Log.Print("[GameServer] 客户端连接已关闭");
 		OnDisconnectedInternal?.Invoke();
 	}
 }
