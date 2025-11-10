@@ -2,80 +2,65 @@
 
 ## 设计原则
 
-- 所有 UI 组件均在构造函数中通过代码创建节点结构，不依赖场景文件
-- 使用 `[Tool, GlobalClass]` 属性使组件可在编辑器中使用
-- 这种方式提供更好的代码控制和类型安全
+- 所有 UI 组件均在构造函数中通过代码创建节点结构，不依赖场景文件，方便重构与测试
+- 使用 `[Tool, GlobalClass]` 属性，使组件能够在编辑器和运行时复用
+- 节点层级、主题、样式全部以代码维护，保持版本控制可追踪性
 
 ## 对话框管理 (DialogueManager)
 
-`DialogueManager` 作为 Godot AutoLoad 单例提供统一的对话框管理：
-- 位于 `Scripts/AutoLoad/` 目录
-- 在 `project.godot` 中配置为自动加载单例，游戏启动时自动初始化
-- 始终只维护一个当前对话框，如在已有对话框时尝试创建新对话框会立刻抛出异常
-- **统一管理输入**：在 `_Input()` 方法中接收所有输入事件，并分发给当前对话框处理
-- 通过工厂方法创建对话框：`CreateGenericDialogue()` 和 `CreateMenuDialogue()`
+- Godot AutoLoad 单例，位于 `Scripts/AutoLoad/`
+- `_Ready()` 时记录初始化日志，方便确认加载顺序
+- 始终只维护一个活动对话框；若已有对话框仍存在，创建新对话框会抛出异常
+- `_Input()` 统一接收输入事件，并将事件传递给当前对话框的 `HandleInput()` 实现
+- 提供工厂方法：
+  - `CreateGenericDialogue(params string[])`
+  - `CreateMenuDialogue(params MenuOption[])`
+  - `CreateMenuDialogue(bool allowEscapeReturn, params MenuOption[])`
+- `GetTopDialogue()` 与 `GetDialogueCount()` 可用来查询当前栈状态，供调试或自动化使用
+
+### 菜单选项结构 (MenuOption)
+
+- `MenuOption` 是一个结构体，包含 `title` 与 `description`
+- `MenuDialogue` 使用标题渲染选项列表，同时将描述交给 `Printer` 显示详细信息
+- 允许按需构造数组或使用集合，便于动态菜单
 
 ### 对话框基类 (BaseDialogue)
 
-- 所有对话框继承自 `BaseDialogue` 抽象类
-- 通过受保护的 `Close()` 方法关闭对话框，子类需要调用该方法而不是直接 `QueueFree()`
-- 在 `Close()` 时触发 `OnDisposing` 事件，由 `DialogueManager` 监听并清理当前对话框
-- 使用事件机制解耦对话框与管理器的依赖关系
-- 子类重写 `HandleInput()` 方法处理输入，由 `DialogueManager` 调用
+- 继承自 `PanelContainer`，构造函数中设置锚点与最小尺寸，统一摆放在屏幕底部
+- 通过事件 `OnClosed` 通知 `DialogueManager` 当前对话框已关闭，避免重复释放
+- `Close()` 负责触发事件并调用 `QueueFree()`；子类不得直接释放节点，必须走该方法
+- 实现 `DialogueManager.IDialogue` 接口，将输入处理抽象为 `HandleInput()`
 
 ## 文字打印机 (Printer)
 
-`Printer` 组件继承自 `RichTextLabel`，提供逐字打印效果：
-- 支持可配置的打印间隔
-- 提供 `Printing` 属性用于查询是否正在打印
-- 打字音效通过 `AudioManager` 播放
+- 继承 `RichTextLabel`，提供逐字打印效果，默认间隔 `0.1f`
+- `Printing` 属性指示是否仍在打印中，可用于控制动画或音效
+- `interval` 与 `enableTypingSound` 以 `[Export]` 暴露，可在编辑器调试
+- 当 `AudioManager` 尚未初始化时，会创建内部 `AudioStreamPlayer` 播放 `ResourceTable.typingSound`
+- 每帧根据 `interval` 自动递增 `VisibleCharacters`，输入长按时可将间隔降为零实现快进
 
 ## 通用对话框 (GenericDialogue)
 
-`GenericDialogue` 组件提供通用的对话框功能：
-- 继承自 `BaseDialogue`，通过 `DialogueManager.CreateGenericDialogue()` 创建
-- 在构造函数中创建完整的节点层级结构
-- 支持多段文本的追加显示（新文本追加到现有文本之后）
-- 使用 `Printer` 组件实现打字机效果
-- 显示向下箭头图标指示玩家可以继续（闪烁效果）
-- 玩家按键后追加显示下一段文本
-- 长按任意键可加速文本显示（将打印间隔设为0）
+- 使用 `Printer` 加一个向下箭头图标构成 UI
+- `AddText()` 支持逐段追加文本，新文本会追加至现有内容末尾
+- `PrintDone` 任务在一组文本打印完毕后完成，可与战斗动画同步
+- `TryNext()` 按顺序推进每一段文本
+- 长按按键时会将 `Printer.interval` 设为 `0`，实现快速跳过
+- 当 `LaunchArgs.port` 存在时会自动跳过玩家输入，方便自动化测试持续推进
 
 ## 菜单对话框 (MenuDialogue)
 
-`MenuDialogue` 组件提供交互式菜单功能：
-- 继承自 `BaseDialogue`，通过 `DialogueManager.CreateMenuDialogue()` 创建
-- `CreateMenuDialogue(bool allowEscapeReturn, params MenuOption[] options)` 支持传入 `allowEscapeReturn`，为 `true` 时自动追加“返回”选项并处理 `ui_cancel`
-- 在构造函数中创建完整的节点层级结构（选项容器、描述文本、箭头指示器）
-- 支持动态添加和清除选项（`AddOption`、`ClearOptions`）
-- 使用上下方向键在选项间循环导航
-- 使用 `Printer` 组件显示当前选项的描述文本
-- 三角箭头指示器自动对齐到当前选中的选项
-- 支持为每个选项绑定点击回调函数
+- 构造函数搭建选项列表、描述区域与指示箭头
+- 支持 `allowEscapeReturn`，为真时自动追加“返回”选项并响应 `ui_cancel`
+- 通过 `TaskCompletionSource<int>` 实现等待器，`await menu` 可直接获取选中的索引
+- `Select(int index)` 会更新指示箭头位置，同时将对应描述传给 `Printer`
+- `SelectAndConfirm(int index)` 用于 MCP 指令快速选择并确认
+- 自动调用 `GameServer.McpCheckpoint()` 提示外部当前等待状态
 
 ## 异步等待机制
 
-对话框和游戏节点支持通过 `await` 等待用户交互完成：
-
-### GameNode
-
-- 基础可等待节点类，继承自 `Node`
-- 使用 `TaskCompletionSource` 实现异步等待
-- 提供 `SetResult()`、`SetException()`、`SetCanceled()` 方法控制完成状态
-- 提供 `Reset()` 方法重置状态以便重复使用
-
-### MenuDialogue 异步等待
-
-- 可通过 `await` 等待用户选择，返回选中的选项下标 (int)
-- 用户按下 `ui_accept` 时自动完成等待并返回当前选中的下标
-- 当 `allowEscapeReturn` 为 `true` 时，“返回”选项和 `ui_cancel` 会返回追加选项的下标，调用方需据此判断是否回退
-- 支持反复等待：每次 `await` 时会自动检测并重置已完成的状态
-- 无需手动调用 `Reset()` 即可多次等待同一个菜单
-
-### GenericDialogue 异步等待
-
-- 可通过 `await` 等待用户看完所有文本，返回 bool
-- 用户看完所有文本后按键时自动完成等待
-- 提供 `SetResult()` 方法手动完成等待
-- 提供 `Reset()` 方法重置状态以便重复使用
+- 对话框通过实现自定义等待器，允许直接 `await dialogue`
+- `MenuDialogue`、`GenericDialogue` 都会在完成后重置内部状态，允许重复使用
+- `Game`、`Combat` 等业务流程围绕 `await` 语法构建，从而保持代码线性可读
+- `DialogueManager` 与 `GameServer` 协作，使玩家输入与 MCP 自动化共用同一等待逻辑
 

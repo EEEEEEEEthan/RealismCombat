@@ -40,12 +40,12 @@
 ## 角色与属性
 
 - `Character` 包含：
-  - `PropertyInt hp`：角色总生命，实时汇总所有身体部位的生命值
+  - `PropertyInt hp`：角色总生命值，与身体部位独立维护
   - `PropertyInt speed`：行动点回复速度
   - `PropertyDouble actionPoint`：当前与最大行动点
   - 六个 `BodyPart`，每个都实现 `ICombatTarget`
 - `BodyPart` 维护独立生命值，用于位置化伤害表现；`GetName()` 提供中文显示名称
-- `IsAlive` 基于身体部位存活状态判断，只有全部部位失去战斗能力才会倒下
+- `IsAlive` 基于 `hp.value` 判断，只有总生命降为 0 才会倒下
 - 所有属性支持二进制序列化，使用 `ReadScope()`、`WriteScope()` 确保数据长度正确
 - `combatAction` 字段指向当前行动，用于战斗循环更新
 
