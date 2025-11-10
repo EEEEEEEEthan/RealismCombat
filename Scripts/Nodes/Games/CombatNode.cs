@@ -22,16 +22,16 @@ public partial class CombatNode : Node
 		foreach (var character in allies)
 		{
 			var node = CreateCharacterNode();
-			node.SetTeamTheme(false);
-			node.SetCharacterName(character.name);
+			node.IsEnemyTheme = false;
+			node.CharacterName = character.name;
 			PlayerTeamContainer.AddChild(node);
 			characterNodes[character] = node;
 		}
 		foreach (var character in enemies)
 		{
 			var node = CreateCharacterNode();
-			node.SetTeamTheme(true);
-			node.SetCharacterName(character.name);
+			node.IsEnemyTheme = true;
+			node.CharacterName = character.name;
 			EnemyTeamContainer.AddChild(node);
 			characterNodes[character] = node;
 		}

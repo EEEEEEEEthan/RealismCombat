@@ -5,11 +5,32 @@ public partial class CharacterNode : Control
 	const float MoveDuration = 0.2f;
 	const float ShakeDistance = 8f;
 	const float ShakeStepDuration = 0.02f;
+	static readonly StringName enemyThemeName = new("PanelContainer_Orange");
+	static readonly StringName allyThemeName = new("PanelContainer_Blue");
+	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
+	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
+	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
 	Control? moveAnchor;
 	Container? rootContainer;
 	Label? nameLabel;
 	Tween? moveTween;
 	Tween? shakeTween;
+	/// <summary>
+	///     获取或设置当前阵营对应的主题。
+	/// </summary>
+	public bool IsEnemyTheme
+	{
+		get => RootContainer.ThemeTypeVariation == enemyThemeName;
+		set => RootContainer.ThemeTypeVariation = value ? enemyThemeName : allyThemeName;
+	}
+	/// <summary>
+	///     获取或设置角色名字。
+	/// </summary>
+	public string CharacterName
+	{
+		get => NameLabel.Text;
+		set => NameLabel.Text = value;
+	}
 	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
 	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
 	Label NameLabel => nameLabel ??= GetNode<Label>("MoveAnchor/RootContainer/Mask/Name");
@@ -21,8 +42,7 @@ public partial class CharacterNode : Control
 		moveTween?.Kill();
 		if (MoveAnchor.GlobalPosition == globalPosition) return;
 		moveTween = MoveAnchor.CreateTween();
-		moveTween.SetTrans(Tween.TransitionType.Cubic);
-		moveTween.SetEase(Tween.EaseType.Out);
+		ConfigureTween(moveTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
 		moveTween.TweenProperty(MoveAnchor, "global_position", globalPosition, MoveDuration);
 	}
 	/// <summary>
@@ -33,22 +53,11 @@ public partial class CharacterNode : Control
 		shakeTween?.Kill();
 		RootContainer.Position = Vector2.Zero;
 		shakeTween = RootContainer.CreateTween();
-		shakeTween.SetTrans(Tween.TransitionType.Sine);
-		shakeTween.SetEase(Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", new Vector2(-ShakeDistance, 0f), ShakeStepDuration);
-		shakeTween.SetTrans(Tween.TransitionType.Sine);
-		shakeTween.SetEase(Tween.EaseType.InOut);
-		shakeTween.TweenProperty(RootContainer, "position", new Vector2(ShakeDistance, 0f), ShakeStepDuration * 2f);
-		shakeTween.SetTrans(Tween.TransitionType.Sine);
-		shakeTween.SetEase(Tween.EaseType.Out);
+		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
+		shakeTween.TweenProperty(RootContainer, "position", shakeLeftOffset, ShakeStepDuration);
+		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
+		shakeTween.TweenProperty(RootContainer, "position", shakeRightOffset, ShakeStepDuration * 2f);
+		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
 		shakeTween.TweenProperty(RootContainer, "position", Vector2.Zero, ShakeStepDuration);
 	}
-	/// <summary>
-	///     根据阵营更新RootContainer的主题变体。
-	/// </summary>
-	public void SetTeamTheme(bool isEnemy) => RootContainer.ThemeTypeVariation = isEnemy ? new("PanelContainer_Orange") : new StringName("PanelContainer_Blue");
-	/// <summary>
-	///     设置角色名字。
-	/// </summary>
-	public void SetCharacterName(string characterName) => NameLabel.Text = characterName;
 }

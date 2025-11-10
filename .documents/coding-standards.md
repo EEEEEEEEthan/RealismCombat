@@ -35,5 +35,9 @@ var player = new AudioStreamPlayer()
     Name = "BgmPlayer",
     Bus = "Master",
 };
+
+## 代码风格补充
+
+- 能通过属性表达的场景尽量使用属性，不再额外编写等价的方法，保持 API 简洁一致。
 ```
 
