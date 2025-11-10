@@ -36,9 +36,9 @@ public class Attack(Character actor, Character target, Combat combat) : CombatAc
 		target.hp.value = Mathf.Clamp(target.hp.value - damage, 0, target.hp.maxValue);
 		AudioManager.PlaySfx(ResourceTable.retroHurt1);
 		var node = combat.TryGetCharacterNode(target);
-		node?.Shake();
 		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}!");
 		await dialogue.PrintDone;
+		node?.Shake();
 		dialogue.AddText($"{target.name}受到了{damage}点伤害，剩余{target.hp.value}/{target.hp.maxValue}");
 		if (!target.IsAlive) dialogue.AddText($"{target.name}倒下了");
 		await dialogue;
