@@ -7,10 +7,12 @@ public partial class CharacterNode : Control
 	const float ShakeStepDuration = 0.02f;
 	Control? moveAnchor;
 	Container? rootContainer;
+	Label? nameLabel;
 	Tween? moveTween;
 	Tween? shakeTween;
 	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
 	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
+	Label NameLabel => nameLabel ??= GetNode<Label>("MoveAnchor/RootContainer/Mask/Name");
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
 	/// </summary>
@@ -45,4 +47,8 @@ public partial class CharacterNode : Control
 	///     根据阵营更新RootContainer的主题变体。
 	/// </summary>
 	public void SetTeamTheme(bool isEnemy) => RootContainer.ThemeTypeVariation = isEnemy ? new("PanelContainer_Orange") : new StringName("PanelContainer_Blue");
+	/// <summary>
+	///     设置角色名字。
+	/// </summary>
+	public void SetCharacterName(string characterName) => NameLabel.Text = characterName;
 }

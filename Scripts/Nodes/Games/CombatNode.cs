@@ -23,6 +23,7 @@ public partial class CombatNode : Node
 		{
 			var node = CreateCharacterNode();
 			node.SetTeamTheme(false);
+			node.SetCharacterName(character.name);
 			PlayerTeamContainer.AddChild(node);
 			characterNodes[character] = node;
 		}
@@ -30,6 +31,7 @@ public partial class CombatNode : Node
 		{
 			var node = CreateCharacterNode();
 			node.SetTeamTheme(true);
+			node.SetCharacterName(character.name);
 			EnemyTeamContainer.AddChild(node);
 			characterNodes[character] = node;
 		}
