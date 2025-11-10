@@ -40,7 +40,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					return new MenuOption
 					{
 						title = o.name,
-						description = $"生命 {hitPointValue}/{hitPointMax}",
+						description = string.Empty,
 					};
 				})
 				.ToArray();
