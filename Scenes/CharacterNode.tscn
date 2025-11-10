@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://bomncrbost0bs"]
+[gd_scene load_steps=6 format=3 uid="uid://bomncrbost0bs"]
 
 [ext_resource type="Script" uid="uid://odhuswpi1sfq" path="res://Scripts/Nodes/Games/CharacterNode.cs" id="1_cptgj"]
+[ext_resource type="Texture2D" uid="uid://deojwkp2su4eb" path="res://Textures/AnimationBleeding.png" id="2_lbkts"]
+[ext_resource type="Script" uid="uid://o7cl2qro50b6" path="res://Scripts/Nodes/Games/BleedingNode.cs" id="3_ryr72"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tb6ij"]
+atlas = ExtResource("2_lbkts")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ryr72"]
+atlas = ExtResource("2_lbkts")
+region = Rect2(128, 0, 16, 16)
 
 [node name="CharacterNode" type="Control"]
 custom_minimum_size = Vector2(50, 39)
@@ -36,3 +46,38 @@ offset_bottom = 40.0
 layout_mode = 2
 theme_type_variation = &"Label_LargeWithShadow"
 text = "Ethan"
+
+[node name="Control" type="Control" parent="MoveAnchor/RootContainer"]
+layout_mode = 2
+
+[node name="BleedingNode" type="TextureRect" parent="MoveAnchor/RootContainer/Control"]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_right = 10.0
+offset_bottom = 16.0
+grow_vertical = 0
+texture = SubResource("AtlasTexture_tb6ij")
+script = ExtResource("3_ryr72")
+metadata/_custom_type_script = "uid://o7cl2qro50b6"
+
+[node name="BleedingNode2" type="TextureRect" parent="MoveAnchor/RootContainer/Control"]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_right = 6.0
+offset_bottom = 16.0
+grow_horizontal = 0
+grow_vertical = 0
+texture = SubResource("AtlasTexture_ryr72")
+flip_h = true
+script = ExtResource("3_ryr72")
+metadata/_custom_type_script = "uid://o7cl2qro50b6"
