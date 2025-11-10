@@ -1,4 +1,5 @@
 using Godot;
+using RealismCombat.Characters;
 namespace RealismCombat.Nodes.Games;
 public partial class CharacterNode : Control
 {
@@ -10,9 +11,12 @@ public partial class CharacterNode : Control
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
+	Character? character;
 	Control? moveAnchor;
 	Container? rootContainer;
 	Label? nameLabel;
+	PropertyNode? actionPointNode;
+	PropertyNode? hitPointNode;
 	Tween? moveTween;
 	Tween? shakeTween;
 	/// <summary>
@@ -24,16 +28,23 @@ public partial class CharacterNode : Control
 		set => RootContainer.ThemeTypeVariation = value ? enemyThemeName : allyThemeName;
 	}
 	/// <summary>
-	///     获取或设置角色名字。
+	///     绑定角色。
 	/// </summary>
-	public string CharacterName
+	public Character? BindCharacter
 	{
-		get => NameLabel.Text;
-		set => NameLabel.Text = value;
+		get => character;
+		set
+		{
+			character = value;
+			if (value is null) return;
+			NameLabel.Text = value.name;
+		}
 	}
 	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
 	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
 	Label NameLabel => nameLabel ??= GetNode<Label>("MoveAnchor/RootContainer/Mask/Name");
+	PropertyNode ActionPointNode => actionPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/ActionPoint");
+	PropertyNode HitPointNode => hitPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/HitPointOverview");
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
 	/// </summary>
@@ -59,5 +70,16 @@ public partial class CharacterNode : Control
 		shakeTween.TweenProperty(RootContainer, "position", shakeRightOffset, ShakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
 		shakeTween.TweenProperty(RootContainer, "position", Vector2.Zero, ShakeStepDuration);
+	}
+	public override void _Process(double delta)
+	{
+		base._Process(delta);
+		if (character is null) return;
+		var actionPoint = character.actionPoint;
+#pragma warning disable CS0612
+		var hp = character.hp;
+#pragma warning restore CS0612
+		ActionPointNode.Value = (actionPoint.value, actionPoint.maxValue);
+		HitPointNode.Value = (hp.value, hp.maxValue);
 	}
 }

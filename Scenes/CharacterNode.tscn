@@ -15,6 +15,7 @@ script = ExtResource("1_cptgj")
 
 [node name="MoveAnchor" type="Control" parent="."]
 layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
@@ -38,19 +39,19 @@ offset_bottom = 10.0
 theme_type_variation = &"Label_LargeWithShadow"
 text = "Ethan"
 
-[node name="Property" parent="MoveAnchor/RootContainer/Mask" instance=ExtResource("2_lbkts")]
+[node name="ActionPoint" parent="MoveAnchor/RootContainer/Mask" instance=ExtResource("2_lbkts")]
 layout_mode = 0
 offset_left = -1.0
 offset_top = 11.0
 offset_right = 35.0
 offset_bottom = 19.0
-Title = "头部"
+Title = "行动"
 Current = 10.0
 
-[node name="Property2" parent="MoveAnchor/RootContainer/Mask" instance=ExtResource("2_lbkts")]
+[node name="HitPointOverview" parent="MoveAnchor/RootContainer/Mask" instance=ExtResource("2_lbkts")]
 layout_mode = 0
 offset_left = -1.0
 offset_top = 20.0
 offset_right = 35.0
 offset_bottom = 28.0
-Title = "躯干"
+Title = "生命"
