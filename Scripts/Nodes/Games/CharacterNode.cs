@@ -59,6 +59,7 @@ public partial class CharacterNode : Control
 				ApplyExpandedSizeImmediate();
 			else
 				ApplyExpandedSizeAnimated();
+			UpdateOverviewVisibility();
 		}
 	}
 	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
@@ -84,6 +85,7 @@ public partial class CharacterNode : Control
 		rightLegHitPointNode = GetOrCreatePropertyNode("RightLegHitPoint", "右腿");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
+		UpdateOverviewVisibility();
 	}
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
@@ -174,4 +176,9 @@ public partial class CharacterNode : Control
 		if (!rootContainerBasePositionInitialized) UpdateRootContainerBasePosition();
 		return rootContainerBasePosition;
 	}
+	/// <summary>
+	///     根据展开状态更新Overview（总生命值）的可见性。
+	///     展开时隐藏Overview，折叠时显示Overview。
+	/// </summary>
+	void UpdateOverviewVisibility() => hitPointNode?.Visible = !expanded;
 }

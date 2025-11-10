@@ -1,7 +1,7 @@
 using Godot;
 namespace RealismCombat.Nodes.Games;
 [Tool]
-public partial class PropertyNode : Node
+public partial class PropertyNode : Control
 {
 	const string JumpShaderSource = """
 		shader_type canvas_item;
