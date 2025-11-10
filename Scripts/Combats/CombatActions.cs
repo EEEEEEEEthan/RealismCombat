@@ -34,7 +34,7 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 	{
 		var damage = CalculateDamage();
 		combatTarget.HitPoint.value = Mathf.Clamp(combatTarget.HitPoint.value - damage, 0, combatTarget.HitPoint.maxValue);
-		target.hp.value = Mathf.Clamp(target.hp.value - damage, 0, target.hp.maxValue);
+		target.SyncHitPointFromBodyParts();
 		var node = combat.TryGetCharacterNode(target);
 		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.TargetName}!");
 		await dialogue.PrintDone;

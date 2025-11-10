@@ -18,11 +18,19 @@ public class Character
 	public readonly BodyPart rightLeg;
 	public IReadOnlyList<BodyPart> bodyParts;
 	public CombatAction? combatAction;
-	public bool IsAlive => hp.value > 0;
+	public bool IsAlive
+	{
+		get
+		{
+			foreach (var part in bodyParts)
+				if (part.IsTargetAlive)
+					return true;
+			return false;
+		}
+	}
 	public Character(string name)
 	{
 		this.name = name;
-		hp = new(10, 10);
 		speed = new(5, 5);
 		actionPoint = new(0f, 10f);
 		bodyParts =
@@ -34,6 +42,8 @@ public class Character
 			leftLeg = new(BodyPartCode.LeftLeg),
 			rightLeg = new(BodyPartCode.RightLeg),
 		];
+		hp = new(0, 0);
+		SyncHitPointFromBodyParts();
 	}
 	public Character(BinaryReader reader)
 	{
@@ -47,6 +57,7 @@ public class Character
 			[
 				head = new(reader), leftArm = new(reader), rightArm = new(reader), torso = new(reader), leftLeg = new(reader), rightLeg = new(reader),
 			];
+			SyncHitPointFromBodyParts();
 		}
 	}
 	public void Serialize(BinaryWriter writer)
@@ -59,5 +70,20 @@ public class Character
 			actionPoint.Serialize(writer);
 			foreach (var bodyPart in bodyParts) bodyPart.Serialize(writer);
 		}
+	}
+	/// <summary>
+	///     同步角色血量至各身体部位的总和。
+	/// </summary>
+	public void SyncHitPointFromBodyParts()
+	{
+		var total = 0;
+		var max = 0;
+		foreach (var bodyPart in bodyParts)
+		{
+			total += bodyPart.hp.value;
+			max += bodyPart.hp.maxValue;
+		}
+		hp.value = total;
+		hp.maxValue = max;
 	}
 }
