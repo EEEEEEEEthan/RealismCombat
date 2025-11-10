@@ -14,6 +14,7 @@ public partial class GenericDialogue : BaseDialogue
 	TextureRect icon;
 	VBoxContainer container;
 	double time;
+	bool keyDown;
 	public Task PrintDone => (tcsPrintDone ??= new()).Task;
 	public GenericDialogue(IEnumerable<string> initialTexts)
 	{
@@ -48,7 +49,7 @@ public partial class GenericDialogue : BaseDialogue
 	public GenericDialogue() : this([]) { }
 	public override void _Process(double delta)
 	{
-		if (Input.IsAnythingPressed())
+		if (keyDown && Input.IsAnythingPressed())
 			printer.interval = 0;
 		else
 			printer.interval = 0.1f;
@@ -85,12 +86,16 @@ public partial class GenericDialogue : BaseDialogue
 	public TaskAwaiter GetAwaiter() => tcsDestroyed.Task.GetAwaiter();
 	protected override void HandleInput(InputEvent @event)
 	{
-		if (@event.IsPressed() && !@event.IsEcho()) TryNext();
+		if (@event.IsPressed() && !@event.IsEcho())
+			if (TryNext())
+				keyDown = false;
+			else
+				keyDown = true;
 	}
-	void TryNext()
+	bool TryNext()
 	{
-		if (currentTextIndex < 0) return;
-		if (printer.Printing) return;
+		if (currentTextIndex < 0) return false;
+		if (printer.Printing) return false;
 		currentTextIndex++;
 		if (currentTextIndex < texts.Count)
 		{
@@ -111,7 +116,7 @@ public partial class GenericDialogue : BaseDialogue
 				tcsDestroyed.SetResult();
 			}
 		}
-		return;
+		return true;
 		void printNext()
 		{
 			var txt = texts[currentTextIndex];
