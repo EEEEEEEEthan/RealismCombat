@@ -18,16 +18,7 @@ public class Character
 	public readonly BodyPart rightLeg;
 	public IReadOnlyList<BodyPart> bodyParts;
 	public CombatAction? combatAction;
-	public bool IsAlive
-	{
-		get
-		{
-			foreach (var part in bodyParts)
-				if (part.IsTargetAlive)
-					return true;
-			return false;
-		}
-	}
+	public bool IsAlive => head.IsTargetAlive || torso.IsTargetAlive;
 	public Character(string name)
 	{
 		this.name = name;
