@@ -8,8 +8,8 @@ public partial class PropertyNode : Node
 	double max;
 	Label? label;
 	ProgressBar? progressBar;
-	public Label Label => label ??= GetNode<Label>("Label");
-	public ProgressBar ProgressBar => progressBar ??= GetNode<ProgressBar>("ProgressBar");
+	public Label Label => label ??= GetNodeOrNull<Label>("Label");
+	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	[Export]
 	public string Title
 	{

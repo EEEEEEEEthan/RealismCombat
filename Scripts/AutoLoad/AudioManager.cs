@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 namespace RealismCombat.AutoLoad;
 /// <summary>
@@ -17,7 +18,20 @@ public partial class AudioManager : Node
 	/// <summary>
 	///     检查音效是否正在播放
 	/// </summary>
-	public static bool IsSfxPlaying => instance?.sfxPlayer?.Playing ?? false;
+	public static bool IsSfxPlaying
+	{
+		get
+		{
+			if (instance == null) return false;
+			if (instance.sfxPlayer != null && instance.sfxPlayer.Playing) return true;
+			foreach (var player in instance.activeSfxPlayers)
+			{
+				if (!GodotObject.IsInstanceValid(player)) continue;
+				if (player.Playing) return true;
+			}
+			return false;
+		}
+	}
 	/// <summary>
 	///     播放背景音乐
 	/// </summary>
@@ -56,14 +70,39 @@ public partial class AudioManager : Node
 	/// <param name="volumeDb">音量（分贝）</param>
 	public static void PlaySfx(AudioStream stream, float volumeDb = 0f)
 	{
-		if (instance?.sfxPlayer == null)
+		var manager = instance;
+		if (manager == null)
 		{
 			Log.PrintError("[AudioManager] 音效播放器未初始化");
 			return;
 		}
-		instance.sfxPlayer.Stream = stream;
-		instance.sfxPlayer.VolumeDb = volumeDb;
-		instance.sfxPlayer.Play();
+		if (manager.sfxPlayer != null && !manager.sfxPlayer.Playing)
+		{
+			manager.sfxPlayer.Stream = stream;
+			manager.primarySfxBaseVolume = volumeDb;
+			manager.sfxPlayer.VolumeDb = manager.ResolveSfxVolume(manager.primarySfxBaseVolume);
+			manager.sfxPlayer.Play();
+			return;
+		}
+		var extraPlayer = new AudioStreamPlayer
+		{
+			Stream = stream,
+			VolumeDb = manager.ResolveSfxVolume(volumeDb),
+			Bus = manager.sfxPlayer?.Bus ?? "Master",
+		};
+		manager.AddChild(extraPlayer);
+		manager.activeSfxPlayers.Add(extraPlayer);
+		manager.extraSfxBaseVolumes[extraPlayer] = volumeDb;
+		void OnFinished()
+		{
+			extraPlayer.Finished -= OnFinished;
+			manager.activeSfxPlayers.Remove(extraPlayer);
+			manager.extraSfxBaseVolumes.Remove(extraPlayer);
+			if (!GodotObject.IsInstanceValid(extraPlayer)) return;
+			extraPlayer.QueueFree();
+		}
+		extraPlayer.Finished += OnFinished;
+		extraPlayer.Play();
 	}
 	/// <summary>
 	///     设置BGM音量
@@ -84,15 +123,27 @@ public partial class AudioManager : Node
 	/// <param name="volumeDb">音量（分贝）</param>
 	public static void SetSfxVolume(float volumeDb)
 	{
-		if (instance?.sfxPlayer == null)
+		var manager = instance;
+		if (manager == null)
 		{
 			Log.PrintError("[AudioManager] 音效播放器未初始化");
 			return;
 		}
-		instance.sfxPlayer.VolumeDb = volumeDb;
+		manager.sfxVolumeDb = volumeDb;
+		if (manager.sfxPlayer != null) manager.sfxPlayer.VolumeDb = manager.ResolveSfxVolume(manager.primarySfxBaseVolume);
+		foreach (var player in manager.activeSfxPlayers)
+		{
+			if (!GodotObject.IsInstanceValid(player)) continue;
+			if (!manager.extraSfxBaseVolumes.TryGetValue(player, out var baseVolume)) baseVolume = 0f;
+			player.VolumeDb = manager.ResolveSfxVolume(baseVolume);
+		}
 	}
+	readonly List<AudioStreamPlayer> activeSfxPlayers = new();
+	readonly Dictionary<AudioStreamPlayer, float> extraSfxBaseVolumes = new();
 	AudioStreamPlayer? bgmPlayer;
 	AudioStreamPlayer? sfxPlayer;
+	float sfxVolumeDb;
+	float primarySfxBaseVolume;
 	public override void _Ready()
 	{
 		if (instance != null)
@@ -114,10 +165,23 @@ public partial class AudioManager : Node
 			Bus = "Master",
 		};
 		AddChild(sfxPlayer);
+		sfxVolumeDb = 0f;
 		Log.Print("[AudioManager] 音频管理器初始化完成");
 	}
 	public override void _ExitTree()
 	{
-		if (instance == this) instance = null;
+		if (instance == this)
+		{
+			foreach (var player in activeSfxPlayers)
+			{
+				if (!GodotObject.IsInstanceValid(player)) continue;
+				player.Stop();
+				player.QueueFree();
+			}
+			activeSfxPlayers.Clear();
+			extraSfxBaseVolumes.Clear();
+			instance = null;
+		}
 	}
+	float ResolveSfxVolume(float volumeDb) => volumeDb + sfxVolumeDb;
 }
