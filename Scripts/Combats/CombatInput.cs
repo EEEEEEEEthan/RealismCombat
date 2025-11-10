@@ -20,6 +20,7 @@ public abstract class CombatInput(Combat combat)
 		var index = (int)(randomValue % (uint)alive.Length);
 		return alive[index];
 	}
+	protected ICombatTarget[] GetAliveTargets(Character character) => character.bodyParts.Where(part => part.IsTargetAlive).Cast<ICombatTarget>().ToArray();
 }
 public class PlayerInput(Combat combat) : CombatInput(combat)
 {
@@ -39,7 +40,19 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			.ToArray();
 		var menu = DialogueManager.CreateMenuDialogue(options);
 		var selected = await menu;
-		return new Attack(character, aliveOpponents[selected], CurrentCombat);
+		var selectedOpponent = aliveOpponents[selected];
+		var aliveTargets = GetAliveTargets(selectedOpponent);
+		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+		var targetOptions = aliveTargets
+			.Select(o => new MenuOption
+			{
+				title = $"{selectedOpponent.name}的{o.TargetName}",
+				description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
+			})
+			.ToArray();
+		var targetMenu = DialogueManager.CreateMenuDialogue(targetOptions);
+		var targetIndex = await targetMenu;
+		return new Attack(character, selectedOpponent, aliveTargets[targetIndex], CurrentCombat);
 	}
 }
 public class AIInput(Combat combat) : CombatInput(combat)
@@ -48,6 +61,10 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	{
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
-		return Task.FromResult<CombatAction>(new Attack(character, target, CurrentCombat));
+		var aliveTargets = GetAliveTargets(target);
+		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+		var randomValue = GD.Randi();
+		var index = (int)(randomValue % (uint)aliveTargets.Length);
+		return Task.FromResult<CombatAction>(new Attack(character, target, aliveTargets[index], CurrentCombat));
 	}
 }
