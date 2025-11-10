@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using RealismCombat.Characters;
+using RealismCombat.Combats;
 namespace RealismCombat.Nodes.Games;
 public partial class CombatNode : Node
 {
@@ -14,24 +15,24 @@ public partial class CombatNode : Node
 	VBoxContainer? enemyTeamContainer;
 	VBoxContainer PlayerTeamContainer => playerTeamContainer ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
 	VBoxContainer EnemyTeamContainer => enemyTeamContainer ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
-	public void Initialize(Character[] allies, Character[] enemies)
+	public void Initialize(Combat combat)
 	{
 		foreach (var child in PlayerTeamContainer.GetChildren()) child.QueueFree();
 		foreach (var child in EnemyTeamContainer.GetChildren()) child.QueueFree();
 		characterNodes.Clear();
-		foreach (var character in allies)
+		foreach (var character in combat.Allies)
 		{
 			var node = CreateCharacterNode();
 			node.IsEnemyTheme = false;
-			node.BindCharacter = character;
+			node.Initialize(combat, character);
 			PlayerTeamContainer.AddChild(node);
 			characterNodes[character] = node;
 		}
-		foreach (var character in enemies)
+		foreach (var character in combat.Enemies)
 		{
 			var node = CreateCharacterNode();
 			node.IsEnemyTheme = true;
-			node.BindCharacter = character;
+			node.Initialize(combat, character);
 			EnemyTeamContainer.AddChild(node);
 			characterNodes[character] = node;
 		}

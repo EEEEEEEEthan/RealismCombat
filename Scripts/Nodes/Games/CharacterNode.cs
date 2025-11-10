@@ -1,5 +1,6 @@
 using Godot;
 using RealismCombat.Characters;
+using RealismCombat.Combats;
 namespace RealismCombat.Nodes.Games;
 [Tool]
 public partial class CharacterNode : Control
@@ -27,6 +28,7 @@ public partial class CharacterNode : Control
 	Vector2 rootContainerBasePosition;
 	bool rootContainerBasePositionInitialized;
 	bool expanded;
+	Combat combat;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
@@ -52,24 +54,17 @@ public partial class CharacterNode : Control
 				ApplyExpandedSizeAnimated();
 		}
 	}
-	/// <summary>
-	///     绑定角色。
-	/// </summary>
-	public Character? BindCharacter
-	{
-		get => character;
-		set
-		{
-			character = value;
-			if (value is null) return;
-			NameLabel.Text = value.name;
-		}
-	}
 	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
 	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
 	Label NameLabel => nameLabel ??= GetNode<Label>("MoveAnchor/RootContainer/Mask/Name");
 	PropertyNode ActionPointNode => actionPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/ActionPoint");
 	PropertyNode HitPointNode => hitPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/HitPointOverview");
+	public void Initialize(Combat combat, Character value)
+	{
+		character = value;
+		NameLabel.Text = value.name;
+		this.combat = combat;
+	}
 	public override void _Ready()
 	{
 		base._Ready();
@@ -111,7 +106,7 @@ public partial class CharacterNode : Control
 		var hasCombatAction = character.combatAction != null;
 		var actionPointValue = hasCombatAction ? actionPoint.maxValue : actionPoint.value;
 		ActionPointNode.Value = (actionPointValue, actionPoint.maxValue);
-		ActionPointNode.Jump = hasCombatAction;
+		ActionPointNode.Jump = hasCombatAction || combat.Considering == character;
 		var headHitPoint = character.head.HitPoint;
 		var torsoHitPoint = character.torso.HitPoint;
 		var headRatio = headHitPoint.maxValue > 0 ? headHitPoint.value / (double)headHitPoint.maxValue : 0d;

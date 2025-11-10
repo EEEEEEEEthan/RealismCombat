@@ -13,6 +13,7 @@ public class Combat
 	readonly CombatNode combatNode;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	public double Time { get; private set; }
+	public Character? Considering { get; private set; }
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
 	public Combat(Character[] allies, Character[] enemies, CombatNode combatNode)
@@ -20,7 +21,7 @@ public class Combat
 		Allies = allies;
 		Enemies = enemies;
 		this.combatNode = combatNode;
-		combatNode.Initialize(Allies, Enemies);
+		combatNode.Initialize(this);
 		playerInput = new(this);
 		aiInput = new(this);
 		StartLoop();
@@ -47,7 +48,9 @@ public class Combat
 				{
 					Log.Print($"{actor.name}的回合!");
 					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
+					Considering = actor;
 					var action = await input.MakeDecisionTask(actor);
+					Considering = null;
 					actor.combatAction = action;
 					await action.StartTask();
 					if (CheckBattleOutcome()) break;
