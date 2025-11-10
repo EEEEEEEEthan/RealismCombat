@@ -4,7 +4,7 @@ public partial class CharacterNode : Control
 {
 	const float MoveDuration = 0.2f;
 	const float ShakeDistance = 8f;
-	const float ShakeStepDuration = 0.05f;
+	const float ShakeStepDuration = 0.02f;
 	Control? moveAnchor;
 	Container? rootContainer;
 	Tween? moveTween;
@@ -41,4 +41,8 @@ public partial class CharacterNode : Control
 		shakeTween.SetEase(Tween.EaseType.Out);
 		shakeTween.TweenProperty(RootContainer, "position", Vector2.Zero, ShakeStepDuration);
 	}
+	/// <summary>
+	///     根据阵营更新RootContainer的主题变体。
+	/// </summary>
+	public void SetTeamTheme(bool isEnemy) => RootContainer.ThemeTypeVariation = isEnemy ? new("PanelContainer_Orange") : new StringName("PanelContainer_Blue");
 }
