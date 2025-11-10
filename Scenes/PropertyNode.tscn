@@ -1,11 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://sotmtihdfbbj"]
+[gd_scene load_steps=2 format=3 uid="uid://sotmtihdfbbj"]
 
 [ext_resource type="Script" uid="uid://cpn1k86l6kwwj" path="res://Scripts/Nodes/Games/PropertyNode.cs" id="1_evdef"]
-[ext_resource type="Shader" uid="uid://b5w6efxqdv1lp" path="res://Shaders/progress_bar_bounce.gdshader" id="2_z9c4v"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_evdef"]
-shader = ExtResource("2_z9c4v")
-shader_parameter/interval = 0.150000007125
 
 [node name="PropertyNode" type="HBoxContainer"]
 custom_minimum_size = Vector2(36, 8)
@@ -25,7 +20,6 @@ theme_type_variation = &"Label_Small"
 text = "属性"
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
-material = SubResource("ShaderMaterial_evdef")
 custom_minimum_size = Vector2(19, 6)
 layout_mode = 2
 size_flags_vertical = 4
