@@ -8,10 +8,10 @@ public partial class BleedingNode : TextureRect
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
-		time += delta;
-		if (time > 0.2)
+		time -= delta;
+		if (time <=0)
 		{
-			time = 0;
+			time = GD.Randf() * 0.3;
 			index++;
 			Texture = SpriteTable.bleeding[index % SpriteTable.bleeding.Count];
 		}
@@ -19,6 +19,10 @@ public partial class BleedingNode : TextureRect
 	public override void _Ready()
 	{
 		base._Ready();
-		VisibilityChanged += () => index = 0;
+		VisibilityChanged += () =>
+		{
+			index = 0;
+			time = GD.Randf() * 0.3;
+		};
 	}
 }
