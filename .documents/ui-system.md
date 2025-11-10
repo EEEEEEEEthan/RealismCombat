@@ -45,6 +45,7 @@
 
 `MenuDialogue` 组件提供交互式菜单功能：
 - 继承自 `BaseDialogue`，通过 `DialogueManager.CreateMenuDialogue()` 创建
+- `CreateMenuDialogue(bool allowEscapeReturn, params MenuOption[] options)` 支持传入 `allowEscapeReturn`，为 `true` 时自动追加“返回”选项并处理 `ui_cancel`
 - 在构造函数中创建完整的节点层级结构（选项容器、描述文本、箭头指示器）
 - 支持动态添加和清除选项（`AddOption`、`ClearOptions`）
 - 使用上下方向键在选项间循环导航
@@ -67,6 +68,7 @@
 
 - 可通过 `await` 等待用户选择，返回选中的选项下标 (int)
 - 用户按下 `ui_accept` 时自动完成等待并返回当前选中的下标
+- 当 `allowEscapeReturn` 为 `true` 时，“返回”选项和 `ui_cancel` 会返回追加选项的下标，调用方需据此判断是否回退
 - 支持反复等待：每次 `await` 时会自动检测并重置已完成的状态
 - 无需手动调用 `Reset()` 即可多次等待同一个菜单
 
