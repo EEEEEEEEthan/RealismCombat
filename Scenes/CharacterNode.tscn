@@ -3,11 +3,11 @@
 [ext_resource type="Script" uid="uid://odhuswpi1sfq" path="res://Scripts/Nodes/Games/CharacterNode.cs" id="1_cptgj"]
 
 [node name="CharacterNode" type="Control"]
-custom_minimum_size = Vector2(50, 40)
+custom_minimum_size = Vector2(50, 39)
 layout_mode = 3
 anchors_preset = 0
 offset_right = 50.0
-offset_bottom = 40.0
+offset_bottom = 39.0
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("1_cptgj")
@@ -17,13 +17,13 @@ layout_mode = 1
 anchors_preset = 0
 
 [node name="RootContainer" type="PanelContainer" parent="MoveAnchor"]
-custom_minimum_size = Vector2(50, 40)
+custom_minimum_size = Vector2(50, 39)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 50.0
-offset_bottom = 40.0
+offset_bottom = 39.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"PanelContainer_Blue"

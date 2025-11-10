@@ -9,8 +9,8 @@ public partial class CharacterNode : Control
 	const float ResizeDuration = 0.2f;
 	const float ShakeDistance = 8f;
 	const float ShakeStepDuration = 0.02f;
-	static readonly Vector2 minSize = new(50f, 40f);
-	static readonly Vector2 maxSize = new(60f, 100f);
+	static readonly Vector2 minSize = new(50f, 39f);
+	static readonly Vector2 maxSize = new(50f, 86f);
 	static readonly StringName enemyThemeName = new("PanelContainer_Orange");
 	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
@@ -30,6 +30,12 @@ public partial class CharacterNode : Control
 	Combat combat = null!;
 	PropertyNode actionPointNode = null!;
 	PropertyNode hitPointNode = null!;
+	PropertyNode headHitPointNode = null!;
+	PropertyNode leftArmHitPointNode = null!;
+	PropertyNode rightArmHitPointNode = null!;
+	PropertyNode torsoHitPointNode = null!;
+	PropertyNode leftLegHitPointNode = null!;
+	PropertyNode rightLegHitPointNode = null!;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
@@ -70,6 +76,12 @@ public partial class CharacterNode : Control
 		base._Ready();
 		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
 		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
+		headHitPointNode = GetOrCreatePropertyNode("HeadHitPoint", "头部");
+		leftArmHitPointNode = GetOrCreatePropertyNode("LeftArmHitPoint", "左臂");
+		rightArmHitPointNode = GetOrCreatePropertyNode("RightArmHitPoint", "右臂");
+		torsoHitPointNode = GetOrCreatePropertyNode("TorsoHitPoint", "躯干");
+		leftLegHitPointNode = GetOrCreatePropertyNode("LeftLegHitPoint", "左腿");
+		rightLegHitPointNode = GetOrCreatePropertyNode("RightLegHitPoint", "右腿");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 	}
@@ -115,6 +127,13 @@ public partial class CharacterNode : Control
 		var torsoRatio = torsoHitPoint.maxValue > 0 ? torsoHitPoint.value / (double)torsoHitPoint.maxValue : 0d;
 		var targetHitPoint = headRatio <= torsoRatio ? headHitPoint : torsoHitPoint;
 		hitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
+		// 更新各个身体部位的血量显示
+		headHitPointNode.Value = (headHitPoint.value, headHitPoint.maxValue);
+		leftArmHitPointNode.Value = (character.leftArm.HitPoint.value, character.leftArm.HitPoint.maxValue);
+		rightArmHitPointNode.Value = (character.rightArm.HitPoint.value, character.rightArm.HitPoint.maxValue);
+		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
+		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
+		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
 	}
 	void ApplyExpandedSizeAnimated()
 	{
