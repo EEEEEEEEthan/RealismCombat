@@ -24,6 +24,8 @@ public partial class CharacterNode : Control
 	Tween? moveTween;
 	Tween? resizeTween;
 	Tween? shakeTween;
+	Vector2 rootContainerBasePosition;
+	bool rootContainerBasePositionInitialized;
 	bool expanded;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
@@ -69,6 +71,7 @@ public partial class CharacterNode : Control
 	{
 		base._Ready();
 		ApplyExpandedSize(false);
+		UpdateRootContainerBasePosition();
 	}
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
@@ -87,14 +90,15 @@ public partial class CharacterNode : Control
 	public void Shake()
 	{
 		shakeTween?.Kill();
-		RootContainer.Position = Vector2.Zero;
+		var basePosition = GetRootContainerBasePosition();
+		RootContainer.Position = basePosition;
 		shakeTween = RootContainer.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", shakeLeftOffset, ShakeStepDuration);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
-		shakeTween.TweenProperty(RootContainer, "position", shakeRightOffset, ShakeStepDuration * 2f);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", Vector2.Zero, ShakeStepDuration);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition, ShakeStepDuration);
 	}
 	public override void _Process(double delta)
 	{
@@ -120,15 +124,28 @@ public partial class CharacterNode : Control
 		if (!IsInsideTree())
 		{
 			container.Size = targetSize;
+			UpdateRootContainerBasePosition();
 			return;
 		}
 		if (!animated)
 		{
 			container.Size = targetSize;
+			UpdateRootContainerBasePosition();
 			return;
 		}
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
 		resizeTween.TweenProperty(container, "size", targetSize, ResizeDuration);
+		resizeTween.Finished += UpdateRootContainerBasePosition;
+	}
+	void UpdateRootContainerBasePosition()
+	{
+		rootContainerBasePosition = RootContainer.Position;
+		rootContainerBasePositionInitialized = true;
+	}
+	Vector2 GetRootContainerBasePosition()
+	{
+		if (!rootContainerBasePositionInitialized) UpdateRootContainerBasePosition();
+		return rootContainerBasePosition;
 	}
 }
