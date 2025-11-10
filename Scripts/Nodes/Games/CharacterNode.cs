@@ -76,10 +76,11 @@ public partial class CharacterNode : Control
 		base._Process(delta);
 		if (character is null) return;
 		var actionPoint = character.actionPoint;
-#pragma warning disable CS0612
 		var hp = character.hp;
-#pragma warning restore CS0612
-		ActionPointNode.Value = (actionPoint.value, actionPoint.maxValue);
+		var hasCombatAction = character.combatAction != null;
+		var actionPointValue = hasCombatAction ? actionPoint.maxValue : actionPoint.value;
+		ActionPointNode.Value = (actionPointValue, actionPoint.maxValue);
+		ActionPointNode.Jump = hasCombatAction;
 		HitPointNode.Value = (hp.value, hp.maxValue);
 	}
 }

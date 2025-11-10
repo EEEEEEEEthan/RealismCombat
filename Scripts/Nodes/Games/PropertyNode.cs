@@ -70,6 +70,16 @@ public partial class PropertyNode : Node
 		}
 	}
 	[Export]
+	public bool Jump
+	{
+		get => jump;
+		set
+		{
+			jump = value;
+			UpdateJump();
+		}
+	}
+	[Export]
 	double Current
 	{
 		get => current;
@@ -87,16 +97,6 @@ public partial class PropertyNode : Node
 		{
 			max = value;
 			UpdateValue();
-		}
-	}
-	[Export]
-	bool Jump
-	{
-		get => jump;
-		set
-		{
-			jump = value;
-			UpdateJump();
 		}
 	}
 	public override void _Ready()
