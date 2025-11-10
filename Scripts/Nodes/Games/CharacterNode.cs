@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
@@ -15,20 +16,23 @@ public partial class CharacterNode : Control
 	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
+	static readonly PackedScene propertyNodeScene =
+		ResourceLoader.Load<PackedScene>("res://Scenes/PropertyNode.tscn") ?? throw new InvalidOperationException("无法加载PropertyNode场景。");
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
 	Character? character;
 	Control? moveAnchor;
 	Container? rootContainer;
+	VBoxContainer? propertyContainer;
 	Label? nameLabel;
-	PropertyNode? actionPointNode;
-	PropertyNode? hitPointNode;
 	Tween? moveTween;
 	Tween? resizeTween;
 	Tween? shakeTween;
 	Vector2 rootContainerBasePosition;
 	bool rootContainerBasePositionInitialized;
 	bool expanded;
-	Combat combat;
+	Combat combat = null!;
+	PropertyNode actionPointNode = null!;
+	PropertyNode hitPointNode = null!;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
@@ -56,9 +60,8 @@ public partial class CharacterNode : Control
 	}
 	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
 	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
-	Label NameLabel => nameLabel ??= GetNode<Label>("MoveAnchor/RootContainer/Mask/Name");
-	PropertyNode ActionPointNode => actionPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/ActionPoint");
-	PropertyNode HitPointNode => hitPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/HitPointOverview");
+	VBoxContainer PropertyContainer => propertyContainer ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
+	Label NameLabel => nameLabel ??= PropertyContainer.GetNode<Label>("Name");
 	public void Initialize(Combat combat, Character value)
 	{
 		character = value;
@@ -68,6 +71,8 @@ public partial class CharacterNode : Control
 	public override void _Ready()
 	{
 		base._Ready();
+		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
+		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 	}
@@ -105,14 +110,14 @@ public partial class CharacterNode : Control
 		var actionPoint = character.actionPoint;
 		var hasCombatAction = character.combatAction != null;
 		var actionPointValue = hasCombatAction ? actionPoint.maxValue : actionPoint.value;
-		ActionPointNode.Value = (actionPointValue, actionPoint.maxValue);
-		ActionPointNode.Jump = hasCombatAction || combat.Considering == character;
+		actionPointNode.Value = (actionPointValue, actionPoint.maxValue);
+		actionPointNode.Jump = hasCombatAction || combat.Considering == character;
 		var headHitPoint = character.head.HitPoint;
 		var torsoHitPoint = character.torso.HitPoint;
 		var headRatio = headHitPoint.maxValue > 0 ? headHitPoint.value / (double)headHitPoint.maxValue : 0d;
 		var torsoRatio = torsoHitPoint.maxValue > 0 ? torsoHitPoint.value / (double)torsoHitPoint.maxValue : 0d;
 		var targetHitPoint = headRatio <= torsoRatio ? headHitPoint : torsoHitPoint;
-		HitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
+		hitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
 	}
 	void ApplyExpandedSizeAnimated()
 	{
@@ -136,6 +141,17 @@ public partial class CharacterNode : Control
 	{
 		rootContainerBasePosition = RootContainer.Position;
 		rootContainerBasePositionInitialized = true;
+	}
+	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
+	{
+		var container = PropertyContainer;
+		var node = container.GetNodeOrNull<PropertyNode>(nodeName);
+		if (node != null) return node;
+		node = propertyNodeScene.Instantiate<PropertyNode>();
+		node.Name = nodeName;
+		node.Title = title;
+		container.AddChild(node);
+		return node;
 	}
 	Vector2 GetRootContainerBasePosition()
 	{
