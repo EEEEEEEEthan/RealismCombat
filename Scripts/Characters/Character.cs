@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Combats;
@@ -6,7 +5,6 @@ using RealismCombat.Extensions;
 namespace RealismCombat.Characters;
 public class Character
 {
-	[Obsolete] public readonly PropertyInt hp;
 	public readonly PropertyInt speed;
 	public readonly PropertyDouble actionPoint;
 	public readonly string name;
@@ -33,22 +31,18 @@ public class Character
 			leftLeg = new(BodyPartCode.LeftLeg),
 			rightLeg = new(BodyPartCode.RightLeg),
 		];
-		hp = new(0, 0);
-		SyncHitPointFromBodyParts();
 	}
 	public Character(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{
 			name = reader.ReadString();
-			hp = new(reader);
 			speed = new(reader);
 			actionPoint = new(reader);
 			bodyParts =
 			[
 				head = new(reader), leftArm = new(reader), rightArm = new(reader), torso = new(reader), leftLeg = new(reader), rightLeg = new(reader),
 			];
-			SyncHitPointFromBodyParts();
 		}
 	}
 	public void Serialize(BinaryWriter writer)
@@ -56,16 +50,15 @@ public class Character
 		using (writer.WriteScope())
 		{
 			writer.Write(name);
-			hp.Serialize(writer);
 			speed.Serialize(writer);
 			actionPoint.Serialize(writer);
 			foreach (var bodyPart in bodyParts) bodyPart.Serialize(writer);
 		}
 	}
 	/// <summary>
-	///     同步角色血量至各身体部位的总和。
+	///     获取角色生命状况总览。
 	/// </summary>
-	public void SyncHitPointFromBodyParts()
+	public (int value, int maxValue) GetHitPointOverview()
 	{
 		var total = 0;
 		var max = 0;
@@ -74,7 +67,6 @@ public class Character
 			total += bodyPart.hp.value;
 			max += bodyPart.hp.maxValue;
 		}
-		hp.value = total;
-		hp.maxValue = max;
+		return (total, max);
 	}
 }

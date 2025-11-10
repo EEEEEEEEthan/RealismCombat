@@ -76,11 +76,11 @@ public partial class CharacterNode : Control
 		base._Process(delta);
 		if (character is null) return;
 		var actionPoint = character.actionPoint;
-		var hp = character.hp;
 		var hasCombatAction = character.combatAction != null;
 		var actionPointValue = hasCombatAction ? actionPoint.maxValue : actionPoint.value;
 		ActionPointNode.Value = (actionPointValue, actionPoint.maxValue);
 		ActionPointNode.Jump = hasCombatAction;
-		HitPointNode.Value = (hp.value, hp.maxValue);
+		(var hitPointValue, var hitPointMax) = character.GetHitPointOverview();
+		HitPointNode.Value = (hitPointValue, hitPointMax);
 	}
 }

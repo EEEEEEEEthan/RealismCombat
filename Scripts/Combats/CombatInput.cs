@@ -34,10 +34,14 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var aliveOpponents = GetAliveOpponents(character);
 			if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
 			var options = aliveOpponents
-				.Select(o => new MenuOption
+				.Select(o =>
 				{
-					title = o.name,
-					description = $"生命 {o.hp.value}/{o.hp.maxValue}",
+					(var hitPointValue, var hitPointMax) = o.GetHitPointOverview();
+					return new MenuOption
+					{
+						title = o.name,
+						description = $"生命 {hitPointValue}/{hitPointMax}",
+					};
 				})
 				.ToArray();
 			while (true)
