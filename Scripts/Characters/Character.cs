@@ -25,7 +25,15 @@ public class Character
 		hp = new(10, 10);
 		speed = new(5, 5);
 		actionPoint = new(0f, 10f);
-		bodyParts = [head = new(), leftArm = new(), rightArm = new(), torso = new(), leftLeg = new(), rightLeg = new(),];
+		bodyParts =
+		[
+			head = new(BodyPartCode.Head),
+			leftArm = new(BodyPartCode.LeftArm),
+			rightArm = new(BodyPartCode.RightArm),
+			torso = new(BodyPartCode.Torso),
+			leftLeg = new(BodyPartCode.LeftLeg),
+			rightLeg = new(BodyPartCode.RightLeg),
+		];
 	}
 	public Character(BinaryReader reader)
 	{

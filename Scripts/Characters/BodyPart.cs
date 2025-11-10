@@ -15,12 +15,19 @@ public enum BodyPartCode
 }
 public class BodyPart
 {
+	public readonly BodyPartCode id;
 	public readonly PropertyInt hp;
-	public BodyPart() => hp = new(10, 10);
+	public BodyPart() : this(BodyPartCode.Head) { }
+	public BodyPart(BodyPartCode id)
+	{
+		this.id = id;
+		hp = new(10, 10);
+	}
 	public BodyPart(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{
+			id = (BodyPartCode)reader.ReadInt32();
 			hp = new(reader);
 		}
 	}
@@ -28,6 +35,7 @@ public class BodyPart
 	{
 		using (writer.WriteScope())
 		{
+			writer.Write((int)id);
 			hp.Serialize(writer);
 		}
 	}
