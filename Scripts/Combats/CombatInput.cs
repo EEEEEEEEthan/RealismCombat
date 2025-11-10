@@ -26,38 +26,42 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 {
 	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
-		await DialogueManager.CreateMenuDialogue(
-			new MenuOption { title = "攻击", description = "攻击敌人", }
-		);
-		var aliveOpponents = GetAliveOpponents(character);
-		if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
-		var options = aliveOpponents
-			.Select(o => new MenuOption
-			{
-				title = o.name,
-				description = $"生命 {o.hp.value}/{o.hp.maxValue}",
-			})
-			.ToArray();
 		while (true)
 		{
-			var menu = DialogueManager.CreateMenuDialogue(options);
-			var selected = await menu;
-			var selectedOpponent = aliveOpponents[selected];
+			await DialogueManager.CreateMenuDialogue(
+				new MenuOption { title = "攻击", description = "攻击敌人", }
+			);
+			var aliveOpponents = GetAliveOpponents(character);
+			if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
+			var options = aliveOpponents
+				.Select(o => new MenuOption
+				{
+					title = o.name,
+					description = $"生命 {o.hp.value}/{o.hp.maxValue}",
+				})
+				.ToArray();
 			while (true)
 			{
-				var aliveTargets = GetAliveTargets(selectedOpponent);
-				if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
-				var targetOptions = aliveTargets
-					.Select(o => new MenuOption
-					{
-						title = $"{selectedOpponent.name}的{o.TargetName}",
-						description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
-					})
-					.ToArray();
-				var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
-				var targetIndex = await targetMenu;
-				if (targetIndex == aliveTargets.Length) break;
-				return new Attack(character, selectedOpponent, aliveTargets[targetIndex], CurrentCombat);
+				var menu = DialogueManager.CreateMenuDialogue(true, options);
+				var selected = await menu;
+				if (selected == aliveOpponents.Length) break;
+				var selectedOpponent = aliveOpponents[selected];
+				while (true)
+				{
+					var aliveTargets = GetAliveTargets(selectedOpponent);
+					if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+					var targetOptions = aliveTargets
+						.Select(o => new MenuOption
+						{
+							title = $"{selectedOpponent.name}的{o.TargetName}",
+							description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
+						})
+						.ToArray();
+					var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
+					var targetIndex = await targetMenu;
+					if (targetIndex == aliveTargets.Length) break;
+					return new Attack(character, selectedOpponent, aliveTargets[targetIndex], CurrentCombat);
+				}
 			}
 		}
 	}
