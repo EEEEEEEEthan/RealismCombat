@@ -1,4 +1,3 @@
-using System;
 using Godot;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
@@ -16,8 +15,6 @@ public partial class CharacterNode : Control
 	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
-	static readonly PackedScene propertyNodeScene =
-		ResourceLoader.Load<PackedScene>("res://Scenes/PropertyNode.tscn") ?? throw new InvalidOperationException("无法加载PropertyNode场景。");
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
 	Character? character;
 	Control? moveAnchor;
@@ -147,7 +144,7 @@ public partial class CharacterNode : Control
 		var container = PropertyContainer;
 		var node = container.GetNodeOrNull<PropertyNode>(nodeName);
 		if (node != null) return node;
-		node = propertyNodeScene.Instantiate<PropertyNode>();
+		node = ResourceTable.propertyNodeScene.Value.Instantiate<PropertyNode>();
 		node.Name = nodeName;
 		node.Title = title;
 		container.AddChild(node);

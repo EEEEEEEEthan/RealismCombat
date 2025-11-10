@@ -21,6 +21,7 @@ public static class ResourceTable
 	public static readonly Loader<PackedScene> gameNodeScene = new("res://Scenes/GameNode.tscn");
 	public static readonly Loader<PackedScene> combatNodeScene = new("res://Scenes/CombatNode.tscn");
 	public static readonly Loader<PackedScene> characterNodeScene = new("res://Scenes/CharacterNode.tscn");
+	public static readonly Loader<PackedScene> propertyNodeScene = new("res://Scenes/PropertyNode.tscn");
 }
 public static class SpriteTable
 {
