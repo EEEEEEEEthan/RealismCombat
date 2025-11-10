@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c0ar0vjvme5k0"]
+[gd_scene load_steps=3 format=3 uid="uid://c0ar0vjvme5k0"]
 
 [ext_resource type="Script" uid="uid://crhvllmmeetue" path="res://Scripts/Nodes/Games/CombatNode.cs" id="1_f422j"]
+[ext_resource type="PackedScene" uid="uid://bomncrbost0bs" path="res://Scenes/CharacterNode.tscn" id="2_5v4ql"]
 
 [node name="Combat" type="Node"]
 script = ExtResource("1_f422j")
@@ -32,3 +33,23 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
+
+[node name="PKContainer" type="HBoxContainer" parent="SafeArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="PlayerPosition" parent="SafeArea/PKContainer" instance=ExtResource("2_5v4ql")]
+custom_minimum_size = Vector2(50, 86)
+layout_mode = 2
+Expanded = true
+
+[node name="EnemyPosition" parent="SafeArea/PKContainer" instance=ExtResource("2_5v4ql")]
+custom_minimum_size = Vector2(50, 86)
+layout_mode = 2
+Expanded = true

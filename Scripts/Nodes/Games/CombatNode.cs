@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
@@ -13,10 +14,21 @@ public partial class CombatNode : Node
 	readonly Dictionary<Character, CharacterNode> characterNodes = new();
 	VBoxContainer? playerTeamContainer;
 	VBoxContainer? enemyTeamContainer;
+	Control? playerPosition;
+	Control? enemyPosition;
+	public Control PlayerPosition => playerPosition ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
+	public Control EnemyPosition => enemyPosition ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
+	public Combat Combat { get; private set; }
 	VBoxContainer PlayerTeamContainer => playerTeamContainer ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
 	VBoxContainer EnemyTeamContainer => enemyTeamContainer ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
+	public override void _Ready()
+	{
+		base._Ready();
+		PlayerPosition.Modulate = EnemyPosition.Modulate = Colors.Transparent;
+	}
 	public void Initialize(Combat combat)
 	{
+		Combat = combat;
 		foreach (var child in PlayerTeamContainer.GetChildren()) child.QueueFree();
 		foreach (var child in EnemyTeamContainer.GetChildren()) child.QueueFree();
 		characterNodes.Clear();
@@ -37,9 +49,10 @@ public partial class CombatNode : Node
 			characterNodes[character] = node;
 		}
 	}
-	public CharacterNode? TryGetCharacterNode(Character character)
+	public CharacterNode GetCharacterNode(Character character) => characterNodes[character];
+	public Vector2 GetCharacterPosition(Character character)
 	{
-		if (characterNodes.TryGetValue(character, out var node)) return node;
-		return null;
+		if (Combat.Allies.Contains(character)) return PlayerPosition.GlobalPosition;
+		return EnemyPosition.GlobalPosition;
 	}
 }

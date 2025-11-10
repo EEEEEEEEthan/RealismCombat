@@ -32,17 +32,29 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑!");
 	protected override async Task OnExecute()
 	{
+		var actorNode = combat.combatNode.GetCharacterNode(actor);
+		var targetNode = combat.combatNode.GetCharacterNode(target);
+		var actorPosition = combat.combatNode.GetCharacterPosition(actor);
+		var targetPosition = combat.combatNode.GetCharacterPosition(target);
+		actorNode.MoveTo(actorPosition);
+		targetNode.MoveTo(targetPosition);
+		actorNode.Expanded = true;
+		targetNode.Expanded = true;
 		var damage = CalculateDamage();
 		combatTarget.HitPoint.value = Mathf.Clamp(combatTarget.HitPoint.value - damage, 0, combatTarget.HitPoint.maxValue);
-		var node = combat.TryGetCharacterNode(target);
 		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.TargetName}!");
 		await dialogue.PrintDone;
-		node?.Shake();
+		targetNode.Shake();
 		AudioManager.PlaySfx(ResourceTable.retroHurt1);
 		dialogue.AddText($"{target.name}的{combatTarget.TargetName}受到了{damage}点伤害，剩余{combatTarget.HitPoint.value}/{combatTarget.HitPoint.maxValue}");
 		if (!combatTarget.IsTargetAlive) dialogue.AddText($"{target.name}的{combatTarget.TargetName}失去战斗能力");
 		if (!target.IsAlive) dialogue.AddText($"{target.name}倒下了");
 		await dialogue;
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
+		// 先移动回原位，再折叠，避免容器重新布局影响位置
+		actorNode.MoveTo(actorNode.GlobalPosition);
+		targetNode.MoveTo(targetNode.GlobalPosition);
+		actorNode.Expanded = false;
+		targetNode.Expanded = false;
 	}
 }

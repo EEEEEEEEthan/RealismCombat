@@ -136,6 +136,7 @@ public partial class CharacterNode : Control
 		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
 		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
+		MoveAnchor.Size = RootContainer.Size;
 	}
 	void ApplyExpandedSizeAnimated()
 	{

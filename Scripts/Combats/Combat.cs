@@ -8,9 +8,9 @@ using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
 public class Combat
 {
+	public readonly CombatNode combatNode;
 	readonly PlayerInput playerInput;
 	readonly AIInput aiInput;
-	readonly CombatNode combatNode;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	public double Time { get; private set; }
 	public Character? Considering { get; private set; }
@@ -27,7 +27,6 @@ public class Combat
 		StartLoop();
 	}
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
-	public CharacterNode? TryGetCharacterNode(Character character) => combatNode.TryGetCharacterNode(character);
 	async void StartLoop()
 	{
 		try
