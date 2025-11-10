@@ -46,7 +46,10 @@ public partial class CharacterNode : Control
 		{
 			if (expanded == value) return;
 			expanded = value;
-			ApplyExpandedSize(true);
+			if (IsNodeReady())
+				ApplyExpandedSizeImmediate();
+			else
+				ApplyExpandedSizeAnimated();
 		}
 	}
 	/// <summary>
@@ -70,7 +73,7 @@ public partial class CharacterNode : Control
 	public override void _Ready()
 	{
 		base._Ready();
-		ApplyExpandedSize(false);
+		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 	}
 	/// <summary>
@@ -116,27 +119,23 @@ public partial class CharacterNode : Control
 		var targetHitPoint = headRatio <= torsoRatio ? headHitPoint : torsoHitPoint;
 		HitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
 	}
-	void ApplyExpandedSize(bool animated)
+	void ApplyExpandedSizeAnimated()
 	{
 		var container = RootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();
-		if (!IsInsideTree())
-		{
-			container.Size = targetSize;
-			UpdateRootContainerBasePosition();
-			return;
-		}
-		if (!animated)
-		{
-			container.Size = targetSize;
-			UpdateRootContainerBasePosition();
-			return;
-		}
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
 		resizeTween.TweenProperty(container, "size", targetSize, ResizeDuration);
 		resizeTween.Finished += UpdateRootContainerBasePosition;
+	}
+	void ApplyExpandedSizeImmediate()
+	{
+		var container = RootContainer;
+		var targetSize = expanded ? maxSize : minSize;
+		resizeTween?.Kill();
+		container.Size = targetSize;
+		UpdateRootContainerBasePosition();
 	}
 	void UpdateRootContainerBasePosition()
 	{
