@@ -80,7 +80,11 @@ public partial class CharacterNode : Control
 		var actionPointValue = hasCombatAction ? actionPoint.maxValue : actionPoint.value;
 		ActionPointNode.Value = (actionPointValue, actionPoint.maxValue);
 		ActionPointNode.Jump = hasCombatAction;
-		(var hitPointValue, var hitPointMax) = character.GetHitPointOverview();
-		HitPointNode.Value = (hitPointValue, hitPointMax);
+		var headHitPoint = character.head.hp;
+		var torsoHitPoint = character.torso.hp;
+		var headRatio = headHitPoint.maxValue > 0 ? headHitPoint.value / (double)headHitPoint.maxValue : 0d;
+		var torsoRatio = torsoHitPoint.maxValue > 0 ? torsoHitPoint.value / (double)torsoHitPoint.maxValue : 0d;
+		var targetHitPoint = headRatio <= torsoRatio ? headHitPoint : torsoHitPoint;
+		HitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
 	}
 }
