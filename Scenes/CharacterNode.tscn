@@ -15,18 +15,19 @@ script = ExtResource("1_cptgj")
 
 [node name="MoveAnchor" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 0
 
 [node name="RootContainer" type="PanelContainer" parent="MoveAnchor"]
+custom_minimum_size = Vector2(50, 40)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 50.0
+offset_bottom = 40.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"PanelContainer_Gray"
+theme_type_variation = &"PanelContainer_Blue"
 
 [node name="Mask" type="Control" parent="MoveAnchor/RootContainer"]
 clip_contents = true
@@ -46,6 +47,7 @@ offset_top = 11.0
 offset_right = 35.0
 offset_bottom = 19.0
 Title = "行动"
+Jump = true
 Current = 10.0
 
 [node name="HitPointOverview" parent="MoveAnchor/RootContainer/Mask" instance=ExtResource("2_lbkts")]
@@ -55,3 +57,4 @@ offset_top = 20.0
 offset_right = 35.0
 offset_bottom = 28.0
 Title = "生命"
+Jump = true

@@ -1,11 +1,15 @@
 using Godot;
 using RealismCombat.Characters;
 namespace RealismCombat.Nodes.Games;
+[Tool]
 public partial class CharacterNode : Control
 {
 	const float MoveDuration = 0.2f;
+	const float ResizeDuration = 0.2f;
 	const float ShakeDistance = 8f;
 	const float ShakeStepDuration = 0.02f;
+	static readonly Vector2 minSize = new(50f, 40f);
+	static readonly Vector2 maxSize = new(60f, 100f);
 	static readonly StringName enemyThemeName = new("PanelContainer_Orange");
 	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
@@ -18,7 +22,9 @@ public partial class CharacterNode : Control
 	PropertyNode? actionPointNode;
 	PropertyNode? hitPointNode;
 	Tween? moveTween;
+	Tween? resizeTween;
 	Tween? shakeTween;
+	bool expanded;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
@@ -26,6 +32,20 @@ public partial class CharacterNode : Control
 	{
 		get => RootContainer.ThemeTypeVariation == enemyThemeName;
 		set => RootContainer.ThemeTypeVariation = value ? enemyThemeName : allyThemeName;
+	}
+	/// <summary>
+	///     获取或设置当前节点是否处于展开状态。
+	/// </summary>
+	[Export]
+	public bool Expanded
+	{
+		get => expanded;
+		set
+		{
+			if (expanded == value) return;
+			expanded = value;
+			ApplyExpandedSize(true);
+		}
 	}
 	/// <summary>
 	///     绑定角色。
@@ -45,6 +65,11 @@ public partial class CharacterNode : Control
 	Label NameLabel => nameLabel ??= GetNode<Label>("MoveAnchor/RootContainer/Mask/Name");
 	PropertyNode ActionPointNode => actionPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/ActionPoint");
 	PropertyNode HitPointNode => hitPointNode ??= GetNode<PropertyNode>("MoveAnchor/RootContainer/Mask/HitPointOverview");
+	public override void _Ready()
+	{
+		base._Ready();
+		ApplyExpandedSize(false);
+	}
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
 	/// </summary>
@@ -86,5 +111,24 @@ public partial class CharacterNode : Control
 		var torsoRatio = torsoHitPoint.maxValue > 0 ? torsoHitPoint.value / (double)torsoHitPoint.maxValue : 0d;
 		var targetHitPoint = headRatio <= torsoRatio ? headHitPoint : torsoHitPoint;
 		HitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
+	}
+	void ApplyExpandedSize(bool animated)
+	{
+		var container = RootContainer;
+		var targetSize = expanded ? maxSize : minSize;
+		resizeTween?.Kill();
+		if (!IsInsideTree())
+		{
+			container.Size = targetSize;
+			return;
+		}
+		if (!animated)
+		{
+			container.Size = targetSize;
+			return;
+		}
+		resizeTween = container.CreateTween();
+		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
+		resizeTween.TweenProperty(container, "size", targetSize, ResizeDuration);
 	}
 }
