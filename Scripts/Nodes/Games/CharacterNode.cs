@@ -86,6 +86,7 @@ public partial class CharacterNode : Control
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 		UpdateOverviewVisibility();
+		MoveAnchor.Position = default;
 	}
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
