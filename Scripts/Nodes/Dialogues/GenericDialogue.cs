@@ -60,7 +60,7 @@ public partial class GenericDialogue : BaseDialogue
 		else
 		{
 			time += delta;
-			icon.SelfModulate = time > 0.5 ? GameColors.White : GameColors.transparent;
+			icon.SelfModulate = time > 0.5 ? GameColors.grayGradient[^1] : GameColors.transparent;
 			if (time > 1) time = 0;
 		}
 		if (LaunchArgs.port != null)

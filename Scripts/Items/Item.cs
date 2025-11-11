@@ -10,7 +10,7 @@ public enum ItemIdCode
 /// <summary>
 ///     战斗中可以被选择的装备实体
 /// </summary>
-public abstract class Item(ItemIdCode id, ItemFlagCode flag, PropertyInt hitPoint) : ICombatTarget
+public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, PropertyInt hitPoint) : ICombatTarget, IItemContainer
 {
 	public readonly ItemFlagCode flag = flag;
 	public readonly ItemIdCode id = id;
@@ -26,6 +26,7 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, PropertyInt hitPoin
 	///     目标在日志或界面上的名称
 	/// </summary>
 	public abstract string Name { get; }
+	public ItemSlot[] Slots { get; } = slots;
 	protected abstract void OnSerialize(BinaryWriter writer);
 	protected abstract void OnDeserialize(BinaryReader reader);
 	#region serialize
@@ -38,6 +39,10 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, PropertyInt hitPoin
 			ItemIdCode.LongSword => new LongSword(),
 			_ => throw new NotSupportedException($"unexpected id: {id}"),
 		};
+		var slotCount = reader.ReadInt32();
+		var trueSlotCount = Math.Min(slotCount, item.Slots.Length);
+		for (var i = 0; i < trueSlotCount; i++) item.Slots[i].Deserialize(reader);
+		for (var i = trueSlotCount; i < slotCount; i++) new ItemSlot(default).Deserialize(reader);
 		item.OnDeserialize(reader);
 		return item;
 	}
@@ -45,6 +50,8 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, PropertyInt hitPoin
 	{
 		using var _ = writer.WriteScope();
 		writer.Write((ulong)id);
+		writer.Write(Slots.Length);
+		for (var i = 0; i < Slots.Length; i++) Slots[i].Serialize(writer);
 		OnSerialize(writer);
 	}
 	#endregion
