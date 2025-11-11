@@ -1,62 +1,17 @@
-[gd_resource type="Theme" load_steps=18 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=10 format=3 uid="uid://bpxr1w3o076bd"]
 
 [ext_resource type="FontFile" uid="uid://cwaryh10sp0rr" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
 [ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
 [ext_resource type="FontFile" uid="uid://bepbhrp0yisid" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
-[ext_resource type="Texture2D" uid="uid://btyud6kopkj6b" path="res://Textures/UserInterface.png" id="2_k1aya"]
+[ext_resource type="Texture2D" uid="uid://bon3i1ll2wesm" path="res://Textures/Icon16.png" id="3_c6xh3"]
 [ext_resource type="Texture2D" uid="uid://deua00u1q163h" path="res://Textures/ProgressBar.png" id="4_c6xh3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j4jqe"]
-atlas = ExtResource("2_k1aya")
+atlas = ExtResource("3_c6xh3")
 region = Rect2(16, 0, 16, 16)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_c6xh3"]
 texture = SubResource("AtlasTexture_j4jqe")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_c6xh3"]
-atlas = ExtResource("2_k1aya")
-region = Rect2(32, 0, 16, 16)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_t6dyh"]
-texture = SubResource("AtlasTexture_c6xh3")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_y2aw4"]
-atlas = ExtResource("2_k1aya")
-region = Rect2(16, 16, 16, 16)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7yw46"]
-texture = SubResource("AtlasTexture_y2aw4")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_t6dyh"]
-atlas = ExtResource("2_k1aya")
-region = Rect2(48, 0, 16, 16)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_y2aw4"]
-texture = SubResource("AtlasTexture_t6dyh")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-region_rect = Rect2(0, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k1aya"]
-atlas = ExtResource("2_k1aya")
-region = Rect2(32, 16, 16, 16)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j4jqe"]
-texture = SubResource("AtlasTexture_k1aya")
 texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
@@ -87,14 +42,6 @@ Label_Small/font_sizes/font_size = 8
 Label_Small/fonts/font = ExtResource("2_23v3e")
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
-PanelContainer_Blue/base_type = &"PanelContainer"
-PanelContainer_Blue/styles/panel = SubResource("StyleBoxTexture_t6dyh")
-PanelContainer_Gray/base_type = &"PanelContainer"
-PanelContainer_Gray/styles/panel = SubResource("StyleBoxTexture_7yw46")
-PanelContainer_Orange/base_type = &"PanelContainer"
-PanelContainer_Orange/styles/panel = SubResource("StyleBoxTexture_y2aw4")
-PanelContainer_Red/base_type = &"PanelContainer"
-PanelContainer_Red/styles/panel = SubResource("StyleBoxTexture_j4jqe")
 ProgressBar/styles/background = SubResource("StyleBoxEmpty_c6xh3")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_7m1lf")
 RichTextLabel_Small/base_type = &"RichTextLabel"

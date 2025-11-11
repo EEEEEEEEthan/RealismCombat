@@ -34,14 +34,16 @@ public partial class CharacterNode : Control
 	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
+	static readonly Color[] playerBackgroundColors = [new("#5182ff"), new("#4141ff"), new("#2800ba"),];
+	static readonly Color[] enemyBackgroundColors = [new("#ff7930"), new("#e35100"), new("#e23000"),];
+	static readonly Color deadBackgroundColor = new("#797979");
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
 	[Export] Vector2 minSize = new(50f, 39f);
 	[Export] Vector2 maxSize = new(50f, 86f);
 	Character? character;
-	Control? moveAnchor;
-	Container? rootContainer;
-	VBoxContainer? propertyContainer;
-	Label? nameLabel;
+	Container rootContainer = null!;
+	VBoxContainer propertyContainer = null!;
+	Label nameLabel = null!;
 	Tween? moveTween;
 	Tween? resizeTween;
 	Tween? shakeTween;
@@ -57,18 +59,21 @@ public partial class CharacterNode : Control
 	PropertyNode torsoHitPointNode = null!;
 	PropertyNode leftLegHitPointNode = null!;
 	PropertyNode rightLegHitPointNode = null!;
+	NinePatchRect background = null!;
+	Control moveAnchor = null!;
+	bool isEnemyTheme;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
 	public bool IsEnemyTheme
 	{
-		get => RootContainer.ThemeTypeVariation == enemyThemeName;
-		set => RootContainer.ThemeTypeVariation = value ? enemyThemeName : allyThemeName;
+		get => isEnemyTheme;
+		set
+		{
+			isEnemyTheme = value;
+			UpdateBackground();
+		}
 	}
-	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
-	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
-	VBoxContainer PropertyContainer => propertyContainer ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
-	Label NameLabel => nameLabel ??= PropertyContainer.GetNode<Label>("Name");
 	/// <summary>
 	///     获取或设置当前节点是否处于展开状态。
 	/// </summary>
@@ -90,13 +95,20 @@ public partial class CharacterNode : Control
 	public IDisposable MoveScope(Vector2 globalPosition) => new MoveDisposable(this, globalPosition);
 	public void Initialize(Combat combat, Character value)
 	{
+		if (!IsNodeReady()) throw new InvalidOperationException("节点尚未准备好，无法初始化");
 		character = value;
-		NameLabel.Text = value.name;
+		nameLabel.Text = value.name;
 		this.combat = combat;
+		UpdateBackground();
 	}
 	public override void _Ready()
 	{
 		base._Ready();
+		rootContainer = GetNode<Container>("MoveAnchor/RootContainer");
+		background = rootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
+		propertyContainer = GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
+		nameLabel = propertyContainer.GetNode<Label>("Name");
+		moveAnchor = GetNode<Control>("MoveAnchor");
 		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
 		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
 		headHitPointNode = GetOrCreatePropertyNode("HeadHitPoint", "头部");
@@ -108,7 +120,8 @@ public partial class CharacterNode : Control
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 		UpdateOverviewVisibility();
-		MoveAnchor.Position = default;
+		moveAnchor.Position = default;
+		UpdateBackground();
 	}
 	/// <summary>
 	///     将MoveAnchor平滑移动到指定的全局坐标。
@@ -116,10 +129,10 @@ public partial class CharacterNode : Control
 	public void MoveTo(Vector2 globalPosition)
 	{
 		moveTween?.Kill();
-		if (MoveAnchor.GlobalPosition == globalPosition) return;
-		moveTween = MoveAnchor.CreateTween();
+		if (moveAnchor.GlobalPosition == globalPosition) return;
+		moveTween = moveAnchor.CreateTween();
 		ConfigureTween(moveTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
-		moveTween.TweenProperty(MoveAnchor, "global_position", globalPosition, MoveDuration);
+		moveTween.TweenProperty(moveAnchor, "global_position", globalPosition, MoveDuration);
 	}
 	/// <summary>
 	///     让RootContainer产生一次横向晃动并回到原位。
@@ -128,14 +141,14 @@ public partial class CharacterNode : Control
 	{
 		shakeTween?.Kill();
 		var basePosition = GetRootContainerBasePosition();
-		RootContainer.Position = basePosition;
-		shakeTween = RootContainer.CreateTween();
+		rootContainer.Position = basePosition;
+		shakeTween = rootContainer.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
+		shakeTween.TweenProperty(rootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
-		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
+		shakeTween.TweenProperty(rootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", basePosition, ShakeStepDuration);
+		shakeTween.TweenProperty(rootContainer, "position", basePosition, ShakeStepDuration);
 	}
 	public override void _Process(double delta)
 	{
@@ -159,12 +172,29 @@ public partial class CharacterNode : Control
 		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
 		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
-		MoveAnchor.Size = RootContainer.Size;
+		moveAnchor.Size = rootContainer.Size;
+		UpdateBackground();
+	}
+	void UpdateBackground()
+	{
+		if (!IsNodeReady()) return;
+		if (character?.IsAlive != true)
+		{
+			background.SelfModulate = deadBackgroundColor;
+			return;
+		}
+		var colors = isEnemyTheme ? enemyBackgroundColors : playerBackgroundColors;
+		background.SelfModulate = hitPointNode.Progress switch
+		{
+			> 0.3 => colors[0],
+			> 0.25 => colors[1],
+			_ => colors[2],
+		};
 	}
 	void ApplyExpandedSizeAnimated()
 	{
 		UpdateOverviewVisibility();
-		var container = RootContainer;
+		var container = rootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
@@ -174,8 +204,9 @@ public partial class CharacterNode : Control
 	}
 	void ApplyExpandedSizeImmediate()
 	{
+		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
-		var container = RootContainer;
+		var container = rootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		container.Size = targetSize;
@@ -183,18 +214,17 @@ public partial class CharacterNode : Control
 	}
 	void UpdateRootContainerBasePosition()
 	{
-		rootContainerBasePosition = RootContainer.Position;
+		rootContainerBasePosition = rootContainer.Position;
 		rootContainerBasePositionInitialized = true;
 	}
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
 	{
-		var container = PropertyContainer;
-		var node = container.GetNodeOrNull<PropertyNode>(nodeName);
+		var node = propertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
 		if (node != null) return node;
 		node = ResourceTable.propertyNodeScene.Value.Instantiate<PropertyNode>();
 		node.Name = nodeName;
 		node.Title = title;
-		container.AddChild(node);
+		propertyContainer.AddChild(node);
 		return node;
 	}
 	Vector2 GetRootContainerBasePosition()

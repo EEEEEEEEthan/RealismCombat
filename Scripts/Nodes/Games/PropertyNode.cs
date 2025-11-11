@@ -69,6 +69,7 @@ public partial class PropertyNode : Control
 			Current = value.current;
 		}
 	}
+	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
 	public bool Jump
 	{

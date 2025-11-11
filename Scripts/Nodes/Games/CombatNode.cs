@@ -41,16 +41,16 @@ public partial class CombatNode : Node
 		{
 			var node = CreateCharacterNode();
 			node.IsEnemyTheme = false;
-			node.Initialize(combat, character);
 			PlayerTeamContainer.AddChild(node);
+			node.Initialize(combat, character);
 			characterNodes[character] = node;
 		}
 		foreach (var character in combat.Enemies)
 		{
 			var node = CreateCharacterNode();
 			node.IsEnemyTheme = true;
-			node.Initialize(combat, character);
 			EnemyTeamContainer.AddChild(node);
+			node.Initialize(combat, character);
 			characterNodes[character] = node;
 		}
 	}

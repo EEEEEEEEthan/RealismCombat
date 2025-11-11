@@ -1,14 +1,19 @@
-[gd_scene load_steps=6 format=3 uid="uid://bomncrbost0bs"]
+[gd_scene load_steps=8 format=3 uid="uid://bomncrbost0bs"]
 
 [ext_resource type="Script" uid="uid://odhuswpi1sfq" path="res://Scripts/Nodes/Games/CharacterNode.cs" id="1_cptgj"]
 [ext_resource type="Texture2D" uid="uid://deojwkp2su4eb" path="res://Textures/AnimationBleeding.png" id="2_lbkts"]
+[ext_resource type="Texture2D" uid="uid://bon3i1ll2wesm" path="res://Textures/Icon16.png" id="2_tb6ij"]
 [ext_resource type="Script" uid="uid://o7cl2qro50b6" path="res://Scripts/Nodes/Games/BleedingNode.cs" id="3_ryr72"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tb6ij"]
-atlas = ExtResource("2_lbkts")
-region = Rect2(112, 0, 16, 16)
+atlas = ExtResource("2_tb6ij")
+region = Rect2(32, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ryr72"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_j4f5t"]
+atlas = ExtResource("2_lbkts")
+region = Rect2(160, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ncucl"]
 atlas = ExtResource("2_lbkts")
 region = Rect2(80, 0, 16, 16)
 
@@ -21,7 +26,6 @@ offset_bottom = 39.0
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("1_cptgj")
-maxSize = Vector2(50, 78)
 
 [node name="MoveAnchor" type="Control" parent="."]
 layout_mode = 1
@@ -33,6 +37,29 @@ layout_mode = 1
 offset_right = 50.0
 offset_bottom = 39.0
 theme_type_variation = &"PanelContainer_Blue"
+
+[node name="Background" type="Control" parent="MoveAnchor/RootContainer"]
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="MoveAnchor/RootContainer/Background"]
+self_modulate = Color(0.4745098, 0.4745098, 0.4745098, 1)
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_tb6ij")
+region_rect = Rect2(4, 4, 9, 9)
+patch_margin_left = 1
+patch_margin_top = 1
+patch_margin_right = 1
+patch_margin_bottom = 1
 
 [node name="Mask" type="Control" parent="MoveAnchor/RootContainer"]
 clip_contents = true
@@ -61,7 +88,7 @@ offset_left = -6.0
 offset_right = 10.0
 offset_bottom = 16.0
 grow_vertical = 0
-texture = SubResource("AtlasTexture_tb6ij")
+texture = SubResource("AtlasTexture_j4f5t")
 script = ExtResource("3_ryr72")
 metadata/_custom_type_script = "uid://o7cl2qro50b6"
 
@@ -78,7 +105,7 @@ offset_right = 6.0
 offset_bottom = 16.0
 grow_horizontal = 0
 grow_vertical = 0
-texture = SubResource("AtlasTexture_ryr72")
+texture = SubResource("AtlasTexture_ncucl")
 flip_h = true
 script = ExtResource("3_ryr72")
 metadata/_custom_type_script = "uid://o7cl2qro50b6"
