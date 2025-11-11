@@ -98,6 +98,7 @@ public class Game
 				var menu = DialogueManager.CreateMenuDialogue(
 					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
 					new MenuOption { title = "查看状态", description = "查看角色状态", },
+					new MenuOption { title = "存档", description = "保存当前进度", },
 					new MenuOption { title = "退出游戏", description = "返回主菜单", }
 				);
 				var choice = await menu;
@@ -126,6 +127,13 @@ public class Game
 						break;
 					}
 					case 2:
+					{
+						Save();
+						var dialogue = DialogueManager.CreateGenericDialogue("已保存当前进度");
+						await dialogue;
+						break;
+					}
+					case 3:
 					{
 						Quit();
 						return;
