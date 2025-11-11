@@ -2,27 +2,28 @@
 
 ## 战斗循环
 
-- `Combat` 构造时会创建玩家输入与 AI 输入器，并调用 `StartLoop()` 进入主循环
-- 开场创建 `GenericDialogue` 显示“战斗开始了!”，等待玩家或 MCP 确认后继续
-- 每一帧循环流程：
-  - 先执行 `CheckBattleOutcome()`，任一阵营全灭即结束战斗并完成等待器
-  - 遍历仍存活的角色，调用其当前 `combatAction.UpdateTask()` 处理后摇逻辑
-  - 重复调用 `TryGetActor()`，寻找行动点达到上限的角色并驱动决策流程
-  - 所有行动完成后 `await Task.Delay(100)`，将 `Time` 增加 0.1，并按 `speed.value * 0.1` 回复行动点
-- 循环未设置 tick 上限，只要双方仍有角色存活就会持续运行
-- 异常会被捕获并记录日志，同时结束战斗等待器，避免主流程卡死
+- `Combat` 构造时会初始化战斗界面节点，创建玩家与 AI 输入器，并立即启动异步的 `StartLoop()` 主循环
+- 开场生成 `GenericDialogue` 显示“战斗开始了!”，等待玩家或 MCP 确认后才进入正式循环
+- 主循环每帧执行：
+  - 调用 `CheckBattleOutcome()` 判断任一阵营是否失去作战能力，若成立则结束战斗并解除等待
+  - 遍历仍存活的角色，若存在 `combatAction` 则执行 `UpdateTask()` 推进后摇；当返回 `false` 时清空该行为
+  - 通过 `TryGetActor()` 查找行动点达到上限的角色，按顺序处理全部可行动者
+    - 角色行动前会调用 `CombatNode.GetCharacterNode()`，并通过 `MoveScope()`、`ExpandScope()` 播放位移与强调动画
+    - 播报“X 的回合”后，根据阵营选择 `PlayerInput` 或 `AIInput` 获取行动，期间 `Combat.Considering` 指向当前角色
+    - 等待决策结束后调用 `StartTask()`，立即扣除前摇并触发具体演出
+  - 若本帧无人可行动，则等待 `Task.Delay(100)`，将 `Time` 增加 `0.1`，同时为所有存活角色按 `speed.value * 0.1` 恢复行动点
+- 战斗循环没有人工上限，只要双方仍有角色存活就会持续执行；任何异常都会被捕获并写入日志，同时结束战斗等待器以防主流程卡死
 
 ## 行动决策
 
-- `CombatInput` 是输入基类，提供阵营、目标筛选等辅助方法
+- `CombatInput` 是输入基类，提供阵营、目标筛选与界面辅助方法
 - `PlayerInput` 的决策步骤：
-  - 弹出仅包含“攻击”的 `MenuDialogue`，为后续扩展留下入口
-  - 生成敌方存活单位列表，通过 `MenuDialogue` 支持 ESC 返回
-  - 选择目标后，再以同样方式从对方存活的身体部位中选择攻击目标
-  - 返回 `Attack` 行动，外部在 `StartTask()` 时即时扣除前摇成本
-- `AIInput` 采用完全随机策略：
-  - 从敌方存活单位与对应可攻击部位中随机抽取目标
-  - 若没有可用目标会抛出异常，战斗循环会捕获并记录
+  - 先弹出仅包含“攻击”的 `MenuDialogue`，为扩展其他指令保留入口
+  - 取得敌方存活单位生成菜单，并允许通过返回选项回到上一层
+  - 选择敌人后，以同样方式列出该敌人所有可攻击部位，并展示实时生命值
+  - 返回 `Attack` 行动实例，战斗主循环会在 `StartTask()` 中立即扣除前摇成本
+- `AIInput` 随机挑选敌方角色与身体部位：
+  - 若无法找到存活敌人或可攻击部位会抛出异常，主循环会捕获并记录
 - 所有菜单交互均由 `DialogueManager` 托管，MCP 模式下可通过 `game_select_option` 指令驱动
 
 ## 行动前后摇
@@ -31,30 +32,28 @@
 - `StartTask()` 会立即扣除前摇行动点，并执行 `OnStartTask()`，用于前摇动画或提示
 - `UpdateTask()` 每帧检查行动点是否重新蓄满，若满足会扣除后摇成本并调用 `OnExecute()`
 - `Attack` 的执行过程：
-  - 创建 `GenericDialogue` 描述攻击动作，并等待打印完成
-  - 计算 1~3 点伤害，先作用到被选中的身体部位，再同步角色总生命值
-  - 如 `CombatNode` 中存在对应 `CharacterNode` 会触发 `Shake()` 动画，同时播放受击音效
-  - 追加文本说明部位状态、角色是否倒下，并在对话框关闭后额外扣除 5 点行动点
-- 外部可通过将 `character.combatAction` 置空中断后摇，例如战斗流程被强制终止
+  - 创建 `GenericDialogue` 描述攻击动作，并等待文字打印完成
+  - 计算 1~3 点伤害写入被选中部位的生命值，界面通过 `CharacterNode.Shake()` 与受击音效反馈
+  - 持续追加部位状态、倒地提示，并在对话框关闭后额外扣除 5 点行动点
+- 外部随时可以将 `character.combatAction` 置空以中断后摇，例如强制结束战斗
 
 ## 角色与属性
 
-- `Character` 包含：
-  - `PropertyInt hp`：角色总生命值，与身体部位独立维护
-  - `PropertyInt speed`：行动点回复速度
-  - `PropertyDouble actionPoint`：当前与最大行动点
-  - 六个 `BodyPart`，每个都实现 `ICombatTarget`
-- `BodyPart` 维护独立生命值，用于位置化伤害表现；`GetName()` 提供中文显示名称
-- `IsAlive` 基于 `hp.value` 判断，只有总生命降为 0 才会倒下
-- 所有属性支持二进制序列化，使用 `ReadScope()`、`WriteScope()` 确保数据长度正确
-- `combatAction` 字段指向当前行动，用于战斗循环更新
+- `Character` 拥有：
+  - `PropertyInt speed`：决定每帧行动点回复量，默认最大值为 5
+  - `PropertyDouble actionPoint`：记录当前与最大行动点，默认上限为 10
+  - 六个 `BodyPart`：分别对应头、双臂、躯干与双腿，并统一暴露在 `bodyParts` 列表中
+  - `combatAction`：指向当前执行中的战斗行为
+- 角色被视为存活的条件是头部与躯干仍可用，`IsAlive` 会据此返回布尔值
+- `BodyPart` 维护独立生命值，通过 `TargetName` 提供中文部位名称，并实现 `ICombatTarget` 接口以统一命中逻辑
+- 角色与部位均支持二进制序列化，内部借助 `ReadScope()` 与 `WriteScope()` 保证数据块长度安全
 
 ## 战斗界面
 
 - `CombatNode` 提供战斗 UI 框架：
   - `PlayerTeamContainer` 与 `EnemyTeamContainer` 分别展示我方与敌方
-  - `Initialize()` 会清空旧节点、实例化新的 `CharacterNode` 并记录映射
-  - `TryGetCharacterNode()` 支持按角色查找 UI 节点，攻击流程根据它触发动画
+  - `Initialize()` 会清空旧节点、实例化新的 `CharacterNode` 并记录映射，确保重复进入战斗时状态干净
+  - `GetCharacterNode()` 可按角色查找 UI 节点，`GetReadyPosition()` 与 `GetPKPosition()` 提供待命与对战坐标
 - `CharacterNode` 展示角色信息：
   - `NameLabel` 显示角色名称
   - `PropertyNode` 显示行动点与生命值，`Jump` 属性用于表现行动状态
@@ -73,10 +72,10 @@
 
 - 战斗流程中的关键信息通过 `Log.Print` 记录，可在 MCP 模式下随响应返回
 - 所有玩家提示使用 `GenericDialogue` 或 `MenuDialogue` 呈现，保证 UI 与 MCP 能共享同一逻辑
-- 当指定 `LaunchArgs.port` 时，`GenericDialogue` 会自动跳过玩家输入，便于自动化测试
+- 当指定 `LaunchArgs.port` 时，`GenericDialogue` 会自动执行无需操作的分支，便于自动化测试
 
 ## 自动化与 MCP
 
-- `Combat` 内部在需要等待外部输入时会调用 `GameServer.McpCheckpoint()`，让 MCP 客户端获知当前状态
-- `CommandHandler` 将 `game_select_option` 翻译为 `MenuDialogue.SelectAndConfirm()`，实现远程操控
-- 战斗日志依赖 `LogListener` 收集，在 MCP 响应中返回完整文本，方便分析回放
+- `MenuDialogue`、`ProgramRoot` 与 `CommandHandler` 在等待输入时会调用 `GameServer.McpCheckpoint()`，向 MCP 客户端广播当前状态
+- `CommandHandler` 将 `game_select_option` 指令转化为 `MenuDialogue.SelectAndConfirm()`，实现远程操控菜单项
+- `GameServer` 使用 `LogListener` 汇总日志，并在下行响应中返回完整文本，便于自动化分析与回放
