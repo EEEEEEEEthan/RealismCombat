@@ -6,11 +6,11 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tb6ij"]
 atlas = ExtResource("2_lbkts")
-region = Rect2(80, 0, 16, 16)
+region = Rect2(112, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ryr72"]
 atlas = ExtResource("2_lbkts")
-region = Rect2(128, 0, 16, 16)
+region = Rect2(80, 0, 16, 16)
 
 [node name="CharacterNode" type="Control"]
 custom_minimum_size = Vector2(50, 39)
@@ -21,6 +21,7 @@ offset_bottom = 39.0
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("1_cptgj")
+maxSize = Vector2(50, 78)
 
 [node name="MoveAnchor" type="Control" parent="."]
 layout_mode = 1

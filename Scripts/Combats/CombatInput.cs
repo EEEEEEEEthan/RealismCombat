@@ -29,8 +29,6 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 {
 	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
-		using var _ = GetCharacterNode(character).ExpandScope();
-		using var __ = GetCharacterNode(character).MoveScope(combat.combatNode.PlayerReadyPosition.GlobalPosition);
 		while (true)
 		{
 			await DialogueManager.CreateMenuDialogue(

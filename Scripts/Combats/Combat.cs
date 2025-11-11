@@ -45,6 +45,9 @@ public class Combat
 				}
 				while (TryGetActor(out var actor))
 				{
+					var actorNode = combatNode.GetCharacterNode(actor);
+					using var _ = actorNode.MoveScope(combatNode.GetReadyPosition(actor));
+					using var __ = actorNode.ExpandScope();
 					await DialogueManager.CreateGenericDialogue($"{actor.name}的回合!");
 					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
 					Considering = actor;

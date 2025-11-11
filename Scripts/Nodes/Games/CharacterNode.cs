@@ -30,13 +30,13 @@ public partial class CharacterNode : Control
 	const float ResizeDuration = 0.2f;
 	const float ShakeDistance = 8f;
 	const float ShakeStepDuration = 0.02f;
-	static readonly Vector2 minSize = new(50f, 39f);
-	static readonly Vector2 maxSize = new(50f, 86f);
 	static readonly StringName enemyThemeName = new("PanelContainer_Orange");
 	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
+	[Export] Vector2 minSize = new(50f, 39f);
+	[Export] Vector2 maxSize = new(50f, 86f);
 	Character? character;
 	Control? moveAnchor;
 	Container? rootContainer;
@@ -81,9 +81,9 @@ public partial class CharacterNode : Control
 			if (expanded == value) return;
 			expanded = value;
 			if (IsNodeReady())
-				ApplyExpandedSizeImmediate();
-			else
 				ApplyExpandedSizeAnimated();
+			else
+				ApplyExpandedSizeImmediate();
 		}
 	}
 	public IDisposable ExpandScope() => new ExpandDisposable(this);

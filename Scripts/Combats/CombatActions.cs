@@ -34,8 +34,8 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 	{
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
 		var targetNode = combat.combatNode.GetCharacterNode(target);
-		var actorPosition = combat.combatNode.GetCharacterPosition(actor);
-		var targetPosition = combat.combatNode.GetCharacterPosition(target);
+		var actorPosition = combat.combatNode.GetPKPosition(actor);
+		var targetPosition = combat.combatNode.GetPKPosition(target);
 		using var _ = actorNode.MoveScope(actorPosition);
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();

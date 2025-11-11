@@ -55,9 +55,14 @@ public partial class CombatNode : Node
 		}
 	}
 	public CharacterNode GetCharacterNode(Character character) => characterNodes[character];
-	public Vector2 GetCharacterPosition(Character character)
+	public Vector2 GetPKPosition(Character character)
 	{
 		if (Combat.Allies.Contains(character)) return PlayerPkPosition.GlobalPosition;
 		return EnemyPkPosition.GlobalPosition;
+	}
+	public Vector2 GetReadyPosition(Character character)
+	{
+		if (Combat.Allies.Contains(character)) return PlayerReadyPosition.GlobalPosition;
+		return EnemyReadyPosition.GlobalPosition;
 	}
 }
