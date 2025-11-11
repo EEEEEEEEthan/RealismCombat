@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using RealismCombat.Combats;
+using RealismCombat.Extensions;
 namespace RealismCombat.Items;
 public enum ItemIdCode
 {
@@ -30,6 +31,7 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, PropertyInt hitPoin
 	#region serialize
 	public static Item Load(BinaryReader reader)
 	{
+		using var _ = reader.ReadScope();
 		var id = (ItemIdCode)reader.ReadUInt64();
 		Item item = id switch
 		{
@@ -41,6 +43,7 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, PropertyInt hitPoin
 	}
 	public void Serialize(BinaryWriter writer)
 	{
+		using var _ = writer.WriteScope();
 		writer.Write((ulong)id);
 		OnSerialize(writer);
 	}

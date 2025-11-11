@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
+using RealismCombat.Items;
 namespace RealismCombat.Characters;
 public class Character
 {
@@ -14,7 +15,7 @@ public class Character
 	public readonly BodyPart torso;
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
-	public IReadOnlyList<BodyPart> bodyParts;
+	public readonly IReadOnlyList<BodyPart> bodyParts;
 	public CombatAction? combatAction;
 	public bool IsAlive => head.Available && torso.Available;
 	public Character(string name)
@@ -24,12 +25,12 @@ public class Character
 		actionPoint = new(0f, 10f);
 		bodyParts =
 		[
-			head = new(BodyPartCode.Head),
-			leftArm = new(BodyPartCode.LeftArm),
-			rightArm = new(BodyPartCode.RightArm),
-			torso = new(BodyPartCode.Torso),
-			leftLeg = new(BodyPartCode.LeftLeg),
-			rightLeg = new(BodyPartCode.RightLeg),
+			head = new(BodyPartCode.Head, []),
+			leftArm = new(BodyPartCode.LeftArm, [new(ItemFlagCode.Arm),]),
+			rightArm = new(BodyPartCode.RightArm, [new(ItemFlagCode.Arm),]),
+			torso = new(BodyPartCode.Torso, []),
+			leftLeg = new(BodyPartCode.LeftLeg, []),
+			rightLeg = new(BodyPartCode.RightLeg, []),
 		];
 	}
 	public Character(BinaryReader reader)
@@ -41,8 +42,14 @@ public class Character
 			actionPoint = new(reader);
 			bodyParts =
 			[
-				head = new(reader), leftArm = new(reader), rightArm = new(reader), torso = new(reader), leftLeg = new(reader), rightLeg = new(reader),
+				head = new(BodyPartCode.Head, []),
+				leftArm = new(BodyPartCode.LeftArm, [new(ItemFlagCode.Arm),]),
+				rightArm = new(BodyPartCode.RightArm, [new(ItemFlagCode.Arm),]),
+				torso = new(BodyPartCode.Torso, []),
+				leftLeg = new(BodyPartCode.LeftLeg, []),
+				rightLeg = new(BodyPartCode.RightLeg, []),
 			];
+			foreach (var bodyPart in bodyParts) bodyPart.Deserialize(reader);
 		}
 	}
 	public void Serialize(BinaryWriter writer)

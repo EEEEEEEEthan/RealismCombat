@@ -36,7 +36,8 @@ public class PropertyInt
 		this.value = value;
 		this.maxValue = maxValue;
 	}
-	public PropertyInt(BinaryReader reader)
+	public PropertyInt(BinaryReader reader) => Deserialize(reader);
+	public void Deserialize(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{

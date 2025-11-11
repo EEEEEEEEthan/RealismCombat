@@ -1,6 +1,8 @@
 using System.IO;
+using Godot;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
+using RealismCombat.Items;
 namespace RealismCombat.Characters;
 /// <summary>
 ///     战斗中的身体部位类型
@@ -14,7 +16,7 @@ public enum BodyPartCode
 	LeftLeg,
 	RightLeg,
 }
-public class BodyPart : ICombatTarget
+public class BodyPart : ICombatTarget, IItemContainer
 {
 	public readonly BodyPartCode id;
 	/// <summary>
@@ -29,26 +31,32 @@ public class BodyPart : ICombatTarget
 	///     目标在日志或界面上的名称
 	/// </summary>
 	public string Name => this.GetName();
-	public BodyPart() : this(BodyPartCode.Head) { }
-	public BodyPart(BodyPartCode id)
+	public ItemSlot[] Slots { get; }
+	public BodyPart(BodyPartCode id, ItemSlot[] slots)
 	{
 		this.id = id;
 		HitPoint = new(10, 10);
+		Slots = slots;
 	}
-	public BodyPart(BinaryReader reader)
+	BodyPart() : this(BodyPartCode.Head, []) { }
+	public void Deserialize(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{
-			id = (BodyPartCode)reader.ReadInt32();
-			HitPoint = new(reader);
+			HitPoint.Deserialize(reader);
+			var count = reader.ReadInt32();
+			var trueCount = Mathf.Min(count, Slots.Length);
+			for (var i = 0; i < trueCount; i++) Slots[i].Deserialize(reader);
+			for (var i = trueCount; i < count; i++) new ItemSlot(default).Deserialize(reader);
 		}
 	}
 	public void Serialize(BinaryWriter writer)
 	{
 		using (writer.WriteScope())
 		{
-			writer.Write((int)id);
 			HitPoint.Serialize(writer);
+			writer.Write(Slots.Length);
+			foreach (var slot in Slots) slot.Serialize(writer);
 		}
 	}
 }
