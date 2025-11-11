@@ -9,7 +9,7 @@ public partial class BleedingNode : TextureRect
 	{
 		base._Process(delta);
 		time -= delta;
-		if (time <=0)
+		if (time <= 0)
 		{
 			time = GD.Randf() * 0.3;
 			index++;

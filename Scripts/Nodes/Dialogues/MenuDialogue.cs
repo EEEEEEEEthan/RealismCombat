@@ -151,6 +151,7 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	void Confirm()
 	{
+		Log.Print($"选择了选项{currentIndex} - {options[currentIndex].title}");
 		GetViewport().SetInputAsHandled();
 		Close();
 		taskCompletionSource.TrySetResult(currentIndex);

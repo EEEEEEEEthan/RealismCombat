@@ -78,6 +78,8 @@ public class Game
 	void Save()
 	{
 		if (string.IsNullOrEmpty(saveFilePath)) return;
+		var directory = Path.GetDirectoryName(saveFilePath);
+		if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
 		using var stream = new FileStream(saveFilePath, FileMode.Create, FileAccess.Write);
 		using var writer = new BinaryWriter(stream);
 		var snapshot = GetSnapshot();

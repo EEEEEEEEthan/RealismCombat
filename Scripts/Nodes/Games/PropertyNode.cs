@@ -50,6 +50,7 @@ public partial class PropertyNode : Control
 	ProgressBar? progressBar;
 	public Label Label => label ??= GetNodeOrNull<Label>("Label");
 	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
+	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
 	public string Title
 	{
@@ -69,7 +70,6 @@ public partial class PropertyNode : Control
 			Current = value.current;
 		}
 	}
-	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
 	public bool Jump
 	{

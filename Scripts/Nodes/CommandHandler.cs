@@ -64,7 +64,6 @@ public partial class CommandHandler(ProgramRoot programRoot) : Node
 				case "game_select_option":
 				{
 					var index = int.Parse(cmd.Args["id"]);
-					Log.Print($"选择了选项{index}");
 					((MenuDialogue)DialogueManager.GetTopDialogue()!).SelectAndConfirm(index);
 					break;
 				}

@@ -26,7 +26,7 @@ public partial class AudioManager : Node
 			if (instance.sfxPlayer != null && instance.sfxPlayer.Playing) return true;
 			foreach (var player in instance.activeSfxPlayers)
 			{
-				if (!GodotObject.IsInstanceValid(player)) continue;
+				if (!IsInstanceValid(player)) continue;
 				if (player.Playing) return true;
 			}
 			return false;
@@ -98,7 +98,7 @@ public partial class AudioManager : Node
 			extraPlayer.Finished -= OnFinished;
 			manager.activeSfxPlayers.Remove(extraPlayer);
 			manager.extraSfxBaseVolumes.Remove(extraPlayer);
-			if (!GodotObject.IsInstanceValid(extraPlayer)) return;
+			if (!IsInstanceValid(extraPlayer)) return;
 			extraPlayer.QueueFree();
 		}
 		extraPlayer.Finished += OnFinished;
@@ -133,7 +133,7 @@ public partial class AudioManager : Node
 		if (manager.sfxPlayer != null) manager.sfxPlayer.VolumeDb = manager.ResolveSfxVolume(manager.primarySfxBaseVolume);
 		foreach (var player in manager.activeSfxPlayers)
 		{
-			if (!GodotObject.IsInstanceValid(player)) continue;
+			if (!IsInstanceValid(player)) continue;
 			if (!manager.extraSfxBaseVolumes.TryGetValue(player, out var baseVolume)) baseVolume = 0f;
 			player.VolumeDb = manager.ResolveSfxVolume(baseVolume);
 		}
@@ -174,7 +174,7 @@ public partial class AudioManager : Node
 		{
 			foreach (var player in activeSfxPlayers)
 			{
-				if (!GodotObject.IsInstanceValid(player)) continue;
+				if (!IsInstanceValid(player)) continue;
 				player.Stop();
 				player.QueueFree();
 			}
