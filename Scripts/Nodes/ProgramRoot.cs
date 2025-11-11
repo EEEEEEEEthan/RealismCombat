@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Godot;
@@ -31,19 +30,73 @@ public partial class ProgramRoot : Node
 	{
 		var filePath = GetSaveFilePath(slotIndex);
 		if (File.Exists(filePath))
-		{
-			var lastWriteTime = File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-			return new()
+			try
 			{
-				title = $"# {slotIndex + 1}",
-				description = $"最近保存: {lastWriteTime}",
-			};
-		}
+				using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+				using var reader = new BinaryReader(stream);
+				var snapshot = new Game.Snapshot(reader);
+				return new()
+				{
+					title = $"#{slotIndex + 1} {snapshot.Title}",
+					description = $"{snapshot.Desc}",
+				};
+			}
+			catch (Exception e)
+			{
+				Log.PrintException(e);
+			}
 		return new()
 		{
-			title = $"# {slotIndex + 1} 空",
+			title = $"#{slotIndex + 1} 空",
 			description = "暂无存档",
 		};
+	}
+	/// <summary>
+	///     选择存档槽位。
+	/// </summary>
+	static async Task<int?> SelectSaveSlot(bool requireExisting)
+	{
+		while (true)
+		{
+			var options = new MenuOption[SaveSlotCount];
+			var hasExisting = false;
+			for (var i = 0; i < SaveSlotCount; i++)
+			{
+				options[i] = CreateSaveSlotOption(i);
+				if (File.Exists(GetSaveFilePath(i))) hasExisting = true;
+			}
+			if (requireExisting && !hasExisting)
+			{
+				await DialogueManager.CreateGenericDialogue("当前没有可读取的存档");
+				return null;
+			}
+			var menu = DialogueManager.CreateMenuDialogue(!requireExisting, options);
+			var choice = await menu;
+			if (choice == options.Length) return null;
+			var saveFilePath = GetSaveFilePath(choice);
+			var exists = File.Exists(saveFilePath);
+			switch (requireExisting)
+			{
+				case true when !exists:
+				{
+					var emptyDialogue = DialogueManager.CreateGenericDialogue("该槽位暂无存档");
+					await emptyDialogue;
+					continue;
+				}
+				case false when exists:
+				{
+					var confirmMenu = DialogueManager.CreateMenuDialogue(
+						true,
+						new MenuOption { title = "覆盖存档", description = "开始新游戏将覆盖该槽位", }
+					);
+					var confirmChoice = await confirmMenu;
+					if (confirmChoice == 0) return choice;
+					continue;
+				}
+				default:
+					return choice;
+			}
+		}
 	}
 	public override void _Ready()
 	{
@@ -165,54 +218,6 @@ public partial class ProgramRoot : Node
 		finally
 		{
 			gameNode.QueueFree();
-		}
-	}
-	/// <summary>
-	///     选择存档槽位。
-	/// </summary>
-	async Task<int?> SelectSaveSlot(bool requireExisting)
-	{
-		while (true)
-		{
-			var options = new MenuOption[SaveSlotCount];
-			var hasExisting = false;
-			for (var i = 0; i < SaveSlotCount; i++)
-			{
-				options[i] = CreateSaveSlotOption(i);
-				if (File.Exists(GetSaveFilePath(i))) hasExisting = true;
-			}
-			if (requireExisting && !hasExisting)
-			{
-				var noSaveDialogue = DialogueManager.CreateGenericDialogue("当前没有可读取的存档");
-				await noSaveDialogue;
-				return null;
-			}
-			var menu = DialogueManager.CreateMenuDialogue(!requireExisting, options);
-			var choice = await menu;
-			if (choice == options.Length) return null;
-			var saveFilePath = GetSaveFilePath(choice);
-			var exists = File.Exists(saveFilePath);
-			switch (requireExisting)
-			{
-				case true when !exists:
-				{
-					var emptyDialogue = DialogueManager.CreateGenericDialogue("该槽位暂无存档");
-					await emptyDialogue;
-					continue;
-				}
-				case false when exists:
-				{
-					var confirmMenu = DialogueManager.CreateMenuDialogue(
-						true,
-						new MenuOption { title = "覆盖存档", description = "开始新游戏将覆盖该槽位", }
-					);
-					var confirmChoice = await confirmMenu;
-					if (confirmChoice == 0) return choice;
-					continue;
-				}
-				default:
-					return choice;
-			}
 		}
 	}
 }

@@ -20,6 +20,30 @@ public class Game
 		readonly DateTime savedAt;
 		public GameVersion Version => version;
 		public DateTime SavedAt => savedAt;
+		public string Title
+		{
+			get
+			{
+				var delta = DateTime.Now - SavedAt;
+				return delta.TotalMinutes switch
+				{
+					< 1 => "刚刚",
+					< 60 => $"{(int)delta.TotalMinutes}分钟前",
+					_ => delta.TotalHours switch
+					{
+						< 24 => $"{(int)delta.TotalHours}小时前",
+						_ => delta.TotalDays switch
+						{
+							< 7 => $"{(int)delta.TotalDays}天前",
+							< 30 => $"{(int)(delta.TotalDays / 7)}周前",
+							< 365 => $"{(int)(delta.TotalDays / 30)}个月前",
+							_ => $"{SavedAt:yyyy-M-d}",
+						},
+					},
+				};
+			}
+		}
+		public string Desc => $"version: {version}";
 		public Snapshot() : this(GameVersion.newest, DateTime.UtcNow) { }
 		public Snapshot(BinaryReader reader)
 		{
