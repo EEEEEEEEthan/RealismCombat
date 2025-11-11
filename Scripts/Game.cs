@@ -8,6 +8,7 @@ using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
+using RealismCombat.Items;
 using RealismCombat.Nodes.Dialogues;
 using RealismCombat.Nodes.Games;
 using FileAccess = System.IO.FileAccess;
@@ -67,7 +68,12 @@ public class Game
 			}
 		}
 	}
-	static List<Character> CreateDefaultPlayers() => [new("Hero"),];
+	static List<Character> CreateDefaultPlayers()
+	{
+		var hero = new Character("Hero");
+		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = new LongSword();
+		return [hero,];
+	}
 	static Character[] CreateDefaultEnemies() => [new("Goblin"),];
 	static List<Character> ReadPlayers(BinaryReader reader)
 	{
