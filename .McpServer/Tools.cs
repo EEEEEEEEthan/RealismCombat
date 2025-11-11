@@ -31,7 +31,7 @@ static class SystemTools
 			};
 			Client = client;
 			Log.Print($"程序启动成功\n端口: {Client.port}\n进程ID: {Client.ProcessId}\n日志文件: {Client.logFilePath}");
-			builder.AppendLine(await Client.SendCommand("system_launch_program", 3000));
+			builder.AppendLine(await Client.SendCommand("system_launch_program", 10000));
 			return builder.ToString();
 		}
 		catch (Exception e)

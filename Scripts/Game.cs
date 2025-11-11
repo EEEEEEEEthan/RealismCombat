@@ -17,19 +17,29 @@ public class Game
 	public record Snapshot
 	{
 		readonly GameVersion version;
-		public Snapshot() => version = GameVersion.newest;
+		readonly DateTime savedAt;
+		public GameVersion Version => version;
+		public DateTime SavedAt => savedAt;
+		public Snapshot() : this(GameVersion.newest, DateTime.UtcNow) { }
 		public Snapshot(BinaryReader reader)
 		{
 			using (reader.ReadScope())
 			{
 				version = new(reader);
+				savedAt = new DateTime(reader.ReadInt64(), DateTimeKind.Utc).ToLocalTime();
 			}
+		}
+		Snapshot(GameVersion version, DateTime savedAt)
+		{
+			this.version = version;
+			this.savedAt = savedAt;
 		}
 		public void Serialize(BinaryWriter writer)
 		{
 			using (writer.WriteScope())
 			{
 				version.Serialize(writer);
+				writer.Write(savedAt.ToUniversalTime().Ticks);
 			}
 		}
 	}
