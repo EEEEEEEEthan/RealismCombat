@@ -30,13 +30,9 @@ public partial class CharacterNode : Control
 	const float ResizeDuration = 0.2f;
 	const float ShakeDistance = 8f;
 	const float ShakeStepDuration = 0.02f;
-	static readonly StringName enemyThemeName = new("PanelContainer_Orange");
-	static readonly StringName allyThemeName = new("PanelContainer_Blue");
 	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
-	static readonly Color[] playerBackgroundColors = [new("#5182ff"), new("#4141ff"), new("#2800ba"),];
-	static readonly Color[] enemyBackgroundColors = [new("#ff7930"), new("#e35100"), new("#e23000"),];
-	static readonly Color deadBackgroundColor = new("#797979");
+	static readonly Color deadBackgroundColor = GameColors.grayGradient[^2];
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
 	[Export] Vector2 minSize = new(50f, 39f);
 	[Export] Vector2 maxSize = new(50f, 86f);
@@ -183,12 +179,12 @@ public partial class CharacterNode : Control
 			background.SelfModulate = deadBackgroundColor;
 			return;
 		}
-		var colors = isEnemyTheme ? enemyBackgroundColors : playerBackgroundColors;
+		var colors = isEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
 		background.SelfModulate = hitPointNode.Progress switch
 		{
-			> 0.3 => colors[0],
-			> 0.25 => colors[1],
-			_ => colors[2],
+			> 0.3 => colors[1],
+			> 0.25 => colors[2],
+			_ => colors[3],
 		};
 	}
 	void ApplyExpandedSizeAnimated()

@@ -28,8 +28,8 @@ public partial class CombatNode : Node
 	public override void _Ready()
 	{
 		base._Ready();
-		PlayerPkPosition.Modulate = EnemyPkPosition.Modulate = Colors.Transparent;
-		PlayerReadyPosition.Modulate = EnemyReadyPosition.Modulate = Colors.Transparent;
+		PlayerPkPosition.Modulate = EnemyPkPosition.Modulate = GameColors.transparent;
+		PlayerReadyPosition.Modulate = EnemyReadyPosition.Modulate = GameColors.transparent;
 	}
 	public void Initialize(Combat combat)
 	{

@@ -55,12 +55,12 @@ public partial class GenericDialogue : BaseDialogue
 			printer.interval = 0.1f;
 		if (printer.Printing || string.IsNullOrEmpty(printer.Text))
 		{
-			icon.SelfModulate = Colors.Transparent;
+			icon.SelfModulate = GameColors.transparent;
 		}
 		else
 		{
 			time += delta;
-			icon.SelfModulate = time > 0.5 ? Colors.White : Colors.Transparent;
+			icon.SelfModulate = time > 0.5 ? GameColors.White : GameColors.transparent;
 			if (time > 1) time = 0;
 		}
 		if (LaunchArgs.port != null)
