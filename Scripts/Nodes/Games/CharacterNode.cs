@@ -84,7 +84,6 @@ public partial class CharacterNode : Control
 				ApplyExpandedSizeImmediate();
 			else
 				ApplyExpandedSizeAnimated();
-			UpdateOverviewVisibility();
 		}
 	}
 	public IDisposable ExpandScope() => new ExpandDisposable(this);
@@ -164,6 +163,7 @@ public partial class CharacterNode : Control
 	}
 	void ApplyExpandedSizeAnimated()
 	{
+		UpdateOverviewVisibility();
 		var container = RootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();
@@ -174,6 +174,7 @@ public partial class CharacterNode : Control
 	}
 	void ApplyExpandedSizeImmediate()
 	{
+		UpdateOverviewVisibility();
 		var container = RootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();

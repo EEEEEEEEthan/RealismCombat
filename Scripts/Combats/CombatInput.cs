@@ -11,7 +11,7 @@ public abstract class CombatInput(Combat combat)
 {
 	protected static ICombatTarget[] GetAvailableTargets(Character character) =>
 		character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
-	protected Combat CurrentCombat => combat;
+	protected readonly Combat combat = combat;
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
 	protected Character[] GetAliveOpponents(Character character) => GetOpponents(character).Where(c => c.IsAlive).ToArray();
 	protected Character? GetRandomOpponent(Character character)
@@ -65,7 +65,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
 					var targetIndex = await targetMenu;
 					if (targetIndex == aliveTargets.Length) break;
-					return new Attack(character, selectedOpponent, aliveTargets[targetIndex], CurrentCombat);
+					return new Attack(character, selectedOpponent, aliveTargets[targetIndex], combat);
 				}
 			}
 		}
@@ -81,6 +81,6 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
 		var randomValue = GD.Randi();
 		var index = (int)(randomValue % (uint)aliveTargets.Length);
-		return Task.FromResult<CombatAction>(new Attack(character, target, aliveTargets[index], CurrentCombat));
+		return Task.FromResult<CombatAction>(new Attack(character, target, aliveTargets[index], combat));
 	}
 }

@@ -29,7 +29,7 @@ public abstract class CombatAction(Character actor, Combat combat, double preCas
 public class Attack(Character actor, Character target, ICombatTarget combatTarget, Combat combat) : CombatAction(actor, combat, 3, 3)
 {
 	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
-	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑!");
+	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑开始蓄力...");
 	protected override async Task OnExecute()
 	{
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
