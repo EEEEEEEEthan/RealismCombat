@@ -16,7 +16,7 @@ public class Character
 	public readonly BodyPart rightLeg;
 	public IReadOnlyList<BodyPart> bodyParts;
 	public CombatAction? combatAction;
-	public bool IsAlive => head.Available || torso.Available;
+	public bool IsAlive => head.Available && torso.Available;
 	public Character(string name)
 	{
 		this.name = name;
@@ -54,19 +54,5 @@ public class Character
 			actionPoint.Serialize(writer);
 			foreach (var bodyPart in bodyParts) bodyPart.Serialize(writer);
 		}
-	}
-	/// <summary>
-	///     获取角色生命状况总览。
-	/// </summary>
-	public (int value, int maxValue) GetHitPointOverview()
-	{
-		var total = 0;
-		var max = 0;
-		foreach (var bodyPart in bodyParts)
-		{
-			total += bodyPart.HitPoint.value;
-			max += bodyPart.HitPoint.maxValue;
-		}
-		return (total, max);
 	}
 }
