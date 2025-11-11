@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
@@ -5,6 +6,26 @@ namespace RealismCombat.Nodes.Games;
 [Tool]
 public partial class CharacterNode : Control
 {
+	readonly struct ExpandDisposable : IDisposable
+	{
+		readonly CharacterNode node;
+		public ExpandDisposable(CharacterNode node)
+		{
+			this.node = node;
+			node.Expanded = true;
+		}
+		public void Dispose() => node.Expanded = false;
+	}
+	readonly struct MoveDisposable : IDisposable
+	{
+		readonly CharacterNode node;
+		public MoveDisposable(CharacterNode node, Vector2 globalPosition)
+		{
+			this.node = node;
+			node.MoveTo(globalPosition);
+		}
+		public void Dispose() => node.MoveTo(node.GlobalPosition);
+	}
 	const float MoveDuration = 0.2f;
 	const float ResizeDuration = 0.2f;
 	const float ShakeDistance = 8f;
@@ -44,11 +65,15 @@ public partial class CharacterNode : Control
 		get => RootContainer.ThemeTypeVariation == enemyThemeName;
 		set => RootContainer.ThemeTypeVariation = value ? enemyThemeName : allyThemeName;
 	}
+	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
+	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
+	VBoxContainer PropertyContainer => propertyContainer ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
+	Label NameLabel => nameLabel ??= PropertyContainer.GetNode<Label>("Name");
 	/// <summary>
 	///     获取或设置当前节点是否处于展开状态。
 	/// </summary>
 	[Export]
-	public bool Expanded
+	bool Expanded
 	{
 		get => expanded;
 		set
@@ -62,10 +87,8 @@ public partial class CharacterNode : Control
 			UpdateOverviewVisibility();
 		}
 	}
-	Control MoveAnchor => moveAnchor ??= GetNode<Control>("MoveAnchor");
-	Container RootContainer => rootContainer ??= GetNode<Container>("MoveAnchor/RootContainer");
-	VBoxContainer PropertyContainer => propertyContainer ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
-	Label NameLabel => nameLabel ??= PropertyContainer.GetNode<Label>("Name");
+	public IDisposable ExpandScope() => new ExpandDisposable(this);
+	public IDisposable MoveScope(Vector2 globalPosition) => new MoveDisposable(this, globalPosition);
 	public void Initialize(Combat combat, Character value)
 	{
 		character = value;

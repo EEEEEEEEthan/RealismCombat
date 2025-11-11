@@ -15,5 +15,5 @@ public interface ICombatTarget
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
-	bool IsTargetAlive { get; }
+	bool Available { get; }
 }

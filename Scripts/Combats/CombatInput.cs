@@ -5,12 +5,14 @@ using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 using RealismCombat.Nodes.Dialogues;
+using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
 public abstract class CombatInput(Combat combat)
 {
+	protected static ICombatTarget[] GetAvailableTargets(Character character) =>
+		character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	protected Combat CurrentCombat => combat;
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
-	protected Character[] GetOpponents(Character character) => combat.Allies.Contains(character) ? combat.Enemies : combat.Allies;
 	protected Character[] GetAliveOpponents(Character character) => GetOpponents(character).Where(c => c.IsAlive).ToArray();
 	protected Character? GetRandomOpponent(Character character)
 	{
@@ -20,12 +22,15 @@ public abstract class CombatInput(Combat combat)
 		var index = (int)(randomValue % (uint)alive.Length);
 		return alive[index];
 	}
-	protected ICombatTarget[] GetAliveTargets(Character character) => character.bodyParts.Where(part => part.IsTargetAlive).Cast<ICombatTarget>().ToArray();
+	protected CharacterNode GetCharacterNode(Character character) => combat.combatNode.GetCharacterNode(character);
+	Character[] GetOpponents(Character character) => combat.Allies.Contains(character) ? combat.Enemies : combat.Allies;
 }
 public class PlayerInput(Combat combat) : CombatInput(combat)
 {
 	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
+		using var _ = GetCharacterNode(character).ExpandScope();
+		using var __ = GetCharacterNode(character).MoveScope(combat.combatNode.PlayerReadyPosition.GlobalPosition);
 		while (true)
 		{
 			await DialogueManager.CreateMenuDialogue(
@@ -34,14 +39,10 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var aliveOpponents = GetAliveOpponents(character);
 			if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
 			var options = aliveOpponents
-				.Select(o =>
+				.Select(o => new MenuOption
 				{
-					(var hitPointValue, var hitPointMax) = o.GetHitPointOverview();
-					return new MenuOption
-					{
-						title = o.name,
-						description = string.Empty,
-					};
+					title = o.name,
+					description = string.Empty,
 				})
 				.ToArray();
 			while (true)
@@ -52,7 +53,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var selectedOpponent = aliveOpponents[selected];
 				while (true)
 				{
-					var aliveTargets = GetAliveTargets(selectedOpponent);
+					var aliveTargets = GetAvailableTargets(selectedOpponent);
 					if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
 					var targetOptions = aliveTargets
 						.Select(o => new MenuOption
@@ -76,7 +77,7 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	{
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
-		var aliveTargets = GetAliveTargets(target);
+		var aliveTargets = GetAvailableTargets(target);
 		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
 		var randomValue = GD.Randi();
 		var index = (int)(randomValue % (uint)aliveTargets.Length);

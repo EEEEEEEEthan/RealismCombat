@@ -16,7 +16,7 @@ public class Character
 	public readonly BodyPart rightLeg;
 	public IReadOnlyList<BodyPart> bodyParts;
 	public CombatAction? combatAction;
-	public bool IsAlive => head.IsTargetAlive || torso.IsTargetAlive;
+	public bool IsAlive => head.Available || torso.Available;
 	public Character(string name)
 	{
 		this.name = name;

@@ -14,17 +14,22 @@ public partial class CombatNode : Node
 	readonly Dictionary<Character, CharacterNode> characterNodes = new();
 	VBoxContainer? playerTeamContainer;
 	VBoxContainer? enemyTeamContainer;
-	Control? playerPosition;
-	Control? enemyPosition;
-	public Control PlayerPosition => playerPosition ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
-	public Control EnemyPosition => enemyPosition ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
-	public Combat Combat { get; private set; }
+	Control? playerPkPosition;
+	Control? enemyPkPosition;
+	Control? playerReadyPosition;
+	Control? enemyReadyPosition;
+	public Control PlayerPkPosition => playerPkPosition ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
+	public Control EnemyPkPosition => enemyPkPosition ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
+	public Control PlayerReadyPosition => playerReadyPosition ??= GetNode<Control>("SafeArea/ReadyContainer/PlayerPosition");
+	public Control EnemyReadyPosition => enemyReadyPosition ??= GetNode<Control>("SafeArea/ReadyContainer/EnemyPosition");
+	public Combat Combat { get; private set; } = null!;
 	VBoxContainer PlayerTeamContainer => playerTeamContainer ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
 	VBoxContainer EnemyTeamContainer => enemyTeamContainer ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
 	public override void _Ready()
 	{
 		base._Ready();
-		PlayerPosition.Modulate = EnemyPosition.Modulate = Colors.Transparent;
+		PlayerPkPosition.Modulate = EnemyPkPosition.Modulate = Colors.Transparent;
+		PlayerReadyPosition.Modulate = EnemyReadyPosition.Modulate = Colors.Transparent;
 	}
 	public void Initialize(Combat combat)
 	{
@@ -52,7 +57,7 @@ public partial class CombatNode : Node
 	public CharacterNode GetCharacterNode(Character character) => characterNodes[character];
 	public Vector2 GetCharacterPosition(Character character)
 	{
-		if (Combat.Allies.Contains(character)) return PlayerPosition.GlobalPosition;
-		return EnemyPosition.GlobalPosition;
+		if (Combat.Allies.Contains(character)) return PlayerPkPosition.GlobalPosition;
+		return EnemyPkPosition.GlobalPosition;
 	}
 }

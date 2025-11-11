@@ -20,7 +20,7 @@ public class BodyPart : ICombatTarget
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
-	public bool IsTargetAlive => HitPoint.value > 0;
+	public bool Available => HitPoint.value > 0;
 	/// <summary>
 	///     目标的生命值属性
 	/// </summary>
