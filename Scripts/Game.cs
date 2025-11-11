@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
+using RealismCombat.Characters;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
 using RealismCombat.Nodes.Dialogues;
@@ -15,7 +17,7 @@ public class Game
 	public record Snapshot
 	{
 		readonly GameVersion version;
-		public Snapshot(Game game) => version = GameVersion.newest;
+		public Snapshot() => version = GameVersion.newest;
 		public Snapshot(BinaryReader reader)
 		{
 			using (reader.ReadScope())
@@ -31,16 +33,29 @@ public class Game
 			}
 		}
 	}
-	readonly string saveFilePath = string.Empty;
+	static List<Character> CreateDefaultPlayers() => [new("Hero"),];
+	static Character[] CreateDefaultEnemies() => [new("Goblin"),];
+	static List<Character> ReadPlayers(BinaryReader reader)
+	{
+		var count = reader.ReadInt32();
+		var result = new List<Character>(count);
+		for (var i = 0; i < count; i++) result.Add(new(reader));
+		return result;
+	}
+	readonly string saveFilePath;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	readonly Node gameNode;
+	readonly List<Character> players;
 	/// <summary>
 	///     新游戏
 	/// </summary>
 	/// <param name="saveFilePath"></param>
-	public Game(string saveFilePath, Node gameNode) : this(gameNode)
+	/// <param name="gameNode">用于承载场景的节点</param>
+	public Game(string saveFilePath, Node gameNode)
 	{
 		this.saveFilePath = saveFilePath;
+		this.gameNode = gameNode;
+		players = CreateDefaultPlayers();
 		StartGameLoop();
 	}
 	/// <summary>
@@ -48,23 +63,32 @@ public class Game
 	/// </summary>
 	/// <param name="saveFilePath"></param>
 	/// <param name="reader"></param>
-	public Game(string saveFilePath, BinaryReader reader, Node gameNode) : this(gameNode)
+	/// <param name="gameNode">用于承载场景的节点</param>
+	public Game(string saveFilePath, BinaryReader reader, Node gameNode)
 	{
+		if (gameNode is null) throw new ArgumentNullException(nameof(gameNode));
 		this.saveFilePath = saveFilePath;
+		this.gameNode = gameNode;
 		_ = new Snapshot(reader);
+		players = ReadPlayers(reader);
 		StartGameLoop();
 	}
-	Game(Node gameNode) => this.gameNode = gameNode;
-	public Snapshot GetSnapshot() => new(this);
+	public Snapshot GetSnapshot() => new();
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	void Save()
 	{
+		if (string.IsNullOrEmpty(saveFilePath)) return;
 		using var stream = new FileStream(saveFilePath, FileMode.Create, FileAccess.Write);
 		using var writer = new BinaryWriter(stream);
 		var snapshot = GetSnapshot();
 		snapshot.Serialize(writer);
+		WritePlayers(writer);
 	}
-	void Quit() => taskCompletionSource?.SetResult();
+	void Quit()
+	{
+		Save();
+		taskCompletionSource.SetResult();
+	}
 	async void StartGameLoop()
 	{
 		try
@@ -84,11 +108,7 @@ public class Game
 						PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 						var combatNode = combatNodeScene.Instantiate<CombatNode>();
 						gameNode.AddChild(combatNode);
-						var combat = new Combat(
-							[new("Hero"),],
-							[new("Goblin"),],
-							combatNode
-						);
+						var combat = new Combat(players.ToArray(), CreateDefaultEnemies(), combatNode);
 						try
 						{
 							await combat;
@@ -122,5 +142,10 @@ public class Game
 			Log.PrintException(e);
 			Quit();
 		}
+	}
+	void WritePlayers(BinaryWriter writer)
+	{
+		writer.Write(players.Count);
+		foreach (var player in players) player.Serialize(writer);
 	}
 }
