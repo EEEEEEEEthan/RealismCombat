@@ -56,7 +56,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					var targetOptions = aliveTargets
 						.Select(o => new MenuOption
 						{
-							title = $"{selectedOpponent.name}的{o.TargetName}",
+							title = $"{selectedOpponent.name}的{o.Name}",
 							description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
 						})
 						.ToArray();

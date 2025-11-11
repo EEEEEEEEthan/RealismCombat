@@ -48,6 +48,12 @@
 - `BodyPart` 维护独立生命值，通过 `TargetName` 提供中文部位名称，并实现 `ICombatTarget` 接口以统一命中逻辑
 - 角色与部位均支持二进制序列化，内部借助 `ReadScope()` 与 `WriteScope()` 保证数据块长度安全
 
+## 装备
+
+- `Equipment` 同样实现 `ICombatTarget`，可在战斗流程中与身体部位一致地被选择或结算伤害
+- 每件装备包含名称、`EquipmentType` 掩码与耐久 `HitPoint`；默认情况下耐久度为 10/10，可在构造时自定义
+- 装备数据支持二进制序列化，使用 `ReadScope()`、`WriteScope()` 保持与角色存档格式一致
+
 ## 战斗界面
 
 - `CombatNode` 提供战斗 UI 框架：

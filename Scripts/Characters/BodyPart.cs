@@ -28,7 +28,7 @@ public class BodyPart : ICombatTarget
 	/// <summary>
 	///     目标在日志或界面上的名称
 	/// </summary>
-	public string TargetName => this.GetName();
+	public string Name => this.GetName();
 	public BodyPart() : this(BodyPartCode.Head) { }
 	public BodyPart(BodyPartCode id)
 	{

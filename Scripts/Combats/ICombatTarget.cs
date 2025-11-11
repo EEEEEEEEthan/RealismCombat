@@ -7,7 +7,7 @@ public interface ICombatTarget
 	/// <summary>
 	///     目标在日志或界面上的名称
 	/// </summary>
-	string TargetName { get; }
+	string Name { get; }
 	/// <summary>
 	///     目标的生命值属性
 	/// </summary>

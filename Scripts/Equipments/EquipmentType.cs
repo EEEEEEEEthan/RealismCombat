@@ -9,5 +9,5 @@ public enum EquipmentType
 	/// <summary>
 	///     武器类型装备
 	/// </summary>
-	Weapon = 1 << 0,
+	Arm = 1 << 0,
 }

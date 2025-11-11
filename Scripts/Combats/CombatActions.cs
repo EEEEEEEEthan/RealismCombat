@@ -41,13 +41,13 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
 		var damage = CalculateDamage();
-		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.TargetName}!");
+		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.Name}!");
 		await dialogue.PrintDone;
 		targetNode.Shake();
 		AudioManager.PlaySfx(ResourceTable.retroHurt1);
 		combatTarget.HitPoint.value = Mathf.Clamp(combatTarget.HitPoint.value - damage, 0, combatTarget.HitPoint.maxValue);
-		dialogue.AddText($"{target.name}的{combatTarget.TargetName}受到了{damage}点伤害，剩余{combatTarget.HitPoint.value}/{combatTarget.HitPoint.maxValue}");
-		if (!combatTarget.Available) dialogue.AddText($"{target.name}的{combatTarget.TargetName}失去战斗能力");
+		dialogue.AddText($"{target.name}的{combatTarget.Name}受到了{damage}点伤害，剩余{combatTarget.HitPoint.value}/{combatTarget.HitPoint.maxValue}");
+		if (!combatTarget.Available) dialogue.AddText($"{target.name}的{combatTarget.Name}失去战斗能力");
 		if (!target.IsAlive) dialogue.AddText($"{target.name}倒下了");
 		await dialogue;
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
