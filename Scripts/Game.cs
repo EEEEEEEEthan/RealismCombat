@@ -74,7 +74,12 @@ public class Game
 		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = new LongSword();
 		return [hero,];
 	}
-	static Character[] CreateDefaultEnemies() => [new("Goblin"),];
+	static Character[] CreateDefaultEnemies()
+	{
+		var goblin = new Character("Goblin");
+		if (goblin.rightArm.Slots.Length > 0) goblin.rightArm.Slots[0].Item = new LongSword();
+		return [goblin,];
+	}
 	static List<Character> ReadPlayers(BinaryReader reader)
 	{
 		var count = reader.ReadInt32();
