@@ -27,6 +27,27 @@ public class Combat
 		StartLoop();
 	}
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
+	internal async Task<ReactionDecision> HandleIncomingAttack(Attack attack)
+	{
+		var defender = attack.Target;
+		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
+		var attacker = attack.Actor;
+		var target = attack.CombatTarget;
+		CombatInput input = Allies.Contains(defender) ? playerInput : aiInput;
+		var decision = await input.MakeReactionDecisionTask(defender, attacker, target);
+		switch (decision.Type)
+		{
+			case ReactionType.Block when decision.BlockTarget is { Available: true, }:
+				defender.reaction = Math.Max(0, defender.reaction - 1);
+				return decision;
+			case ReactionType.Dodge:
+				defender.reaction = Math.Max(0, defender.reaction - 1);
+				defender.combatAction = null;
+				return decision;
+			default:
+				return ReactionDecision.CreateEndure();
+		}
+	}
 	async void StartLoop()
 	{
 		try

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
@@ -29,6 +30,9 @@ public abstract class CombatAction(Character actor, Combat combat, double preCas
 public class Attack(Character actor, Character target, ICombatTarget combatTarget, Combat combat) : CombatAction(actor, combat, 3, 3)
 {
 	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
+	public Character Actor => actor;
+	public Character Target => target;
+	public ICombatTarget CombatTarget => combatTarget;
 	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑开始蓄力...");
 	protected override async Task OnExecute()
 	{
@@ -40,16 +44,48 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
-		var damage = CalculateDamage();
-		var dialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.Name}!");
-		await dialogue.PrintDone;
-		targetNode.Shake();
-		AudioManager.PlaySfx(ResourceTable.retroHurt1);
-		combatTarget.HitPoint.value = Mathf.Clamp(combatTarget.HitPoint.value - damage, 0, combatTarget.HitPoint.maxValue);
-		dialogue.AddText($"{target.name}的{combatTarget.Name}受到了{damage}点伤害，剩余{combatTarget.HitPoint.value}/{combatTarget.HitPoint.maxValue}");
-		if (!combatTarget.Available) dialogue.AddText($"{target.name}的{combatTarget.Name}失去战斗能力");
-		if (!target.IsAlive) dialogue.AddText($"{target.name}倒下了");
-		await dialogue;
+		var startDialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.Name}!");
+		await startDialogue;
+		var reaction = await combat.HandleIncomingAttack(this);
+		var finalTarget = combatTarget;
+		var attackHit = true;
+		var resultMessages = new List<string>();
+		switch (reaction.Type)
+		{
+			case ReactionType.Dodge:
+				resultMessages.Add($"{target.name}及时闪避, 攻击落空");
+				attackHit = false;
+				break;
+			case ReactionType.Block:
+				if (reaction.BlockTarget is not null)
+				{
+					finalTarget = reaction.BlockTarget;
+					resultMessages.Add($"{target.name}使用{finalTarget.Name}进行了格挡");
+				}
+				break;
+		}
+		if (attackHit)
+		{
+			var damage = CalculateDamage();
+			targetNode.Shake();
+			AudioManager.PlaySfx(ResourceTable.retroHurt1);
+			finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damage, 0, finalTarget.HitPoint.maxValue);
+			resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damage}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
+			if (!finalTarget.Available)
+			{
+				if (finalTarget is BodyPart)
+					resultMessages.Add($"{target.name}的{finalTarget.Name}失去战斗能力");
+				else
+					resultMessages.Add($"{target.name}的{finalTarget.Name}已无法继续使用");
+			}
+			if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
+		}
+		else if (resultMessages.Count == 0)
+		{
+			resultMessages.Add($"{target.name}成功避开了攻击");
+		}
+		var resultDialogue = DialogueManager.CreateGenericDialogue(resultMessages.ToArray());
+		await resultDialogue;
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
 	}
 }

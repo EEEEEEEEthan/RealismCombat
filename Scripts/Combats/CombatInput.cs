@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Items;
 using RealismCombat.Nodes.Dialogues;
 using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
@@ -11,8 +13,27 @@ public abstract class CombatInput(Combat combat)
 {
 	protected static ICombatTarget[] GetAvailableTargets(Character character) =>
 		character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
+	protected static ICombatTarget[] GetBlockTargets(Character character)
+	{
+		var targets = new List<ICombatTarget>();
+		foreach (var bodyPart in character.bodyParts)
+		{
+			if (bodyPart.Available) targets.Add(bodyPart);
+			if (bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm)
+				foreach (var slot in bodyPart.Slots)
+					if (slot.Item is { Available: true, } target)
+						targets.Add(target);
+		}
+		return targets.ToArray();
+	}
 	protected readonly Combat combat = combat;
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
+	public virtual Task<ReactionDecision> MakeReactionDecisionTask(
+		Character defender,
+		Character attacker,
+		ICombatTarget target
+	) =>
+		Task.FromResult(ReactionDecision.CreateEndure());
 	protected Character[] GetAliveOpponents(Character character) => GetOpponents(character).Where(c => c.IsAlive).ToArray();
 	protected Character? GetRandomOpponent(Character character)
 	{
@@ -68,6 +89,63 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			}
 		}
 	}
+	public override async Task<ReactionDecision> MakeReactionDecisionTask(
+		Character defender,
+		Character attacker,
+		ICombatTarget target
+	)
+	{
+		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
+		while (true)
+		{
+			var menu = DialogueManager.CreateMenuDialogue(
+				new MenuOption
+				{
+					title = "格挡",
+					description = "消耗1点反应, 选择身体或武器承受伤害",
+				},
+				new MenuOption
+				{
+					title = "闪避",
+					description = "消耗1点反应, 打断自身行动并躲开伤害",
+				},
+				new MenuOption
+				{
+					title = "承受",
+					description = "不进行额外反应",
+				}
+			);
+			var selected = await menu;
+			switch (selected)
+			{
+				case 0:
+				{
+					var blockTargets = GetBlockTargets(defender);
+					if (blockTargets.Length == 0)
+					{
+						var tip = DialogueManager.CreateGenericDialogue($"{defender.name}没有可用的格挡目标");
+						await tip;
+						continue;
+					}
+					var options = blockTargets
+						.Select(t => new MenuOption
+						{
+							title = t.Name,
+							description = $"生命 {t.HitPoint.value}/{t.HitPoint.maxValue}",
+						})
+						.ToArray();
+					var blockMenu = DialogueManager.CreateMenuDialogue(true, options);
+					var blockIndex = await blockMenu;
+					if (blockIndex == options.Length) continue;
+					return ReactionDecision.CreateBlock(blockTargets[blockIndex]);
+				}
+				case 1:
+					return ReactionDecision.CreateDodge();
+				default:
+					return ReactionDecision.CreateEndure();
+			}
+		}
+	}
 }
 public class AIInput(Combat combat) : CombatInput(combat)
 {
@@ -80,5 +158,18 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var randomValue = GD.Randi();
 		var index = (int)(randomValue % (uint)aliveTargets.Length);
 		return Task.FromResult<CombatAction>(new Attack(character, target, aliveTargets[index], combat));
+	}
+	public override Task<ReactionDecision> MakeReactionDecisionTask(
+		Character defender,
+		Character attacker,
+		ICombatTarget target
+	)
+	{
+		if (defender.reaction <= 0) return Task.FromResult(ReactionDecision.CreateEndure());
+		var blockTargets = GetBlockTargets(defender);
+		if (blockTargets.Length == 0) return Task.FromResult(ReactionDecision.CreateEndure());
+		var priorityTarget = blockTargets.FirstOrDefault(t => t is Item);
+		var chosen = priorityTarget ?? blockTargets.First();
+		return Task.FromResult(ReactionDecision.CreateBlock(chosen));
 	}
 }
