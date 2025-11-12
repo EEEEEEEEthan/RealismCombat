@@ -45,6 +45,7 @@ public class Combat
 				}
 				while (TryGetActor(out var actor))
 				{
+					actor.reaction = 1;
 					var actorNode = combatNode.GetCharacterNode(actor);
 					using var _ = actorNode.MoveScope(combatNode.GetReadyPosition(actor));
 					using var __ = actorNode.ExpandScope();

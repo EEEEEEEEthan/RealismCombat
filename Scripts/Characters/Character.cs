@@ -16,6 +16,7 @@ public class Character
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
 	public readonly IReadOnlyList<BodyPart> bodyParts;
+	public int reaction;
 	public CombatAction? combatAction;
 	public bool IsAlive => head.Available && torso.Available;
 	public Character(string name)
@@ -23,6 +24,7 @@ public class Character
 		this.name = name;
 		speed = new(5, 5);
 		actionPoint = new(0f, 10f);
+		reaction = 1;
 		bodyParts =
 		[
 			head = new(BodyPartCode.Head, []),
@@ -50,6 +52,7 @@ public class Character
 				rightLeg = new(BodyPartCode.RightLeg, []),
 			];
 			foreach (var bodyPart in bodyParts) bodyPart.Deserialize(reader);
+			reaction = 1;
 		}
 	}
 	public void Serialize(BinaryWriter writer)
