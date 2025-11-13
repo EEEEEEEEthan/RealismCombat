@@ -154,7 +154,8 @@ public partial class CharacterNode : Control
 		var hasCombatAction = character.combatAction != null;
 		var actionPointValue = hasCombatAction ? actionPoint.maxValue : actionPoint.value;
 		actionPointNode.Value = (actionPointValue, actionPoint.maxValue);
-		actionPointNode.Jump = hasCombatAction || combat.Considering == character;
+		// 角色死亡后,行动力条不再抖动
+		actionPointNode.Jump = character.IsAlive && (hasCombatAction || combat.Considering == character);
 		var headHitPoint = character.head.HitPoint;
 		var torsoHitPoint = character.torso.HitPoint;
 		var headRatio = headHitPoint.maxValue > 0 ? headHitPoint.value / (double)headHitPoint.maxValue : 0d;
