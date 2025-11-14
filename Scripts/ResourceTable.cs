@@ -29,6 +29,7 @@ public static class SpriteTable
 {
 	public static readonly Cache<AtlasTexture> arrowDown = new(() => CreateAtlas(ResourceTable.icon8, 16, 2, 8, 5));
 	public static readonly Cache<AtlasTexture> arrowRight = new(() => CreateAtlas(ResourceTable.icon8, 8, 0, 8, 8));
+	public static readonly Cache<AtlasTexture> star = new(() => CreateAtlas(ResourceTable.icon8, 9, 9, 5, 5));
 	public static readonly IReadOnlyList<Cache<AtlasTexture>> bleeding = new List<Cache<AtlasTexture>>
 	{
 		new(() => CreateAtlas(ResourceTable.bleeding, 0, 0, 16, 16)),

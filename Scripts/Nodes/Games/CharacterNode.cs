@@ -55,9 +55,11 @@ public partial class CharacterNode : Control
 	PropertyNode torsoHitPointNode = null!;
 	PropertyNode leftLegHitPointNode = null!;
 	PropertyNode rightLegHitPointNode = null!;
+	Container reactionContainer = null!;
 	NinePatchRect background = null!;
 	Control moveAnchor = null!;
 	bool isEnemyTheme;
+	int reactionCount;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
@@ -87,6 +89,20 @@ public partial class CharacterNode : Control
 				ApplyExpandedSizeImmediate();
 		}
 	}
+	/// <summary>
+	///     获取或设置当前反应点数。
+	/// </summary>
+	[Export]
+	int ReactionCount
+	{
+		get => reactionCount;
+		set
+		{
+			if (reactionCount == value) return;
+			reactionCount = value;
+			if (IsNodeReady()) UpdateReactionDisplay();
+		}
+	}
 	public IDisposable ExpandScope() => new ExpandDisposable(this);
 	public IDisposable MoveScope(Vector2 globalPosition) => new MoveDisposable(this, globalPosition);
 	public void Initialize(Combat combat, Character value)
@@ -96,6 +112,7 @@ public partial class CharacterNode : Control
 		nameLabel.Text = value.name;
 		this.combat = combat;
 		UpdateBackground();
+		ReactionCount = value.reaction;
 	}
 	public override void _Ready()
 	{
@@ -103,7 +120,7 @@ public partial class CharacterNode : Control
 		rootContainer = GetNode<Container>("MoveAnchor/RootContainer");
 		background = rootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
 		propertyContainer = GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
-		nameLabel = propertyContainer.GetNode<Label>("Name");
+		nameLabel = propertyContainer.GetNode<Label>("HBoxContainer/Name");
 		moveAnchor = GetNode<Control>("MoveAnchor");
 		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
 		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
@@ -113,6 +130,7 @@ public partial class CharacterNode : Control
 		torsoHitPointNode = GetOrCreatePropertyNode("TorsoHitPoint", "躯干");
 		leftLegHitPointNode = GetOrCreatePropertyNode("LeftLegHitPoint", "左腿");
 		rightLegHitPointNode = GetOrCreatePropertyNode("RightLegHitPoint", "右腿");
+		reactionContainer = propertyContainer.GetNode<Container>("HBoxContainer/HBoxContainer");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 		UpdateOverviewVisibility();
@@ -170,6 +188,7 @@ public partial class CharacterNode : Control
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
 		moveAnchor.Size = rootContainer.Size;
 		UpdateBackground();
+		ReactionCount = character.reaction;
 	}
 	void UpdateBackground()
 	{
@@ -233,4 +252,19 @@ public partial class CharacterNode : Control
 	///     展开时隐藏Overview，折叠时显示Overview。
 	/// </summary>
 	void UpdateOverviewVisibility() => hitPointNode?.Visible = !expanded;
+	/// <summary>
+	///     更新反应点数显示，确保TextureRect数量与ReactionCount同步。
+	/// </summary>
+	void UpdateReactionDisplay()
+	{
+		if (!IsNodeReady()) return;
+		var children = reactionContainer.GetChildren();
+		foreach (var child in children) child.QueueFree();
+		for (var i = 0; i < reactionCount; i++)
+		{
+			var textureRect = new TextureRect();
+			textureRect.Texture = SpriteTable.star;
+			reactionContainer.AddChild(textureRect);
+		}
+	}
 }

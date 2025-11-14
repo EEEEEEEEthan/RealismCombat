@@ -11,28 +11,29 @@ region = Rect2(32, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j4f5t"]
 atlas = ExtResource("2_lbkts")
-region = Rect2(160, 0, 16, 16)
+region = Rect2(64, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ncucl"]
 atlas = ExtResource("2_lbkts")
-region = Rect2(80, 0, 16, 16)
+region = Rect2(96, 0, 16, 16)
 
 [node name="CharacterNode" type="Control"]
-custom_minimum_size = Vector2(50, 39)
+custom_minimum_size = Vector2(55, 39)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 50.0
+offset_right = 55.0
 offset_bottom = 39.0
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("1_cptgj")
+ReactionCount = 2
 
 [node name="MoveAnchor" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 0
 
 [node name="RootContainer" type="PanelContainer" parent="MoveAnchor"]
-custom_minimum_size = Vector2(50, 39)
+custom_minimum_size = Vector2(55, 39)
 layout_mode = 1
 offset_right = 50.0
 offset_bottom = 39.0
@@ -66,14 +67,24 @@ clip_contents = true
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MoveAnchor/RootContainer/Mask"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 76.0
+grow_horizontal = 2
 
-[node name="Name" type="Label" parent="MoveAnchor/RootContainer/Mask/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MoveAnchor/RootContainer/Mask/VBoxContainer"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MoveAnchor/RootContainer/Mask/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"Label_LargeWithShadow"
 text = "Ethan"
+
+[node name="HBoxContainer" type="VBoxContainer" parent="MoveAnchor/RootContainer/Mask/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_constants/separation = 1
 
 [node name="Control" type="Control" parent="MoveAnchor/RootContainer"]
 layout_mode = 2
