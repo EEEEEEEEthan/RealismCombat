@@ -15,6 +15,7 @@
 - [资源管理](resource-management.md) - ResourceTable、延迟加载机制
 - [音频管理](audio-management.md) - AudioManager 单例系统
 - [UI 系统](ui-system.md) - DialogueManager、对话框、菜单、异步等待机制
+- [游戏节点](game-nodes.md) - CharacterNode、PropertyNode、CombatNode、GameNode、BleedingNode 等游戏节点
 - [扩展方法](extensions.md) - 实用的扩展方法
 
 ### 运行时流程
