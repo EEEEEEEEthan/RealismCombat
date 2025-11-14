@@ -57,18 +57,21 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 				attackHit = false;
 				break;
 			case ReactionType.Block:
-				if (reaction.BlockTarget is not null)
-				{
-					finalTarget = reaction.BlockTarget;
-					resultMessages.Add($"{target.name}使用{finalTarget.Name}进行了格挡");
-				}
+				finalTarget = reaction.BlockTarget!;
+				AudioManager.PlaySfx(ResourceTable.blockSound);
+				resultMessages.Add($"{target.name}使用{finalTarget.Name}进行了格挡");
+				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				break;
+			case ReactionType.None:
+				targetNode.Shake();
+				AudioManager.PlaySfx(ResourceTable.retroHurt1);
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
 		if (attackHit)
 		{
 			var damage = CalculateDamage();
-			targetNode.Shake();
-			AudioManager.PlaySfx(ResourceTable.retroHurt1);
 			finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damage, 0, finalTarget.HitPoint.maxValue);
 			resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damage}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
 			if (!finalTarget.Available)
