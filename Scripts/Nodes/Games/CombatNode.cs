@@ -65,4 +65,18 @@ public partial class CombatNode : Node
 		if (Combat.Allies.Contains(character)) return PlayerReadyPosition.GlobalPosition;
 		return EnemyReadyPosition.GlobalPosition;
 	}
+	public Vector2 GetHitPosition(Character character)
+	{
+		var pos = GetPKPosition(character);
+		return Combat.Allies.Contains(character)
+			? pos + new Vector2(12, 0)
+			: pos + new Vector2(-12, 0);
+	}
+	public Vector2 GetDogePosition(Character character)
+	{
+		var pos = GetPKPosition(character);
+		return Combat.Allies.Contains(character)
+			? pos + new Vector2(-12, 0)
+			: pos + new Vector2(12, 0);
+	}
 }

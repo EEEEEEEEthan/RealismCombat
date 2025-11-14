@@ -50,25 +50,35 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 		var finalTarget = combatTarget;
 		var attackHit = true;
 		var resultMessages = new List<string>();
+		var hitPosition = combat.combatNode.GetHitPosition(actor);
+		actorNode.MoveTo(hitPosition);
 		switch (reaction.Type)
 		{
 			case ReactionType.Dodge:
+				await Task.Delay(10);
+				targetNode.MoveTo(combat.combatNode.GetDogePosition(target));
 				resultMessages.Add($"{target.name}及时闪避, 攻击落空");
 				attackHit = false;
 				break;
 			case ReactionType.Block:
+				await Task.Delay(50);
+				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
+				await Task.Delay(100);
+				targetNode.MoveTo(targetPosition);
 				finalTarget = reaction.BlockTarget!;
 				AudioManager.PlaySfx(ResourceTable.blockSound);
 				resultMessages.Add($"{target.name}使用{finalTarget.Name}进行了格挡");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				break;
 			case ReactionType.None:
+				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
+		actorNode.MoveTo(actorPosition);
 		if (attackHit)
 		{
 			var damage = CalculateDamage();

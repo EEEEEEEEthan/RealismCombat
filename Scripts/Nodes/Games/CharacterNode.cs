@@ -34,8 +34,8 @@ public partial class CharacterNode : Control
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
 	static readonly Color deadBackgroundColor = GameColors.grayGradient[^2];
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
-	[Export] Vector2 minSize = new(50f, 39f);
-	[Export] Vector2 maxSize = new(50f, 86f);
+	[Export] Vector2 minSize = new(55f, 39f);
+	[Export] Vector2 maxSize = new(55f, 86f);
 	Character? character;
 	Container rootContainer = null!;
 	VBoxContainer propertyContainer = null!;
