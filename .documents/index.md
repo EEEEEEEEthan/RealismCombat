@@ -24,5 +24,6 @@
 - [日志系统](log-system.md) - Log、LogListener 日志输出与收集
 - [版本系统](game-version.md) - GameVersion 版本号格式与比较
 - [游戏颜色](game-colors.md) - GameColors 颜色常量与梯度
+- [配置管理](configuration-management.md) - Settings、LaunchArgs 配置与启动参数管理
 - [调试指南](debugging.md) - 调试工具和常见问题解决方法
 - [MCP 服务器](mcp-server.md) - 用于测试和调试的 MCP 服务器

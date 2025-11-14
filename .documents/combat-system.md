@@ -91,7 +91,13 @@
   - `NameLabel` 显示角色名称
   - `PropertyNode` 显示行动点与生命值，`Jump` 属性用于表现行动状态
   - 提供 `MoveTo()`、`Shake()` 等动画接口，可在后续加入更多战斗表现
-- `PropertyNode` 内置 Shader 实现“跳动”效果，通过 `Jump` 开关控制，便于提示正在行动的角色
+- `PropertyNode` 内置 Shader 实现"跳动"效果，通过 `Jump` 开关控制，便于提示正在行动的角色
+- `BleedingNode` 提供流血动画效果：
+  - 继承自 `TextureRect`，用于显示角色受伤时的流血动画
+  - 使用 `SpriteTable.bleeding` 中的动画帧，共 11 帧
+  - 在 `_Process()` 中根据随机间隔切换动画帧，实现不规则闪烁效果
+  - 当节点可见性改变时，会重置动画索引和时间，确保动画连贯
+  - 时间间隔在 0 到 0.3 秒之间随机，增加视觉真实感
 
 ## 战斗入口
 
