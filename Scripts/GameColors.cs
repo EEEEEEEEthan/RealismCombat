@@ -11,5 +11,5 @@ public static class GameColors
 		grayGradient = [new("#ffffff"), new("#ebebeb"), new("#b2b2b2"), new("#a2a2a2"), new("#797979"), new("#000000"),];
 	public static readonly IReadOnlyList<Color> skyBlueGradient = [new("#a2baff"), new("#5182ff"), new("#4141ff"), new("#2800ba"),];
 	public static readonly IReadOnlyList<Color> sunFlareOrangeGradient = [new("#ffcbba"), new("#ff7930"), new("#e35100"), new("#e23000"),];
-	public static readonly IReadOnlyList<Color> pinkGradient = [new("#ffbaeb"), new("#ff61b2"), new("#db4161"), new("#b2e030"),];
+	public static readonly IReadOnlyList<Color> pinkGradient = [new("#ffbaeb"), new("#ff61b2"), new("#db4161"), new("#b21030"),];
 }

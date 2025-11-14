@@ -7,9 +7,9 @@ public partial class PropertyNode : Control
 		shader_type canvas_item;
 		#include "res://Shaders/random.gdshaderinc"
 		#include "res://Shaders/utilities.gdshaderinc"
-		
+
 		uniform float interval : hint_range(0.0, 1.0) = 0.1;
-		
+
 		void fragment() {
 		    vec2 uv = UV;
 		    float x = floor(uv.x / TEXTURE_PIXEL_SIZE.x) + floor(TIME / interval) * interval;
@@ -18,6 +18,7 @@ public partial class PropertyNode : Control
 		    COLOR = texture(TEXTURE, uv);
 		}
 		""";
+	const float FlashDuration = 0.2f;
 	static ShaderMaterial? jumpMaterial;
 	static Shader? jumpShader;
 	static ShaderMaterial JumpMaterial
@@ -48,6 +49,7 @@ public partial class PropertyNode : Control
 	bool jump;
 	Label? label;
 	ProgressBar? progressBar;
+	SceneTreeTimer? flashTimer;
 	public Label Label => label ??= GetNodeOrNull<Label>("Label");
 	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	public double Progress => Max == 0 ? 0 : Current / Max;
@@ -106,6 +108,21 @@ public partial class PropertyNode : Control
 		UpdateTitle();
 		UpdateValue();
 		UpdateJump();
+	}
+	/// <summary>
+	///     闪烁红色，持续0.2秒
+	/// </summary>
+	public void FlashRed()
+	{
+		var originalModulate = Modulate;
+		var flashColor = GameColors.pinkGradient[^1];
+		Modulate = flashColor;
+		flashTimer = GetTree().CreateTimer(FlashDuration);
+		flashTimer.Timeout += () =>
+		{
+			Modulate = originalModulate;
+			flashTimer = null;
+		};
 	}
 	void UpdateTitle() => Label?.Text = title;
 	void UpdateValue()

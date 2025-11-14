@@ -190,6 +190,26 @@ public partial class CharacterNode : Control
 		UpdateBackground();
 		ReactionCount = character.reaction;
 	}
+	/// <summary>
+	///     根据战斗目标找到对应的PropertyNode并闪烁
+	/// </summary>
+	public void FlashPropertyNode(ICombatTarget combatTarget)
+	{
+		if (character is null) return;
+		PropertyNode? targetNode = null;
+		if (combatTarget is BodyPart bodyPart)
+			targetNode = bodyPart.id switch
+			{
+				BodyPartCode.Head => headHitPointNode,
+				BodyPartCode.LeftArm => leftArmHitPointNode,
+				BodyPartCode.RightArm => rightArmHitPointNode,
+				BodyPartCode.Torso => torsoHitPointNode,
+				BodyPartCode.LeftLeg => leftLegHitPointNode,
+				BodyPartCode.RightLeg => rightLegHitPointNode,
+				_ => null,
+			};
+		targetNode?.FlashRed();
+	}
 	void UpdateBackground()
 	{
 		if (!IsNodeReady()) return;
