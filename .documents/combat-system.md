@@ -31,6 +31,7 @@
 - `CombatAction` 抽象类封装统一的前后摇机制，构造函数中的两个浮点参数分别表示前摇与后摇成本
 - `StartTask()` 会立即扣除前摇行动点，并执行 `OnStartTask()`，用于前摇动画或提示
 - `UpdateTask()` 每帧检查行动点是否重新蓄满，若满足会扣除后摇成本并调用 `OnExecute()`
+- `Attack` 的前后摇成本均为 3 点行动点
 - `Attack` 的执行过程：
   - 创建 `GenericDialogue` 描述攻击动作，并等待文字打印完成
   - 在攻击命中前调用 `Combat.HandleIncomingAttack()` 处理受击方的反应决策
