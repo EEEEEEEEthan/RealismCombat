@@ -75,12 +75,7 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 			finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damage, 0, finalTarget.HitPoint.maxValue);
 			resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damage}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
 			if (!finalTarget.Available)
-			{
-				if (finalTarget is BodyPart)
-					resultMessages.Add($"{target.name}的{finalTarget.Name}失去战斗能力");
-				else
-					resultMessages.Add($"{target.name}的{finalTarget.Name}已无法继续使用");
-			}
+				resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
 			if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
 		}
 		else if (resultMessages.Count == 0)
