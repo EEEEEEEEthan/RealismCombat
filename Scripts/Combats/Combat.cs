@@ -70,9 +70,9 @@ public class Combat
 					var actorNode = combatNode.GetCharacterNode(actor);
 					using var _ = actorNode.MoveScope(combatNode.GetReadyPosition(actor));
 					using var __ = actorNode.ExpandScope();
+					Considering = actor;
 					await DialogueManager.CreateGenericDialogue($"{actor.name}的回合!");
 					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
-					Considering = actor;
 					var action = await input.MakeDecisionTask(actor);
 					Considering = null;
 					actor.combatAction = action;
