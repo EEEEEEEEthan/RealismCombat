@@ -6,8 +6,6 @@ public partial class PropertyNode2 : Control
 {
 	const float FlashDuration = 0.2f;
 	string title = null!;
-	double current;
-	double max;
 	SceneTreeTimer? flashTimer;
 	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
 	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
@@ -35,20 +33,20 @@ public partial class PropertyNode2 : Control
 	[Export]
 	double Current
 	{
-		get => current;
+		get;
 		set
 		{
-			current = value;
+			field = value;
 			UpdateValue();
 		}
 	}
 	[Export]
 	double Max
 	{
-		get => max;
+		get;
 		set
 		{
-			max = value;
+			field = value;
 			UpdateValue();
 		}
 	}

@@ -30,21 +30,17 @@ public partial class PropertyNode : Control
 		material.SetShaderParameter("interval", 0.15);
 		return material;
 	}
-	string title = null!;
-	double current;
-	double max;
-	bool jump;
 	SceneTreeTimer? flashTimer;
 	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
 	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
-	public string Title
+	public string? Title
 	{
-		get => title;
+		get;
 		set
 		{
-			title = value;
+			field = value;
 			UpdateTitle();
 		}
 	}
@@ -60,30 +56,30 @@ public partial class PropertyNode : Control
 	[Export]
 	public bool Jump
 	{
-		get => jump;
+		get;
 		set
 		{
-			jump = value;
+			field = value;
 			UpdateJump();
 		}
 	}
 	[Export]
 	double Current
 	{
-		get => current;
+		get;
 		set
 		{
-			current = value;
+			field = value;
 			UpdateValue();
 		}
 	}
 	[Export]
 	double Max
 	{
-		get => max;
+		get;
 		set
 		{
-			max = value;
+			field = value;
 			UpdateValue();
 		}
 	}
@@ -109,11 +105,11 @@ public partial class PropertyNode : Control
 			flashTimer = null;
 		};
 	}
-	void UpdateTitle() => Label?.Text = title;
+	void UpdateTitle() => Label?.Text = Title;
 	void UpdateValue()
 	{
 		ProgressBar?.MaxValue = Max;
 		ProgressBar?.Value = Current;
 	}
-	void UpdateJump() => ProgressBar?.Material = jump ? JumpMaterial : null;
+	void UpdateJump() => ProgressBar?.Material = Jump ? JumpMaterial : null;
 }

@@ -43,7 +43,6 @@ public partial class CharacterNode : Control
 	Tween? shakeTween;
 	Vector2 rootContainerBasePosition;
 	bool rootContainerBasePositionInitialized;
-	bool expanded;
 	Combat combat = null!;
 	PropertyNode actionPointNode = null!;
 	PropertyNode hitPointNode = null!;
@@ -53,17 +52,15 @@ public partial class CharacterNode : Control
 	PropertyNode torsoHitPointNode = null!;
 	PropertyNode leftLegHitPointNode = null!;
 	PropertyNode rightLegHitPointNode = null!;
-	bool isEnemyTheme;
-	int reactionCount;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
 	public bool IsEnemyTheme
 	{
-		get => isEnemyTheme;
+		get;
 		set
 		{
-			isEnemyTheme = value;
+			field = value;
 			UpdateBackground();
 		}
 	}
@@ -79,11 +76,11 @@ public partial class CharacterNode : Control
 	[Export]
 	bool Expanded
 	{
-		get => expanded;
+		get;
 		set
 		{
-			if (expanded == value) return;
-			expanded = value;
+			if (field == value) return;
+			field = value;
 			if (IsNodeReady())
 				ApplyExpandedSizeAnimated();
 			else
@@ -96,11 +93,11 @@ public partial class CharacterNode : Control
 	[Export]
 	int ReactionCount
 	{
-		get => reactionCount;
+		get;
 		set
 		{
-			if (reactionCount == value) return;
-			reactionCount = value;
+			if (field == value) return;
+			field = value;
 			if (IsNodeReady()) UpdateReactionDisplay();
 		}
 	}
@@ -213,7 +210,7 @@ public partial class CharacterNode : Control
 			Background.SelfModulate = deadBackgroundColor;
 			return;
 		}
-		var colors = isEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
+		var colors = IsEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
 		Background.SelfModulate = hitPointNode.Progress switch
 		{
 			> 0.3 => colors[1],
@@ -225,7 +222,7 @@ public partial class CharacterNode : Control
 	{
 		UpdateOverviewVisibility();
 		var container = RootContainer;
-		var targetSize = expanded ? maxSize : minSize;
+		var targetSize = Expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
@@ -237,7 +234,7 @@ public partial class CharacterNode : Control
 		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
 		var container = RootContainer;
-		var targetSize = expanded ? maxSize : minSize;
+		var targetSize = Expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		container.Size = targetSize;
 		UpdateRootContainerBasePosition();
@@ -266,7 +263,7 @@ public partial class CharacterNode : Control
 	///     根据展开状态更新Overview（总生命值）的可见性。
 	///     展开时隐藏Overview，折叠时显示Overview。
 	/// </summary>
-	void UpdateOverviewVisibility() => hitPointNode?.Visible = !expanded;
+	void UpdateOverviewVisibility() => hitPointNode?.Visible = !Expanded;
 	/// <summary>
 	///     更新反应点数显示，确保TextureRect数量与ReactionCount同步。
 	/// </summary>
@@ -275,7 +272,7 @@ public partial class CharacterNode : Control
 		if (!IsNodeReady()) return;
 		var children = ReactionContainer.GetChildren();
 		foreach (var child in children) child.QueueFree();
-		for (var i = 0; i < reactionCount; i++)
+		for (var i = 0; i < ReactionCount; i++)
 		{
 			var textureRect = new TextureRect();
 			textureRect.Texture = SpriteTable.star;
