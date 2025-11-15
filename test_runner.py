@@ -10,6 +10,7 @@ import subprocess
 import os
 import platform
 import threading
+import argparse
 from datetime import datetime
 
 # 测试文档内容（从.workflows/test.md复制）
@@ -20,26 +21,55 @@ TEST_DOC_CONTENT = """用中文沟通.
 游戏文档见`.documents/index.md`
 """
 
-def read_output(pipe, log_file):
+def read_output(pipe, log_file, debug=True):
     """
     从管道读取输出并实时显示和写入日志
+    
+    Args:
+        pipe: 管道对象
+        log_file: 日志文件对象
+        debug: 是否打印到控制台
     """
     try:
         for line in iter(pipe.readline, ''):
             if line:
                 line_str = line.rstrip()
                 if line_str:
-                    print(line_str)
+                    if debug:
+                        print(line_str)
                     if log_file:
                         log_file.write(line)
                         log_file.flush()
     except Exception as e:
-        print(f"读取输出时出错: {e}")
+        if debug:
+            print(f"读取输出时出错: {e}")
     finally:
         pipe.close()
 
 def main():
-    test_content = sys.argv[1] if len(sys.argv) > 1 else "常规测试"
+    parser = argparse.ArgumentParser(
+        description='测试运行脚本 - 执行qwen命令进行测试',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--test',
+        type=str,
+        default='常规测试',
+        help='测试内容 (可选，默认: 常规测试)'
+    )
+    parser.add_argument(
+        '--debug',
+        type=str,
+        default='false',
+        choices=['true', 'false', '1', '0'],
+        help='是否打印stdout/stderr到控制台 (可选，默认: false)'
+    )
+    
+    args = parser.parse_args()
+    
+    test_content = args.test
+    debug = args.debug.lower() in ['true', '1']
+    
     # 生成带时间戳的报告文件名和日志文件名
     current_time = datetime.now()
     time_str = current_time.strftime('%Y_%m_%d_%H_%M')
@@ -65,8 +95,9 @@ def main():
     prompt = prompt.replace("%", "")
     prompt = prompt.replace("&", "")
     command_str = f"qwen -p -y \"{prompt}\""
-    print(command_str)
-    print("-" * 80)
+    if debug:
+        print(command_str)
+        print("-" * 80)
     
     try:
         # 打开日志文件
@@ -90,11 +121,11 @@ def main():
         # 创建线程来实时读取stdout和stderr
         stdout_thread = threading.Thread(
             target=read_output,
-            args=(process.stdout, log_file)
+            args=(process.stdout, log_file, debug)
         )
         stderr_thread = threading.Thread(
             target=read_output,
-            args=(process.stderr, log_file)
+            args=(process.stderr, log_file, debug)
         )
         
         stdout_thread.daemon = True
@@ -115,19 +146,26 @@ def main():
         log_file.write(f"进程返回码: {return_code}\n")
         log_file.close()
         
-        print("-" * 80)
-        print(f"进程返回码: {return_code}")
-        print(f"日志已保存到: {log_path}")
-        print(f"测试报告已保存到: {os.path.join(log_dir, report_filename)}")
+        if debug:
+            print("-" * 80)
+            print(f"进程返回码: {return_code}")
+            print(f"日志已保存到: {log_path}")
+            print(f"测试报告已保存到: {os.path.join(log_dir, report_filename)}")
         return return_code
     except FileNotFoundError:
-        print(f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中")
+        error_msg = f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中"
+        if debug:
+            print(error_msg)
         if 'log_file' in locals():
+            log_file.write(f"{error_msg}\n")
             log_file.close()
         return 1
     except Exception as e:
-        print(f"错误: 执行命令时发生异常: {e}")
+        error_msg = f"错误: 执行命令时发生异常: {e}"
+        if debug:
+            print(error_msg)
         if 'log_file' in locals():
+            log_file.write(f"{error_msg}\n")
             log_file.close()
         return 1
 
