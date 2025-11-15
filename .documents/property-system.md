@@ -110,7 +110,11 @@ var hitPoint = new PropertyInt(reader);
 ### 身体部位生命值
 
 - `BodyPart.HitPoint` 使用 `PropertyInt` 存储生命值
-- 默认最大值为 10
+- 不同身体部位的最大值不同：
+  - 头部：最大值为 5
+  - 左臂、右臂：最大值为 8
+  - 左腿、右腿：最大值为 8
+  - 躯干：最大值为 10
 - 当 `HitPoint.value > 0` 时，部位可用（`Available` 返回 `true`）
 
 ### 装备耐久

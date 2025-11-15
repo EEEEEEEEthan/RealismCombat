@@ -35,7 +35,14 @@ public class BodyPart : ICombatTarget, IItemContainer
 	public BodyPart(BodyPartCode id, ItemSlot[] slots)
 	{
 		this.id = id;
-		HitPoint = new(10, 10);
+		var maxHitPoint = id switch
+		{
+			BodyPartCode.Head => 5,
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
+			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
+			_ => 10,
+		};
+		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = slots;
 	}
 	BodyPart() : this(BodyPartCode.Head, []) { }

@@ -54,6 +54,16 @@ public partial class PropertyNode : Control
 		}
 	}
 	[Export]
+	public int BarWidth
+	{
+		get;
+		set
+		{
+			field = value;
+			UpdateProgressBarWidth();
+		}
+	} = 19;
+	[Export]
 	public bool Jump
 	{
 		get;
@@ -89,6 +99,7 @@ public partial class PropertyNode : Control
 		UpdateTitle();
 		UpdateValue();
 		UpdateJump();
+		UpdateProgressBarWidth();
 	}
 	/// <summary>
 	///     闪烁红色，持续0.2秒
@@ -104,6 +115,11 @@ public partial class PropertyNode : Control
 			Modulate = originalModulate;
 			flashTimer = null;
 		};
+	}
+	void UpdateProgressBarWidth()
+	{
+		if (!IsNodeReady()) return;
+		ProgressBar.CustomMinimumSize = ProgressBar.CustomMinimumSize with { X = BarWidth, };
 	}
 	void UpdateTitle() => Label?.Text = Title;
 	void UpdateValue()

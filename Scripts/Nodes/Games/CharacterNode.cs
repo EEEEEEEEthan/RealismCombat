@@ -173,11 +173,17 @@ public partial class CharacterNode : Control
 		hitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
 		// 更新各个身体部位的血量显示
 		headHitPointNode.Value = (headHitPoint.value, headHitPoint.maxValue);
+		headHitPointNode.BarWidth = headHitPoint.maxValue * 2 - 1;
 		leftArmHitPointNode.Value = (character.leftArm.HitPoint.value, character.leftArm.HitPoint.maxValue);
+		leftArmHitPointNode.BarWidth = character.leftArm.HitPoint.maxValue * 2 - 1;
 		rightArmHitPointNode.Value = (character.rightArm.HitPoint.value, character.rightArm.HitPoint.maxValue);
+		rightArmHitPointNode.BarWidth = character.rightArm.HitPoint.maxValue * 2 - 1;
 		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
+		torsoHitPointNode.BarWidth = torsoHitPoint.maxValue * 2 - 1;
 		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
+		leftLegHitPointNode.BarWidth = character.leftLeg.HitPoint.maxValue * 2 - 1;
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
+		rightLegHitPointNode.BarWidth = character.rightLeg.HitPoint.maxValue * 2 - 1;
 		MoveAnchor.Size = RootContainer.Size;
 		UpdateBackground();
 		ReactionCount = character.reaction;
@@ -249,6 +255,7 @@ public partial class CharacterNode : Control
 		var node = PropertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
 		if (node != null) return node;
 		node = ResourceTable.propertyNodeScene.Value.Instantiate<PropertyNode>();
+		node.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
 		node.Name = nodeName;
 		node.Title = title;
 		PropertyContainer.AddChild(node);
