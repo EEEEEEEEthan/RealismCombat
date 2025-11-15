@@ -28,9 +28,10 @@
 
 `LongSword` 是当前唯一的物品实现：
 - 继承自 `Item`，使用 `ItemIdCode.LongSword` 标识
-- 标志为 `ItemFlagCode.Arm`，可装备到手臂槽位
+- 实现 `IArm` 接口，标志为 `ItemFlagCode.Arm`，可装备到手臂槽位
 - 显示名称为"长剑"
 - 默认耐久为 10/10
+- 长度为 100 厘米，重量为 1.2 千克
 - 无额外槽位，`Slots` 为空数组
 
 ### ItemSlot 类
@@ -63,6 +64,15 @@
 
 - 包含 `ItemSlot[] Slots` 属性
 - 由 `Item` 和 `BodyPart` 实现，支持装备嵌套和身体部位装备管理
+
+### IArm 接口
+
+`IArm` 接口定义武器类型装备，位于 `Scripts/Items/IArm.cs`：
+
+- `double Length`：武器长度（单位：厘米）
+- `double Weight`：武器重量（单位：千克）
+- 所有武器类型装备（标志为 `ItemFlagCode.Arm`）应实现此接口
+- 当前实现：`LongSword` 实现了 `IArm` 接口，长度为 100 厘米，重量为 1.2 千克
 
 ## 与战斗系统的集成
 
