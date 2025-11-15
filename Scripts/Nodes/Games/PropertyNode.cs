@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 namespace RealismCombat.Nodes.Games;
 [Tool]
@@ -19,13 +20,13 @@ public partial class PropertyNode : Control
 		}
 		""";
 	const float FlashDuration = 0.2f;
-	static ShaderMaterial? jumpMaterial;
 	static Shader? jumpShader;
+	[field: AllowNull, MaybeNull,]
 	static ShaderMaterial JumpMaterial
 	{
 		get
 		{
-			var material = jumpMaterial;
+			var material = field;
 			if (material == null)
 			{
 				var shader = jumpShader;
@@ -38,7 +39,7 @@ public partial class PropertyNode : Control
 				material = new();
 				material.Shader = shader;
 				material.SetShaderParameter("interval", 0.15);
-				jumpMaterial = material;
+				field = material;
 			}
 			return material;
 		}
@@ -47,11 +48,9 @@ public partial class PropertyNode : Control
 	double current;
 	double max;
 	bool jump;
-	Label? label;
-	ProgressBar? progressBar;
 	SceneTreeTimer? flashTimer;
-	public Label Label => label ??= GetNodeOrNull<Label>("Label");
-	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
+	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
+	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
 	public string Title

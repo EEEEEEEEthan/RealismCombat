@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 namespace RealismCombat.Nodes.Games;
 [Tool]
@@ -7,13 +8,10 @@ public partial class PropertyNode2 : Control
 	string title = null!;
 	double current;
 	double max;
-	Label? label;
-	ProgressBar? progressBar;
-	Label? valueLabel;
 	SceneTreeTimer? flashTimer;
-	public Label Label => label ??= GetNodeOrNull<Label>("Label");
-	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
-	public Label ValueLabel => valueLabel ??= GetNodeOrNull<Label>("ProgressBar/Label");
+	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
+	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
+	[field: AllowNull, MaybeNull,] public Label ValueLabel => field ??= GetNodeOrNull<Label>("ProgressBar/Label");
 	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
 	public string Title
@@ -75,7 +73,11 @@ public partial class PropertyNode2 : Control
 			flashTimer = null;
 		};
 	}
-	void UpdateTitle() => Label?.Text = title;
+	void UpdateTitle()
+	{
+		if (!IsNodeReady()) return;
+		Label.Text = title;
+	}
 	void UpdateValue()
 	{
 		if (!IsNodeReady()) return;

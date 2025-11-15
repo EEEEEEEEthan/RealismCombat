@@ -12,19 +12,13 @@ public partial class CombatNode : Node
 		return scene.Instantiate<CharacterNode>();
 	}
 	readonly Dictionary<Character, CharacterNode> characterNodes = new();
-	VBoxContainer? playerTeamContainer;
-	VBoxContainer? enemyTeamContainer;
-	Control? playerPkPosition;
-	Control? enemyPkPosition;
-	Control? playerReadyPosition;
-	Control? enemyReadyPosition;
-	public Control PlayerPkPosition => playerPkPosition ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
-	public Control EnemyPkPosition => enemyPkPosition ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
-	public Control PlayerReadyPosition => playerReadyPosition ??= GetNode<Control>("SafeArea/ReadyContainer/PlayerPosition");
-	public Control EnemyReadyPosition => enemyReadyPosition ??= GetNode<Control>("SafeArea/ReadyContainer/EnemyPosition");
+	public Control PlayerPkPosition => field ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
+	public Control EnemyPkPosition => field ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
+	public Control PlayerReadyPosition => field ??= GetNode<Control>("SafeArea/ReadyContainer/PlayerPosition");
+	public Control EnemyReadyPosition => field ??= GetNode<Control>("SafeArea/ReadyContainer/EnemyPosition");
 	public Combat Combat { get; private set; } = null!;
-	VBoxContainer PlayerTeamContainer => playerTeamContainer ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
-	VBoxContainer EnemyTeamContainer => enemyTeamContainer ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
+	VBoxContainer PlayerTeamContainer => field ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
+	VBoxContainer EnemyTeamContainer => field ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
 	public override void _Ready()
 	{
 		base._Ready();
