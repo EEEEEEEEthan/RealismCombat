@@ -19,14 +19,17 @@
 - `CombatInput` 是输入基类，提供阵营、目标筛选与界面辅助方法
 - `PlayerInput` 的决策步骤：
   - 先列出自身所有可用身体部位生成菜单，并展示实时生命值，允许通过返回选项重新开始
-  - 选择自身身体部位后，弹出仅包含"攻击"的 `MenuDialogue`，为扩展其他指令保留入口
-  - 选择"攻击"后，取得敌方存活单位生成菜单，并允许通过返回选项回到上一层
+  - 选择自身身体部位后，根据该部位可用的攻击类型生成菜单（如斩击、刺击、踢、头槌、撞击、抓取等）
+  - 若该部位无法使用任何攻击类型，会提示并返回重新选择
+  - 选择攻击类型后，取得敌方存活单位生成菜单，并允许通过返回选项回到上一层
   - 选择敌人后，以同样方式列出该敌人所有可攻击部位，并展示实时生命值，允许通过返回选项回到上一层
-  - 返回 `Attack` 行动实例，战斗主循环会在 `StartTask()` 中立即扣除前摇成本
+  - 返回对应的攻击行动实例（如 `SlashAttack`、`StabAttack` 等），战斗主循环会在 `StartTask()` 中立即扣除前摇成本
 - `AIInput` 的决策步骤：
   - 随机选择自身一个可用身体部位
+  - 根据该部位可用的攻击类型随机选择一个
+  - 若该部位无法使用任何攻击类型，会尝试选择下一个身体部位
   - 随机挑选敌方角色与身体部位
-  - 若无法找到可用身体部位、存活敌人或可攻击部位会抛出异常，主循环会捕获并记录
+  - 若无法找到可用身体部位、可用攻击类型、存活敌人或可攻击部位会抛出异常，主循环会捕获并记录
 - 所有菜单交互均由 `DialogueManager` 托管，MCP 模式下可通过 `game_select_option` 指令驱动
 
 ## 行动前后摇
@@ -34,20 +37,37 @@
 - `CombatAction` 抽象类封装统一的前后摇机制，构造函数中的两个浮点参数分别表示前摇与后摇成本
 - `StartTask()` 会立即扣除前摇行动点，并执行 `OnStartTask()`，用于前摇动画或提示
 - `UpdateTask()` 每帧检查行动点是否重新蓄满，若满足会扣除后摇成本并调用 `OnExecute()`
-- `Attack` 的前后摇成本均为 3 点行动点
-- `Attack` 构造函数接受攻击者、攻击者身体部位、目标角色、目标身体部位与战斗实例
-- `Attack` 包含 `ActorBodyPart` 属性，记录攻击者使用的身体部位
-- `Attack` 的执行过程：
-  - 创建 `GenericDialogue` 描述攻击动作（显示"X抬起Y开始蓄力..."），并等待文字打印完成
-  - 创建 `GenericDialogue` 描述攻击命中（显示"X用Y攻击Z的W!"），并等待文字打印完成
+- `AttackBase` 是所有攻击类型的基类，前后摇成本均为 3 点行动点
+- `AttackBase` 构造函数接受攻击者、攻击者身体部位、目标角色、目标身体部位与战斗实例
+- `AttackBase` 包含 `ActorBodyPart` 属性，记录攻击者使用的身体部位
+- `AttackBase` 的执行过程：
+  - 创建 `GenericDialogue` 描述攻击动作（通过 `GetStartDialogueText()` 获取文本，通常显示"X抬起Y开始蓄力..."），并等待文字打印完成
+  - 创建 `GenericDialogue` 描述攻击命中（通过 `GetExecuteDialogueText()` 获取文本，如"X用Y斩击Z的W!"），并等待文字打印完成
   - 在攻击命中前调用 `Combat.HandleIncomingAttack()` 处理受击方的反应决策
   - 根据反应类型执行不同逻辑：
     - 格挡：伤害转移到格挡目标（身体部位或装备），播放格挡音效与动画
     - 闪避：攻击落空，受击方打断当前行动并位移
     - 承受：正常结算伤害
-  - 计算 1~3 点伤害写入最终目标的生命值，界面通过 `CharacterNode.Shake()` 与受击音效反馈
+  - 通过 `CalculateDamage()` 计算伤害值（通常为 1~3 点）写入最终目标的生命值，界面通过 `CharacterNode.Shake()` 与受击音效反馈
   - 持续追加部位状态、倒地提示，并在对话框关闭后额外扣除 5 点行动点
 - 外部随时可以将 `character.combatAction` 置空以中断后摇，例如强制结束战斗
+
+## 攻击类型
+
+- `AttackBase` 是攻击的抽象基类，位于 `Scripts/Combats/CombatActions/AttackBase.cs`
+- 所有攻击类型都继承自 `AttackBase`，并实现以下抽象方法：
+  - `GetStartDialogueText()`：返回攻击开始时的对话文本
+  - `GetExecuteDialogueText()`：返回攻击执行时的对话文本
+  - `CalculateDamage()`：计算并返回伤害值
+- 每种攻击类型都有 `CanUse(BodyPart bodyPart)` 静态方法，用于验证该身体部位是否可以使用该攻击类型
+- 当前实现的攻击类型：
+  - `SlashAttack`（斩击）：只允许有武器的手臂使用
+  - `StabAttack`（刺击）：只允许手臂使用
+  - `KickAttack`（踢）：只允许腿使用
+  - `HeadbuttAttack`（头槌）：只允许头使用
+  - `ChargeAttack`（撞击）：只允许躯干使用
+  - `GrabAttack`（抓取）：只允许没有武器的手臂使用
+- `GetAvailableAttacks()` 方法会根据身体部位返回所有可用的攻击类型列表
 
 ## 反应系统
 

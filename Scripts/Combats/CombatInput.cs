@@ -27,6 +27,20 @@ public abstract class CombatInput(Combat combat)
 		}
 		return targets.ToArray();
 	}
+	/// <summary>
+	///     获取可用的攻击类型
+	/// </summary>
+	protected static List<(string name, Func<Character, BodyPart, Character, ICombatTarget, Combat, AttackBase> create)> GetAvailableAttacks(BodyPart bodyPart)
+	{
+		var attacks = new List<(string, Func<Character, BodyPart, Character, ICombatTarget, Combat, AttackBase>)>();
+		if (SlashAttack.CanUse(bodyPart)) attacks.Add(("斩击", (a, b, t, c, co) => new SlashAttack(a, b, t, c, co)));
+		if (StabAttack.CanUse(bodyPart)) attacks.Add(("刺击", (a, b, t, c, co) => new StabAttack(a, b, t, c, co)));
+		if (KickAttack.CanUse(bodyPart)) attacks.Add(("踢", (a, b, t, c, co) => new KickAttack(a, b, t, c, co)));
+		if (HeadbuttAttack.CanUse(bodyPart)) attacks.Add(("头槌", (a, b, t, c, co) => new HeadbuttAttack(a, b, t, c, co)));
+		if (ChargeAttack.CanUse(bodyPart)) attacks.Add(("撞击", (a, b, t, c, co) => new ChargeAttack(a, b, t, c, co)));
+		if (GrabAttack.CanUse(bodyPart)) attacks.Add(("抓取", (a, b, t, c, co) => new GrabAttack(a, b, t, c, co)));
+		return attacks;
+	}
 	protected readonly Combat combat = combat;
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
 	public virtual Task<ReactionDecision> MakeReactionDecisionTask(
@@ -68,9 +82,24 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var bodyPartIndex = await bodyPartMenu;
 				if (bodyPartIndex == availableBodyParts.Length) break;
 				var selectedBodyPart = availableBodyParts[bodyPartIndex];
-				await DialogueManager.CreateMenuDialogue(
-					new MenuOption { title = "攻击", description = "攻击敌人", }
-				);
+				var availableAttacks = GetAvailableAttacks(selectedBodyPart);
+				if (availableAttacks.Count == 0)
+				{
+					var tip = DialogueManager.CreateGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何攻击");
+					await tip;
+					continue;
+				}
+				var attackOptions = availableAttacks
+					.Select(a => new MenuOption
+					{
+						title = a.name,
+						description = string.Empty,
+					})
+					.ToArray();
+				var attackMenu = DialogueManager.CreateMenuDialogue(true, attackOptions);
+				var attackIndex = await attackMenu;
+				if (attackIndex == availableAttacks.Count) continue;
+				var selectedAttack = availableAttacks[attackIndex];
 				var aliveOpponents = GetAliveOpponents(character);
 				if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
 				var options = aliveOpponents
@@ -100,7 +129,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
 						var targetIndex = await targetMenu;
 						if (targetIndex == aliveTargets.Length) break;
-						return new Attack(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
+						return selectedAttack.create(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
 					}
 				}
 			}
@@ -173,13 +202,24 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var bodyPartRandomValue = GD.Randi();
 		var bodyPartIndex = (int)(bodyPartRandomValue % (uint)availableBodyParts.Length);
 		var selectedBodyPart = availableBodyParts[bodyPartIndex];
+		var availableAttacks = GetAvailableAttacks(selectedBodyPart);
+		if (availableAttacks.Count == 0)
+		{
+			bodyPartIndex = (bodyPartIndex + 1) % availableBodyParts.Length;
+			selectedBodyPart = availableBodyParts[bodyPartIndex];
+			availableAttacks = GetAvailableAttacks(selectedBodyPart);
+			if (availableAttacks.Count == 0) throw new InvalidOperationException("未找到可用的攻击类型");
+		}
+		var attackRandomValue = GD.Randi();
+		var attackIndex = (int)(attackRandomValue % (uint)availableAttacks.Count);
+		var selectedAttack = availableAttacks[attackIndex];
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
 		var aliveTargets = GetAvailableTargets(target);
 		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
 		var randomValue = GD.Randi();
 		var index = (int)(randomValue % (uint)aliveTargets.Length);
-		return Task.FromResult<CombatAction>(new Attack(character, selectedBodyPart, target, aliveTargets[index], combat));
+		return Task.FromResult<CombatAction>(selectedAttack.create(character, selectedBodyPart, target, aliveTargets[index], combat));
 	}
 	public override Task<ReactionDecision> MakeReactionDecisionTask(
 		Character defender,

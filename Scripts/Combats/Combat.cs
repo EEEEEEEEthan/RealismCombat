@@ -28,7 +28,7 @@ public class Combat
 		StartLoop();
 	}
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
-	internal async Task<ReactionDecision> HandleIncomingAttack(Attack attack)
+	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
 		var defender = attack.Target;
 		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();

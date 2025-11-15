@@ -4,15 +4,49 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Items;
 namespace RealismCombat.Combats.CombatActions;
-public class Attack(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat) : CombatAction(actor, combat, 3, 3)
+/// <summary>
+///     攻击基类
+/// </summary>
+public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat)
+	: CombatAction(actor, combat, 3, 3)
 {
-	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
+	/// <summary>
+	///     检查身体部位是否有武器
+	/// </summary>
+	protected static bool HasWeapon(BodyPart bodyPart)
+	{
+		foreach (var slot in bodyPart.Slots)
+			if (slot.Item is IArm)
+				return true;
+		return false;
+	}
+	/// <summary>
+	///     检查身体部位是否是手臂
+	/// </summary>
+	protected static bool IsArm(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftArm or BodyPartCode.RightArm;
+	/// <summary>
+	///     检查身体部位是否是腿
+	/// </summary>
+	protected static bool IsLeg(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
 	public Character Actor => actor;
 	public BodyPart ActorBodyPart => actorBodyPart;
 	public Character Target => target;
 	public ICombatTarget CombatTarget => combatTarget;
-	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起{actorBodyPart.Name}开始蓄力...");
+	/// <summary>
+	///     获取攻击开始时的对话文本
+	/// </summary>
+	protected abstract string GetStartDialogueText();
+	/// <summary>
+	///     获取攻击执行时的对话文本
+	/// </summary>
+	protected abstract string GetExecuteDialogueText();
+	/// <summary>
+	///     计算伤害值
+	/// </summary>
+	protected abstract int CalculateDamage();
+	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue(GetStartDialogueText());
 	protected override async Task OnExecute()
 	{
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
@@ -23,7 +57,7 @@ public class Attack(Character actor, BodyPart actorBodyPart, Character target, I
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
-		var startDialogue = DialogueManager.CreateGenericDialogue($"{actor.name}用{actorBodyPart.Name}攻击{target.name}的{combatTarget.Name}!");
+		var startDialogue = DialogueManager.CreateGenericDialogue(GetExecuteDialogueText());
 		await startDialogue;
 		var reaction = await combat.HandleIncomingAttack(this);
 		var finalTarget = combatTarget;
