@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
@@ -37,9 +38,6 @@ public partial class CharacterNode : Control
 	[Export] Vector2 minSize = new(55f, 39f);
 	[Export] Vector2 maxSize = new(55f, 86f);
 	Character? character;
-	Container rootContainer = null!;
-	VBoxContainer propertyContainer = null!;
-	Label nameLabel = null!;
 	Tween? moveTween;
 	Tween? resizeTween;
 	Tween? shakeTween;
@@ -55,9 +53,6 @@ public partial class CharacterNode : Control
 	PropertyNode torsoHitPointNode = null!;
 	PropertyNode leftLegHitPointNode = null!;
 	PropertyNode rightLegHitPointNode = null!;
-	Container reactionContainer = null!;
-	NinePatchRect background = null!;
-	Control moveAnchor = null!;
 	bool isEnemyTheme;
 	int reactionCount;
 	/// <summary>
@@ -72,6 +67,12 @@ public partial class CharacterNode : Control
 			UpdateBackground();
 		}
 	}
+	[field: AllowNull, MaybeNull,] Container RootContainer => field ??= GetNode<Container>("MoveAnchor/RootContainer");
+	[field: AllowNull, MaybeNull,] VBoxContainer PropertyContainer => field ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
+	[field: AllowNull, MaybeNull,] Label NameLabel => field ??= PropertyContainer.GetNode<Label>("HBoxContainer/Name");
+	[field: AllowNull, MaybeNull,] Control MoveAnchor => field ??= GetNode<Control>("MoveAnchor");
+	[field: AllowNull, MaybeNull,] Container ReactionContainer => field ??= PropertyContainer.GetNode<Container>("HBoxContainer/HBoxContainer");
+	[field: AllowNull, MaybeNull,] NinePatchRect Background => field ??= RootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
 	/// <summary>
 	///     获取或设置当前节点是否处于展开状态。
 	/// </summary>
@@ -109,7 +110,7 @@ public partial class CharacterNode : Control
 	{
 		if (!IsNodeReady()) throw new InvalidOperationException("节点尚未准备好，无法初始化");
 		character = value;
-		nameLabel.Text = value.name;
+		NameLabel.Text = value.name;
 		this.combat = combat;
 		UpdateBackground();
 		ReactionCount = value.reaction;
@@ -117,11 +118,6 @@ public partial class CharacterNode : Control
 	public override void _Ready()
 	{
 		base._Ready();
-		rootContainer = GetNode<Container>("MoveAnchor/RootContainer");
-		background = rootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
-		propertyContainer = GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
-		nameLabel = propertyContainer.GetNode<Label>("HBoxContainer/Name");
-		moveAnchor = GetNode<Control>("MoveAnchor");
 		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
 		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
 		headHitPointNode = GetOrCreatePropertyNode("HeadHitPoint", "头部");
@@ -130,11 +126,10 @@ public partial class CharacterNode : Control
 		torsoHitPointNode = GetOrCreatePropertyNode("TorsoHitPoint", "躯干");
 		leftLegHitPointNode = GetOrCreatePropertyNode("LeftLegHitPoint", "左腿");
 		rightLegHitPointNode = GetOrCreatePropertyNode("RightLegHitPoint", "右腿");
-		reactionContainer = propertyContainer.GetNode<Container>("HBoxContainer/HBoxContainer");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 		UpdateOverviewVisibility();
-		moveAnchor.Position = default;
+		MoveAnchor.Position = default;
 		UpdateBackground();
 	}
 	/// <summary>
@@ -143,10 +138,10 @@ public partial class CharacterNode : Control
 	public void MoveTo(Vector2 globalPosition)
 	{
 		moveTween?.Kill();
-		if (moveAnchor.GlobalPosition == globalPosition) return;
-		moveTween = moveAnchor.CreateTween();
+		if (MoveAnchor.GlobalPosition == globalPosition) return;
+		moveTween = MoveAnchor.CreateTween();
 		ConfigureTween(moveTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
-		moveTween.TweenProperty(moveAnchor, "global_position", globalPosition, MoveDuration);
+		moveTween.TweenProperty(MoveAnchor, "global_position", globalPosition, MoveDuration);
 	}
 	/// <summary>
 	///     让RootContainer产生一次横向晃动并回到原位。
@@ -155,14 +150,14 @@ public partial class CharacterNode : Control
 	{
 		shakeTween?.Kill();
 		var basePosition = GetRootContainerBasePosition();
-		rootContainer.Position = basePosition;
-		shakeTween = rootContainer.CreateTween();
+		RootContainer.Position = basePosition;
+		shakeTween = RootContainer.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(rootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
-		shakeTween.TweenProperty(rootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(rootContainer, "position", basePosition, ShakeStepDuration);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition, ShakeStepDuration);
 	}
 	public override void _Process(double delta)
 	{
@@ -186,7 +181,7 @@ public partial class CharacterNode : Control
 		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
 		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
-		moveAnchor.Size = rootContainer.Size;
+		MoveAnchor.Size = RootContainer.Size;
 		UpdateBackground();
 		ReactionCount = character.reaction;
 	}
@@ -215,11 +210,11 @@ public partial class CharacterNode : Control
 		if (!IsNodeReady()) return;
 		if (character?.IsAlive != true)
 		{
-			background.SelfModulate = deadBackgroundColor;
+			Background.SelfModulate = deadBackgroundColor;
 			return;
 		}
 		var colors = isEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
-		background.SelfModulate = hitPointNode.Progress switch
+		Background.SelfModulate = hitPointNode.Progress switch
 		{
 			> 0.3 => colors[1],
 			> 0.25 => colors[2],
@@ -229,7 +224,7 @@ public partial class CharacterNode : Control
 	void ApplyExpandedSizeAnimated()
 	{
 		UpdateOverviewVisibility();
-		var container = rootContainer;
+		var container = RootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
@@ -241,7 +236,7 @@ public partial class CharacterNode : Control
 	{
 		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
-		var container = rootContainer;
+		var container = RootContainer;
 		var targetSize = expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		container.Size = targetSize;
@@ -249,17 +244,17 @@ public partial class CharacterNode : Control
 	}
 	void UpdateRootContainerBasePosition()
 	{
-		rootContainerBasePosition = rootContainer.Position;
+		rootContainerBasePosition = RootContainer.Position;
 		rootContainerBasePositionInitialized = true;
 	}
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
 	{
-		var node = propertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
+		var node = PropertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
 		if (node != null) return node;
 		node = ResourceTable.propertyNodeScene.Value.Instantiate<PropertyNode>();
 		node.Name = nodeName;
 		node.Title = title;
-		propertyContainer.AddChild(node);
+		PropertyContainer.AddChild(node);
 		return node;
 	}
 	Vector2 GetRootContainerBasePosition()
@@ -278,13 +273,13 @@ public partial class CharacterNode : Control
 	void UpdateReactionDisplay()
 	{
 		if (!IsNodeReady()) return;
-		var children = reactionContainer.GetChildren();
+		var children = ReactionContainer.GetChildren();
 		foreach (var child in children) child.QueueFree();
 		for (var i = 0; i < reactionCount; i++)
 		{
 			var textureRect = new TextureRect();
 			textureRect.Texture = SpriteTable.star;
-			reactionContainer.AddChild(textureRect);
+			ReactionContainer.AddChild(textureRect);
 		}
 	}
 }

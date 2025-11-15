@@ -21,28 +21,14 @@ public partial class PropertyNode : Control
 		""";
 	const float FlashDuration = 0.2f;
 	static Shader? jumpShader;
-	[field: AllowNull, MaybeNull,]
-	static ShaderMaterial JumpMaterial
+	[field: AllowNull, MaybeNull,] static ShaderMaterial JumpMaterial => field ??= CreateJumpMaterial();
+	static ShaderMaterial CreateJumpMaterial()
 	{
-		get
-		{
-			var material = field;
-			if (material == null)
-			{
-				var shader = jumpShader;
-				if (shader == null)
-				{
-					shader = new();
-					shader.Code = JumpShaderSource;
-					jumpShader = shader;
-				}
-				material = new();
-				material.Shader = shader;
-				material.SetShaderParameter("interval", 0.15);
-				field = material;
-			}
-			return material;
-		}
+		var shader = jumpShader ??= new() { Code = JumpShaderSource, };
+		var material = new ShaderMaterial();
+		material.Shader = shader;
+		material.SetShaderParameter("interval", 0.15);
+		return material;
 	}
 	string title = null!;
 	double current;
