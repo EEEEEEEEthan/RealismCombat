@@ -11,6 +11,15 @@ import os
 import platform
 from datetime import datetime
 
+# 测试文档内容（从.workflows/test.md复制）
+TEST_DOC_CONTENT = """
+用中文沟通.
+利用mcp工具运行游戏,并执行测试
+1. 使用`system_launch_program`启动游戏客户端，等待命令返回主菜单选项。
+2. 通过`game_select_option`选择游戏选项，推进流程
+游戏文档见`.documents/index.md`
+"""
+
 def main():
     test_content = sys.argv[1] if len(sys.argv) > 1 else "常规测试"
     # 生成带时间戳的报告文件名和日志文件名
@@ -25,8 +34,8 @@ def main():
         os.makedirs(log_dir)
     
     log_path = os.path.join(log_dir, log_filename)
-    
-    prompt = f"用中文沟通.按照测试文档`.workflows/test.md`进行测试.游戏文档见`.documents/index.md`测试内容:{test_content}.将结果输出到.testreports/{report_filename}"
+    # 构建prompt
+    prompt = f"{TEST_DOC_CONTENT}\n\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
     command_str = f"qwen -p -y \"{prompt}\""
     print(command_str)
     print("-" * 80)
