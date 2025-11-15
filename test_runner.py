@@ -123,25 +123,21 @@ def main():
         log_file.write("=" * 80 + "\n")
         log_file.write(f"进程返回码: {return_code}\n")
         log_file.close()
-        
-        if debug:
-            print("-" * 80)
-            print(f"进程返回码: {return_code}")
-            print(f"日志已保存到: {log_path}")
-            print(f"测试报告已保存到: {os.path.join(log_dir, report_filename)}")
+        print("-" * 80)
+        print(f"进程返回码: {return_code}")
+        print(f"日志已保存到: {log_path}")
+        print(f"测试报告已保存到: {os.path.join(log_dir, report_filename)}")
         return return_code
     except FileNotFoundError:
         error_msg = f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中"
-        if debug:
-            print(error_msg)
+        print(error_msg)
         if 'log_file' in locals():
             log_file.write(f"{error_msg}\n")
             log_file.close()
         return 1
     except Exception as e:
         error_msg = f"错误: 执行命令时发生异常: {e}"
-        if debug:
-            print(error_msg)
+        print(error_msg)
         if 'log_file' in locals():
             log_file.write(f"{error_msg}\n")
             log_file.close()
