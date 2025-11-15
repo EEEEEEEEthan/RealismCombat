@@ -72,6 +72,18 @@
 - `BodyPart` 维护独立生命值，通过 `Name` 属性提供中文部位名称（通过扩展方法 `GetName()` 实现），并实现 `ICombatTarget` 接口以统一命中逻辑
 - 角色与部位均支持二进制序列化，内部借助 `ReadScope()` 与 `WriteScope()` 保证数据块长度安全
 
+## 攻击类型与伤害类型
+
+- `AttackTypeCode` 定义攻击动作的类型，位于 `Scripts/Combats/AttackTypeCode.cs`：
+  - `Slash`：劈砍
+  - `Pierce`：穿刺
+  - `Special`：特殊
+- `DamageTypeCode` 定义造成的伤害类型，位于 `Scripts/Combats/DamageTypeCode.cs`：
+  - `Slash`：劈砍
+  - `Pierce`：穿刺
+  - `Blunt`：钝击
+- 攻击类型与伤害类型是不同的概念：攻击类型描述攻击动作的特性，伤害类型描述造成的伤害特性
+
 ## 装备
 
 - `Item` 抽象类实现 `ICombatTarget`，可在战斗流程中与身体部位一致地被选择或结算伤害
