@@ -4,31 +4,30 @@ using RealismCombat.Extensions;
 namespace RealismCombat.Items;
 public class ItemSlot(ItemFlagCode flag)
 {
-	Item? item;
 	public Item? Item
 	{
-		get => item;
+		get;
 		set
 		{
 			if (value != null)
 				if ((value.flag & flag) == 0)
 					throw new ArgumentException("装备类型不匹配!");
-			item = value;
+			field = value;
 		}
 	}
 	public void Deserialize(BinaryReader reader)
 	{
 		using var _ = reader.ReadScope();
 		var hasItem = reader.ReadBoolean();
-		if (hasItem) item = Item.Load(reader);
+		if (hasItem) Item = Item.Load(reader);
 	}
 	public void Serialize(BinaryWriter writer)
 	{
 		using var _ = writer.WriteScope();
-		if (item != null)
+		if (Item != null)
 		{
 			writer.Write(true);
-			item.Serialize(writer);
+			Item.Serialize(writer);
 		}
 		else
 		{

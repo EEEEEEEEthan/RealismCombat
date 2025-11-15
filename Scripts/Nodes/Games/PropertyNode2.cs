@@ -5,19 +5,18 @@ namespace RealismCombat.Nodes.Games;
 public partial class PropertyNode2 : Control
 {
 	const float FlashDuration = 0.2f;
-	string title = null!;
 	SceneTreeTimer? flashTimer;
 	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
 	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	[field: AllowNull, MaybeNull,] public Label ValueLabel => field ??= GetNodeOrNull<Label>("ProgressBar/Label");
 	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
-	public string Title
+	public string? Title
 	{
-		get => title;
+		get;
 		set
 		{
-			title = value;
+			field = value;
 			UpdateTitle();
 		}
 	}
@@ -74,7 +73,7 @@ public partial class PropertyNode2 : Control
 	void UpdateTitle()
 	{
 		if (!IsNodeReady()) return;
-		Label.Text = title;
+		Label.Text = Title;
 	}
 	void UpdateValue()
 	{
