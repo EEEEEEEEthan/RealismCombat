@@ -1,0 +1,88 @@
+using Godot;
+namespace RealismCombat.Nodes.Games;
+[Tool]
+public partial class PropertyNode2 : Control
+{
+	const float FlashDuration = 0.2f;
+	string title = null!;
+	double current;
+	double max;
+	Label? label;
+	ProgressBar? progressBar;
+	Label? valueLabel;
+	SceneTreeTimer? flashTimer;
+	public Label Label => label ??= GetNodeOrNull<Label>("Label");
+	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
+	public Label ValueLabel => valueLabel ??= GetNodeOrNull<Label>("ProgressBar/Label");
+	public double Progress => Max == 0 ? 0 : Current / Max;
+	[Export]
+	public string Title
+	{
+		get => title;
+		set
+		{
+			title = value;
+			UpdateTitle();
+		}
+	}
+	public (int current, int max) Value
+	{
+		get => ((int)Current, (int)Max);
+		set
+		{
+			Max = value.max;
+			Current = value.current;
+		}
+	}
+	[Export]
+	double Current
+	{
+		get => current;
+		set
+		{
+			current = value;
+			UpdateValue();
+		}
+	}
+	[Export]
+	double Max
+	{
+		get => max;
+		set
+		{
+			max = value;
+			UpdateValue();
+		}
+	}
+	public override void _Ready()
+	{
+		base._Ready();
+		UpdateTitle();
+		UpdateValue();
+	}
+	/// <summary>
+	///     闪烁红色，持续0.2秒
+	/// </summary>
+	public void FlashRed()
+	{
+		var originalModulate = Modulate;
+		var flashColor = GameColors.pinkGradient[^1];
+		Modulate = flashColor;
+		flashTimer = GetTree().CreateTimer(FlashDuration);
+		flashTimer.Timeout += () =>
+		{
+			Modulate = originalModulate;
+			flashTimer = null;
+		};
+	}
+	void UpdateTitle() => Label?.Text = title;
+	void UpdateValue()
+	{
+		if (!IsNodeReady()) return;
+		ProgressBar.MaxValue = Max;
+		ProgressBar.Value = Current;
+		var currentInt = (int)Current;
+		var maxInt = (int)Max;
+		ValueLabel.Text = $"{currentInt}/{maxInt}";
+	}
+}

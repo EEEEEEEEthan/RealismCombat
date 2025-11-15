@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://du6mrqesyeoc3"]
+[gd_scene load_steps=2 format=3 uid="uid://du6mrqesyeoc3"]
+
+[ext_resource type="Script" path="res://Scripts/Nodes/Games/PropertyNode2.cs" id="1_property2"]
 
 [node name="PropertyNode" type="HBoxContainer"]
 custom_minimum_size = Vector2(36, 8)
@@ -6,6 +8,10 @@ offset_top = 32.0
 offset_right = 36.0
 offset_bottom = 40.0
 theme_override_constants/separation = 1
+script = ExtResource("1_property2")
+Title = "属性"
+Current = 5.0
+Max = 10.0
 
 [node name="Label" type="Label" parent="."]
 custom_minimum_size = Vector2(16, 8)
@@ -32,5 +38,5 @@ offset_top = -1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"Label_Small"
-text = "3/10"
+text = "5/10"
 horizontal_alignment = 1
