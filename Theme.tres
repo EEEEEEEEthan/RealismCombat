@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=10 format=3 uid="uid://bpxr1w3o076bd"]
+[gd_resource type="Theme" load_steps=12 format=3 uid="uid://bpxr1w3o076bd"]
 
 [ext_resource type="FontFile" uid="uid://cwaryh10sp0rr" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
 [ext_resource type="FontFile" uid="uid://j6vtrus55j64" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
@@ -23,6 +23,11 @@ texture_margin_bottom = 5.0
 texture = ExtResource("4_c6xh3")
 axis_stretch_horizontal = 1
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t6dyh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t6dyh"]
+bg_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
+
 [resource]
 default_font = ExtResource("1_k1aya")
 default_font_size = 10
@@ -42,8 +47,13 @@ Label_Small/font_sizes/font_size = 8
 Label_Small/fonts/font = ExtResource("2_23v3e")
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
+ProgressBar/font_sizes/font_size = 8
+ProgressBar/fonts/font = ExtResource("2_23v3e")
 ProgressBar/styles/background = SubResource("StyleBoxEmpty_c6xh3")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_7m1lf")
+ProgressBar_Flat/base_type = &"ProgressBar"
+ProgressBar_Flat/styles/background = SubResource("StyleBoxEmpty_t6dyh")
+ProgressBar_Flat/styles/fill = SubResource("StyleBoxFlat_t6dyh")
 RichTextLabel_Small/base_type = &"RichTextLabel"
 RichTextLabel_Small/font_sizes/normal_font_size = 8
 RichTextLabel_Small/fonts/normal_font = ExtResource("2_23v3e")
