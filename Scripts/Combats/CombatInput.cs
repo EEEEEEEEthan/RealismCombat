@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Combats.CombatActions;
 using RealismCombat.Items;
 using RealismCombat.Nodes.Dialogues;
 using RealismCombat.Nodes.Games;

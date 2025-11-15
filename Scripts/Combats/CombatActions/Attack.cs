@@ -4,29 +4,7 @@ using System.Threading.Tasks;
 using Godot;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
-namespace RealismCombat.Combats;
-public abstract class CombatAction(Character actor, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
-{
-	protected readonly Character actor = actor;
-	protected readonly Combat combat = combat;
-	public async Task StartTask()
-	{
-		actor.actionPoint.value -= preCastActionPointCost;
-		await OnStartTask();
-	}
-	public async Task<bool> UpdateTask()
-	{
-		if (actor.actionPoint.value >= actor.actionPoint.maxValue)
-		{
-			actor.actionPoint.value -= postCastActionPointCost;
-			await OnExecute();
-			return false;
-		}
-		return true;
-	}
-	protected abstract Task OnStartTask();
-	protected abstract Task OnExecute();
-}
+namespace RealismCombat.Combats.CombatActions;
 public class Attack(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat) : CombatAction(actor, combat, 3, 3)
 {
 	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;

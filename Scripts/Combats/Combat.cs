@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Combats.CombatActions;
 using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
 public class Combat
