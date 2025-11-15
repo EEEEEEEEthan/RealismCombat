@@ -52,9 +52,6 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	{
 		while (true)
 		{
-			await DialogueManager.CreateMenuDialogue(
-				new MenuOption { title = "攻击", description = "攻击敌人", }
-			);
 			var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
 			if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
 			var bodyPartOptions = availableBodyParts
@@ -70,6 +67,9 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var bodyPartIndex = await bodyPartMenu;
 				if (bodyPartIndex == availableBodyParts.Length) break;
 				var selectedBodyPart = availableBodyParts[bodyPartIndex];
+				await DialogueManager.CreateMenuDialogue(
+					new MenuOption { title = "攻击", description = "攻击敌人", }
+				);
 				var aliveOpponents = GetAliveOpponents(character);
 				if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
 				var options = aliveOpponents
