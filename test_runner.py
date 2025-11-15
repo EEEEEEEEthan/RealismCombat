@@ -53,7 +53,7 @@ def main():
     
     log_path = os.path.join(log_dir, log_filename)
     # 构建prompt
-    prompt = f"{TEST_DOC_CONTENT}  测试内容:{test_content}."
+    prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
     prompt = prompt.replace("\r", "")
     prompt = prompt.replace("\n", "  ")
     prompt = prompt.replace("\t", "")
@@ -118,6 +118,7 @@ def main():
         print("-" * 80)
         print(f"进程返回码: {return_code}")
         print(f"日志已保存到: {log_path}")
+        print(f"测试报告已保存到: {os.path.join(log_dir, report_filename)}")
         return return_code
     except FileNotFoundError:
         print(f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中")
