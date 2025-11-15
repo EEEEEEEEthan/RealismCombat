@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+测试运行脚本
+执行qwen命令进行测试
+"""
+
+import sys
+import subprocess
+import os
+import platform
+from datetime import datetime
+
+def main():
+    test_content = sys.argv[1] if len(sys.argv) > 1 else "常规测试"
+    # 生成带时间戳的报告文件名和日志文件名
+    current_time = datetime.now()
+    time_str = current_time.strftime('%Y_%m_%d_%H_%M')
+    report_filename = f"report_{time_str}.md"
+    log_filename = f"log_{time_str}.log"
+    
+    # 确保.testreports目录存在
+    log_dir = ".testreports"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    log_path = os.path.join(log_dir, log_filename)
+    
+    prompt = f"用中文沟通.按照测试文档`.workflows/test.md`进行测试.游戏文档见`.documents/index.md`测试内容:{test_content}.将结果输出到.testreports/{report_filename}"
+    command_str = f"qwen -p -y \"{prompt}\""
+    print(command_str)
+    print("-" * 80)
+    try:
+        result = subprocess.run(
+            command_str,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding='utf-8',
+            errors='replace'
+        )
+        
+        # 将输出写入日志文件
+        with open(log_path, 'w', encoding='utf-8') as log_file:
+            log_file.write(f"命令: {command_str}\n")
+            log_file.write("=" * 80 + "\n")
+            if result.stdout:
+                log_file.write("标准输出:\n")
+                log_file.write(result.stdout)
+                log_file.write("\n")
+            if result.stderr:
+                log_file.write("标准错误:\n")
+                log_file.write(result.stderr)
+                log_file.write("\n")
+            log_file.write("=" * 80 + "\n")
+            log_file.write(f"进程返回码: {result.returncode}\n")
+        
+        # 同时在控制台输出
+        if result.stdout:
+            print("标准输出:")
+            print(result.stdout)
+        if result.stderr:
+            print("标准错误:")
+            print(result.stderr)
+        print("-" * 80)
+        print(f"进程返回码: {result.returncode}")
+        print(f"日志已保存到: {log_path}")
+        return result.returncode
+    except FileNotFoundError:
+        print(f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中")
+        return 1
+    except Exception as e:
+        print(f"错误: 执行命令时发生异常: {e}")
+        return 1
+
+if __name__ == "__main__":
+    exit_code = main()
+    sys.exit(exit_code)
