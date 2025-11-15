@@ -55,36 +55,52 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			await DialogueManager.CreateMenuDialogue(
 				new MenuOption { title = "攻击", description = "攻击敌人", }
 			);
-			var aliveOpponents = GetAliveOpponents(character);
-			if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
-			var options = aliveOpponents
-				.Select(o => new MenuOption
+			var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
+			if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
+			var bodyPartOptions = availableBodyParts
+				.Select(bp => new MenuOption
 				{
-					title = o.name,
-					description = string.Empty,
+					title = $"{character.name}的{bp.Name}",
+					description = $"生命 {bp.HitPoint.value}/{bp.HitPoint.maxValue}",
 				})
 				.ToArray();
 			while (true)
 			{
-				var menu = DialogueManager.CreateMenuDialogue(true, options);
-				var selected = await menu;
-				if (selected == aliveOpponents.Length) break;
-				var selectedOpponent = aliveOpponents[selected];
+				var bodyPartMenu = DialogueManager.CreateMenuDialogue(true, bodyPartOptions);
+				var bodyPartIndex = await bodyPartMenu;
+				if (bodyPartIndex == availableBodyParts.Length) break;
+				var selectedBodyPart = availableBodyParts[bodyPartIndex];
+				var aliveOpponents = GetAliveOpponents(character);
+				if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
+				var options = aliveOpponents
+					.Select(o => new MenuOption
+					{
+						title = o.name,
+						description = string.Empty,
+					})
+					.ToArray();
 				while (true)
 				{
-					var aliveTargets = GetAvailableTargets(selectedOpponent);
-					if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
-					var targetOptions = aliveTargets
-						.Select(o => new MenuOption
-						{
-							title = $"{selectedOpponent.name}的{o.Name}",
-							description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
-						})
-						.ToArray();
-					var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
-					var targetIndex = await targetMenu;
-					if (targetIndex == aliveTargets.Length) break;
-					return new Attack(character, selectedOpponent, aliveTargets[targetIndex], combat);
+					var menu = DialogueManager.CreateMenuDialogue(true, options);
+					var selected = await menu;
+					if (selected == aliveOpponents.Length) break;
+					var selectedOpponent = aliveOpponents[selected];
+					while (true)
+					{
+						var aliveTargets = GetAvailableTargets(selectedOpponent);
+						if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+						var targetOptions = aliveTargets
+							.Select(o => new MenuOption
+							{
+								title = $"{selectedOpponent.name}的{o.Name}",
+								description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
+							})
+							.ToArray();
+						var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
+						var targetIndex = await targetMenu;
+						if (targetIndex == aliveTargets.Length) break;
+						return new Attack(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
+					}
 				}
 			}
 		}
@@ -151,13 +167,18 @@ public class AIInput(Combat combat) : CombatInput(combat)
 {
 	public override Task<CombatAction> MakeDecisionTask(Character character)
 	{
+		var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
+		if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
+		var bodyPartRandomValue = GD.Randi();
+		var bodyPartIndex = (int)(bodyPartRandomValue % (uint)availableBodyParts.Length);
+		var selectedBodyPart = availableBodyParts[bodyPartIndex];
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
 		var aliveTargets = GetAvailableTargets(target);
 		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
 		var randomValue = GD.Randi();
 		var index = (int)(randomValue % (uint)aliveTargets.Length);
-		return Task.FromResult<CombatAction>(new Attack(character, target, aliveTargets[index], combat));
+		return Task.FromResult<CombatAction>(new Attack(character, selectedBodyPart, target, aliveTargets[index], combat));
 	}
 	public override Task<ReactionDecision> MakeReactionDecisionTask(
 		Character defender,

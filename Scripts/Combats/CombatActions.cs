@@ -27,13 +27,14 @@ public abstract class CombatAction(Character actor, Combat combat, double preCas
 	protected abstract Task OnStartTask();
 	protected abstract Task OnExecute();
 }
-public class Attack(Character actor, Character target, ICombatTarget combatTarget, Combat combat) : CombatAction(actor, combat, 3, 3)
+public class Attack(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat) : CombatAction(actor, combat, 3, 3)
 {
 	static int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
 	public Character Actor => actor;
+	public BodyPart ActorBodyPart => actorBodyPart;
 	public Character Target => target;
 	public ICombatTarget CombatTarget => combatTarget;
-	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起长剑开始蓄力...");
+	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue($"{actor.name}抬起{actorBodyPart.Name}开始蓄力...");
 	protected override async Task OnExecute()
 	{
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
@@ -44,7 +45,7 @@ public class Attack(Character actor, Character target, ICombatTarget combatTarge
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
-		var startDialogue = DialogueManager.CreateGenericDialogue($"{actor.name}挥剑斩向{target.name}的{combatTarget.Name}!");
+		var startDialogue = DialogueManager.CreateGenericDialogue($"{actor.name}用{actorBodyPart.Name}攻击{target.name}的{combatTarget.Name}!");
 		await startDialogue;
 		var reaction = await combat.HandleIncomingAttack(this);
 		var finalTarget = combatTarget;
