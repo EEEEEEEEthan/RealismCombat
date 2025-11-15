@@ -53,7 +53,7 @@ def main():
     
     log_path = os.path.join(log_dir, log_filename)
     # 构建prompt
-    prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
+    prompt = f"{TEST_DOC_CONTENT}  测试内容:{test_content}."
     prompt = prompt.replace("\r", "")
     prompt = prompt.replace("\n", "  ")
     prompt = prompt.replace("\t", "")
