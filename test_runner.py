@@ -55,7 +55,15 @@ def main():
     # 构建prompt
     prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
     prompt = prompt.replace("\r", "")
-    prompt = prompt.replace("\n", "\\n")
+    prompt = prompt.replace("\n", "  ")
+    prompt = prompt.replace("\t", "")
+    prompt = prompt.replace(" ", "")
+    prompt = prompt.replace("'", "")
+    prompt = prompt.replace("\"", "")
+    prompt = prompt.replace("`", "")
+    prompt = prompt.replace("$", "")
+    prompt = prompt.replace("%", "")
+    prompt = prompt.replace("&", "")
     command_str = f"qwen -p -y \"{prompt}\""
     print(command_str)
     print("-" * 80)
