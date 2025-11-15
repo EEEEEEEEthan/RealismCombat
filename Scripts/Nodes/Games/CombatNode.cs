@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 using RealismCombat.Characters;
@@ -12,13 +13,13 @@ public partial class CombatNode : Node
 		return scene.Instantiate<CharacterNode>();
 	}
 	readonly Dictionary<Character, CharacterNode> characterNodes = new();
-	public Control PlayerPkPosition => field ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
-	public Control EnemyPkPosition => field ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
-	public Control PlayerReadyPosition => field ??= GetNode<Control>("SafeArea/ReadyContainer/PlayerPosition");
-	public Control EnemyReadyPosition => field ??= GetNode<Control>("SafeArea/ReadyContainer/EnemyPosition");
+	[field: AllowNull, MaybeNull,] public Control PlayerPkPosition => field ??= GetNode<Control>("SafeArea/PKContainer/PlayerPosition");
+	[field: AllowNull, MaybeNull,] public Control EnemyPkPosition => field ??= GetNode<Control>("SafeArea/PKContainer/EnemyPosition");
+	[field: AllowNull, MaybeNull,] public Control PlayerReadyPosition => field ??= GetNode<Control>("SafeArea/ReadyContainer/PlayerPosition");
+	[field: AllowNull, MaybeNull,] public Control EnemyReadyPosition => field ??= GetNode<Control>("SafeArea/ReadyContainer/EnemyPosition");
 	public Combat Combat { get; private set; } = null!;
-	VBoxContainer PlayerTeamContainer => field ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
-	VBoxContainer EnemyTeamContainer => field ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
+	[field: AllowNull, MaybeNull,] VBoxContainer PlayerTeamContainer => field ??= GetNode<VBoxContainer>("SafeArea/PlayerTeamContainer");
+	[field: AllowNull, MaybeNull,] VBoxContainer EnemyTeamContainer => field ??= GetNode<VBoxContainer>("SafeArea/EnemyTeamContainer");
 	public override void _Ready()
 	{
 		base._Ready();
