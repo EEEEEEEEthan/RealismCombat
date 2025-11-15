@@ -35,7 +35,7 @@ def main():
     
     log_path = os.path.join(log_dir, log_filename)
     # 构建prompt
-    prompt = f"{TEST_DOC_CONTENT}\n\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
+    prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
     command_str = f"qwen -p -y \"{prompt}\""
     print(command_str)
     print("-" * 80)
