@@ -258,12 +258,6 @@ def main():
             print(f"进程返回码: {return_code}")
             print(f"日志已保存到: {log_path}")
             try:
-                with open(log_path, 'r', encoding='utf-8') as lf:
-                    if "429 Free allocated quota exceeded" in lf.read():
-                        print("免费额度用尽")
-            except Exception:
-                pass
-            try:
                 report_path = os.path.join(log_dir, report_filename)
                 with open(report_path, 'r', encoding='utf-8') as f:
                     report_content = f.read()
@@ -284,9 +278,6 @@ def main():
         try:
             summary_log = f"log_{time_str}_summary.log"
             summary_log_path = os.path.join(log_dir, summary_log)
-            with open(summary_log_path, 'r', encoding='utf-8') as lf:
-                if "429 Free allocated quota exceeded" in lf.read():
-                    print("免费额度用尽")
         except Exception:
             pass
         return rc
