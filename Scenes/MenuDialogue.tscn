@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://menu_dialogue_scene"]
+
+[ext_resource type="Script" path="res://Scripts/Nodes/Dialogues/MenuDialogue.cs" id="1_1"]
+[ext_resource type="Script" path="res://Scripts/Nodes/Printer.cs" id="2_1"]
+
+[node name="MenuDialogue" type="PanelContainer"]
+script = ExtResource("1_1")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+theme_override_constants/separation = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+
+[node name="Printer" type="RichTextLabel" parent="MarginContainer/HBoxContainer" node_paths=PackedStringArray()]
+script = ExtResource("2_1")
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="."]
+
+[node name="Indexer" type="Control" parent="Control"]
+
+[node name="TextureRect" type="TextureRect" parent="Control/Indexer"]
+position = Vector2(-5, -4)
+size = Vector2(8, 8)
+stretch_mode = 4
+
+

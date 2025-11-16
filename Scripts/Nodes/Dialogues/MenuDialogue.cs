@@ -9,89 +9,43 @@ public struct MenuOption
 	public string title;
 	public string description;
 }
-[Tool, GlobalClass,]
+[Tool,]
 public partial class MenuDialogue : BaseDialogue
 {
+	public static MenuDialogue Create(IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn = false)
+	{
+		PackedScene scene = ResourceTable.menuDialogueScene;
+		var node = scene.Instantiate<MenuDialogue>();
+		node.allowEscapeReturn = allowEscapeReturn;
+		node.options.Clear();
+		foreach (var option in initialOptions) node.options.Add(option);
+		node.BuildOptionsIfNeeded();
+		return node;
+	}
 	readonly List<MenuOption> options = [];
 	readonly List<Label> optionLabels = [];
 	readonly TaskCompletionSource<int> taskCompletionSource = new();
-	readonly bool allowEscapeReturn;
-	readonly int returnOptionIndex = -1;
-	Container optionContainer;
-	Control optionIndexer;
-	Printer printer;
+	bool allowEscapeReturn;
+	int returnOptionIndex = -1;
+	Container? optionContainer;
+	Control? optionIndexer;
+	Printer? printer;
+	TextureRect? indexerTextureRect;
 	int currentIndex = -1;
-	public MenuDialogue(IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn = false)
+	Container OptionContainer => optionContainer ??= GetNode<Container>("MarginContainer/HBoxContainer/VBoxContainer");
+	Printer Printer => printer ??= GetNode<Printer>("MarginContainer/HBoxContainer/Printer");
+	Control OptionIndexer => optionIndexer ??= GetNode<Control>("Control/Indexer");
+	TextureRect IndexerTextureRect => indexerTextureRect ??= GetNode<TextureRect>("Control/Indexer/TextureRect");
+	public override void _Ready()
 	{
-		this.allowEscapeReturn = allowEscapeReturn;
-		var marginContainer = new MarginContainer();
-		marginContainer.Name = "MarginContainer";
-		AddChild(marginContainer);
-		marginContainer.AddThemeConstantOverride("margin_left", 3);
-		var hBoxContainer = new HBoxContainer();
-		hBoxContainer.Name = "HBoxContainer";
-		marginContainer.AddChild(hBoxContainer);
-		hBoxContainer.AddThemeConstantOverride("separation", 4);
-		{
-			optionContainer = new VBoxContainer();
-			optionContainer.Name = "VBoxContainer";
-			hBoxContainer.AddChild(optionContainer);
-		}
-		{
-			printer = new();
-			hBoxContainer.AddChild(printer);
-			printer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-		}
-		var control = new Control();
-		control.Name = "Control";
-		AddChild(control);
-		{
-			optionIndexer = new();
-			optionIndexer.Name = "Indexer";
-			control.AddChild(optionIndexer);
-			var textureRect = new TextureRect();
-			textureRect.Name = "TextureRect";
-			optionIndexer.AddChild(textureRect);
-			textureRect.Position = new(-5, -4);
-			textureRect.Size = new(8, 8);
-			textureRect.Texture = SpriteTable.arrowRight;
-			textureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
-		}
-		foreach (var option in initialOptions)
-		{
-			options.Add(option);
-			var label = new Label
-			{
-				Text = option.title,
-			};
-			optionContainer.AddChild(label);
-			optionLabels.Add(label);
-			Log.Print($"{options.Count - 1} - {option.title} {option.description}");
-		}
-		if (allowEscapeReturn)
-		{
-			returnOptionIndex = options.Count;
-			var returnOption = new MenuOption
-			{
-				title = "返回",
-				description = string.Empty,
-			};
-			options.Add(returnOption);
-			var returnLabel = new Label
-			{
-				Text = returnOption.title,
-			};
-			optionContainer.AddChild(returnLabel);
-			optionLabels.Add(returnLabel);
-			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
-		}
+		base._Ready();
+		IndexerTextureRect.Texture = SpriteTable.arrowRight;
 		if (options.Count > 0) Select(0);
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
-		Ready += UpdateIndexer;
 		ItemRectChanged += UpdateIndexer;
+		UpdateIndexer();
 	}
-	MenuDialogue() : this([]) { }
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public void SelectAndConfirm(int index)
 	{
@@ -130,22 +84,53 @@ public partial class MenuDialogue : BaseDialogue
 			taskCompletionSource.TrySetResult(index);
 		}
 	}
+	void BuildOptionsIfNeeded()
+	{
+		for (var i = 0; i < options.Count; i++)
+		{
+			var option = options[i];
+			var label = new Label
+			{
+				Text = option.title,
+			};
+			OptionContainer.AddChild(label);
+			optionLabels.Add(label);
+			Log.Print($"{i} - {option.title} {option.description}");
+		}
+		if (allowEscapeReturn)
+		{
+			returnOptionIndex = options.Count;
+			var returnOption = new MenuOption
+			{
+				title = "返回",
+				description = string.Empty,
+			};
+			options.Add(returnOption);
+			var returnLabel = new Label
+			{
+				Text = returnOption.title,
+			};
+			OptionContainer.AddChild(returnLabel);
+			optionLabels.Add(returnLabel);
+			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
+		}
+	}
 	void Select(int index)
 	{
 		if (currentIndex == index) return;
 		if (index < 0 || index >= options.Count) return;
 		currentIndex = index;
-		printer.Text = options[currentIndex].description;
-		printer.VisibleCharacters = 0;
+		Printer.Text = options[currentIndex].description;
+		Printer.VisibleCharacters = 0;
 		UpdateIndexer();
 	}
 	void UpdateIndexer()
 	{
 		if (currentIndex < 0 || currentIndex >= optionLabels.Count) return;
 		var selectedLabel = optionLabels[currentIndex];
-		optionIndexer.GlobalPosition = new(
-			optionIndexer.GlobalPosition.X,
-			selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - optionIndexer.Size.Y / 2
+		OptionIndexer.GlobalPosition = new(
+			OptionIndexer.GlobalPosition.X,
+			selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - OptionIndexer.Size.Y / 2
 		);
 	}
 	void Confirm()

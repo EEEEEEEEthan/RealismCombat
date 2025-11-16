@@ -1,10 +1,10 @@
 # UI 系统
 
 ## 设计原则
-
-- 所有 UI 组件均在构造函数中通过代码创建节点结构，不依赖场景文件，方便重构与测试
-- 使用 `[Tool, GlobalClass]` 属性，使组件能够在编辑器和运行时复用
-- 节点层级、主题、样式全部以代码维护，保持版本控制可追踪性
+ 
+- UI 组件的节点树通过 `.tscn` 维护，脚本仅负责行为与绑定，便于在编辑器中可视化调整
+- 使用 `[Tool]` 属性以便编辑器可见；不再依赖 `GlobalClass` 暴露为全局类
+- 通过 `ResourceTable` 统一加载 `PackedScene`，并提供静态 `Create(...)` 工厂创建实例
 
 ## 对话框管理 (DialogueManager)
 
@@ -50,7 +50,9 @@
 
 ## 菜单对话框 (MenuDialogue)
 
-- 构造函数搭建选项列表、描述区域与指示箭头
+- 使用 `Scenes/MenuDialogue.tscn` 定义节点树：`PanelContainer/MarginContainer/HBoxContainer/{VBoxContainer, Printer}` 与 `Control/Indexer/TextureRect`
+- 通过 `ResourceTable.menuDialogueScene` 加载，提供 `MenuDialogue.Create(options, allowEscapeReturn)` 创建实例
+- 脚本在 `_Ready()` 中通过属性惰性绑定节点引用，并设置索引箭头纹理
 - 支持 `allowEscapeReturn`，为真时自动追加“返回”选项并响应 `ui_cancel`
 - 通过 `TaskCompletionSource<int>` 实现等待器，`await menu` 可直接获取选中的索引
 - `Select(int index)` 会更新指示箭头位置，同时将对应描述传给 `Printer`

@@ -19,7 +19,7 @@ public partial class DialogueManager : Node
 	public static MenuDialogue CreateMenuDialogue(bool allowEscapeReturn, params MenuOption[] options)
 	{
 		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
-		var dialogue = new MenuDialogue(options, allowEscapeReturn);
+		var dialogue = MenuDialogue.Create(options, allowEscapeReturn);
 		AddDialogue(dialogue);
 		return dialogue;
 	}
