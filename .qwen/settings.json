@@ -1,17 +1,8 @@
 {
   "mcpServers": {
     "RealismCombatMcp": {
-      "command": "dotnet",
-      "args": [
-        "run",
-        "-c",
-        "Release",
-        "--project",
-        ".McpServer",
-        "-p:BaseOutputPath=bin/qwen/",
-        "-p:BaseIntermediateOutputPath=bin/qwen/",
-        "--"
-      ],
+      "command": ".\\.McpServer\\bin\\cursor\\Release\\net8.0\\McpServer.exe",
+      "args": [],
       "env": {}
     }
   },
