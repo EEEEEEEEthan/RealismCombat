@@ -149,6 +149,76 @@ def qwen(prompt_text, log_path, callback):
 	threading.Thread(target=_watch, daemon=True).start()
 	return process
 
+def multi_test(prompt_text: str, num: int):
+    """
+    并发执行多次qwen测试（最多2个并发），每个实例独立日志与报告文件。
+    全部结束后再启动一个新的qwen进程，汇总前面生成的.md，输出新的汇总.md。
+    
+    Args:
+        prompt_text: 用户测试内容
+        num: 运行实例数量
+    
+    Returns:
+        最后汇总qwen进程的返回码
+    """
+    if num <= 0:
+        return 0
+    current_time = datetime.now()
+    time_str = current_time.strftime('%Y_%m_%d_%H_%M')
+    log_dir = ".testreports"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    # 控制并发度为2
+    semaphore = threading.Semaphore(2)
+    completed = 0
+    completed_lock = threading.Lock()
+    all_done_event = threading.Event()
+    return_codes = {}
+    report_files = []
+    processes = {}
+    def _on_exit(rc, idx):
+        nonlocal completed
+        try:
+            return_codes[idx] = rc
+        finally:
+            with completed_lock:
+                completed += 1
+                if completed >= num:
+                    all_done_event.set()
+        try:
+            semaphore.release()
+        except Exception:
+            pass
+    for i in range(1, num + 1):
+        report_filename_i = f"report_{time_str}_{i}.md"
+        log_filename_i = f"log_{time_str}_{i}.log"
+        report_files.append(report_filename_i)
+        log_path_i = os.path.join(log_dir, log_filename_i)
+        prompt_i = f"{TEST_DOC_CONTENT}\n用户输入内容:{prompt_text}.\n将测试报告输出到`/{log_dir}/{report_filename_i}`"
+        def _launch(idx=i, lp=log_path_i, ptxt=prompt_i):
+            semaphore.acquire()
+            processes[idx] = qwen(ptxt, lp, lambda rc, j=idx: _on_exit(rc, j))
+        threading.Thread(target=_launch, daemon=True).start()
+    all_done_event.wait()
+    summary_report = f"report_{time_str}_summary.md"
+    summary_log = f"log_{time_str}_summary.log"
+    summary_log_path = os.path.join(log_dir, summary_log)
+    files_list_str = "\n".join([f"- `/{log_dir}/{name}`" for name in report_files])
+    summary_prompt = (
+        f"请阅读并总结以下报告文件，合并结论、问题与建议，去重并标注来源：\n{files_list_str}\n"
+        f"将测试报告输出到`/{log_dir}/{summary_report}`"
+    )
+    try:
+        final_proc = qwen(summary_prompt, summary_log_path, None)
+        final_code = final_proc.wait()
+        return final_code
+    except FileNotFoundError:
+        print("错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中")
+        return 1
+    except Exception as e:
+        print(f"错误: 执行汇总命令时发生异常: {e}")
+        return 1
+
 def main():
     parser = argparse.ArgumentParser(
         description='测试运行脚本 - 执行qwen命令进行测试',
@@ -159,43 +229,52 @@ def main():
         type=str,
         help='测试内容（必填，位置参数）'
     )
+    parser.add_argument(
+        '--repeat',
+        type=int,
+        default=2,
+        help='重复运行次数（默认2）。<=0报错；1为单次直接运行；>1为并发multi_test'
+    )
     args = parser.parse_args()
     test_content = args.test
+    repeat = args.repeat
     current_time = datetime.now()
     time_str = current_time.strftime('%Y_%m_%d_%H_%M')
-    report_filename = f"report_{time_str}.md"
-    log_filename = f"log_{time_str}.log"
     log_dir = ".testreports"
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    log_path = os.path.join(log_dir, log_filename)
-    prompt = f"{TEST_DOC_CONTENT}\n用户输入内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
-    
-    try:
-        # 启动测试进程（无需回调，避免竞态导致不打印）
-        process = qwen(prompt, log_path, None)
-        # 阻塞等待完成
-        return_code = process.wait()
-        # 进程结束后同步打印日志路径与报告内容，确保一定输出
-        print("-" * 80)
-        print(f"进程返回码: {return_code}")
-        print(f"日志已保存到: {log_path}")
+    if repeat <= 0:
+        print("错误: --repeat 必须为正整数")
+        return 1
+    if repeat == 1:
+        report_filename = f"report_{time_str}_summary.md"
+        log_filename = f"log_{time_str}.log"
+        log_path = os.path.join(log_dir, log_filename)
+        prompt = f"{TEST_DOC_CONTENT}\n用户输入内容:{test_content}.\n将测试报告输出到`/{log_dir}/{report_filename}`"
         try:
-            report_path = os.path.join(log_dir, report_filename)
-            with open(report_path, 'r', encoding='utf-8') as f:
-                report_content = f.read()
-            print(report_content)
+            process = qwen(prompt, log_path, None)
+            return_code = process.wait()
+            print("-" * 80)
+            print(f"进程返回码: {return_code}")
+            print(f"日志已保存到: {log_path}")
+            try:
+                report_path = os.path.join(log_dir, report_filename)
+                with open(report_path, 'r', encoding='utf-8') as f:
+                    report_content = f.read()
+                print(report_content)
+            except Exception as e:
+                print(f"读取测试报告失败: {e}")
+            return return_code
+        except FileNotFoundError:
+            error_msg = f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中"
+            print(error_msg)
+            return 1
         except Exception as e:
-            print(f"读取测试报告失败: {e}")
-        return return_code
-    except FileNotFoundError:
-        error_msg = f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中"
-        print(error_msg)
-        return 1
-    except Exception as e:
-        error_msg = f"错误: 执行命令时发生异常: {e}"
-        print(error_msg)
-        return 1
+            error_msg = f"错误: 执行命令时发生异常: {e}"
+            print(error_msg)
+            return 1
+    else:
+        return multi_test(test_content, repeat)
 
 if __name__ == "__main__":
     exit_code = main()
