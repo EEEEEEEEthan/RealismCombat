@@ -140,6 +140,7 @@
 3. 速度属性（`PropertyInt`）
 4. 行动点属性（`PropertyDouble`）
 5. 各身体部位数据（通过 `BodyPart.Deserialize()` 逐个读取）
+6. 物品栏（`inventory.Serialize/Deserialize`，顺序为数量 → 各 `Item`）
 
 ### 身体部位序列化
 

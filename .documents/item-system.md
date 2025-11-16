@@ -65,6 +65,16 @@
 - 包含 `ItemSlot[] Slots` 属性
 - 由 `Item` 和 `BodyPart` 实现，支持装备嵌套和身体部位装备管理
 
+### Inventory 类
+
+`Inventory` 表示角色持有的物品列表，位于 `Scripts/Items/Inventory.cs`：
+
+- 仅持有 `List<Item> Items`，不包含业务逻辑与 UI
+- 支持二进制序列化：
+  - `Serialize(BinaryWriter writer)`：写入物品数量与逐项序列化
+  - `Deserialize(BinaryReader reader)`：读取数量并逐项通过 `Item.Load(reader)` 还原
+  - 使用 `WriteScope()/ReadScope()` 保证数据块完整性
+
 ### IArm 接口
 
 `IArm` 接口定义武器类型装备，位于 `Scripts/Items/IArm.cs`：
