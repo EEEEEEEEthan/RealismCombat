@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
@@ -27,15 +28,12 @@ public partial class MenuDialogue : BaseDialogue
 	readonly TaskCompletionSource<int> taskCompletionSource = new();
 	bool allowEscapeReturn;
 	int returnOptionIndex = -1;
-	Container? optionContainer;
-	Control? optionIndexer;
-	Printer? printer;
-	TextureRect? indexerTextureRect;
 	int currentIndex = -1;
-	Container OptionContainer => optionContainer ??= GetNode<Container>("MarginContainer/HBoxContainer/VBoxContainer");
-	Printer Printer => printer ??= GetNode<Printer>("MarginContainer/HBoxContainer/Printer");
-	Control OptionIndexer => optionIndexer ??= GetNode<Control>("Control/Indexer");
-	TextureRect IndexerTextureRect => indexerTextureRect ??= GetNode<TextureRect>("Control/Indexer/TextureRect");
+	[field: MaybeNull] Container OptionContainer => field ??= GetNode<Container>("MarginContainer/HBoxContainer/VBoxContainer");
+	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("MarginContainer/HBoxContainer/Printer");
+	[field: MaybeNull] Control OptionIndexer => field ??= GetNode<Control>("Control/Indexer");
+	[field: MaybeNull] TextureRect IndexerTextureRect => field ??= GetNode<TextureRect>("Control/Indexer/TextureRect");
+	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("Control/TitleContainer/TitleLabel");
 	public override void _Ready()
 	{
 		base._Ready();
