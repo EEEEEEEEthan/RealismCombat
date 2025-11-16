@@ -21,7 +21,7 @@ public partial class MenuDialogue : BaseDialogue
 	Control optionIndexer;
 	Printer printer;
 	int currentIndex = -1;
-	public MenuDialogue(IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn)
+	public MenuDialogue(IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn = false)
 	{
 		this.allowEscapeReturn = allowEscapeReturn;
 		var marginContainer = new MarginContainer();
@@ -91,8 +91,7 @@ public partial class MenuDialogue : BaseDialogue
 		Ready += UpdateIndexer;
 		ItemRectChanged += UpdateIndexer;
 	}
-	public MenuDialogue(IEnumerable<MenuOption> initialOptions) : this(initialOptions, false) { }
-	MenuDialogue() : this([], false) { }
+	MenuDialogue() : this([]) { }
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public void SelectAndConfirm(int index)
 	{
