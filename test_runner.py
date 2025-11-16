@@ -83,7 +83,7 @@ def qwen(prompt_text, log_path, callback):
 	
 	# 生成命令
 	sanitized = _sanitize_prompt(prompt_text)
-	command_str = f"qwen -p -y \"{sanitized}\""
+	command_str = f"qwen -p -y -d \"{sanitized}\""
 	
 	# 打开日志文件
 	log_file = open(log_path, 'w', encoding='utf-8') if log_path else None
@@ -168,26 +168,33 @@ def main():
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     log_path = os.path.join(log_dir, log_filename)
-	prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
+    prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
     
-	try:
-		def _on_finish(rc: int):
-			print("-" * 80)
-			print(f"进程返回码: {rc}")
-			print(f"日志已保存到: {log_path}")
-			print(f"测试报告已保存到: {os.path.join(log_dir, report_filename)}")
-		process = qwen(prompt, log_path, _on_finish)
-		# main保持原有阻塞行为，等待完成后返回码
-		return_code = process.wait()
-		return return_code
-	except FileNotFoundError:
-		error_msg = f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中"
-		print(error_msg)
-		return 1
-	except Exception as e:
-		error_msg = f"错误: 执行命令时发生异常: {e}"
-		print(error_msg)
-		return 1
+    try:
+        # 启动测试进程（无需回调，避免竞态导致不打印）
+        process = qwen(prompt, log_path, None)
+        # 阻塞等待完成
+        return_code = process.wait()
+        # 进程结束后同步打印日志路径与报告内容，确保一定输出
+        print("-" * 80)
+        print(f"进程返回码: {return_code}")
+        print(f"日志已保存到: {log_path}")
+        try:
+            report_path = os.path.join(log_dir, report_filename)
+            with open(report_path, 'r', encoding='utf-8') as f:
+                report_content = f.read()
+            print(report_content)
+        except Exception as e:
+            print(f"读取测试报告失败: {e}")
+        return return_code
+    except FileNotFoundError:
+        error_msg = f"错误: 找不到命令 'qwen'，请确保qwen已安装并在PATH中"
+        print(error_msg)
+        return 1
+    except Exception as e:
+        error_msg = f"错误: 执行命令时发生异常: {e}"
+        print(error_msg)
+        return 1
 
 if __name__ == "__main__":
     exit_code = main()
