@@ -39,7 +39,7 @@ public static class Log
 		{
 			// ignored
 		}
-		var logFilePath1 = Path.Combine(logDir, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}_mcp_server.log");
+		var logFilePath1 = Path.Combine(logDir, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_mcp_server.log");
 		try
 		{
 			logWriter = new(new FileStream(logFilePath1, FileMode.Create, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))

@@ -13,7 +13,7 @@ public sealed class GameClient : IDisposable
 	{
 		var logDir = Path.Combine(Program.projectRoot, ".logs");
 		if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
-		var logName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+		var logName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fff");
 		var logPath = Path.Combine(logDir, $"{logName}.log");
 		Log.Print($"游戏日志路径: {logPath}");
 		var writer = new StreamWriter(new FileStream(logPath, FileMode.Append, FileAccess.Write, FileShare.Read), new UTF8Encoding(false))
