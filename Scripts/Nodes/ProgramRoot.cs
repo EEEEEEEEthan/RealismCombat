@@ -70,7 +70,7 @@ public partial class ProgramRoot : Node
 				await DialogueManager.CreateGenericDialogue("当前没有可读取的存档");
 				return null;
 			}
-			var menu = DialogueManager.CreateMenuDialogue(!requireExisting, options);
+			var menu = DialogueManager.CreateMenuDialogue("选择存档槽", !requireExisting, options);
 			var choice = await menu;
 			if (choice == options.Length) return null;
 			var saveFilePath = GetSaveFilePath(choice);
@@ -86,6 +86,7 @@ public partial class ProgramRoot : Node
 				case false when exists:
 				{
 					var confirmMenu = DialogueManager.CreateMenuDialogue(
+						"确认操作",
 						true,
 						new MenuOption { title = "覆盖存档", description = "开始新游戏将覆盖该槽位", }
 					);
@@ -132,6 +133,7 @@ public partial class ProgramRoot : Node
 	async Task<bool> Routine()
 	{
 		var menu = DialogueManager.CreateMenuDialogue(
+			"主菜单",
 			new MenuOption { title = "开始游戏", description = "开始新的冒险", },
 			new MenuOption { title = "读取游戏", description = "读取冒险", },
 			new MenuOption { title = "退出游戏", description = "关闭游戏程序", }

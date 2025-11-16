@@ -78,7 +78,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				.ToArray();
 			while (true)
 			{
-				var bodyPartMenu = DialogueManager.CreateMenuDialogue(true, bodyPartOptions);
+				var bodyPartMenu = DialogueManager.CreateMenuDialogue($"{character.name}的回合", true, bodyPartOptions);
 				var bodyPartIndex = await bodyPartMenu;
 				if (bodyPartIndex == availableBodyParts.Length) break;
 				var selectedBodyPart = availableBodyParts[bodyPartIndex];
@@ -96,7 +96,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						description = string.Empty,
 					})
 					.ToArray();
-				var attackMenu = DialogueManager.CreateMenuDialogue(true, attackOptions);
+				var attackMenu = DialogueManager.CreateMenuDialogue("选择攻击", true, attackOptions);
 				var attackIndex = await attackMenu;
 				if (attackIndex == availableAttacks.Count) continue;
 				var selectedAttack = availableAttacks[attackIndex];
@@ -111,7 +111,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					.ToArray();
 				while (true)
 				{
-					var menu = DialogueManager.CreateMenuDialogue(true, options);
+					var menu = DialogueManager.CreateMenuDialogue("选择对手", true, options);
 					var selected = await menu;
 					if (selected == aliveOpponents.Length) break;
 					var selectedOpponent = aliveOpponents[selected];
@@ -126,7 +126,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 								description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
 							})
 							.ToArray();
-						var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
+						var targetMenu = DialogueManager.CreateMenuDialogue("选择目标", true, targetOptions);
 						var targetIndex = await targetMenu;
 						if (targetIndex == aliveTargets.Length) break;
 						return selectedAttack.create(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
@@ -145,6 +145,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		while (true)
 		{
 			var menu = DialogueManager.CreateMenuDialogue(
+				"选择反应",
 				new MenuOption
 				{
 					title = "格挡",
@@ -180,7 +181,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 							description = $"生命 {t.HitPoint.value}/{t.HitPoint.maxValue}",
 						})
 						.ToArray();
-					var blockMenu = DialogueManager.CreateMenuDialogue(true, options);
+					var blockMenu = DialogueManager.CreateMenuDialogue("选择格挡目标", true, options);
 					var blockIndex = await blockMenu;
 					if (blockIndex == options.Length) continue;
 					return ReactionDecision.CreateBlock(blockTargets[blockIndex]);

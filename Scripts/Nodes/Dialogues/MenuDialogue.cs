@@ -13,14 +13,15 @@ public struct MenuOption
 [Tool,]
 public partial class MenuDialogue : BaseDialogue
 {
-	public static MenuDialogue Create(IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn = false)
+	public static MenuDialogue Create(string title, IEnumerable<MenuOption> initialOptions, bool allowEscapeReturn = false)
 	{
 		PackedScene scene = ResourceTable.menuDialogueScene;
 		var node = scene.Instantiate<MenuDialogue>();
 		node.allowEscapeReturn = allowEscapeReturn;
+		node.TitleLabel.Text = title;
 		node.options.Clear();
 		foreach (var option in initialOptions) node.options.Add(option);
-		node.BuildOptionsIfNeeded();
+		node.BuildOptions();
 		return node;
 	}
 	readonly List<MenuOption> options = [];
@@ -33,7 +34,7 @@ public partial class MenuDialogue : BaseDialogue
 	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("MarginContainer/HBoxContainer/Printer");
 	[field: MaybeNull] Control OptionIndexer => field ??= GetNode<Control>("Control/Indexer");
 	[field: MaybeNull] TextureRect IndexerTextureRect => field ??= GetNode<TextureRect>("Control/Indexer/TextureRect");
-	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("Control/TitleContainer/TitleLabel");
+	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("Control/TitleContainer/Title");
 	public override void _Ready()
 	{
 		base._Ready();
@@ -43,6 +44,10 @@ public partial class MenuDialogue : BaseDialogue
 		GameServer.McpCheckpoint();
 		ItemRectChanged += UpdateIndexer;
 		UpdateIndexer();
+	}
+	void UpdateTitle()
+	{
+		
 	}
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public void SelectAndConfirm(int index)
@@ -82,7 +87,7 @@ public partial class MenuDialogue : BaseDialogue
 			taskCompletionSource.TrySetResult(index);
 		}
 	}
-	void BuildOptionsIfNeeded()
+	void BuildOptions()
 	{
 		for (var i = 0; i < options.Count; i++)
 		{

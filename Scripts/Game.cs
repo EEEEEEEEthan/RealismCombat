@@ -143,6 +143,7 @@ public class Game
 			while (true)
 			{
 				var menu = DialogueManager.CreateMenuDialogue(
+					"游戏菜单",
 					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
 					new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
 					new MenuOption { title = "查看状态", description = "查看角色状态", },
@@ -240,7 +241,7 @@ public class Game
 			var p = players[i];
 			options[i] = new MenuOption { title = p.name, description = "选择该角色", };
 		}
-		var menu = DialogueManager.CreateMenuDialogue(true, options);
+		var menu = DialogueManager.CreateMenuDialogue("选择角色", true, options);
 		var choice = await menu;
 		if (choice == options.Length) return null;
 		return players[choice];
@@ -260,7 +261,7 @@ public class Game
 				var title = $"{bp.Name}";
 				options[i] = new MenuOption { title = title, description = "查看或更换该部位装备", };
 			}
-			var menu = DialogueManager.CreateMenuDialogue(true, options);
+			var menu = DialogueManager.CreateMenuDialogue("选择身体部位", true, options);
 			var choice = await menu;
 			if (choice == options.Length) return true;
 			await ExpandItemContainer(character, bodyParts[choice], null);
@@ -287,7 +288,7 @@ public class Game
 			{
 				dynamicOptions.Add(new MenuOption { title = "卸下", description = "将此装备放入物品栏", });
 			}
-			var menu = DialogueManager.CreateMenuDialogue(true, [.. dynamicOptions]);
+			var menu = DialogueManager.CreateMenuDialogue("选择槽位", true, [.. dynamicOptions]);
 			var choice = await menu;
 			if (choice == dynamicOptions.Count) return;
 			if (hasUnequip && choice == dynamicOptions.Count - 1)
@@ -324,7 +325,7 @@ public class Game
 					var it = inv[i];
 					invOptions[i] = new MenuOption { title = it.Name, description = "换上该装备", };
 				}
-				var menu = DialogueManager.CreateMenuDialogue(true, invOptions);
+				var menu = DialogueManager.CreateMenuDialogue("选择装备", true, invOptions);
 				var choice = await menu;
 				if (choice == invOptions.Length) return;
 				var candidate = inv[choice];

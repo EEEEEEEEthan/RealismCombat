@@ -16,14 +16,14 @@ public partial class DialogueManager : Node
 		AddDialogue(dialogue);
 		return dialogue;
 	}
-	public static MenuDialogue CreateMenuDialogue(bool allowEscapeReturn, params MenuOption[] options)
+	public static MenuDialogue CreateMenuDialogue(string title, bool allowEscapeReturn, params MenuOption[] options)
 	{
 		if (instance.currentDialogue is not null) throw new InvalidOperationException("不允许创建多个对话框");
-		var dialogue = MenuDialogue.Create(options, allowEscapeReturn);
+		var dialogue = MenuDialogue.Create(title, options, allowEscapeReturn);
 		AddDialogue(dialogue);
 		return dialogue;
 	}
-	public static MenuDialogue CreateMenuDialogue(params MenuOption[] options) => CreateMenuDialogue(false, options);
+	public static MenuDialogue CreateMenuDialogue(string title, params MenuOption[] options) => CreateMenuDialogue(title, false, options);
 	public static BaseDialogue? GetTopDialogue() => instance.currentDialogue;
 	public static int GetDialogueCount() => instance.currentDialogue is null ? 0 : 1;
 	static void AddDialogue(BaseDialogue dialogue)
