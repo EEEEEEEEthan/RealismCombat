@@ -14,10 +14,11 @@ import argparse
 from datetime import datetime
 
 TEST_DOC_CONTENT = """用中文沟通.
-利用mcp工具运行游戏,并执行测试
+利用mcp工具运行游戏,并执行测试。
 1. 使用`system_launch_program`启动游戏客户端，等待命令返回主菜单选项。
 2. 通过`game_select_option`选择游戏选项，推进流程
 游戏文档见`.documents/index.md`
+你可以参考`git diff`，结合用户输入的测试内容，推理出测试重点。注意边界问题以及是否影响到其他功能。
 """
 
 def _sanitize_prompt(text: str) -> str:
@@ -168,7 +169,7 @@ def main():
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     log_path = os.path.join(log_dir, log_filename)
-    prompt = f"{TEST_DOC_CONTENT}\n测试内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
+    prompt = f"{TEST_DOC_CONTENT}\n用户输入内容:{test_content}.\n将测试报告输出到`/.testreports/{report_filename}`"
     
     try:
         # 启动测试进程（无需回调，避免竞态导致不打印）

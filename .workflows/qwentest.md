@@ -1,4 +1,6 @@
 # debug
 
-调用`/test_runner.py TEST` TEST填测试内容。例如 `/test_runner.py 常规测试`
+调用`/test_runner.py TEST` TEST填测试内容
 
+示例命令（程序员初步测试用：给出范围/修改点/关键验证/边界，不写步骤）：
+`/test_runner.py 本次修改新增了“装备”入口；关键验证：可以按照预期装上/卸下装备。`
