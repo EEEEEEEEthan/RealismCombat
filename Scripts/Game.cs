@@ -144,6 +144,7 @@ public class Game
 			{
 				var menu = DialogueManager.CreateMenuDialogue(
 					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
+					new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
 					new MenuOption { title = "查看状态", description = "查看角色状态", },
 					new MenuOption { title = "存档", description = "保存当前进度", },
 					new MenuOption { title = "退出游戏", description = "返回主菜单", }
@@ -169,18 +170,23 @@ public class Game
 					}
 					case 1:
 					{
+						await ShowEquipmentFlow();
+						break;
+					}
+					case 2:
+					{
 						var dialogue = DialogueManager.CreateGenericDialogue("状态系统尚未实现");
 						await dialogue;
 						break;
 					}
-					case 2:
+					case 3:
 					{
 						Save();
 						var dialogue = DialogueManager.CreateGenericDialogue("已保存当前进度");
 						await dialogue;
 						break;
 					}
-					case 3:
+					case 4:
 					{
 						Quit();
 						return;
@@ -202,5 +208,144 @@ public class Game
 	{
 		writer.Write(players.Count);
 		foreach (var player in players) player.Serialize(writer);
+	}
+
+	/// <summary>
+	///     装备交互主流程入口
+	/// </summary>
+	async Task ShowEquipmentFlow()
+	{
+		while (true)
+		{
+			var selected = await SelectCharacter();
+			if (selected is null) return;
+			var back = await SelectBodyPartAndExpand(selected);
+			if (!back) return;
+		}
+	}
+	/// <summary>
+	///     选择角色
+	/// </summary>
+	async Task<Character?> SelectCharacter()
+	{
+		if (players.Count == 0)
+		{
+			var dlg = DialogueManager.CreateGenericDialogue("没有可用角色");
+			await dlg;
+			return null;
+		}
+		var options = new MenuOption[players.Count];
+		for (var i = 0; i < players.Count; i++)
+		{
+			var p = players[i];
+			options[i] = new MenuOption { title = p.name, description = "选择该角色", };
+		}
+		var menu = DialogueManager.CreateMenuDialogue(true, options);
+		var choice = await menu;
+		if (choice == options.Length) return null;
+		return players[choice];
+	}
+	/// <summary>
+	///     选择身体部位并展开容器
+	/// </summary>
+	async Task<bool> SelectBodyPartAndExpand(Character character)
+	{
+		while (true)
+		{
+			var bodyParts = character.bodyParts;
+			var options = new MenuOption[bodyParts.Count];
+			for (var i = 0; i < bodyParts.Count; i++)
+			{
+				var bp = bodyParts[i];
+				var title = $"{bp.Name}";
+				options[i] = new MenuOption { title = title, description = "查看或更换该部位装备", };
+			}
+			var menu = DialogueManager.CreateMenuDialogue(true, options);
+			var choice = await menu;
+			if (choice == options.Length) return true;
+			await ExpandItemContainer(character, bodyParts[choice], null);
+		}
+	}
+	/// <summary>
+	///     展开 IItemContainer：列出所有槽位，并在为装备时提供卸下
+	/// </summary>
+	async Task ExpandItemContainer(Character owner, IItemContainer container, ItemSlot? parentSlot)
+	{
+		while (true)
+		{
+			var slots = container.Slots;
+			var dynamicOptions = new System.Collections.Generic.List<MenuOption>(slots.Length + 2);
+			for (var i = 0; i < slots.Length; i++)
+			{
+				var slot = slots[i];
+				var title = slot.Item is null ? $"槽位{i + 1}: 空" : $"槽位{i + 1}: {slot.Item.Name}";
+				var desc = slot.Item is null ? "选择以从物品栏换装" : "查看该装备";
+				dynamicOptions.Add(new MenuOption { title = title, description = desc, });
+			}
+			var hasUnequip = container is Item && parentSlot != null && parentSlot.Item != null;
+			if (hasUnequip)
+			{
+				dynamicOptions.Add(new MenuOption { title = "卸下", description = "将此装备放入物品栏", });
+			}
+			var menu = DialogueManager.CreateMenuDialogue(true, [.. dynamicOptions]);
+			var choice = await menu;
+			if (choice == dynamicOptions.Count) return;
+			if (hasUnequip && choice == dynamicOptions.Count - 1)
+			{
+				var item = parentSlot!.Item!;
+				owner.inventory.Items.Add(item);
+				parentSlot.Item = null;
+				var dlg = DialogueManager.CreateGenericDialogue("已卸下装备并放入物品栏");
+				await dlg;
+				return;
+			}
+			await ExpandItemSlot(owner, slots[choice]);
+		}
+	}
+	/// <summary>
+	///     展开 ItemSlot：空时从物品栏换装；有装备时进入其容器
+	/// </summary>
+	async Task ExpandItemSlot(Character owner, ItemSlot slot)
+	{
+		if (slot.Item is null)
+		{
+			while (true)
+			{
+				if (owner.inventory.Items.Count == 0)
+				{
+					var dlg = DialogueManager.CreateGenericDialogue("物品栏为空");
+					await dlg;
+					return;
+				}
+				var inv = owner.inventory.Items;
+				var invOptions = new MenuOption[inv.Count];
+				for (var i = 0; i < inv.Count; i++)
+				{
+					var it = inv[i];
+					invOptions[i] = new MenuOption { title = it.Name, description = "换上该装备", };
+				}
+				var menu = DialogueManager.CreateMenuDialogue(true, invOptions);
+				var choice = await menu;
+				if (choice == invOptions.Length) return;
+				var candidate = inv[choice];
+				try
+				{
+					slot.Item = candidate;
+					inv.RemoveAt(choice);
+					var dlg = DialogueManager.CreateGenericDialogue("已更换装备");
+					await dlg;
+					return;
+				}
+				catch (ArgumentException)
+				{
+					var dlg = DialogueManager.CreateGenericDialogue("装备类型不匹配，无法更换");
+					await dlg;
+				}
+			}
+		}
+		else
+		{
+			await ExpandItemContainer(owner, slot.Item, slot);
+		}
 	}
 }
