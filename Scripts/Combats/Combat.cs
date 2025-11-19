@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
+using RealismCombat.Combats.CombatActions;
 using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
 public class Combat
@@ -27,7 +28,7 @@ public class Combat
 		StartLoop();
 	}
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
-	internal async Task<ReactionDecision> HandleIncomingAttack(Attack attack)
+	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
 		var defender = attack.Target;
 		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
@@ -70,9 +71,9 @@ public class Combat
 					var actorNode = combatNode.GetCharacterNode(actor);
 					using var _ = actorNode.MoveScope(combatNode.GetReadyPosition(actor));
 					using var __ = actorNode.ExpandScope();
+					Considering = actor;
 					await DialogueManager.CreateGenericDialogue($"{actor.name}的回合!");
 					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
-					Considering = actor;
 					var action = await input.MakeDecisionTask(actor);
 					Considering = null;
 					actor.combatAction = action;

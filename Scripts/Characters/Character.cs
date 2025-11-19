@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Combats;
+using RealismCombat.Combats.CombatActions;
 using RealismCombat.Extensions;
 using RealismCombat.Items;
 namespace RealismCombat.Characters;
@@ -9,6 +10,7 @@ public class Character
 	public readonly PropertyInt speed;
 	public readonly PropertyDouble actionPoint;
 	public readonly string name;
+	public readonly Inventory inventory;
 	public readonly BodyPart head;
 	public readonly BodyPart leftArm;
 	public readonly BodyPart rightArm;
@@ -25,6 +27,7 @@ public class Character
 		speed = new(5, 5);
 		actionPoint = new(0f, 10f);
 		reaction = 1;
+		inventory = new();
 		bodyParts =
 		[
 			head = new(BodyPartCode.Head, []),
@@ -42,6 +45,7 @@ public class Character
 			name = reader.ReadString();
 			speed = new(reader);
 			actionPoint = new(reader);
+			inventory = new();
 			bodyParts =
 			[
 				head = new(BodyPartCode.Head, []),
@@ -52,6 +56,7 @@ public class Character
 				rightLeg = new(BodyPartCode.RightLeg, []),
 			];
 			foreach (var bodyPart in bodyParts) bodyPart.Deserialize(reader);
+			inventory.Deserialize(reader);
 			reaction = 1;
 		}
 	}
@@ -63,6 +68,7 @@ public class Character
 			speed.Serialize(writer);
 			actionPoint.Serialize(writer);
 			foreach (var bodyPart in bodyParts) bodyPart.Serialize(writer);
+			inventory.Serialize(writer);
 		}
 	}
 }

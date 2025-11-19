@@ -41,18 +41,20 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="PlayerPosition" parent="SafeArea/PKContainer" instance=ExtResource("2_5v4ql")]
-custom_minimum_size = Vector2(50, 86)
+custom_minimum_size = Vector2(55, 86)
 layout_mode = 2
 Expanded = true
+ReactionCount = 0
 
 [node name="EnemyPosition" parent="SafeArea/PKContainer" instance=ExtResource("2_5v4ql")]
-custom_minimum_size = Vector2(50, 86)
+custom_minimum_size = Vector2(55, 86)
 layout_mode = 2
 Expanded = true
+ReactionCount = 0
 
 [node name="ReadyContainer" type="Control" parent="SafeArea"]
 layout_mode = 1
@@ -73,7 +75,7 @@ offset_top = -42.5
 offset_right = 58.0
 offset_bottom = 43.5
 grow_vertical = 2
-Expanded = true
+ReactionCount = 0
 
 [node name="EnemyPosition" parent="SafeArea/ReadyContainer" instance=ExtResource("2_5v4ql")]
 custom_minimum_size = Vector2(50, 86)
@@ -89,4 +91,4 @@ offset_right = -8.0
 offset_bottom = 43.0
 grow_horizontal = 0
 grow_vertical = 2
-Expanded = true
+ReactionCount = 0

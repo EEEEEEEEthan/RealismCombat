@@ -1,3 +1,4 @@
+/.claude/settings.local.json
 /.godot/
 /.idea/
 /.McpServer/bin/
@@ -5,7 +6,7 @@
 /.McpServer/.idea/
 /.local.settings
 /.logs/
+/.testreports/
 /.vs/
+/.vscode/settings.json
 /save.dat
-.vscode/settings.json
-.claude/settings.local.json

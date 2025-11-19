@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 using RealismCombat.Characters;
 using RealismCombat.Combats;
@@ -34,18 +35,14 @@ public partial class CharacterNode : Control
 	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
 	static readonly Color deadBackgroundColor = GameColors.grayGradient[^2];
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
-	[Export] Vector2 minSize = new(50f, 39f);
-	[Export] Vector2 maxSize = new(50f, 86f);
+	[Export] Vector2 minSize = new(55f, 39f);
+	[Export] Vector2 maxSize = new(55f, 86f);
 	Character? character;
-	Container rootContainer = null!;
-	VBoxContainer propertyContainer = null!;
-	Label nameLabel = null!;
 	Tween? moveTween;
 	Tween? resizeTween;
 	Tween? shakeTween;
 	Vector2 rootContainerBasePosition;
 	bool rootContainerBasePositionInitialized;
-	bool expanded;
 	Combat combat = null!;
 	PropertyNode actionPointNode = null!;
 	PropertyNode hitPointNode = null!;
@@ -55,36 +52,53 @@ public partial class CharacterNode : Control
 	PropertyNode torsoHitPointNode = null!;
 	PropertyNode leftLegHitPointNode = null!;
 	PropertyNode rightLegHitPointNode = null!;
-	NinePatchRect background = null!;
-	Control moveAnchor = null!;
-	bool isEnemyTheme;
 	/// <summary>
 	///     获取或设置当前阵营对应的主题。
 	/// </summary>
 	public bool IsEnemyTheme
 	{
-		get => isEnemyTheme;
+		get;
 		set
 		{
-			isEnemyTheme = value;
+			field = value;
 			UpdateBackground();
 		}
 	}
+	[field: AllowNull, MaybeNull,] Container RootContainer => field ??= GetNode<Container>("MoveAnchor/RootContainer");
+	[field: AllowNull, MaybeNull,] VBoxContainer PropertyContainer => field ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
+	[field: AllowNull, MaybeNull,] Label NameLabel => field ??= PropertyContainer.GetNode<Label>("HBoxContainer/Name");
+	[field: AllowNull, MaybeNull,] Control MoveAnchor => field ??= GetNode<Control>("MoveAnchor");
+	[field: AllowNull, MaybeNull,] Container ReactionContainer => field ??= PropertyContainer.GetNode<Container>("HBoxContainer/HBoxContainer");
+	[field: AllowNull, MaybeNull,] NinePatchRect Background => field ??= RootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
 	/// <summary>
 	///     获取或设置当前节点是否处于展开状态。
 	/// </summary>
 	[Export]
 	bool Expanded
 	{
-		get => expanded;
+		get;
 		set
 		{
-			if (expanded == value) return;
-			expanded = value;
+			if (field == value) return;
+			field = value;
 			if (IsNodeReady())
 				ApplyExpandedSizeAnimated();
 			else
 				ApplyExpandedSizeImmediate();
+		}
+	}
+	/// <summary>
+	///     获取或设置当前反应点数。
+	/// </summary>
+	[Export]
+	int ReactionCount
+	{
+		get;
+		set
+		{
+			if (field == value) return;
+			field = value;
+			if (IsNodeReady()) UpdateReactionDisplay();
 		}
 	}
 	public IDisposable ExpandScope() => new ExpandDisposable(this);
@@ -93,18 +107,14 @@ public partial class CharacterNode : Control
 	{
 		if (!IsNodeReady()) throw new InvalidOperationException("节点尚未准备好，无法初始化");
 		character = value;
-		nameLabel.Text = value.name;
+		NameLabel.Text = value.name;
 		this.combat = combat;
 		UpdateBackground();
+		ReactionCount = value.reaction;
 	}
 	public override void _Ready()
 	{
 		base._Ready();
-		rootContainer = GetNode<Container>("MoveAnchor/RootContainer");
-		background = rootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
-		propertyContainer = GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
-		nameLabel = propertyContainer.GetNode<Label>("Name");
-		moveAnchor = GetNode<Control>("MoveAnchor");
 		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
 		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
 		headHitPointNode = GetOrCreatePropertyNode("HeadHitPoint", "头部");
@@ -116,7 +126,7 @@ public partial class CharacterNode : Control
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
 		UpdateRootContainerBasePosition();
 		UpdateOverviewVisibility();
-		moveAnchor.Position = default;
+		MoveAnchor.Position = default;
 		UpdateBackground();
 	}
 	/// <summary>
@@ -125,10 +135,10 @@ public partial class CharacterNode : Control
 	public void MoveTo(Vector2 globalPosition)
 	{
 		moveTween?.Kill();
-		if (moveAnchor.GlobalPosition == globalPosition) return;
-		moveTween = moveAnchor.CreateTween();
+		if (MoveAnchor.GlobalPosition == globalPosition) return;
+		moveTween = MoveAnchor.CreateTween();
 		ConfigureTween(moveTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
-		moveTween.TweenProperty(moveAnchor, "global_position", globalPosition, MoveDuration);
+		moveTween.TweenProperty(MoveAnchor, "global_position", globalPosition, MoveDuration);
 	}
 	/// <summary>
 	///     让RootContainer产生一次横向晃动并回到原位。
@@ -137,14 +147,14 @@ public partial class CharacterNode : Control
 	{
 		shakeTween?.Kill();
 		var basePosition = GetRootContainerBasePosition();
-		rootContainer.Position = basePosition;
-		shakeTween = rootContainer.CreateTween();
+		RootContainer.Position = basePosition;
+		shakeTween = RootContainer.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(rootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
-		shakeTween.TweenProperty(rootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(rootContainer, "position", basePosition, ShakeStepDuration);
+		shakeTween.TweenProperty(RootContainer, "position", basePosition, ShakeStepDuration);
 	}
 	public override void _Process(double delta)
 	{
@@ -164,24 +174,51 @@ public partial class CharacterNode : Control
 		hitPointNode.Value = (targetHitPoint.value, targetHitPoint.maxValue);
 		// 更新各个身体部位的血量显示
 		headHitPointNode.Value = (headHitPoint.value, headHitPoint.maxValue);
+		headHitPointNode.BarWidth = headHitPoint.maxValue * 2 - 1;
 		leftArmHitPointNode.Value = (character.leftArm.HitPoint.value, character.leftArm.HitPoint.maxValue);
+		leftArmHitPointNode.BarWidth = character.leftArm.HitPoint.maxValue * 2 - 1;
 		rightArmHitPointNode.Value = (character.rightArm.HitPoint.value, character.rightArm.HitPoint.maxValue);
+		rightArmHitPointNode.BarWidth = character.rightArm.HitPoint.maxValue * 2 - 1;
 		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
+		torsoHitPointNode.BarWidth = torsoHitPoint.maxValue * 2 - 1;
 		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
+		leftLegHitPointNode.BarWidth = character.leftLeg.HitPoint.maxValue * 2 - 1;
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
-		moveAnchor.Size = rootContainer.Size;
+		rightLegHitPointNode.BarWidth = character.rightLeg.HitPoint.maxValue * 2 - 1;
+		MoveAnchor.Size = RootContainer.Size;
 		UpdateBackground();
+		ReactionCount = character.reaction;
+	}
+	/// <summary>
+	///     根据战斗目标找到对应的PropertyNode并闪烁
+	/// </summary>
+	public void FlashPropertyNode(ICombatTarget combatTarget)
+	{
+		if (character is null) return;
+		PropertyNode? targetNode = null;
+		if (combatTarget is BodyPart bodyPart)
+			targetNode = bodyPart.id switch
+			{
+				BodyPartCode.Head => headHitPointNode,
+				BodyPartCode.LeftArm => leftArmHitPointNode,
+				BodyPartCode.RightArm => rightArmHitPointNode,
+				BodyPartCode.Torso => torsoHitPointNode,
+				BodyPartCode.LeftLeg => leftLegHitPointNode,
+				BodyPartCode.RightLeg => rightLegHitPointNode,
+				_ => null,
+			};
+		targetNode?.FlashRed();
 	}
 	void UpdateBackground()
 	{
 		if (!IsNodeReady()) return;
 		if (character?.IsAlive != true)
 		{
-			background.SelfModulate = deadBackgroundColor;
+			Background.SelfModulate = deadBackgroundColor;
 			return;
 		}
-		var colors = isEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
-		background.SelfModulate = hitPointNode.Progress switch
+		var colors = IsEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
+		Background.SelfModulate = hitPointNode.Progress switch
 		{
 			> 0.3 => colors[1],
 			> 0.25 => colors[2],
@@ -191,8 +228,8 @@ public partial class CharacterNode : Control
 	void ApplyExpandedSizeAnimated()
 	{
 		UpdateOverviewVisibility();
-		var container = rootContainer;
-		var targetSize = expanded ? maxSize : minSize;
+		var container = RootContainer;
+		var targetSize = Expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
@@ -203,25 +240,26 @@ public partial class CharacterNode : Control
 	{
 		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
-		var container = rootContainer;
-		var targetSize = expanded ? maxSize : minSize;
+		var container = RootContainer;
+		var targetSize = Expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		container.Size = targetSize;
 		UpdateRootContainerBasePosition();
 	}
 	void UpdateRootContainerBasePosition()
 	{
-		rootContainerBasePosition = rootContainer.Position;
+		rootContainerBasePosition = RootContainer.Position;
 		rootContainerBasePositionInitialized = true;
 	}
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
 	{
-		var node = propertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
+		var node = PropertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
 		if (node != null) return node;
 		node = ResourceTable.propertyNodeScene.Value.Instantiate<PropertyNode>();
+		node.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
 		node.Name = nodeName;
 		node.Title = title;
-		propertyContainer.AddChild(node);
+		PropertyContainer.AddChild(node);
 		return node;
 	}
 	Vector2 GetRootContainerBasePosition()
@@ -233,5 +271,20 @@ public partial class CharacterNode : Control
 	///     根据展开状态更新Overview（总生命值）的可见性。
 	///     展开时隐藏Overview，折叠时显示Overview。
 	/// </summary>
-	void UpdateOverviewVisibility() => hitPointNode?.Visible = !expanded;
+	void UpdateOverviewVisibility() => hitPointNode?.Visible = !Expanded;
+	/// <summary>
+	///     更新反应点数显示，确保TextureRect数量与ReactionCount同步。
+	/// </summary>
+	void UpdateReactionDisplay()
+	{
+		if (!IsNodeReady()) return;
+		var children = ReactionContainer.GetChildren();
+		foreach (var child in children) child.QueueFree();
+		for (var i = 0; i < ReactionCount; i++)
+		{
+			var textureRect = new TextureRect();
+			textureRect.Texture = SpriteTable.star;
+			ReactionContainer.AddChild(textureRect);
+		}
+	}
 }

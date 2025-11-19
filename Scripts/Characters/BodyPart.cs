@@ -16,6 +16,26 @@ public enum BodyPartCode
 	LeftLeg,
 	RightLeg,
 }
+/// <summary>
+///     身体部位扩展工具
+/// </summary>
+public static class BodyPartExtensions
+{
+	/// <summary>
+	///     获取身体部位的显示名称
+	/// </summary>
+	public static string GetName(this BodyPartCode @this) =>
+		@this switch
+		{
+			BodyPartCode.Head => "头部",
+			BodyPartCode.LeftArm => "左臂",
+			BodyPartCode.RightArm => "右臂",
+			BodyPartCode.Torso => "躯干",
+			BodyPartCode.LeftLeg => "左腿",
+			BodyPartCode.RightLeg => "右腿",
+			_ => @this.ToString(),
+		};
+}
 public class BodyPart : ICombatTarget, IItemContainer
 {
 	public readonly BodyPartCode id;
@@ -30,15 +50,21 @@ public class BodyPart : ICombatTarget, IItemContainer
 	/// <summary>
 	///     目标在日志或界面上的名称
 	/// </summary>
-	public string Name => this.GetName();
+	public string Name => id.GetName();
 	public ItemSlot[] Slots { get; }
 	public BodyPart(BodyPartCode id, ItemSlot[] slots)
 	{
 		this.id = id;
-		HitPoint = new(10, 10);
+		var maxHitPoint = id switch
+		{
+			BodyPartCode.Head => 5,
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
+			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
+			_ => 10,
+		};
+		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = slots;
 	}
-	BodyPart() : this(BodyPartCode.Head, []) { }
 	public void Deserialize(BinaryReader reader)
 	{
 		using (reader.ReadScope())
@@ -59,24 +85,4 @@ public class BodyPart : ICombatTarget, IItemContainer
 			foreach (var slot in Slots) slot.Serialize(writer);
 		}
 	}
-}
-/// <summary>
-///     身体部位扩展工具
-/// </summary>
-public static class BodyPartExtensions
-{
-	/// <summary>
-	///     获取身体部位的显示名称
-	/// </summary>
-	public static string GetName(this BodyPart bodyPart) =>
-		bodyPart.id switch
-		{
-			BodyPartCode.Head => "头部",
-			BodyPartCode.LeftArm => "左臂",
-			BodyPartCode.RightArm => "右臂",
-			BodyPartCode.Torso => "躯干",
-			BodyPartCode.LeftLeg => "左腿",
-			BodyPartCode.RightLeg => "右腿",
-			_ => bodyPart.id.ToString(),
-		};
 }

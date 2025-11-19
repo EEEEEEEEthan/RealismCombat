@@ -20,6 +20,7 @@ public static class ResourceTable
 	public static readonly Loader<AudioStream> retroClick = new("res://Audios/retro-click-236673.mp3");
 	public static readonly Loader<AudioStream> retroHurt1 = new("res://Audios/retro-hurt-1-236672.mp3");
 	public static readonly Loader<AudioStream> selection3 = new("res://Audios/selection3.wav");
+	public static readonly Loader<AudioStream> blockSound = new("res://Audios/glitch-bass-101008.mp3");
 	public static readonly Loader<PackedScene> gameNodeScene = new("res://Scenes/GameNode.tscn");
 	public static readonly Loader<PackedScene> combatNodeScene = new("res://Scenes/CombatNode.tscn");
 	public static readonly Loader<PackedScene> characterNodeScene = new("res://Scenes/CharacterNode.tscn");
@@ -29,6 +30,7 @@ public static class SpriteTable
 {
 	public static readonly Cache<AtlasTexture> arrowDown = new(() => CreateAtlas(ResourceTable.icon8, 16, 2, 8, 5));
 	public static readonly Cache<AtlasTexture> arrowRight = new(() => CreateAtlas(ResourceTable.icon8, 8, 0, 8, 8));
+	public static readonly Cache<AtlasTexture> star = new(() => CreateAtlas(ResourceTable.icon8, 9, 9, 5, 5));
 	public static readonly IReadOnlyList<Cache<AtlasTexture>> bleeding = new List<Cache<AtlasTexture>>
 	{
 		new(() => CreateAtlas(ResourceTable.bleeding, 0, 0, 16, 16)),

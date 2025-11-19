@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 namespace RealismCombat.Nodes.Games;
 [Tool]
@@ -7,9 +8,9 @@ public partial class PropertyNode : Control
 		shader_type canvas_item;
 		#include "res://Shaders/random.gdshaderinc"
 		#include "res://Shaders/utilities.gdshaderinc"
-		
+
 		uniform float interval : hint_range(0.0, 1.0) = 0.1;
-		
+
 		void fragment() {
 		    vec2 uv = UV;
 		    float x = floor(uv.x / TEXTURE_PIXEL_SIZE.x) + floor(TIME / interval) * interval;
@@ -18,46 +19,28 @@ public partial class PropertyNode : Control
 		    COLOR = texture(TEXTURE, uv);
 		}
 		""";
-	static ShaderMaterial? jumpMaterial;
+	const float FlashDuration = 0.2f;
 	static Shader? jumpShader;
-	static ShaderMaterial JumpMaterial
+	[field: AllowNull, MaybeNull,] static ShaderMaterial JumpMaterial => field ??= CreateJumpMaterial();
+	static ShaderMaterial CreateJumpMaterial()
 	{
-		get
-		{
-			var material = jumpMaterial;
-			if (material == null)
-			{
-				var shader = jumpShader;
-				if (shader == null)
-				{
-					shader = new();
-					shader.Code = JumpShaderSource;
-					jumpShader = shader;
-				}
-				material = new();
-				material.Shader = shader;
-				material.SetShaderParameter("interval", 0.15);
-				jumpMaterial = material;
-			}
-			return material;
-		}
+		var shader = jumpShader ??= new() { Code = JumpShaderSource, };
+		var material = new ShaderMaterial();
+		material.Shader = shader;
+		material.SetShaderParameter("interval", 0.15);
+		return material;
 	}
-	string title = null!;
-	double current;
-	double max;
-	bool jump;
-	Label? label;
-	ProgressBar? progressBar;
-	public Label Label => label ??= GetNodeOrNull<Label>("Label");
-	public ProgressBar ProgressBar => progressBar ??= GetNodeOrNull<ProgressBar>("ProgressBar");
+	SceneTreeTimer? flashTimer;
+	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
+	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
-	public string Title
+	public string? Title
 	{
-		get => title;
+		get;
 		set
 		{
-			title = value;
+			field = value;
 			UpdateTitle();
 		}
 	}
@@ -71,32 +54,42 @@ public partial class PropertyNode : Control
 		}
 	}
 	[Export]
-	public bool Jump
+	public int BarWidth
 	{
-		get => jump;
+		get;
 		set
 		{
-			jump = value;
+			field = value;
+			UpdateProgressBarWidth();
+		}
+	} = 19;
+	[Export]
+	public bool Jump
+	{
+		get;
+		set
+		{
+			field = value;
 			UpdateJump();
 		}
 	}
 	[Export]
 	double Current
 	{
-		get => current;
+		get;
 		set
 		{
-			current = value;
+			field = value;
 			UpdateValue();
 		}
 	}
 	[Export]
 	double Max
 	{
-		get => max;
+		get;
 		set
 		{
-			max = value;
+			field = value;
 			UpdateValue();
 		}
 	}
@@ -106,12 +99,33 @@ public partial class PropertyNode : Control
 		UpdateTitle();
 		UpdateValue();
 		UpdateJump();
+		UpdateProgressBarWidth();
 	}
-	void UpdateTitle() => Label?.Text = title;
+	/// <summary>
+	///     闪烁红色，持续0.2秒
+	/// </summary>
+	public void FlashRed()
+	{
+		var originalModulate = Modulate;
+		var flashColor = GameColors.pinkGradient[^1];
+		Modulate = flashColor;
+		flashTimer = GetTree().CreateTimer(FlashDuration);
+		flashTimer.Timeout += () =>
+		{
+			Modulate = originalModulate;
+			flashTimer = null;
+		};
+	}
+	void UpdateProgressBarWidth()
+	{
+		if (!IsNodeReady()) return;
+		ProgressBar.CustomMinimumSize = ProgressBar.CustomMinimumSize with { X = BarWidth, };
+	}
+	void UpdateTitle() => Label?.Text = Title;
 	void UpdateValue()
 	{
 		ProgressBar?.MaxValue = Max;
 		ProgressBar?.Value = Current;
 	}
-	void UpdateJump() => ProgressBar?.Material = jump ? JumpMaterial : null;
+	void UpdateJump() => ProgressBar?.Material = Jump ? JumpMaterial : null;
 }
