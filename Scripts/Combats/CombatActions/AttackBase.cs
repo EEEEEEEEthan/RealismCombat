@@ -101,6 +101,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 			if (!finalTarget.Available)
 				resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
 			if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
+			await OnAttackHit(finalTarget, resultMessages);
 		}
 		else if (resultMessages.Count == 0)
 		{
@@ -109,5 +110,12 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 		var resultDialogue = DialogueManager.CreateGenericDialogue(resultMessages.ToArray());
 		await resultDialogue;
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
+	}
+	/// <summary>
+	///     攻击命中后的额外效果，子类可以重写
+	/// </summary>
+	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages)
+	{
+		return Task.CompletedTask;
 	}
 }

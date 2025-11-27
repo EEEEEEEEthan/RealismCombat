@@ -130,6 +130,10 @@ public class Combat
 	{
 		foreach (var bodyPart in character.bodyParts)
 		{
+			if (bodyPart is IBuffOwner bodyPartBuffOwner)
+			{
+				ClearBuffs(bodyPartBuffOwner);
+			}
 			foreach (var slot in bodyPart.Slots)
 			{
 				if (slot.Item != null)

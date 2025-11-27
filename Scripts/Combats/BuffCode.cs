@@ -4,5 +4,13 @@ namespace RealismCombat.Combats;
 /// </summary>
 public enum BuffCode
 {
+	/// <summary>
+	///     束缚
+	/// </summary>
+	Restrained,
+	/// <summary>
+	///     擒拿
+	/// </summary>
+	Grappling,
 }
 
