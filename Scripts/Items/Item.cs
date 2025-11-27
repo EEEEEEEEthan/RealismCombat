@@ -80,7 +80,10 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, P
 		var buffCount = reader.ReadInt32();
 		for (var i = 0; i < buffCount; i++)
 		{
-			item.buffs.Add(new Buff(reader));
+			using (reader.ReadScope())
+			{
+				reader.ReadUInt64();
+			}
 		}
 		item.OnDeserialize(reader);
 		return item;
@@ -91,11 +94,7 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, P
 		writer.Write((ulong)id);
 		writer.Write(Slots.Length);
 		for (var i = 0; i < Slots.Length; i++) Slots[i].Serialize(writer);
-		writer.Write(buffs.Count);
-		foreach (var buff in buffs)
-		{
-			buff.Serialize(writer);
-		}
+		writer.Write(0);
 		OnSerialize(writer);
 	}
 	#endregion

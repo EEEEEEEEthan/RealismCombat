@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using RealismCombat.AutoLoad;
 using RealismCombat.Characters;
 using RealismCombat.Combats.CombatActions;
+using RealismCombat.Items;
 using RealismCombat.Nodes.Games;
 namespace RealismCombat.Combats;
 public class Combat
@@ -104,15 +106,63 @@ public class Combat
 		if (!Allies.Any(c => c.IsAlive))
 		{
 			Log.Print("战斗失败");
+			ClearAllBuffs();
 			taskCompletionSource.TrySetResult();
 			return true;
 		}
 		if (!Enemies.Any(c => c.IsAlive))
 		{
 			Log.Print("敌人被消灭，你胜利了");
+			ClearAllBuffs();
 			taskCompletionSource.TrySetResult();
 			return true;
 		}
 		return false;
+	}
+	void ClearAllBuffs()
+	{
+		foreach (var character in Allies.Union(Enemies))
+		{
+			ClearCharacterBuffs(character);
+		}
+	}
+	static void ClearCharacterBuffs(Character character)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			foreach (var slot in bodyPart.Slots)
+			{
+				if (slot.Item != null)
+				{
+					ClearItemBuffs(slot.Item);
+				}
+			}
+		}
+		foreach (var item in character.inventory.Items)
+		{
+			ClearItemBuffs(item);
+		}
+	}
+	static void ClearItemBuffs(Item item)
+	{
+		if (item is IBuffOwner buffOwner)
+		{
+			ClearBuffs(buffOwner);
+		}
+		foreach (var slot in item.Slots)
+		{
+			if (slot.Item != null)
+			{
+				ClearItemBuffs(slot.Item);
+			}
+		}
+	}
+	static void ClearBuffs(IBuffOwner buffOwner)
+	{
+		var buffsToRemove = new List<Buff>(buffOwner.Buffs);
+		foreach (var buff in buffsToRemove)
+		{
+			buffOwner.RemoveBuff(buff);
+		}
 	}
 }
