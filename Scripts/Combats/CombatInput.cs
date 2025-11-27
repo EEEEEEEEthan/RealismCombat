@@ -194,10 +194,20 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						continue;
 					}
 					var options = blockTargets
-						.Select(t => new MenuOption
+						.Select(t =>
 						{
-							title = t.Name,
-							description = $"生命 {t.HitPoint.value}/{t.HitPoint.maxValue}",
+							var description = $"生命 {t.HitPoint.value}/{t.HitPoint.maxValue}";
+							if (t is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
+							{
+								var buffLines = buffOwner.Buffs
+									.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+								description += "\n" + string.Join("\n", buffLines);
+							}
+							return new MenuOption
+							{
+								title = t.Name,
+								description = description,
+							};
 						})
 						.ToArray();
 					var blockMenu = DialogueManager.CreateMenuDialogue(true, options);
