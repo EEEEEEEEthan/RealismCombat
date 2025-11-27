@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using RealismCombat.Combats;
 using RealismCombat.Extensions;
@@ -10,10 +11,11 @@ public enum ItemIdCode
 /// <summary>
 ///     战斗中可以被选择的装备实体
 /// </summary>
-public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, PropertyInt hitPoint) : ICombatTarget, IItemContainer
+public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, PropertyInt hitPoint) : ICombatTarget, IItemContainer, IBuffOwner
 {
 	public readonly ItemFlagCode flag = flag;
 	public readonly ItemIdCode id = id;
+	private readonly List<Buff> buffs = [];
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
@@ -27,6 +29,38 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, P
 	/// </summary>
 	public abstract string Name { get; }
 	public ItemSlot[] Slots { get; } = slots;
+	/// <summary>
+	///     获取所有Buff列表
+	/// </summary>
+	public IReadOnlyList<Buff> Buffs => buffs;
+	/// <summary>
+	///     添加Buff
+	/// </summary>
+	public void AddBuff(Buff buff)
+	{
+		buffs.Add(buff);
+	}
+	/// <summary>
+	///     移除Buff
+	/// </summary>
+	public void RemoveBuff(Buff buff)
+	{
+		buffs.Remove(buff);
+	}
+	/// <summary>
+	///     检查是否拥有指定类型的Buff
+	/// </summary>
+	public bool HasBuff(BuffCode buffCode)
+	{
+		foreach (var buff in buffs)
+		{
+			if (buff.code == buffCode)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	protected abstract void OnSerialize(BinaryWriter writer);
 	protected abstract void OnDeserialize(BinaryReader reader);
 	#region serialize
@@ -43,6 +77,11 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, P
 		var trueSlotCount = Math.Min(slotCount, item.Slots.Length);
 		for (var i = 0; i < trueSlotCount; i++) item.Slots[i].Deserialize(reader);
 		for (var i = trueSlotCount; i < slotCount; i++) new ItemSlot(default).Deserialize(reader);
+		var buffCount = reader.ReadInt32();
+		for (var i = 0; i < buffCount; i++)
+		{
+			item.buffs.Add(new Buff(reader));
+		}
 		item.OnDeserialize(reader);
 		return item;
 	}
@@ -52,6 +91,11 @@ public abstract class Item(ItemIdCode id, ItemFlagCode flag, ItemSlot[] slots, P
 		writer.Write((ulong)id);
 		writer.Write(Slots.Length);
 		for (var i = 0; i < Slots.Length; i++) Slots[i].Serialize(writer);
+		writer.Write(buffs.Count);
+		foreach (var buff in buffs)
+		{
+			buff.Serialize(writer);
+		}
 		OnSerialize(writer);
 	}
 	#endregion
