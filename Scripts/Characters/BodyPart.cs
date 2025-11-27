@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using Godot;
 using RealismCombat.Combats;
@@ -36,9 +37,10 @@ public static class BodyPartExtensions
 			_ => @this.ToString(),
 		};
 }
-public class BodyPart : ICombatTarget, IItemContainer
+public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 {
 	public readonly BodyPartCode id;
+	private readonly List<Buff> buffs = [];
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
@@ -52,6 +54,38 @@ public class BodyPart : ICombatTarget, IItemContainer
 	/// </summary>
 	public string Name => id.GetName();
 	public ItemSlot[] Slots { get; }
+	/// <summary>
+	///     获取所有Buff列表
+	/// </summary>
+	public IReadOnlyList<Buff> Buffs => buffs;
+	/// <summary>
+	///     添加Buff
+	/// </summary>
+	public void AddBuff(Buff buff)
+	{
+		buffs.Add(buff);
+	}
+	/// <summary>
+	///     移除Buff
+	/// </summary>
+	public void RemoveBuff(Buff buff)
+	{
+		buffs.Remove(buff);
+	}
+	/// <summary>
+	///     检查是否拥有指定类型的Buff
+	/// </summary>
+	public bool HasBuff(BuffCode buffCode)
+	{
+		foreach (var buff in buffs)
+		{
+			if (buff.code == buffCode)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	public BodyPart(BodyPartCode id, ItemSlot[] slots)
 	{
 		this.id = id;

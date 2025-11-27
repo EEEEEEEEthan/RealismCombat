@@ -221,52 +221,7 @@ propertyNode.Jump = true; // 启用跳动效果
 propertyNode.FlashRed();
 ```
 
-#### PropertyNode2
 
-属性节点2，位于 `Scripts/Nodes/Games/PropertyNode2.cs`，用于显示属性条，是 `PropertyNode` 的简化版本。
-
-##### 功能
-
-- 显示属性标题、当前值与最大值
-- 显示整数格式的数值（`当前值/最大值`）
-- 支持闪烁效果（`FlashRed()`），用于受击反馈
-- **不支持**跳动效果（`Jump` 功能）
-
-##### 属性
-
-- `Title`：属性标题（`string`）
-- `Value`：属性值元组（`(int current, int max)`），返回整数类型
-- `Current`：当前值（`double`）
-- `Max`：最大值（`double`）
-- `Progress`：进度比例（`double`），计算为 `Current / Max`
-
-##### 数值显示
-
-- 在进度条上方显示整数格式的数值
-- 格式：`当前值/最大值`（例如 `5/10`）
-- 数值会随 `Current` 和 `Max` 自动更新
-
-##### 闪烁效果
-
-- `FlashRed()`：闪烁红色，持续 0.2 秒
-- 使用 `pinkGradient[^1]`（深红色 `#b21030`）
-- 闪烁后自动恢复原颜色
-
-##### 与 PropertyNode 的区别
-
-- `PropertyNode2` 不支持 `Jump` 跳动效果
-- `PropertyNode2.Value` 返回 `(int, int)` 而非 `(double, double)`
-- `PropertyNode2` 在进度条上方显示数值文本
-
-##### 使用示例
-
-```csharp
-var propertyNode2 = ResourceTable.propertyNode2Scene.Instantiate<PropertyNode2>();
-propertyNode2.Title = "生命";
-propertyNode2.Value = (50, 100); // 整数类型
-// 受击时闪烁
-propertyNode2.FlashRed();
-```
 
 #### BleedingNode
 
@@ -376,4 +331,3 @@ characterNode.AddChild(bleedingNode);
 - 使用 `CallDeferred()` 确保节点准备好后再操作
 - 注意节点的生命周期，避免访问已释放的节点
 - 动画使用 `Tween` 时，注意在开始新动画前取消旧动画（`tween?.Kill()`）
-

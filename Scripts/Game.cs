@@ -70,9 +70,11 @@ public class Game
 	}
 	static List<Character> CreateDefaultPlayers()
 	{
-		var hero = new Character("Hero");
+		var hero = new Character("Ethan");
 		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = new LongSword();
-		return [hero,];
+		var raven = new Character("Raven");
+		if (raven.rightArm.Slots.Length > 0) raven.rightArm.Slots[0].Item = new LongSword();
+		return [hero, raven,];
 	}
 	static Character[] CreateDefaultEnemies()
 	{
