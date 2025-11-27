@@ -81,6 +81,7 @@ public partial class CharacterNode : Control
 		{
 			if (field == value) return;
 			field = value;
+			ZIndex = value ? 1 : 0;
 			if (IsNodeReady())
 				ApplyExpandedSizeAnimated();
 			else
