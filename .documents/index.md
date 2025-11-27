@@ -17,6 +17,7 @@
 - [UI 系统](ui-system.md) - DialogueManager、对话框、菜单、异步等待机制
 - [游戏节点](game-nodes.md) - CharacterNode、PropertyNode、CombatNode、GameNode、BleedingNode 等游戏节点
 - [扩展方法](extensions.md) - 实用的扩展方法
+- [Buff 系统](buff-system.md) - Buff、BuffCode、IBuffOwner 状态效果
 
 ### 运行时流程
 - [运行时流程](runtime-flow.md) - ProgramRoot、Game、MCP 模式与场景结构
