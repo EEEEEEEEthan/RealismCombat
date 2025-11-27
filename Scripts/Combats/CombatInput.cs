@@ -70,10 +70,20 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
 			if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
 			var bodyPartOptions = availableBodyParts
-				.Select(bp => new MenuOption
+				.Select(bp =>
 				{
-					title = $"{character.name}的{bp.Name}",
-					description = $"生命 {bp.HitPoint.value}/{bp.HitPoint.maxValue}",
+					var description = $"生命 {bp.HitPoint.value}/{bp.HitPoint.maxValue}";
+					if (bp.Buffs.Count > 0)
+					{
+						var buffLines = bp.Buffs
+							.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+						description += "\n" + string.Join("\n", buffLines);
+					}
+					return new MenuOption
+					{
+						title = bp.Name,
+						description = description,
+					};
 				})
 				.ToArray();
 			while (true)
@@ -120,10 +130,20 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						var aliveTargets = GetAvailableTargets(selectedOpponent);
 						if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
 						var targetOptions = aliveTargets
-							.Select(o => new MenuOption
+							.Select(o =>
 							{
-								title = $"{selectedOpponent.name}的{o.Name}",
-								description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}",
+								var description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}";
+								if (o is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
+								{
+									var buffLines = buffOwner.Buffs
+										.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+									description += "\n" + string.Join("\n", buffLines);
+								}
+								return new MenuOption
+								{
+									title = o.Name,
+									description = description,
+								};
 							})
 							.ToArray();
 						var targetMenu = DialogueManager.CreateMenuDialogue(true, targetOptions);
