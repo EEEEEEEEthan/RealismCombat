@@ -97,7 +97,10 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 			var damage = CalculateDamage();
 			finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damage, 0, finalTarget.HitPoint.maxValue);
 			targetNode.FlashPropertyNode(finalTarget);
-			resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damage}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
+			if (finalTarget is not Item)
+			{
+				resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damage}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
+			}
 			if (!finalTarget.Available)
 				resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
 			if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
