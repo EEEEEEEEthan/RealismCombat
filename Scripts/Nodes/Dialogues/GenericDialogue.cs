@@ -11,6 +11,7 @@ public partial class GenericDialogue : BaseDialogue
 	readonly VBoxContainer container;
 	readonly HBoxContainer optionsContainer;
 	TaskCompletionSource<int>? activeTask;
+	List<string>? pendingOptions;
 	int selectedOptionIndex = -1;
 	double time;
 	bool keyDown;
@@ -45,6 +46,12 @@ public partial class GenericDialogue : BaseDialogue
 		var printing = printer.Printing;
 		var hasTask = activeTask != null;
 		var hasOptions = optionsContainer.Visible && optionEntries.Count > 0;
+		if (!printing && hasTask && pendingOptions != null)
+		{
+			BuildOptions(pendingOptions);
+			pendingOptions = null;
+			UpdateIconVisibility();
+		}
 		if (!hasTask || printing || string.IsNullOrEmpty(printer.Text) || hasOptions)
 		{
 			icon.SelfModulate = GameColors.transparent;
@@ -69,13 +76,15 @@ public partial class GenericDialogue : BaseDialogue
 	/// <param name="text">要显示的文本</param>
 	/// <param name="options">可选的选项内容</param>
 	/// <returns>没有选项返回 -1，有选项返回所选索引</returns>
-	public Task<int> AddText(string text, params string[] options)
+	public Task<int> ShowTextTask(string text, params string[] options)
 	{
 		if (activeTask is { Task.IsCompleted: false })
 			throw new InvalidOperationException("当前文本尚未完成");
 		activeTask = new();
 		time = 0;
 		keyDown = false;
+		ClearOptions();
+		pendingOptions = null;
 		var content = string.IsNullOrEmpty(text) ? string.Empty : text;
 		var prefix = string.IsNullOrEmpty(printer.Text) ? string.Empty : "\n";
 		var previousCharacters = printer.GetTotalCharacterCount();
@@ -90,13 +99,7 @@ public partial class GenericDialogue : BaseDialogue
 				if (!string.IsNullOrEmpty(option)) validOptions.Add(option);
 			}
 			if (validOptions.Count > 0)
-				BuildOptions(validOptions);
-			else
-				ClearOptions();
-		}
-		else
-		{
-			ClearOptions();
+				pendingOptions = validOptions;
 		}
 		UpdateIconVisibility();
 		return activeTask.Task;
@@ -109,6 +112,12 @@ public partial class GenericDialogue : BaseDialogue
 		{
 			keyDown = true;
 			return;
+		}
+		if (pendingOptions != null)
+		{
+			BuildOptions(pendingOptions);
+			pendingOptions = null;
+			UpdateIconVisibility();
 		}
 		if (optionEntries.Count == 0)
 		{
@@ -193,6 +202,7 @@ public partial class GenericDialogue : BaseDialogue
 	{
 		var task = activeTask;
 		activeTask = null;
+		pendingOptions = null;
 		ClearOptions();
 		UpdateIconVisibility();
 		task?.TrySetResult(result);

@@ -27,7 +27,7 @@ public partial class DialogueManager : Node
 		var dialogue = CreateGenericDialogue();
 		try
 		{
-			return await dialogue.AddText(text, options);
+			return await dialogue.ShowTextTask(text, options);
 		}
 		finally
 		{
@@ -39,7 +39,7 @@ public partial class DialogueManager : Node
 		var dialogue = CreateGenericDialogue();
 		try
 		{
-			foreach (var text in texts) await dialogue.AddText(text);
+			foreach (var text in texts) await dialogue.ShowTextTask(text);
 		}
 		finally
 		{

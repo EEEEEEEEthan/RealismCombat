@@ -11,9 +11,9 @@ public partial class GenericDialogueTest : Node
 		var selection = await DialogueManager.ShowGenericDialogue("请选择一个选项", "选项A", "选项B", "选项C");
 		Log.Print($"选中了选项索引: {selection}");
 		var dialogue = DialogueManager.CreateGenericDialogue();
-		await dialogue.AddText("同一个对话框的多段文本（1）");
-		await dialogue.AddText("同一个对话框的多段文本（2）");
-		await dialogue.AddText("同一个对话框的选项展示", "继续", "结束");
+		await dialogue.ShowTextTask("同一个对话框的多段文本（1）");
+		await dialogue.ShowTextTask("同一个对话框的多段文本（2）");
+		await dialogue.ShowTextTask("同一个对话框的选项展示", "继续", "结束");
 		DialogueManager.DestroyDialogue(dialogue);
 	}
 }
