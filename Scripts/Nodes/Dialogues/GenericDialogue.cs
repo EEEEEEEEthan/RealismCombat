@@ -30,9 +30,10 @@ public partial class GenericDialogue : BaseDialogue
 		optionsContainer = new()
 		{
 			Name = "OptionsContainer",
-			Alignment = BoxContainer.AlignmentMode.Center,
+			Alignment = BoxContainer.AlignmentMode.End,
 			Visible = false,
 		};
+		optionsContainer.AddThemeConstantOverride("separation", 8);
 		container.AddChild(optionsContainer);
 		printer.VisibleCharacters = 0;
 		printer.Text = string.Empty;
