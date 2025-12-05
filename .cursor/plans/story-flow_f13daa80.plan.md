@@ -7,7 +7,7 @@ todos:
     status: pending
   - id: enhance-generic-dialogue
     content: GenericDialogue新增Task<int>选择模式
-    status: pending
+    status: completed
   - id: task-flag-wait
     content: Game内添加剧情状态与穿胸甲flag序列化
     status: pending
