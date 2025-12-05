@@ -9,7 +9,7 @@ public partial class DialogueManager : Node
 		void HandleInput(InputEvent @event);
 	}
 	static DialogueManager instance = null!;
-	public static GenericDialogue CreateGenericDialogue()
+	public static IDisposable CreateGenericDialogue(out GenericDialogue dialogue)
 	{
 		if (instance.currentDialogue is { } existing && !existing.IsQueuedForDeletion())
 			throw new InvalidOperationException("不允许创建多个对话框");
@@ -18,33 +18,19 @@ public partial class DialogueManager : Node
 			queued.OnClosed -= instance.DialogueClosed;
 			instance.currentDialogue = null;
 		}
-		var dialogue = new GenericDialogue();
+		dialogue = new GenericDialogue();
 		AddDialogue(dialogue);
-		return dialogue;
+		return new DialogueScope(dialogue);
 	}
 	public static async Task<int> ShowGenericDialogue(string text, params string[] options)
 	{
-		var dialogue = CreateGenericDialogue();
-		try
-		{
-			return await dialogue.ShowTextTask(text, options);
-		}
-		finally
-		{
-			DestroyDialogue(dialogue);
-		}
+		using var scope = CreateGenericDialogue(out var dialogue);
+		return await dialogue.ShowTextTask(text, options);
 	}
 	public static async Task ShowGenericDialogue(IEnumerable<string> texts)
 	{
-		var dialogue = CreateGenericDialogue();
-		try
-		{
-			foreach (var text in texts) await dialogue.ShowTextTask(text);
-		}
-		finally
-		{
-			DestroyDialogue(dialogue);
-		}
+		using var scope = CreateGenericDialogue(out var dialogue);
+		foreach (var text in texts) await dialogue.ShowTextTask(text);
 	}
 	public static void DestroyDialogue(BaseDialogue dialogue)
 	{
@@ -90,5 +76,20 @@ public partial class DialogueManager : Node
 		if (currentDialogue != dialogue) return;
 		currentDialogue.OnClosed -= DialogueClosed;
 		currentDialogue = null;
+	}
+	sealed class DialogueScope : IDisposable
+	{
+		readonly GenericDialogue dialogue;
+		bool disposed;
+		public DialogueScope(GenericDialogue dialogue)
+		{
+			this.dialogue = dialogue;
+		}
+		public void Dispose()
+		{
+			if (disposed) return;
+			disposed = true;
+			DestroyDialogue(dialogue);
+		}
 	}
 }

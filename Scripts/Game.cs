@@ -86,9 +86,10 @@ public class Game
 			{
 				if (Chapter == 0)
 				{
-					var dialogue = DialogueManager.CreateGenericDialogue();
-					await dialogue.ShowTextTask("Ethan离开了他的家乡");
-					DialogueManager.DestroyDialogue(dialogue);
+					using (DialogueManager.CreateGenericDialogue(out var dialogue))
+					{
+						await dialogue.ShowTextTask("Ethan离开了他的家乡");
+					}
 				}
 				var menu = DialogueManager.CreateMenuDialogue(
 					"游戏菜单",
