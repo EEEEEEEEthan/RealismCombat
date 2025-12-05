@@ -7,6 +7,7 @@ public struct MenuOption
 {
 	public string title;
 	public string description;
+	public bool disabled;
 }
 [Tool,]
 public partial class MenuDialogue : BaseDialogue
@@ -37,7 +38,19 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		base._Ready();
 		IndexerTextureRect.Texture = SpriteTable.arrowRight;
-		if (options.Count > 0) Select(0);
+		if (options.Count > 0)
+		{
+			var firstEnabledIndex = -1;
+			for (var i = 0; i < options.Count; i++)
+			{
+				if (!options[i].disabled)
+				{
+					firstEnabledIndex = i;
+					break;
+				}
+			}
+			if (firstEnabledIndex >= 0) Select(firstEnabledIndex);
+		}
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
 		ItemRectChanged += UpdateIndexer;
@@ -59,23 +72,36 @@ public partial class MenuDialogue : BaseDialogue
 		if (@event.IsActionPressed("ui_up"))
 		{
 			var index = currentIndex;
-			if (--index < 0) index = options.Count - 1;
-			Select(index);
+			var attempts = 0;
+			do
+			{
+				if (--index < 0) index = options.Count - 1;
+				attempts++;
+			} while (options[index].disabled && attempts < options.Count);
+			if (!options[index].disabled) Select(index);
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_down"))
 		{
 			var index = currentIndex;
-			if (++index >= options.Count) index = 0;
-			Select(index);
+			var attempts = 0;
+			do
+			{
+				if (++index >= options.Count) index = 0;
+				attempts++;
+			} while (options[index].disabled && attempts < options.Count);
+			if (!options[index].disabled) Select(index);
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_accept"))
 		{
-			GetViewport().SetInputAsHandled();
-			var index = currentIndex;
-			Close();
-			taskCompletionSource.TrySetResult(index);
+			if (currentIndex >= 0 && currentIndex < options.Count && !options[currentIndex].disabled)
+			{
+				GetViewport().SetInputAsHandled();
+				var index = currentIndex;
+				Close();
+				taskCompletionSource.TrySetResult(index);
+			}
 		}
 		else if (allowEscapeReturn && @event.IsActionPressed("ui_cancel"))
 		{
@@ -94,6 +120,10 @@ public partial class MenuDialogue : BaseDialogue
 			{
 				Text = option.title,
 			};
+			if (option.disabled)
+			{
+				label.Modulate = new Color(178f / 255f, 178f / 255f, 178f / 255f);
+			}
 			OptionContainer.AddChild(label);
 			optionLabels.Add(label);
 			Log.Print($"{i} - {option.title} {option.description}");
@@ -105,6 +135,7 @@ public partial class MenuDialogue : BaseDialogue
 			{
 				title = "返回",
 				description = string.Empty,
+				disabled = false,
 			};
 			options.Add(returnOption);
 			var returnLabel = new Label
@@ -120,6 +151,7 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		if (currentIndex == index) return;
 		if (index < 0 || index >= options.Count) return;
+		if (options[index].disabled) return;
 		currentIndex = index;
 		Printer.Text = options[currentIndex].description;
 		Printer.VisibleCharacters = 0;
@@ -136,6 +168,7 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	void Confirm()
 	{
+		if (currentIndex < 0 || currentIndex >= options.Count || options[currentIndex].disabled) return;
 		Log.Print($"选择了选项{currentIndex} - {options[currentIndex].title}");
 		GetViewport().SetInputAsHandled();
 		Close();
