@@ -168,8 +168,14 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	void Confirm()
 	{
-		if (currentIndex < 0 || currentIndex >= options.Count || options[currentIndex].disabled) return;
+		if (currentIndex < 0 || currentIndex >= options.Count) return;
 		Log.Print($"选择了选项{currentIndex} - {options[currentIndex].title}");
+		if (options[currentIndex].disabled)
+		{
+            Log.Print("选项不可用。");
+			GameServer.McpCheckpoint();
+            return;
+		}
 		GetViewport().SetInputAsHandled();
 		Close();
 		taskCompletionSource.TrySetResult(currentIndex);

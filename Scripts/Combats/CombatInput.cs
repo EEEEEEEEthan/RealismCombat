@@ -23,15 +23,15 @@ public abstract class CombatInput(Combat combat)
 	/// <summary>
 	///     获取可用的攻击类型
 	/// </summary>
-	protected static List<(string name, Func<Character, BodyPart, Character, ICombatTarget, Combat, AttackBase> create)> GetAvailableAttacks(BodyPart bodyPart)
+	protected static List<(string name, bool canUse, Func<Character, BodyPart, Character, ICombatTarget, Combat, AttackBase> create)> GetAvailableAttacks(BodyPart bodyPart)
 	{
-		var attacks = new List<(string, Func<Character, BodyPart, Character, ICombatTarget, Combat, AttackBase>)>();
-		if (SlashAttack.CanUse(bodyPart)) attacks.Add(("斩击", (a, b, t, c, co) => new SlashAttack(a, b, t, c, co)));
-		if (StabAttack.CanUse(bodyPart)) attacks.Add(("刺击", (a, b, t, c, co) => new StabAttack(a, b, t, c, co)));
-		if (KickAttack.CanUse(bodyPart)) attacks.Add(("踢", (a, b, t, c, co) => new KickAttack(a, b, t, c, co)));
-		if (HeadbuttAttack.CanUse(bodyPart)) attacks.Add(("头槌", (a, b, t, c, co) => new HeadbuttAttack(a, b, t, c, co)));
-		if (ChargeAttack.CanUse(bodyPart)) attacks.Add(("撞击", (a, b, t, c, co) => new ChargeAttack(a, b, t, c, co)));
-		if (GrabAttack.CanUse(bodyPart)) attacks.Add(("抓取", (a, b, t, c, co) => new GrabAttack(a, b, t, c, co)));
+		var attacks = new List<(string, bool, Func<Character, BodyPart, Character, ICombatTarget, Combat, AttackBase>)>();
+		if (SlashAttack.IsBodyPartCompatible(bodyPart)) attacks.Add(("斩击", SlashAttack.CanUse(bodyPart), (a, b, t, c, co) => new SlashAttack(a, b, t, c, co)));
+		if (StabAttack.IsBodyPartCompatible(bodyPart)) attacks.Add(("刺击", StabAttack.CanUse(bodyPart), (a, b, t, c, co) => new StabAttack(a, b, t, c, co)));
+		if (KickAttack.IsBodyPartCompatible(bodyPart)) attacks.Add(("踢", KickAttack.CanUse(bodyPart), (a, b, t, c, co) => new KickAttack(a, b, t, c, co)));
+		if (HeadbuttAttack.IsBodyPartCompatible(bodyPart)) attacks.Add(("头槌", HeadbuttAttack.CanUse(bodyPart), (a, b, t, c, co) => new HeadbuttAttack(a, b, t, c, co)));
+		if (ChargeAttack.IsBodyPartCompatible(bodyPart)) attacks.Add(("撞击", ChargeAttack.CanUse(bodyPart), (a, b, t, c, co) => new ChargeAttack(a, b, t, c, co)));
+		if (GrabAttack.IsBodyPartCompatible(bodyPart)) attacks.Add(("抓", GrabAttack.CanUse(bodyPart), (a, b, t, c, co) => new GrabAttack(a, b, t, c, co)));
 		return attacks;
 	}
 	protected readonly Combat combat = combat;
@@ -97,11 +97,13 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					{
 						title = a.name,
 						description = string.Empty,
+						disabled = !a.canUse,
 					})
 					.ToArray();
 				var attackMenu = DialogueManager.CreateMenuDialogue("选择攻击", true, attackOptions);
 				var attackIndex = await attackMenu;
 				if (attackIndex == availableAttacks.Count) continue;
+				if (!availableAttacks[attackIndex].canUse) continue;
 				var selectedAttack = availableAttacks[attackIndex];
 				var aliveOpponents = GetAliveOpponents(character);
 				if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
@@ -227,16 +229,18 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var bodyPartIndex = (int)(bodyPartRandomValue % (uint)availableBodyParts.Length);
 		var selectedBodyPart = availableBodyParts[bodyPartIndex];
 		var availableAttacks = GetAvailableAttacks(selectedBodyPart);
-		if (availableAttacks.Count == 0)
+		var usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
+		if (usableAttacks.Count == 0)
 		{
 			bodyPartIndex = (bodyPartIndex + 1) % availableBodyParts.Length;
 			selectedBodyPart = availableBodyParts[bodyPartIndex];
 			availableAttacks = GetAvailableAttacks(selectedBodyPart);
-			if (availableAttacks.Count == 0) throw new InvalidOperationException("未找到可用的攻击类型");
+			usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
+			if (usableAttacks.Count == 0) throw new InvalidOperationException("未找到可用的攻击类型");
 		}
 		var attackRandomValue = GD.Randi();
-		var attackIndex = (int)(attackRandomValue % (uint)availableAttacks.Count);
-		var selectedAttack = availableAttacks[attackIndex];
+		var attackIndex = (int)(attackRandomValue % (uint)usableAttacks.Count);
+		var selectedAttack = usableAttacks[attackIndex];
 		var target = GetRandomOpponent(character);
 		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
 		var aliveTargets = GetAvailableTargets(target);
