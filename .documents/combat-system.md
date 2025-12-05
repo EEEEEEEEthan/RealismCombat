@@ -49,6 +49,7 @@
     - 闪避：攻击落空，受击方打断当前行动并位移
     - 承受：正常结算伤害
   - 通过 `CalculateDamage()` 计算伤害值（通常为 1~3 点）写入最终目标的生命值，界面通过 `CharacterNode.Shake()` 与受击音效反馈
+  - 注意：`GrabAttack`（抓取攻击）不造成伤害，`CalculateDamage()` 返回 0
   - 持续追加部位状态、倒地提示，并在对话框关闭后额外扣除 5 点行动点
 - 外部随时可以将 `character.combatAction` 置空以中断后摇，例如强制结束战斗
 
@@ -66,7 +67,7 @@
   - `KickAttack`（踢）：只允许腿使用
   - `HeadbuttAttack`（头槌）：只允许头使用
   - `ChargeAttack`（撞击）：只允许躯干使用
-  - `GrabAttack`（抓取）：只允许没有武器的手臂使用
+  - `GrabAttack`（抓取）：只允许没有武器的手臂使用，不造成伤害，主要用于施加束缚和擒拿 buff
 - `GetAvailableAttacks()` 方法会根据身体部位返回所有可用的攻击类型列表
 
 ## 反应系统
