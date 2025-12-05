@@ -13,7 +13,10 @@
 - 始终只维护一个活动对话框；若已有对话框仍存在，创建新对话框会抛出异常
 - `_Input()` 统一接收输入事件，并将事件传递给当前对话框的 `HandleInput()` 实现
 - 提供工厂方法：
-  - `CreateGenericDialogue(params string[])`
+  - `CreateGenericDialogue()` - 创建通用对话框（无参构造）
+  - `ShowGenericDialogue(string text, params string[] options)` - 便捷方法，显示文本后自动销毁
+  - `ShowGenericDialogue(IEnumerable<string> texts)` - 便捷方法，显示多段文本后自动销毁
+  - `DestroyDialogue(BaseDialogue dialogue)` - 手动销毁对话框
   - `CreateMenuDialogue(params MenuOption[])`
   - `CreateMenuDialogue(bool allowEscapeReturn, params MenuOption[])`
 - `GetTopDialogue()` 与 `GetDialogueCount()` 可用来查询当前栈状态，供调试或自动化使用
@@ -43,10 +46,14 @@
 ## 通用对话框 (GenericDialogue)
 
 - 使用 `Printer` 加一个向下箭头图标构成 UI
-- `AddText()` 支持逐段追加文本，新文本会追加至现有内容末尾
-- `PrintDone` 任务在一组文本打印完毕后完成，可与战斗动画同步
-- `TryNext()` 按顺序推进每一段文本
+- 无参构造，通过 `DialogueManager.CreateGenericDialogue()` 创建
+- `ShowTextTask(string text, params string[] options)` - 核心 API，追加文本并返回任务
+  - 无选项时：文本打印完成后显示向下箭头闪烁提示，按任意键继续，返回 `-1`
+  - 有选项时：文本打印完成后显示选项（靠右对齐，间距8像素），使用左右/上下键切换，回车确认，返回选中索引
+  - 选项在文本全部打印完成后才显示，确保用户先看到完整文本
+- 支持在同一对话框实例中多次调用 `ShowTextTask()` 追加多段文本
 - 长按按键时会将 `Printer.interval` 设为 `0`，实现快速跳过
+- 对话框不会自动销毁，需要外部调用 `DialogueManager.DestroyDialogue()` 或使用便捷方法 `ShowGenericDialogue()`
 - 当 `LaunchArgs.port` 存在时会自动跳过玩家输入，方便自动化测试持续推进
 
 ## 菜单对话框 (MenuDialogue)
@@ -67,8 +74,10 @@
 
 ## 异步等待机制
 
-- 对话框通过实现自定义等待器，允许直接 `await dialogue`
-- `MenuDialogue`、`GenericDialogue` 都会在完成后重置内部状态，允许重复使用
+- `MenuDialogue` 通过实现自定义等待器，允许直接 `await menu` 获取选中索引
+- `GenericDialogue` 通过 `ShowTextTask()` 返回 `Task<int>`，使用 `await dialogue.ShowTextTask(...)` 获取结果
+- `DialogueManager.ShowGenericDialogue()` 提供便捷方法，自动创建、显示并销毁对话框
+- `MenuDialogue`、`GenericDialogue` 都支持在同一实例中多次调用，允许重复使用
 - `Game`、`Combat` 等业务流程围绕 `await` 语法构建，从而保持代码线性可读
 - `DialogueManager` 与 `GameServer` 协作，使玩家输入与 MCP 自动化共用同一等待逻辑
 
