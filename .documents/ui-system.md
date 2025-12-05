@@ -20,8 +20,9 @@
 
 ### 菜单选项结构 (MenuOption)
 
-- `MenuOption` 是一个结构体，包含 `title` 与 `description`
+- `MenuOption` 是一个结构体，包含 `title`、`description` 与 `disabled`
 - `MenuDialogue` 使用标题渲染选项列表，同时将描述交给 `Printer` 显示详细信息
+- `disabled` 字段用于标记选项是否禁用，禁用的选项会显示为灰色 (178,178,178) 且无法被选中或确认
 - 允许按需构造数组或使用集合，便于动态菜单
 
 ### 对话框基类 (BaseDialogue)
@@ -53,11 +54,16 @@
 - 使用 `Scenes/MenuDialogue.tscn` 定义节点树：`PanelContainer/MarginContainer/HBoxContainer/{VBoxContainer, Printer}` 与 `Control/Indexer/TextureRect`
 - 通过 `ResourceTable.menuDialogueScene` 加载，提供 `MenuDialogue.Create(options, allowEscapeReturn)` 创建实例
 - 脚本在 `_Ready()` 中通过属性惰性绑定节点引用，并设置索引箭头纹理
-- 支持 `allowEscapeReturn`，为真时自动追加“返回”选项并响应 `ui_cancel`
+- 支持 `allowEscapeReturn`，为真时自动追加"返回"选项并响应 `ui_cancel`
 - 通过 `TaskCompletionSource<int>` 实现等待器，`await menu` 可直接获取选中的索引
-- `Select(int index)` 会更新指示箭头位置，同时将对应描述传给 `Printer`
+- `Select(int index)` 会更新指示箭头位置，同时将对应描述传给 `Printer`；如果选项被禁用则不会选择
 - `SelectAndConfirm(int index)` 用于 MCP 指令快速选择并确认
 - 自动调用 `GameServer.McpCheckpoint()` 提示外部当前等待状态
+- 禁用选项处理：
+  - 在 `BuildOptions()` 中，禁用的选项会设置 Label 的 `Modulate` 为灰色 (178,178,178)
+  - 导航时（`ui_up`/`ui_down`）会自动跳过禁用的选项
+  - 确认时（`ui_accept`）如果当前选项被禁用则不会确认
+  - 初始化时会自动选择第一个可用的选项
 
 ## 异步等待机制
 
