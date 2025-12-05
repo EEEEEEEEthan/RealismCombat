@@ -84,6 +84,12 @@ public class Game
 		{
 			while (true)
 			{
+				if (Chapter == 0)
+				{
+					var dialogue = DialogueManager.CreateGenericDialogue();
+					await dialogue.ShowTextTask("Ethan离开了他的家乡");
+					DialogueManager.DestroyDialogue(dialogue);
+				}
 				var menu = DialogueManager.CreateMenuDialogue(
 					"游戏菜单",
 					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
