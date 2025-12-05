@@ -13,7 +13,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Character targe
 	public static bool CanUse(BodyPart bodyPart) => IsArm(bodyPart.id) && !HasWeapon(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}抓取{target.name}的{combatTarget.Name}!";
-	protected override int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
+	protected override int CalculateDamage() => 0;
 	/// <summary>
 	///     抓取攻击命中后有概率施加束缚和擒拿buff
 	/// </summary>
