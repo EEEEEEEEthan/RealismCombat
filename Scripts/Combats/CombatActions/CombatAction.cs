@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using RealismCombat.Characters;
-namespace RealismCombat.Combats.CombatActions;
 public abstract class CombatAction(Character actor, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 {
 	protected readonly Character actor = actor;

@@ -1,6 +1,4 @@
 using Godot;
-using RealismCombat.Characters;
-namespace RealismCombat.Combats.CombatActions;
 /// <summary>
 ///     头槌攻击，只允许头使用
 /// </summary>

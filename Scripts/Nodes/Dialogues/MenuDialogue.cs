@@ -3,8 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat.AutoLoad;
-namespace RealismCombat.Nodes.Dialogues;
 public struct MenuOption
 {
 	public string title;

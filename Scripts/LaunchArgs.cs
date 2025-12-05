@@ -1,5 +1,4 @@
 using Godot;
-namespace RealismCombat;
 /// <summary>
 ///     启动参数解析器，将命令行参数解析并存储为静态字段
 /// </summary>

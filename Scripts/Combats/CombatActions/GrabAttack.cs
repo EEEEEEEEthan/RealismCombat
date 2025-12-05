@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat.Characters;
-namespace RealismCombat.Combats.CombatActions;
 /// <summary>
 ///     抓取攻击，只允许没有武器的手臂使用
 /// </summary>

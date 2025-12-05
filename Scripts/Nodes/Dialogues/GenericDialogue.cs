@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
-namespace RealismCombat.Nodes.Dialogues;
 [Tool, GlobalClass,]
 public partial class GenericDialogue : BaseDialogue
 {

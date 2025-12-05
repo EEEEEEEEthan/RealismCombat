@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Godot;
-namespace RealismCombat;
 /// <summary>
 ///     读取和管理.local.settings配置文件
 /// </summary>

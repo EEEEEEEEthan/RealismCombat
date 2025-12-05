@@ -1,10 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using Godot;
-using RealismCombat.Combats;
-using RealismCombat.Extensions;
-using RealismCombat.Items;
-namespace RealismCombat.Characters;
 /// <summary>
 ///     战斗中的身体部位类型
 /// </summary>

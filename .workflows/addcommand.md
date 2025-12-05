@@ -12,12 +12,6 @@
    - 第二段：按照此[文档](/.workflows/xxx.md)执行
 
 3. 在 `.github/prompts/` 目录下创建对应的 prompt 文件（如 `xxx.prompt.md`）
-   - YAML front matter：
-     ```
-     ---
-     mode: agent
-     ---
-     ```
    - 标题：`# xxx`
    - 内容：按照此[文档](../../.workflows/xxx.md)执行
 

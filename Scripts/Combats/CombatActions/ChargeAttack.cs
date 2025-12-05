@@ -1,6 +1,4 @@
 using Godot;
-using RealismCombat.Characters;
-namespace RealismCombat.Combats.CombatActions;
 /// <summary>
 ///     撞击攻击，只允许躯干使用
 /// </summary>

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Godot;
-namespace RealismCombat;
 /// <summary>
 ///     日志工具类
 /// </summary>

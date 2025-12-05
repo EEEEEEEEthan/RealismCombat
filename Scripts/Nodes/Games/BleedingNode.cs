@@ -1,10 +1,20 @@
 using Godot;
-namespace RealismCombat.Nodes.Games;
 [Tool, GlobalClass,]
-public partial class BleedingNode : TextureRect
+public partial class BleedingNode : Control
 {
 	int index;
 	double time;
+	TextureRect? child;
+	[Export]
+	bool FlipH
+	{
+		get;
+		set
+		{
+			field = value;
+			child?.FlipH = value;
+		}
+	}
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
@@ -13,16 +23,24 @@ public partial class BleedingNode : TextureRect
 		{
 			time = GD.Randf() * 0.3;
 			index++;
-			Texture = SpriteTable.bleeding[index % SpriteTable.bleeding.Count];
+			child!.Texture = SpriteTable.bleeding[index % SpriteTable.bleeding.Count];
 		}
 	}
 	public override void _Ready()
 	{
 		base._Ready();
+		AddChild(child = new()
+		{
+			StretchMode = TextureRect.StretchModeEnum.Scale,
+			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+		});
+		child.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+		child.FlipH = FlipH;
 		VisibilityChanged += () =>
 		{
 			index = 0;
 			time = GD.Randf() * 0.3;
 		};
 	}
+	public override Vector2 _GetMinimumSize() => new(16, 16);
 }

@@ -1,5 +1,4 @@
 using System;
-namespace RealismCombat.Items;
 /// <summary>
 ///     装备类型掩码
 /// </summary>

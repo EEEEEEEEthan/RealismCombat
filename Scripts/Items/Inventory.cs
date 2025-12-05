@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using RealismCombat.Extensions;
-namespace RealismCombat.Items;
 /// <summary>
 ///     物品栏，仅用于持有物品列表
 /// </summary>

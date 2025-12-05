@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat;
 /// <summary>
 ///     定义游戏中会复用的颜色。以下gradient都是从浅到深排列
 /// </summary>

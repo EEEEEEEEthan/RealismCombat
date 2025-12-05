@@ -2,11 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat.AutoLoad;
-using RealismCombat.Extensions;
-using RealismCombat.Nodes.Dialogues;
 using FileAccess = System.IO.FileAccess;
-namespace RealismCombat.Nodes;
 /// <summary>
 ///     程序根节点，负责初始化游戏生命周期
 /// </summary>

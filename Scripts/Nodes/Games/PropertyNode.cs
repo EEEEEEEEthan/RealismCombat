@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-namespace RealismCombat.Nodes.Games;
 [Tool]
 public partial class PropertyNode : Control
 {

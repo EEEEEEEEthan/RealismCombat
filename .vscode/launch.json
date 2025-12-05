@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "编译并运行",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "编译项目",
+            "program": "${config:godot.executable}",
+            "args": [
+                "--path",
+                "${workspaceFolder}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

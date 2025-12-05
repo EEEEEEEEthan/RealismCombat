@@ -1,4 +1,3 @@
-namespace RealismCombat.Items;
 /// <summary>
 ///     武器类型装备接口
 /// </summary>

@@ -1,6 +1,4 @@
 using Godot;
-using RealismCombat.Characters;
-namespace RealismCombat.Combats.CombatActions;
 /// <summary>
 ///     刺击攻击，只允许手臂使用
 /// </summary>

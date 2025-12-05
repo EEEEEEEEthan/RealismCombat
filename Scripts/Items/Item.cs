@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using RealismCombat.Combats;
-using RealismCombat.Extensions;
-namespace RealismCombat.Items;
 public enum ItemIdCode
 {
 	LongSword,

@@ -1,5 +1,4 @@
 using System;
-namespace RealismCombat.Combats;
 /// <summary>
 ///     战斗反应的类型
 /// </summary>
