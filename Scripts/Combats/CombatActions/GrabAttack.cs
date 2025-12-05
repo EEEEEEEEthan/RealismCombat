@@ -8,9 +8,13 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Character targe
 	: AttackBase(actor, actorBodyPart, target, combatTarget, combat)
 {
 	/// <summary>
-	///     验证攻击是否可以使用
+	///     检查身体部位是否适配此攻击类型
 	/// </summary>
-	public static bool CanUse(BodyPart bodyPart) => IsArm(bodyPart.id) && !HasWeapon(bodyPart);
+	public static bool IsBodyPartCompatible(BodyPart bodyPart) => IsArm(bodyPart.id) && !HasWeapon(bodyPart);
+	/// <summary>
+	///     验证攻击是否可以使用（综合验证，包括身体部位适配性和可用性）
+	/// </summary>
+	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}抓取{target.name}的{combatTarget.Name}!";
 	protected override int CalculateDamage() => 0;

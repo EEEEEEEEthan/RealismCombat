@@ -6,9 +6,13 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Character tar
 	: AttackBase(actor, actorBodyPart, target, combatTarget, combat)
 {
 	/// <summary>
-	///     验证攻击是否可以使用
+	///     检查身体部位是否适配此攻击类型
 	/// </summary>
-	public static bool CanUse(BodyPart bodyPart) => bodyPart.id == BodyPartCode.Torso;
+	public static bool IsBodyPartCompatible(BodyPart bodyPart) => bodyPart.id == BodyPartCode.Torso;
+	/// <summary>
+	///     验证攻击是否可以使用（综合验证，包括身体部位适配性和可用性）
+	/// </summary>
+	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}撞击{target.name}的{combatTarget.Name}!";
 	protected override int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
