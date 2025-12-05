@@ -30,7 +30,7 @@ public partial class ProgramRoot : Node
 			{
 				using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
 				using var reader = new BinaryReader(stream);
-				var snapshot = new Game.Snapshot(reader);
+				var snapshot = new Snapshot(reader);
 				return new()
 				{
 					title = $"#{slotIndex + 1} {snapshot.Title}",

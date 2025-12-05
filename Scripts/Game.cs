@@ -7,59 +7,6 @@ using Godot;
 using FileAccess = System.IO.FileAccess;
 public class Game
 {
-	public record Snapshot
-	{
-		readonly GameVersion version;
-		readonly DateTime savedAt;
-		public GameVersion Version => version;
-		public DateTime SavedAt => savedAt;
-		public string Title
-		{
-			get
-			{
-				var delta = DateTime.Now - SavedAt;
-				return delta.TotalMinutes switch
-				{
-					< 1 => "刚刚",
-					< 60 => $"{(int)delta.TotalMinutes}分钟前",
-					_ => delta.TotalHours switch
-					{
-						< 24 => $"{(int)delta.TotalHours}小时前",
-						_ => delta.TotalDays switch
-						{
-							< 7 => $"{(int)delta.TotalDays}天前",
-							< 30 => $"{(int)(delta.TotalDays / 7)}周前",
-							< 365 => $"{(int)(delta.TotalDays / 30)}个月前",
-							_ => $"{SavedAt:yyyy-M-d}",
-						},
-					},
-				};
-			}
-		}
-		public string Desc => $"version: {version}";
-		public Snapshot() : this(GameVersion.newest, DateTime.UtcNow) { }
-		public Snapshot(BinaryReader reader)
-		{
-			using (reader.ReadScope())
-			{
-				version = new(reader);
-				savedAt = new DateTime(reader.ReadInt64(), DateTimeKind.Utc).ToLocalTime();
-			}
-		}
-		Snapshot(GameVersion version, DateTime savedAt)
-		{
-			this.version = version;
-			this.savedAt = savedAt;
-		}
-		public void Serialize(BinaryWriter writer)
-		{
-			using (writer.WriteScope())
-			{
-				version.Serialize(writer);
-				writer.Write(savedAt.ToUniversalTime().Ticks);
-			}
-		}
-	}
 	static List<Character> CreateDefaultPlayers()
 	{
 		var hero = new Character("Ethan");
@@ -85,6 +32,7 @@ public class Game
 	readonly TaskCompletionSource taskCompletionSource = new();
 	readonly Node gameNode;
 	readonly List<Character> players;
+	public int Chapter { get; private set; }
 	/// <summary>
 	///     新游戏
 	/// </summary>
@@ -112,7 +60,7 @@ public class Game
 		players = ReadPlayers(reader);
 		StartGameLoop();
 	}
-	public Snapshot GetSnapshot() => new();
+	public Snapshot GetSnapshot() => new(this);
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	void Save()
 	{
@@ -202,7 +150,6 @@ public class Game
 		writer.Write(players.Count);
 		foreach (var player in players) player.Serialize(writer);
 	}
-
 	/// <summary>
 	///     装备交互主流程入口
 	/// </summary>
@@ -230,7 +177,7 @@ public class Game
 		for (var i = 0; i < players.Count; i++)
 		{
 			var p = players[i];
-			options[i] = new MenuOption { title = p.name, description = "选择该角色", };
+			options[i] = new() { title = p.name, description = "选择该角色", };
 		}
 		var menu = DialogueManager.CreateMenuDialogue("选择角色", true, options);
 		var choice = await menu;
@@ -250,7 +197,7 @@ public class Game
 			{
 				var bp = bodyParts[i];
 				var title = $"{bp.Name}";
-				options[i] = new MenuOption { title = title, description = "查看或更换该部位装备", };
+				options[i] = new() { title = title, description = "查看或更换该部位装备", };
 			}
 			var menu = DialogueManager.CreateMenuDialogue("选择身体部位", true, options);
 			var choice = await menu;
@@ -266,20 +213,17 @@ public class Game
 		while (true)
 		{
 			var slots = container.Slots;
-			var dynamicOptions = new System.Collections.Generic.List<MenuOption>(slots.Length + 2);
+			var dynamicOptions = new List<MenuOption>(slots.Length + 2);
 			for (var i = 0; i < slots.Length; i++)
 			{
 				var slot = slots[i];
 				var title = slot.Item is null ? $"槽位{i + 1}: 空" : $"槽位{i + 1}: {slot.Item.Name}";
 				var desc = slot.Item is null ? "选择以从物品栏换装" : "查看该装备";
-				dynamicOptions.Add(new MenuOption { title = title, description = desc, });
+				dynamicOptions.Add(new() { title = title, description = desc, });
 			}
 			var hasUnequip = container is Item && parentSlot != null && parentSlot.Item != null;
-			if (hasUnequip)
-			{
-				dynamicOptions.Add(new MenuOption { title = "卸下", description = "将此装备放入物品栏", });
-			}
-			var menu = DialogueManager.CreateMenuDialogue("选择槽位", true, [.. dynamicOptions]);
+			if (hasUnequip) dynamicOptions.Add(new() { title = "卸下", description = "将此装备放入物品栏", });
+			var menu = DialogueManager.CreateMenuDialogue("选择槽位", true, [.. dynamicOptions,]);
 			var choice = await menu;
 			if (choice == dynamicOptions.Count) return;
 			if (hasUnequip && choice == dynamicOptions.Count - 1)
@@ -299,7 +243,6 @@ public class Game
 	async Task ExpandItemSlot(Character owner, ItemSlot slot)
 	{
 		if (slot.Item is null)
-		{
 			while (true)
 			{
 				if (owner.inventory.Items.Count == 0)
@@ -312,7 +255,7 @@ public class Game
 				for (var i = 0; i < inv.Count; i++)
 				{
 					var it = inv[i];
-					invOptions[i] = new MenuOption { title = it.Name, description = "换上该装备", };
+					invOptions[i] = new() { title = it.Name, description = "换上该装备", };
 				}
 				var menu = DialogueManager.CreateMenuDialogue("选择装备", true, invOptions);
 				var choice = await menu;
@@ -330,10 +273,6 @@ public class Game
 					await DialogueManager.ShowGenericDialogue("装备类型不匹配，无法更换");
 				}
 			}
-		}
-		else
-		{
-			await ExpandItemContainer(owner, slot.Item, slot);
-		}
+		await ExpandItemContainer(owner, slot.Item, slot);
 	}
 }
