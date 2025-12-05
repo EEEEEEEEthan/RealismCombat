@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bdasnwx6qqck"]
+
+[ext_resource type="Script" uid="uid://genericdialoguetest" path="res://Scripts/Nodes/GenericDialogueTest.cs" id="1_1"]
+
+[node name="GenericDialogueTest" type="Node"]
+script = ExtResource("1_1")
+

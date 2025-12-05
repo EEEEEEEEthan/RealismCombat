@@ -170,15 +170,13 @@ public class Game
 					}
 					case 2:
 					{
-						var dialogue = DialogueManager.CreateGenericDialogue("状态系统尚未实现");
-						await dialogue;
+						await DialogueManager.ShowGenericDialogue("状态系统尚未实现");
 						break;
 					}
 					case 3:
 					{
 						Save();
-						var dialogue = DialogueManager.CreateGenericDialogue("已保存当前进度");
-						await dialogue;
+						await DialogueManager.ShowGenericDialogue("已保存当前进度");
 						break;
 					}
 					case 4:
@@ -225,8 +223,7 @@ public class Game
 	{
 		if (players.Count == 0)
 		{
-			var dlg = DialogueManager.CreateGenericDialogue("没有可用角色");
-			await dlg;
+			await DialogueManager.ShowGenericDialogue("没有可用角色");
 			return null;
 		}
 		var options = new MenuOption[players.Count];
@@ -290,8 +287,7 @@ public class Game
 				var item = parentSlot!.Item!;
 				owner.inventory.Items.Add(item);
 				parentSlot.Item = null;
-				var dlg = DialogueManager.CreateGenericDialogue("已卸下装备并放入物品栏");
-				await dlg;
+				await DialogueManager.ShowGenericDialogue("已卸下装备并放入物品栏");
 				return;
 			}
 			await ExpandItemSlot(owner, slots[choice]);
@@ -308,8 +304,7 @@ public class Game
 			{
 				if (owner.inventory.Items.Count == 0)
 				{
-					var dlg = DialogueManager.CreateGenericDialogue("物品栏为空");
-					await dlg;
+					await DialogueManager.ShowGenericDialogue("物品栏为空");
 					return;
 				}
 				var inv = owner.inventory.Items;
@@ -327,14 +322,12 @@ public class Game
 				{
 					slot.Item = candidate;
 					inv.RemoveAt(choice);
-					var dlg = DialogueManager.CreateGenericDialogue("已更换装备");
-					await dlg;
+					await DialogueManager.ShowGenericDialogue("已更换装备");
 					return;
 				}
 				catch (ArgumentException)
 				{
-					var dlg = DialogueManager.CreateGenericDialogue("装备类型不匹配，无法更换");
-					await dlg;
+					await DialogueManager.ShowGenericDialogue("装备类型不匹配，无法更换");
 				}
 			}
 		}

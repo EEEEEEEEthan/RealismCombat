@@ -63,7 +63,7 @@ public partial class ProgramRoot : Node
 			}
 			if (requireExisting && !hasExisting)
 			{
-				await DialogueManager.CreateGenericDialogue("当前没有可读取的存档");
+				await DialogueManager.ShowGenericDialogue("当前没有可读取的存档");
 				return null;
 			}
 			var menu = DialogueManager.CreateMenuDialogue("选择存档槽", !requireExisting, options);
@@ -75,8 +75,7 @@ public partial class ProgramRoot : Node
 			{
 				case true when !exists:
 				{
-					var emptyDialogue = DialogueManager.CreateGenericDialogue("该槽位暂无存档");
-					await emptyDialogue;
+					await DialogueManager.ShowGenericDialogue("该槽位暂无存档");
 					continue;
 				}
 				case false when exists:
@@ -193,8 +192,7 @@ public partial class ProgramRoot : Node
 	{
 		if (!File.Exists(saveFilePath))
 		{
-			var dialogue = DialogueManager.CreateGenericDialogue("存档文件不存在");
-			await dialogue;
+			await DialogueManager.ShowGenericDialogue("存档文件不存在");
 			return;
 		}
 		byte[] saveData;

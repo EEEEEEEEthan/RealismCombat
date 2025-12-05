@@ -49,8 +49,7 @@ public class Combat
 	{
 		try
 		{
-			var dialogue = DialogueManager.CreateGenericDialogue("战斗开始了!");
-			await dialogue;
+			await DialogueManager.ShowGenericDialogue("战斗开始了!");
 			while (true)
 			{
 				if (CheckBattleOutcome()) break;
@@ -68,7 +67,7 @@ public class Combat
 					using var _ = actorNode.MoveScope(combatNode.GetReadyPosition(actor));
 					using var __ = actorNode.ExpandScope();
 					Considering = actor;
-					await DialogueManager.CreateGenericDialogue($"{actor.name}的回合!");
+					await DialogueManager.ShowGenericDialogue($"{actor.name}的回合!");
 					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
 					var action = await input.MakeDecisionTask(actor);
 					Considering = null;

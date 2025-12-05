@@ -88,8 +88,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var availableAttacks = GetAvailableAttacks(selectedBodyPart);
 				if (availableAttacks.Count == 0)
 				{
-					var tip = DialogueManager.CreateGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何攻击");
-					await tip;
+					await DialogueManager.ShowGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何攻击");
 					continue;
 				}
 				var attackOptions = availableAttacks
@@ -185,8 +184,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					var blockTargets = GetBlockTargets(defender);
 					if (blockTargets.Length == 0)
 					{
-						var tip = DialogueManager.CreateGenericDialogue($"{defender.name}没有可用的格挡目标");
-						await tip;
+						await DialogueManager.ShowGenericDialogue($"{defender.name}没有可用的格挡目标");
 						continue;
 					}
 					var options = blockTargets

@@ -42,7 +42,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 	///     计算伤害值
 	/// </summary>
 	protected abstract int CalculateDamage();
-	protected override async Task OnStartTask() => await DialogueManager.CreateGenericDialogue(GetStartDialogueText());
+	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(GetStartDialogueText());
 	protected override async Task OnExecute()
 	{
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
@@ -53,8 +53,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
-		var startDialogue = DialogueManager.CreateGenericDialogue(GetExecuteDialogueText());
-		await startDialogue;
+		await DialogueManager.ShowGenericDialogue(GetExecuteDialogueText());
 		var reaction = await combat.HandleIncomingAttack(this);
 		var finalTarget = combatTarget;
 		var attackHit = true;
@@ -107,8 +106,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 		{
 			resultMessages.Add($"{target.name}成功避开了攻击");
 		}
-		var resultDialogue = DialogueManager.CreateGenericDialogue(resultMessages.ToArray());
-		await resultDialogue;
+		await DialogueManager.ShowGenericDialogue(resultMessages);
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
 	}
 	/// <summary>
