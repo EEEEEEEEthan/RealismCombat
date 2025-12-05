@@ -151,7 +151,6 @@ public partial class MenuDialogue : BaseDialogue
 	{
 		if (currentIndex == index) return;
 		if (index < 0 || index >= options.Count) return;
-		if (options[index].disabled) return;
 		currentIndex = index;
 		Printer.Text = options[currentIndex].description;
 		Printer.VisibleCharacters = 0;
