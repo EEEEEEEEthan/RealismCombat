@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using RealismCombat.Extensions;
-namespace RealismCombat.Items;
 public class ItemSlot(ItemFlagCode flag)
 {
 	public Item? Item

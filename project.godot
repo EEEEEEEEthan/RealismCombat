@@ -25,6 +25,7 @@ GameServer="*res://Scripts/AutoLoad/GameServer.cs"
 
 window/size/viewport_width=256
 window/size/viewport_height=224
+window/size/initial_position_type=4
 window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
 
@@ -32,9 +33,11 @@ window/stretch/scale_mode="integer"
 
 project/assembly_name="RealismCombat"
 
-[editor_plugins]
+[editor]
 
-enabled=PackedStringArray()
+external_editor/exec_path="C:/Program Files/JetBrains/JetBrains Rider 2025.1.4/bin/rider64.exe"
+external_editor/exec_flags="{project}"
+"--line{line}{file}[editor_plugins]enabled"=PackedStringArray()
 
 [gui]
 
@@ -44,3 +47,5 @@ theme/custom="res://Theme.tres"
 
 textures/canvas_textures/default_texture_filter=0
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true

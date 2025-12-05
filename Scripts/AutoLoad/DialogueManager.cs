@@ -1,7 +1,5 @@
 using System;
 using Godot;
-using RealismCombat.Nodes.Dialogues;
-namespace RealismCombat.AutoLoad;
 public partial class DialogueManager : Node
 {
 	public interface IDialogue

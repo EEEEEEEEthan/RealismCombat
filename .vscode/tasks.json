@@ -1,0 +1,77 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "编译项目",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "RealismCombat.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": false,
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "清理项目",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "RealismCombat.csproj"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "编译并运行",
+            "dependsOn": [
+                "编译项目"
+            ],
+            "dependsOrder": "sequence",
+            "type": "shell",
+            "command": "${config:godotTools.editorPath.godot4}",
+            "args": [
+                "--path",
+                "${workspaceFolder}"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "close": true
+            },
+            "isBackground": false,
+            "problemMatcher": []
+        },
+        {
+            "label": "运行游戏（不编译）",
+            "type": "shell",
+            "command": "${config:godotTools.editorPath.godot4}",
+            "args": [
+                "--path",
+                "${workspaceFolder}"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

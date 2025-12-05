@@ -113,6 +113,44 @@ else
    - 命令行参数优先级高于配置文件
    - 配置文件适用于本地开发环境设置（如 Godot 路径、调试开关等）
 
+## Godot 版本配置
+
+当需要更新项目使用的 Godot 版本时，需要同时更新以下文件：
+
+### 1. `.local.settings` 文件
+
+更新 `godot` 配置项为新的 Godot 可执行文件路径：
+
+```
+godot = C:\Program Files\Godot\Godot_v4.6-dev4_mono_win64\Godot_v4.6-dev4_mono_win64.exe
+```
+
+### 2. `project.godot` 文件
+
+更新 `config/features` 中的版本号：
+
+```
+config/features=PackedStringArray("4.6", "C#", "Forward Plus")
+```
+
+### 3. `RealismCombat.csproj` 文件
+
+更新 `Project` 标签中的 `Sdk` 版本：
+
+```xml
+<Project Sdk="Godot.NET.Sdk/4.6.0-dev.4">
+```
+
+### 4. `.godot/editor/project_metadata.cfg` 文件
+
+编辑器会自动更新此文件中的 `executable_path`，指向新版本的 Godot 可执行文件。
+
+### 注意事项
+
+- 确保所有版本号保持一致（主版本号和次版本号）
+- 开发版本（dev）和稳定版本（stable）的版本号格式可能不同
+- 更新后建议重新编译项目以确保兼容性
+
 ## 注意事项
 
 - `.local.settings` 文件通常不应提交到版本控制系统，应添加到 `.gitignore`

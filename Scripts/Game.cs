@@ -4,15 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat.AutoLoad;
-using RealismCombat.Characters;
-using RealismCombat.Combats;
-using RealismCombat.Extensions;
-using RealismCombat.Items;
-using RealismCombat.Nodes.Dialogues;
-using RealismCombat.Nodes.Games;
 using FileAccess = System.IO.FileAccess;
-namespace RealismCombat;
 public class Game
 {
 	public record Snapshot

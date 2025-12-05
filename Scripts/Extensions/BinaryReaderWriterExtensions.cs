@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-namespace RealismCombat.Extensions;
 public static partial class Extensions
 {
 	public readonly struct ReaderBlock : IDisposable

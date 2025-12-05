@@ -57,6 +57,7 @@ var player = new AudioStreamPlayer
 
 ## 代码风格补充
 
+- 永远应该使用最新的 C# 语法，保持代码现代化
 - 能通过属性表达的场景尽量使用属性，保持 API 简洁一致
 - `IDisposable` 对象释放优先调用 `TryDispose()` 扩展方法，减少异常传播
 - 事件触发使用 `TryInvoke()`，保证订阅者异常不会破坏主流程

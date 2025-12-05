@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-namespace RealismCombat;
 public readonly struct GameVersion : IEquatable<GameVersion>
 {
 	public static readonly GameVersion newest = new(0, 0, 0);

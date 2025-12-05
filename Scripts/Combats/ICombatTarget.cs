@@ -1,4 +1,3 @@
-namespace RealismCombat.Combats;
 /// <summary>
 ///     战斗中可以被选择与结算的目标接口
 /// </summary>

@@ -9,6 +9,7 @@
 
 ### 核心系统
 - [战斗系统](combat-system.md) - 战斗流程、输入决策与角色属性
+- [Buff 系统](buff-system.md) - Buff、BuffCode、IBuffOwner 与交互
 - [角色系统](character-system.md) - Character、BodyPart 身体部位与装备挂载
 - [物品系统](item-system.md) - Item、ItemSlot、装备类型与序列化
 - [属性系统](property-system.md) - PropertyInt、PropertyDouble 数值属性
@@ -17,7 +18,6 @@
 - [UI 系统](ui-system.md) - DialogueManager、对话框、菜单、异步等待机制
 - [游戏节点](game-nodes.md) - CharacterNode、PropertyNode、CombatNode、GameNode、BleedingNode 等游戏节点
 - [扩展方法](extensions.md) - 实用的扩展方法
-- [Buff 系统](buff-system.md) - Buff、BuffCode、IBuffOwner 状态效果
 
 ### 运行时流程
 - [运行时流程](runtime-flow.md) - ProgramRoot、Game、MCP 模式与场景结构

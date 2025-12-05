@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat;
 public class Cache<T>(Func<T> factory)
 {
 	public static implicit operator T(Cache<T> loader) => loader.Value;

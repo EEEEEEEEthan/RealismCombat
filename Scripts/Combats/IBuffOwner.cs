@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-namespace RealismCombat.Combats;
 /// <summary>
 ///     Buff拥有者接口
 /// </summary>

@@ -2,71 +2,60 @@
 
 ## 概述
 
-Buff 系统用于为角色或身体部位添加临时或持续的状态效果，如加速、流血、护盾等。当前代码已提供最小化的类型与接口占位，以支持后续扩展。
+Buff 系统用于为角色或装备施加临时状态效果，用以表达“束缚”“擒拿”等战斗中的持续影响。系统由 `Buff`、`BuffCode` 与 `IBuffOwner` 三部分组成，并由 `BodyPart` 与 `Item` 等目标实现与承载。
 
 ## 核心类型
 
-### BuffCode 枚举
+### Buff
 
-位于 `Scripts/Combats/BuffCode.cs`。用于标识 Buff 的类型。当前为空枚举，作为后续扩展的占位。
+- 位置：`Scripts/Combats/Buff.cs`
+- 字段：`BuffCode code`、`Character? source`
+- 作用：描述一个具体的 Buff 实例与其来源角色（可为空）
 
-### Buff 类
+### BuffCode 与扩展
 
-位于 `Scripts/Combats/Buff.cs`。
+- 位置：`Scripts/Combats/BuffCode.cs`
+- 枚举项：`Restrained`（束缚）、`Grappling`（擒拿）
+- 扩展方法：`BuffCodeExtensions.GetName()` 返回中文显示名
 
-- 仅包含只读字段 `code`（类型为 `BuffCode`），用于标识具体 Buff。
-- 构造函数接受 `BuffCode`，用于创建 Buff 实例。
+### IBuffOwner
 
-## 所有者接口
+- 位置：`Scripts/Combats/IBuffOwner.cs`
+- 能力：`IReadOnlyList<Buff> Buffs`、`AddBuff(Buff)`、`RemoveBuff(Buff)`、`HasBuff(BuffCode)`
+- 作用：统一 Buff 托管接口，任何可被施加状态的对象均可实现
 
-### IBuffOwner 接口
+## 实现者与承载
 
-位于 `Scripts/Combats/IBuffOwner.cs`。用于声明可持有 Buff 的实体（如角色、身体部位或装备）。
+### BodyPart（身体部位）
 
-- `IReadOnlyList<Buff> Buffs`：返回所有 Buff 列表。
-- `void AddBuff(Buff buff)`：添加 Buff。
-- `void RemoveBuff(Buff buff)`：移除 Buff。
-- `bool HasBuff(BuffCode buffCode)`：检查是否拥有指定类型的 Buff。
+- 位置：`Scripts/Characters/BodyPart.cs`
+- 实现：`IBuffOwner`，内部维护 `List<Buff>` 并暴露 `Buffs`
+- 典型用途：在抓取命中时，对 `torso`（躯干）施加 `Restrained`（束缚）以表示被控制状态
 
-建议在需要支持 Buff 的类型上实现该接口，例如未来的 `Character` 或某些 `BodyPart`。
+### Item（装备）
 
-## 设计原则
+- 位置：`Scripts/Items/Item.cs`
+- 实现：`IBuffOwner`，允许为装备施加状态（如被擒拿的手臂装备）
+- 序列化：当前实现中物品的 Buff 计数会写入占位值，具体 Buff 数据暂未持久化，后续版本可扩展
 
-- 明确职责：Buff 只描述“效果类型”，具体效果由业务层在结算阶段应用（如速度修正、伤害加成、行动点变更）。
-- 可组合：实体可同时拥有多个 Buff，效果应以“叠加或覆盖”策略明确处理（由业务层定义）。
-- 序列化友好：为持久化存档，Buff 列表应与实体的其他数据一并序列化（当前接口未内置序列化，建议由拥有者统一处理）。
-- 非侵入：Buff 不直接改写实体属性，避免隐式状态，所有效果通过显式查询与结算实现。
+## 交互与应用
 
-## 系统间交互
+### 抓取攻击（GrabAttack）
 
-- 战斗循环：在 `Combat` 的行动与受击结算中读取 Buff 列表，按照约定应用效果（如“加速”影响 `speed` 帧恢复、“流血”在每帧或每回合结算扣减生命值）。
-- 反应系统：Buff 可影响反应点或可用反应类型（例如“护盾”允许额外格挡）。
-- 物品系统：某些装备可在挂载时附带 Buff（如武器出血），通过 `HasBuff` 判定目标状态。
+- 位置：`Scripts/Combats/CombatActions/GrabAttack.cs`
+- 命中逻辑：
+  - 以 50% 概率为目标躯干施加 `Restrained`
+  - 为攻击者使用的身体部位施加 `Grappling`
+- 效果表达：通过 `resultMessages` 追加提示文本，配合对话框与战斗 UI 呈现
 
 ## 使用示例
 
-以下示例展示一个实体实现 `IBuffOwner` 并在战斗结算中读取 Buff：
+- 检查状态：`if (bodyPart.HasBuff(BuffCode.Restrained)) { /* 处理被束缚逻辑 */ }`
+- 添加状态：`bodyPart.AddBuff(new Buff(BuffCode.Restrained, actor));`
+- 移除状态：`bodyPart.RemoveBuff(buff);`
 
-```csharp
-public class Hero : IBuffOwner
-{
-    private readonly List<Buff> _buffs = new();
-    public IReadOnlyList<Buff> Buffs => _buffs;
-    public void AddBuff(Buff buff) => _buffs.Add(buff);
-    public void RemoveBuff(Buff buff) => _buffs.Remove(buff);
-    public bool HasBuff(BuffCode code) => _buffs.Exists(b => b.code == code);
-}
+## 设计注意事项
 
-// 在某次受击后添加“流血”
-// hero.AddBuff(new Buff(BuffCode.Bleeding));
-
-// 在帧结算时按 Buff 应用效果
-// if (hero.HasBuff(BuffCode.Haste)) speed.value += 1;
-```
-
-## 注意事项
-
-- 当前 `BuffCode` 未定义具体枚举项，建议在确定效果语义后集中补充，如 `Bleeding`、`Haste`、`Shield` 等。
-- 建议将 Buff 的生效时机与持续时间纳入统一约定（按帧、按回合或按事件触发）。
-- 若 Buff 会影响序列化，请在拥有者的存档结构中记录 Buff 列表，并为未来版本兼容预留扩展位。
-
+- 状态归属：优先将“被控制类”状态挂在目标部位（如 `torso`），而“动作类”状态挂在施术者的部位（如 `RightArm`）
+- 生命周期：Buff 的移除应由具体行动或结算阶段决定，避免永久累积
+- 序列化策略：为保证兼容性，推荐在未来版本中为 `BodyPart` 与 `Item` 的 Buff 列表增加稳定的读写格式（可复用 `ReadScope()`/`WriteScope()`）

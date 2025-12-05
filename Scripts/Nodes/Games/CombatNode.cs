@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
-using RealismCombat.Characters;
-using RealismCombat.Combats;
-namespace RealismCombat.Nodes.Games;
 public partial class CombatNode : Node
 {
 	static CharacterNode CreateCharacterNode()

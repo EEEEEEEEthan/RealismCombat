@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using RealismCombat.AutoLoad;
-using RealismCombat.Characters;
-using RealismCombat.Combats.CombatActions;
-using RealismCombat.Items;
-using RealismCombat.Nodes.Games;
-namespace RealismCombat.Combats;
 public class Combat
 {
 	public readonly CombatNode combatNode;

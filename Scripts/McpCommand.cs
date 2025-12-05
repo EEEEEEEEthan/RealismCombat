@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text;
-namespace RealismCombat;
 public readonly struct McpCommand
 {
 	public static McpCommand Deserialize(string data)

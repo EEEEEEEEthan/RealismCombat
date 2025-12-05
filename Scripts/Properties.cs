@@ -1,6 +1,4 @@
 using System.IO;
-using RealismCombat.Extensions;
-namespace RealismCombat;
 public class PropertyDouble
 {
 	public double value;

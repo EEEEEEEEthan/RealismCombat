@@ -1,5 +1,4 @@
 using System.IO;
-namespace RealismCombat.Items;
 public class LongSword() : Item(ItemIdCode.LongSword, ItemFlagCode.Arm, [], new(10, 10)), IArm
 {
 	public override string Name => "长剑";

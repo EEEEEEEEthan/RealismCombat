@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Godot;
-namespace RealismCombat.AutoLoad;
 /// <summary>
 ///     音频管理器，统一管理背景音乐和音效播放
 /// </summary>

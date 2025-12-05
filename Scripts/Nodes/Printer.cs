@@ -1,5 +1,4 @@
 using Godot;
-namespace RealismCombat.Nodes;
 [Tool, GlobalClass,]
 public partial class Printer : RichTextLabel
 {
@@ -22,7 +21,7 @@ public partial class Printer : RichTextLabel
 	public override void _Ready()
 	{
 		base._Ready();
-		if (!AutoLoad.AudioManager.IsInitialized)
+		if (!AudioManager.IsInitialized)
 		{
 			fallbackAudioPlayer = new()
 			{
@@ -60,7 +59,7 @@ public partial class Printer : RichTextLabel
 		if (fallbackAudioPlayer != null)
 			fallbackAudioPlayer.Play();
 		else
-			AutoLoad.AudioManager.PlaySfx(ResourceTable.typingSound, -10);
+			AudioManager.PlaySfx(ResourceTable.typingSound, -10);
 	}
 	void UpdateVisibleCharacters() => VisibleCharacters = Mathf.Min(VisibleCharacters, GetTotalCharacterCount());
 }

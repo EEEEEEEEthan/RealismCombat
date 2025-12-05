@@ -1,10 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using RealismCombat.Combats;
-using RealismCombat.Combats.CombatActions;
-using RealismCombat.Extensions;
-using RealismCombat.Items;
-namespace RealismCombat.Characters;
 public class Character
 {
 	public readonly PropertyInt speed;

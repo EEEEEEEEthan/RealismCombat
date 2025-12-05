@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
-using RealismCombat.AutoLoad;
-using RealismCombat.Characters;
-using RealismCombat.Items;
-namespace RealismCombat.Combats.CombatActions;
 /// <summary>
 ///     攻击基类
 /// </summary>
@@ -76,10 +72,11 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 			case ReactionType.Block:
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
+				targetNode.FlashFrame();
 				await Task.Delay(100);
 				targetNode.MoveTo(targetPosition);
 				finalTarget = reaction.BlockTarget!;
-				AudioManager.PlaySfx(ResourceTable.blockSound);
+				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
 				resultMessages.Add($"{target.name}使用{finalTarget.Name}进行了格挡");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				break;
@@ -114,8 +111,5 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 	/// <summary>
 	///     攻击命中后的额外效果，子类可以重写
 	/// </summary>
-	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages)
-	{
-		return Task.CompletedTask;
-	}
+	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages) => Task.CompletedTask;
 }

@@ -1,8 +1,5 @@
 using System;
 using Godot;
-using RealismCombat.AutoLoad;
-using RealismCombat.Extensions;
-namespace RealismCombat.Nodes.Dialogues;
 public abstract partial class BaseDialogue : PanelContainer, DialogueManager.IDialogue
 {
 	bool hasClosed;

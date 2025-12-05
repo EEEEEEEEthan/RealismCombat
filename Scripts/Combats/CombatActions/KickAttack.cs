@@ -1,6 +1,4 @@
 using Godot;
-using RealismCombat.Characters;
-namespace RealismCombat.Combats.CombatActions;
 /// <summary>
 ///     踢击攻击，只允许腿使用
 /// </summary>

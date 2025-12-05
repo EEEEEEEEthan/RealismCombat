@@ -1,9 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using RealismCombat.Characters;
-using RealismCombat.Combats;
-namespace RealismCombat.Nodes.Games;
 [Tool]
 public partial class CharacterNode : Control
 {
@@ -64,12 +61,11 @@ public partial class CharacterNode : Control
 			UpdateBackground();
 		}
 	}
-	[field: AllowNull, MaybeNull,] Container RootContainer => field ??= GetNode<Container>("MoveAnchor/RootContainer");
-	[field: AllowNull, MaybeNull,] VBoxContainer PropertyContainer => field ??= GetNode<VBoxContainer>("MoveAnchor/RootContainer/Mask/VBoxContainer");
-	[field: AllowNull, MaybeNull,] Label NameLabel => field ??= PropertyContainer.GetNode<Label>("HBoxContainer/Name");
-	[field: AllowNull, MaybeNull,] Control MoveAnchor => field ??= GetNode<Control>("MoveAnchor");
-	[field: AllowNull, MaybeNull,] Container ReactionContainer => field ??= PropertyContainer.GetNode<Container>("HBoxContainer/HBoxContainer");
-	[field: AllowNull, MaybeNull,] NinePatchRect Background => field ??= RootContainer.GetNode<NinePatchRect>("Background/NinePatchRect");
+	[field: AllowNull, MaybeNull,] CardFrame CardFrame => field ??= GetNode<CardFrame>("%CardFrame");
+	[field: AllowNull, MaybeNull,] VBoxContainer PropertyContainer => field ??= GetNode<VBoxContainer>("%PropertyContainer");
+	[field: AllowNull, MaybeNull,] Label NameLabel => field ??= PropertyContainer.GetNode<Label>("%NameLabel");
+	[field: AllowNull, MaybeNull,] Control MoveAnchor => field ??= GetNode<Control>("%MoveAnchor");
+	[field: AllowNull, MaybeNull,] Container ReactionContainer => field ??= PropertyContainer.GetNode<Container>("%ReactionContainer");
 	/// <summary>
 	///     获取或设置当前节点是否处于展开状态。
 	/// </summary>
@@ -148,14 +144,14 @@ public partial class CharacterNode : Control
 	{
 		shakeTween?.Kill();
 		var basePosition = GetRootContainerBasePosition();
-		RootContainer.Position = basePosition;
-		shakeTween = RootContainer.CreateTween();
+		CardFrame.Position = basePosition;
+		shakeTween = CardFrame.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
+		shakeTween.TweenProperty(CardFrame, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
-		shakeTween.TweenProperty(RootContainer, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
+		shakeTween.TweenProperty(CardFrame, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(RootContainer, "position", basePosition, ShakeStepDuration);
+		shakeTween.TweenProperty(CardFrame, "position", basePosition, ShakeStepDuration);
 	}
 	public override void _Process(double delta)
 	{
@@ -186,7 +182,7 @@ public partial class CharacterNode : Control
 		leftLegHitPointNode.BarWidth = character.leftLeg.HitPoint.maxValue * 2 - 1;
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
 		rightLegHitPointNode.BarWidth = character.rightLeg.HitPoint.maxValue * 2 - 1;
-		MoveAnchor.Size = RootContainer.Size;
+		MoveAnchor.Size = CardFrame.Size;
 		UpdateBackground();
 		ReactionCount = character.reaction;
 	}
@@ -210,16 +206,17 @@ public partial class CharacterNode : Control
 			};
 		targetNode?.FlashRed();
 	}
+	public void FlashFrame() => CardFrame.Flash();
 	void UpdateBackground()
 	{
 		if (!IsNodeReady()) return;
 		if (character?.IsAlive != true)
 		{
-			Background.SelfModulate = deadBackgroundColor;
+			CardFrame.Color = deadBackgroundColor;
 			return;
 		}
 		var colors = IsEnemyTheme ? GameColors.sunFlareOrangeGradient : GameColors.skyBlueGradient;
-		Background.SelfModulate = hitPointNode.Progress switch
+		CardFrame.Color = hitPointNode.Progress switch
 		{
 			> 0.3 => colors[1],
 			> 0.25 => colors[2],
@@ -229,7 +226,7 @@ public partial class CharacterNode : Control
 	void ApplyExpandedSizeAnimated()
 	{
 		UpdateOverviewVisibility();
-		var container = RootContainer;
+		var container = CardFrame;
 		var targetSize = Expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
@@ -241,7 +238,7 @@ public partial class CharacterNode : Control
 	{
 		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
-		var container = RootContainer;
+		var container = CardFrame;
 		var targetSize = Expanded ? maxSize : minSize;
 		resizeTween?.Kill();
 		container.Size = targetSize;
@@ -249,7 +246,7 @@ public partial class CharacterNode : Control
 	}
 	void UpdateRootContainerBasePosition()
 	{
-		rootContainerBasePosition = RootContainer.Position;
+		rootContainerBasePosition = CardFrame.Position;
 		rootContainerBasePositionInitialized = true;
 	}
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)

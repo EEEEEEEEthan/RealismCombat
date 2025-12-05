@@ -1,5 +1,3 @@
-namespace RealismCombat.Combats;
-using RealismCombat.Characters;
 /// <summary>
 ///     Buff类
 /// </summary>

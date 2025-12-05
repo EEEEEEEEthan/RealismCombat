@@ -1,4 +1,3 @@
-namespace RealismCombat.Combats;
 /// <summary>
 ///     伤害类型
 /// </summary>
