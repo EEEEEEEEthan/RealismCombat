@@ -1,10 +1,9 @@
 [gd_scene load_steps=3 format=3 uid="uid://bomncrbost0bs"]
 
 [ext_resource type="Script" uid="uid://odhuswpi1sfq" path="res://Scripts/Nodes/Games/CharacterNode.cs" id="1_cptgj"]
-[ext_resource type="PackedScene" uid="uid://o84y7p4fv15r" path="res://Scenes/CardFrame.tscn" id="2_lbkts"]
+[ext_resource type="PackedScene" path="res://Scenes/CardFrame.tscn" id="2_lbkts"]
 
 [node name="CharacterNode" type="Control" unique_id=1255385813]
-z_index = 1
 custom_minimum_size = Vector2(55, 39)
 layout_mode = 3
 anchors_preset = 0
