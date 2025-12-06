@@ -86,12 +86,13 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				if (bodyPartIndex == availableBodyParts.Length) break;
 				var selectedBodyPart = availableBodyParts[bodyPartIndex];
 				var availableAttacks = GetAvailableAttacks(selectedBodyPart);
-				if (availableAttacks.Count == 0)
+				var canTakeWeapon = TakeWeaponAction.CanUse(character, selectedBodyPart);
+				if (availableAttacks.Count == 0 && !canTakeWeapon)
 				{
-					await DialogueManager.ShowGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何攻击");
+					await DialogueManager.ShowGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何行动");
 					continue;
 				}
-				var attackOptions = availableAttacks
+				var actionOptions = availableAttacks
 					.Select(a => new MenuOption
 					{
 						title = a.name,
@@ -99,11 +100,27 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						disabled = !a.canUse,
 					})
 					.ToArray();
-				var attackMenu = DialogueManager.CreateMenuDialogue("选择攻击", true, attackOptions);
-				var attackIndex = await attackMenu;
-				if (attackIndex == availableAttacks.Count) continue;
-				if (!availableAttacks[attackIndex].canUse) continue;
-				var selectedAttack = availableAttacks[attackIndex];
+				if (canTakeWeapon)
+				{
+					actionOptions = actionOptions
+						.Append(new MenuOption
+						{
+							title = "拿",
+							description = "从腰带取出武器拿在手中",
+						})
+						.ToArray();
+				}
+				var actionMenu = DialogueManager.CreateMenuDialogue("选择行动", true, actionOptions);
+				var actionIndex = await actionMenu;
+				if (actionIndex == actionOptions.Length) continue;
+				if (canTakeWeapon && actionIndex == actionOptions.Length - 1)
+				{
+					var takeAction = await TakeWeaponAction.CreateByPlayerSelection(character, selectedBodyPart, combat);
+					if (takeAction != null) return takeAction;
+					continue;
+				}
+				if (!availableAttacks[actionIndex].canUse) continue;
+				var selectedAttack = availableAttacks[actionIndex];
 				var aliveOpponents = GetAliveOpponents(character);
 				if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
 				var options = aliveOpponents
@@ -228,24 +245,32 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var selectedBodyPart = availableBodyParts[bodyPartIndex];
 		var availableAttacks = GetAvailableAttacks(selectedBodyPart);
 		var usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
-		if (usableAttacks.Count == 0)
+		var takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
+		if (usableAttacks.Count == 0 && takeAction == null)
 		{
 			bodyPartIndex = (bodyPartIndex + 1) % availableBodyParts.Length;
 			selectedBodyPart = availableBodyParts[bodyPartIndex];
 			availableAttacks = GetAvailableAttacks(selectedBodyPart);
 			usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
-			if (usableAttacks.Count == 0) throw new InvalidOperationException("未找到可用的攻击类型");
+			takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
+			if (usableAttacks.Count == 0 && takeAction == null) throw new InvalidOperationException("未找到可用的攻击类型");
 		}
+		var actionCount = usableAttacks.Count + (takeAction != null ? 1 : 0);
 		var attackRandomValue = GD.Randi();
-		var attackIndex = (int)(attackRandomValue % (uint)usableAttacks.Count);
-		var selectedAttack = usableAttacks[attackIndex];
-		var target = GetRandomOpponent(character);
-		if (target == null) throw new InvalidOperationException("未找到可攻击目标");
-		var aliveTargets = GetAvailableTargets(target);
-		if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
-		var randomValue = GD.Randi();
-		var index = (int)(randomValue % (uint)aliveTargets.Length);
-		return Task.FromResult<CombatAction>(selectedAttack.create(character, selectedBodyPart, target, aliveTargets[index], combat));
+		var actionIndex = (int)(attackRandomValue % (uint)actionCount);
+		if (actionIndex < usableAttacks.Count)
+		{
+			var selectedAttack = usableAttacks[actionIndex];
+			var target = GetRandomOpponent(character);
+			if (target == null) throw new InvalidOperationException("未找到可攻击目标");
+			var aliveTargets = GetAvailableTargets(target);
+			if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+			var randomValue = GD.Randi();
+			var index = (int)(randomValue % (uint)aliveTargets.Length);
+			return Task.FromResult<CombatAction>(selectedAttack.create(character, selectedBodyPart, target, aliveTargets[index], combat));
+		}
+		if (takeAction != null) return Task.FromResult(takeAction);
+		throw new InvalidOperationException("未找到可用的行动");
 	}
 	public override Task<ReactionDecision> MakeReactionDecisionTask(
 		Character defender,

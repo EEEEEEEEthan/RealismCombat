@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Runtime.CompilerServices;
+	using System.Threading.Tasks;
 public class Combat
 {
 	public readonly CombatNode combatNode;
+	public readonly HashSet<Item> droppedItems = [];
 	readonly PlayerInput playerInput;
 	readonly AIInput aiInput;
 	readonly TaskCompletionSource taskCompletionSource = new();
