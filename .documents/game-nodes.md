@@ -178,6 +178,36 @@ characterNode.MoveTo(combatNode.GetPKPosition(character));
 characterNode.Shake();
 ```
 
+#### CardFrame
+
+卡片框节点，位于 `Scripts/Nodes/CardFrame.cs`，为角色卡片提供背景底色、流血遮罩与闪光动画。
+
+##### 功能
+
+- 作为 `CharacterNode` 的外层容器，承载尺寸变更、抖动与闪光等视觉效果
+- `Color` 导出属性驱动背景颜色，通过内部 `%Background` 的 `SelfModulate` 应用
+- `Bleeding` 导出属性控制 `%Bleeding` 图层显隐，用于展示流血状态
+
+##### 节点结构
+
+- `%Background`：卡片背景
+- `%Bleeding`：流血遮罩层
+- `%Flash/FlashContent`：闪光特效节点，水平扫过卡片
+
+##### 闪光效果
+
+- `Flash()` 会终止旧的 tween，重新计算起止位置并在 0.2 秒内让 `FlashContent` 从左至右扫过
+- `CharacterNode.FlashFrame()` 在受击时调用，用于提供即时反馈
+
+##### 使用示例
+
+```csharp
+var cardFrame = GetNode<CardFrame>("%CardFrame");
+cardFrame.Color = GameColors.skyBlueGradient[1];
+cardFrame.Bleeding = character.IsBleeding;
+cardFrame.Flash();
+```
+
 #### PropertyNode
 
 属性节点，位于 `Scripts/Nodes/Games/PropertyNode.cs`，用于显示属性条。
