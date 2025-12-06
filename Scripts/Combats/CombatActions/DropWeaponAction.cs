@@ -7,7 +7,6 @@ public class DropWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot 
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
 	readonly ItemSlot weaponSlot = weaponSlot;
-	readonly Item weapon = weapon;
 	readonly string startText = $"{actor.name}准备丢下{actorBodyPart.Name}上的{weapon.Name}";
 	public static bool IsBodyPartCompatible(BodyPart bodyPart) =>
 		bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
