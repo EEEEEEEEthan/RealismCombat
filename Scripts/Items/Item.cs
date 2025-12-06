@@ -31,14 +31,14 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		Name = config.Name;
 		Length = config.Length;
 		Weight = config.Weight;
-		Slots = CreateSlots(config.SlotFlags);
+		Slots = CreateSlots(config.SlotFlags, this);
 		HitPoint = new(config.HitPointMax, config.HitPointMax);
 	}
-	static ItemSlot[] CreateSlots(ItemFlagCode[]? slotFlags)
+	static ItemSlot[] CreateSlots(ItemFlagCode[]? slotFlags, IItemContainer owner)
 	{
 		if (slotFlags == null || slotFlags.Length == 0) return Array.Empty<ItemSlot>();
 		var slots = new ItemSlot[slotFlags.Length];
-		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i]);
+		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i], owner);
 		return slots;
 	}
 	public static Item Create(ItemIdCode id)
@@ -74,7 +74,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		var slotCount = reader.ReadInt32();
 		var trueSlotCount = Math.Min(slotCount, item.Slots.Length);
 		for (var i = 0; i < trueSlotCount; i++) item.Slots[i].Deserialize(reader);
-		for (var i = trueSlotCount; i < slotCount; i++) new ItemSlot(default).Deserialize(reader);
+		for (var i = trueSlotCount; i < slotCount; i++) new ItemSlot(default, item).Deserialize(reader);
 		var buffCount = reader.ReadInt32();
 		for (var i = 0; i < buffCount; i++)
 		{

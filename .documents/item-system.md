@@ -27,6 +27,7 @@
 - 构造函数接受 `ItemFlagCode flag`，定义可接受的装备类型
 - 赋值 `Item` 时会校验标志，不匹配将抛出 `ArgumentException`
 - 支持二进制序列化，使用 `ReadScope()`、`WriteScope()` 保证数据块完整性
+- 构造时必须传入所属容器（`IItemContainer`），槽位会持有只读 `container`/`Container` 引用；`Item` 与 `BodyPart` 在创建或反序列化时负责传入自身，额外跳过的冗余槽也会绑定当前容器
 
 ### ItemFlagCode 枚举
 

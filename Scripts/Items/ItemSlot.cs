@@ -1,7 +1,9 @@
 using System;
 using System.IO;
-public class ItemSlot(ItemFlagCode flag)
+public class ItemSlot(ItemFlagCode flag, IItemContainer container)
 {
+	public readonly IItemContainer container = container ?? throw new ArgumentNullException(nameof(container));
+	public IItemContainer Container => container;
 	public Item? Item
 	{
 		get;

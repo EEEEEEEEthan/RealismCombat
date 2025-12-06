@@ -95,6 +95,19 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = slots;
 	}
+	public BodyPart(BodyPartCode id, ItemFlagCode[] slotFlags)
+	{
+		this.id = id;
+		var maxHitPoint = id switch
+		{
+			BodyPartCode.Head => 5,
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
+			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
+			_ => 10,
+		};
+		HitPoint = new(maxHitPoint, maxHitPoint);
+		Slots = CreateSlots(slotFlags);
+	}
 	public void Deserialize(BinaryReader reader)
 	{
 		using (reader.ReadScope())
@@ -103,7 +116,7 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 			var count = reader.ReadInt32();
 			var trueCount = Mathf.Min(count, Slots.Length);
 			for (var i = 0; i < trueCount; i++) Slots[i].Deserialize(reader);
-			for (var i = trueCount; i < count; i++) new ItemSlot(default).Deserialize(reader);
+			for (var i = trueCount; i < count; i++) new ItemSlot(default, this).Deserialize(reader);
 		}
 	}
 	public void Serialize(BinaryWriter writer)
@@ -114,5 +127,11 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 			writer.Write(Slots.Length);
 			foreach (var slot in Slots) slot.Serialize(writer);
 		}
+	}
+	ItemSlot[] CreateSlots(ItemFlagCode[] slotFlags)
+	{
+		var slots = new ItemSlot[slotFlags.Length];
+		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i], this);
+		return slots;
 	}
 }
