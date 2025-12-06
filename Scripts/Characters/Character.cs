@@ -11,6 +11,7 @@ public class Character
 	public readonly BodyPart leftArm;
 	public readonly BodyPart rightArm;
 	public readonly BodyPart torso;
+	public readonly BodyPart groin;
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
 	public readonly IReadOnlyList<BodyPart> bodyParts;
@@ -30,6 +31,7 @@ public class Character
 			leftArm = new(BodyPartCode.LeftArm, new[] { ItemFlagCode.Arm, }),
 			rightArm = new(BodyPartCode.RightArm, new[] { ItemFlagCode.Arm, }),
 			torso = new(BodyPartCode.Torso, new[] { ItemFlagCode.InnerLayer, }),
+			groin = new(BodyPartCode.Groin, Array.Empty<ItemFlagCode>()),
 			leftLeg = new(BodyPartCode.LeftLeg, Array.Empty<ItemFlagCode>()),
 			rightLeg = new(BodyPartCode.RightLeg, Array.Empty<ItemFlagCode>()),
 		];
@@ -48,6 +50,7 @@ public class Character
 				leftArm = new(BodyPartCode.LeftArm, new[] { ItemFlagCode.Arm, }),
 				rightArm = new(BodyPartCode.RightArm, new[] { ItemFlagCode.Arm, }),
 				torso = new(BodyPartCode.Torso, new[] { ItemFlagCode.InnerLayer, }),
+				groin = new(BodyPartCode.Groin, Array.Empty<ItemFlagCode>()),
 				leftLeg = new(BodyPartCode.LeftLeg, Array.Empty<ItemFlagCode>()),
 				rightLeg = new(BodyPartCode.RightLeg, Array.Empty<ItemFlagCode>()),
 			];
