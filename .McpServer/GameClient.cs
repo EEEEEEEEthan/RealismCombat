@@ -142,7 +142,7 @@ public sealed class GameClient : IDisposable
 				if (!client.Connected)
 				{
 					Log.PrintError("未连接到游戏");
-					return "未连接到游戏";
+					throw new InvalidOperationException("未连接到游戏");
 				}
 			}
 			await Task
@@ -157,15 +157,21 @@ public sealed class GameClient : IDisposable
 			if (completed == read)
 			{
 				var response = await read.ConfigureAwait(false);
+				if (string.IsNullOrWhiteSpace(response))
+				{
+					var ex = new InvalidOperationException("游戏端返回空响应");
+					Log.PrintError(ex.Message);
+					throw ex;
+				}
 				return response;
 			}
 			Log.PrintError($"命令超时: {command}");
-			return "请求超时";
+			throw new TimeoutException($"命令超时: {command}");
 		}
 		catch (Exception ex)
 		{
 			Log.PrintError($"发送命令异常: {command}", ex);
-			return $"错误: {ex.Message}";
+			throw;
 		}
 		finally
 		{
