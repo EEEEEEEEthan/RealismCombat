@@ -17,9 +17,7 @@ public class Game
 	{
 		var hero = new Character("Ethan");
 		hero.inventory.Items.Add(Item.Create(ItemIdCode.LongSword));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.CottonLiner));
 		hero.inventory.Items.Add(Item.Create(ItemIdCode.ChainMail));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.PlateArmor));
 		hero.inventory.Items.Add(Item.Create(ItemIdCode.Belt));
 		return [hero,];
 	}
@@ -117,14 +115,14 @@ public class Game
 				while (true)
 				{
 					var readyForDeparture = players.Count > 0 &&
-						HasEquippedItem(players[0], ItemIdCode.PlateArmor) &&
+						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
 						HasEquippedItem(players[0], ItemIdCode.LongSword);
 					var choice = await DialogueManager.CreateMenuDialogue(
 						"第一章 流浪",
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好板甲和剑",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好链甲和剑",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
@@ -155,7 +153,7 @@ public class Game
 						}
 					}
 					if (players.Count > 0 &&
-						HasEquippedItem(players[0], ItemIdCode.PlateArmor) &&
+						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
 						HasEquippedItem(players[0], ItemIdCode.LongSword))
 						break;
 				}
