@@ -41,14 +41,7 @@ public partial class MenuDialogue : BaseDialogue
 		IndexerTextureRect.Texture = SpriteTable.arrowRight;
 		if (options.Count > 0)
 		{
-			var firstEnabledIndex = -1;
-			for (var i = 0; i < options.Count; i++)
-				if (!options[i].disabled)
-				{
-					firstEnabledIndex = i;
-					break;
-				}
-			if (firstEnabledIndex >= 0) Select(firstEnabledIndex);
+			Select(0);
 		}
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
@@ -66,26 +59,14 @@ public partial class MenuDialogue : BaseDialogue
 		if (options.Count == 0) return;
 		if (@event.IsActionPressed("ui_up"))
 		{
-			var index = currentIndex;
-			var attempts = 0;
-			do
-			{
-				if (--index < 0) index = options.Count - 1;
-				attempts++;
-			} while (options[index].disabled && attempts < options.Count);
-			if (!options[index].disabled) Select(index);
+			var index = currentIndex < 0 ? 0 : (currentIndex - 1 + options.Count) % options.Count;
+			Select(index);
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_down"))
 		{
-			var index = currentIndex;
-			var attempts = 0;
-			do
-			{
-				if (++index >= options.Count) index = 0;
-				attempts++;
-			} while (options[index].disabled && attempts < options.Count);
-			if (!options[index].disabled) Select(index);
+			var index = currentIndex < 0 ? 0 : (currentIndex + 1) % options.Count;
+			Select(index);
 			GetViewport().SetInputAsHandled();
 		}
 		else if (@event.IsActionPressed("ui_accept"))
