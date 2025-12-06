@@ -286,17 +286,27 @@ public class Game
 		while (true)
 		{
 			var bodyParts = character.bodyParts;
-			var options = new MenuOption[bodyParts.Count];
-			for (var i = 0; i < bodyParts.Count; i++)
+			var equippableParts = new List<BodyPart>();
+			foreach (var bp in bodyParts)
 			{
-				var bp = bodyParts[i];
+				if (bp.Slots.Length > 0) equippableParts.Add(bp);
+			}
+			if (equippableParts.Count == 0)
+			{
+				await DialogueManager.ShowGenericDialogue("没有可装备的部位");
+				return true;
+			}
+			var options = new MenuOption[equippableParts.Count];
+			for (var i = 0; i < equippableParts.Count; i++)
+			{
+				var bp = equippableParts[i];
 				var title = $"{bp.Name}";
 				options[i] = new() { title = title, description = "查看或更换该部位装备", };
 			}
 			var menu = DialogueManager.CreateMenuDialogue("选择身体部位", true, options);
 			var choice = await menu;
 			if (choice == options.Length) return true;
-			await ExpandItemContainer(character, bodyParts[choice], null);
+			await ExpandItemContainer(character, equippableParts[choice], null);
 		}
 	}
 	/// <summary>
