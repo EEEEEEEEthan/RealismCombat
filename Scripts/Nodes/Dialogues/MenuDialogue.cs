@@ -19,8 +19,11 @@ public partial class MenuDialogue : BaseDialogue
 		node.allowEscapeReturn = allowEscapeReturn;
 		node.TitleLabel.Text = title;
 		node.options.Clear();
-		foreach (var option in initialOptions) node.options.Add(option);
+        Log.Print($"#{title},请选择(game_select_option)");
+		foreach (var option in initialOptions)
+			node.options.Add(option);
 		node.BuildOptions();
+		GameServer.McpCheckpoint();
 		return node;
 	}
 	readonly List<MenuOption> options = [];
@@ -43,8 +46,6 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			Select(0);
 		}
-		Log.Print("请选择(game_select_option)");
-		GameServer.McpCheckpoint();
 		ItemRectChanged += UpdateIndexer;
 		UpdateIndexer();
 	}
