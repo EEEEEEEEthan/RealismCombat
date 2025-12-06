@@ -81,79 +81,102 @@ public class Game
 	{
 		try
 		{
-			while (true)
+			var menuTitle = "游戏菜单";
+			if (Chapter == 0)
 			{
-				if (Chapter == 0)
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
-					using (DialogueManager.CreateGenericDialogue(out var dialogue))
+					await dialogue.ShowTextTask("年轻人");
+					await dialogue.ShowTextTask("你一定没听过这个故事吧", "...");
+					await dialogue.ShowTextTask("那是很久很久以前的事情了");
+					await dialogue.ShowTextTask("就在我们这儿,有一名年轻的没落贵族");
+					await dialogue.ShowTextTask("他从小失去了母亲");
+					await dialogue.ShowTextTask("他的父亲成为政治斗争的牺牲品");
+					await dialogue.ShowTextTask("他叫Ethan");
+				}
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
+				{
+					await dialogue.ShowTextTask("不久之后,私生子之战爆发了");
+					await dialogue.ShowTextTask("可笑吧", "是", "否");
+					await dialogue.ShowTextTask("但是老爷们总是乐此不疲");
+					await dialogue.ShowTextTask("Ethan厌倦了政治,不想站队,于是选择了离开");
+				}
+				while (true)
+				{
+					var choice = await DialogueManager.CreateMenuDialogue(
+						"第一章 流浪",
+						new MenuOption { title = "走吧...", description = "离开这个鬼地方", },
+						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
+						new MenuOption { title = "存档", description = "保存当前进度", },
+						new MenuOption { title = "退出游戏", description = "返回主菜单", }
+					);
+					switch (choice)
 					{
-						await dialogue.ShowTextTask("年轻人");
-						await dialogue.ShowTextTask("你一定没听过这个故事吧", "...");
-						await dialogue.ShowTextTask("那是很久很久以前的事情了");
-						await dialogue.ShowTextTask("就在我们这儿,有一名年轻的没落贵族");
-						await dialogue.ShowTextTask("他从小失去了母亲");
-						await dialogue.ShowTextTask("他的父亲成为政治斗争的牺牲品");
-						await dialogue.ShowTextTask("他叫Ethan");
-					}
-					using (DialogueManager.CreateGenericDialogue(out var dialogue))
-					{
-						await dialogue.ShowTextTask("不久之后,私生子之战爆发了");
-						await dialogue.ShowTextTask("可笑吧", "是", "否");
-						await dialogue.ShowTextTask("但是老爷们总是乐此不疲");
-						await dialogue.ShowTextTask("Ethan厌倦了政治,不想站队,于是选择了离开");
+						case 0:
+						{
+							break;
+						}
+						case 1:
+						{
+							await ShowEquipmentFlow();
+							break;
+						}
+						case 2:
+						{
+							Save();
+							await DialogueManager.ShowGenericDialogue("已保存当前进度");
+							break;
+						}
+						case 3:
+						{
+							Quit();
+							return;
+						}
 					}
 				}
-				var menu = DialogueManager.CreateMenuDialogue(
-					"游戏菜单",
-					new MenuOption { title = "开始战斗", description = "进入战斗场景", },
-					new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
-					new MenuOption { title = "查看状态", description = "查看角色状态", },
-					new MenuOption { title = "存档", description = "保存当前进度", },
-					new MenuOption { title = "退出游戏", description = "返回主菜单", }
-				);
-				var choice = await menu;
-				switch (choice)
+				++Chapter;
+			}
+			if (Chapter == 1)
+			{
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
-					case 0:
+					await dialogue.ShowTextTask("Ethan穿上了父亲的旧盔甲,拿上了他的长剑");
+					await dialogue.ShowTextTask("或许他的心里还存有一点家族荣誉的念想");
+					await dialogue.ShowTextTask("走吧...");
+				}
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
+				{
+					await dialogue.ShowTextTask("战争时期的路上总是充满危险");
+					await dialogue.ShowTextTask("Ethan四处躲避着巡逻的士兵");
+					await dialogue.ShowTextTask("但还是被一个身穿华丽盔甲的男人发现了");
+				}
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
+				{
+					await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
+					await dialogue.ShowTextTask("或许还有一个好消息: 附近没有其他人");
+					var choice = await dialogue.ShowTextTask("Ethan开始紧张...", "上前交涉", "突袭!");
+					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
+					var combatNode = combatNodeScene.Instantiate<CombatNode>();
+					gameNode.AddChild(combatNode);
+					if (choice == 1)
+						players[0].actionPoint.value = players[0].actionPoint.maxValue;
+					else
+						players[0].actionPoint.value = 0;
+					var enemy = new Character("华丽盔甲的男人");
+					if (enemy.rightArm.Slots.Length > 0) enemy.rightArm.Slots[0].Item = new LongSword();
+					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
+					var enemies = new[]
 					{
-						PackedScene combatNodeScene = ResourceTable.combatNodeScene;
-						var combatNode = combatNodeScene.Instantiate<CombatNode>();
-						gameNode.AddChild(combatNode);
-						var combat = new Combat(players.ToArray(), CreateDefaultEnemies(), combatNode);
-						try
-						{
-							await combat;
-						}
-						finally
-						{
-							combatNode.QueueFree();
-						}
-						break;
+						enemy,
+					};
+					var combat = new Combat(players.ToArray(), enemies, combatNode);
+					try
+					{
+						await combat;
 					}
-					case 1:
+					finally
 					{
-						await ShowEquipmentFlow();
-						break;
-					}
-					case 2:
-					{
-						await DialogueManager.ShowGenericDialogue("状态系统尚未实现");
-						break;
-					}
-					case 3:
-					{
-						Save();
-						await DialogueManager.ShowGenericDialogue("已保存当前进度");
-						break;
-					}
-					case 4:
-					{
-						Quit();
-						return;
-					}
-					default:
-					{
-						throw new InvalidOperationException($"未知的菜单选项: {choice}");
+						combatNode.QueueFree();
 					}
 				}
 			}
