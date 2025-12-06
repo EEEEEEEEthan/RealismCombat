@@ -5,6 +5,7 @@ public partial class CardFrame : Control
 {
 	const float FlashDuration = 0.2f;
 	Tween? flashTween;
+	[Export]
 	public Color Color
 	{
 		get;
@@ -14,6 +15,7 @@ public partial class CardFrame : Control
 			Background?.SelfModulate = value;
 		}
 	}
+	[Export]
 	public bool Bleeding
 	{
 		get;
