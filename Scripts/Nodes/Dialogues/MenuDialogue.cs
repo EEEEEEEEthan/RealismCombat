@@ -33,7 +33,7 @@ public partial class MenuDialogue : BaseDialogue
 	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("%Printer");
 	[field: MaybeNull] Control OptionIndexer => field ??= GetNode<Control>("%Indexer");
 	[field: MaybeNull] TextureRect IndexerTextureRect => field ??= GetNode<TextureRect>("%IndexerTextureRect");
-	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel");
+	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel"); 
 	public override void _Ready()
 	{
 		base._Ready();

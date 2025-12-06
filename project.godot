@@ -39,6 +39,10 @@ external_editor/exec_path="C:/Program Files/JetBrains/JetBrains Rider 2025.1.4/b
 external_editor/exec_flags="{project}"
 "--line{line}{file}[editor_plugins]enabled"=PackedStringArray()
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/RebuildWithTabs/plugin.cfg")
+
 [gui]
 
 theme/custom="res://Theme.tres"
