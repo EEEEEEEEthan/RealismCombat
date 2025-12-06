@@ -5,6 +5,12 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using FileAccess = System.IO.FileAccess;
+public enum ScriptCode
+{
+	_0_Intro = 0,
+	_1_Equip = 1,
+	_2_Wander = 2,
+}
 public class Game
 {
 	static List<Character> CreateDefaultPlayers()
@@ -34,7 +40,7 @@ public class Game
 	readonly TaskCompletionSource taskCompletionSource = new();
 	readonly Node gameNode;
 	readonly List<Character> players;
-	public int Chapter { get; private set; }
+	public ScriptCode ScriptIndex { get; private set; }
 	/// <summary>
 	///     新游戏
 	/// </summary>
@@ -59,7 +65,7 @@ public class Game
 		this.gameNode = gameNode ?? throw new ArgumentNullException(nameof(gameNode));
 		_ = new Snapshot(reader);
 		players = ReadPlayers(reader);
-		Chapter = reader.ReadInt32();
+		ScriptIndex = (ScriptCode)reader.ReadInt32();
 		StartGameLoop();
 	}
 	public Snapshot GetSnapshot() => new(this);
@@ -74,7 +80,7 @@ public class Game
 		var snapshot = GetSnapshot();
 		snapshot.Serialize(writer);
 		WritePlayers(writer);
-		writer.Write(Chapter);
+		writer.Write((int)ScriptIndex);
 	}
 	void Quit()
 	{
@@ -85,7 +91,7 @@ public class Game
 	{
 		try
 		{
-			if (Chapter == 0)
+			if (ScriptIndex == ScriptCode._0_Intro)
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
@@ -104,6 +110,10 @@ public class Game
 					await dialogue.ShowTextTask("但是老爷们总是乐此不疲");
 					await dialogue.ShowTextTask("Ethan厌倦了政治,不想站队,于是选择了离开");
 				}
+				ScriptIndex = ScriptCode._1_Equip;
+			}
+			if (ScriptIndex == ScriptCode._1_Equip)
+			{
 				while (true)
 				{
 					var readyForDeparture = players.Count > 0 &&
@@ -146,11 +156,12 @@ public class Game
 					}
 					if (players.Count > 0 &&
 						HasEquippedItem(players[0], ItemIdCode.PlateArmor) &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword)) break;
+						HasEquippedItem(players[0], ItemIdCode.LongSword))
+						break;
 				}
-				++Chapter;
+				ScriptIndex = ScriptCode._2_Wander;
 			}
-			if (Chapter == 1)
+			if (ScriptIndex == ScriptCode._2_Wander)
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 public record Snapshot
 {
-	public readonly int chapter;
+	public readonly ScriptCode scriptIndex;
 	readonly GameVersion version;
 	readonly DateTime savedAt;
 	public GameVersion Version => version;
@@ -37,12 +37,12 @@ public record Snapshot
 		{
 			version = new(reader);
 			savedAt = new DateTime(reader.ReadInt64(), DateTimeKind.Utc).ToLocalTime();
-			chapter = reader.ReadInt32();
+			scriptIndex = (ScriptCode)reader.ReadInt32();
 		}
 	}
 	public Snapshot(Game game)
 	{
-		chapter = game.Chapter;
+		scriptIndex = game.ScriptIndex;
 		version = GameVersion.newest;
 		savedAt = DateTime.Now;
 	}
@@ -52,7 +52,7 @@ public record Snapshot
 		{
 			version.Serialize(writer);
 			writer.Write(savedAt.ToUniversalTime().Ticks);
-			writer.Write(chapter);
+			writer.Write((int)scriptIndex);
 		}
 	}
 }
