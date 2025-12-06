@@ -3,6 +3,7 @@ extends EditorPlugin
 
 var rebuild_button: Button
 var saved_scenes: Array[String] = []
+var saved_current_scene: String = ""
 var editor_interface: EditorInterface
 
 func _enter_tree():
@@ -25,6 +26,7 @@ func _on_rebuild_pressed():
 
 func save_current_tabs():
 	saved_scenes.clear()
+	saved_current_scene = ""
 	
 	if not editor_interface:
 		print("无法获取编辑器接口")
@@ -32,9 +34,26 @@ func save_current_tabs():
 	
 	var open_scenes = editor_interface.get_open_scenes()
 	
+	if open_scenes.is_empty():
+		return
+	
+	var editor_main_screen = editor_interface.get_editor_main_screen()
+	if editor_main_screen:
+		var base_control = editor_interface.get_base_control()
+		var scene_tabs = base_control.find_child("SceneTabs", true, false)
+		if scene_tabs:
+			var current_tab_index = scene_tabs.current_tab
+			if current_tab_index >= 0 and current_tab_index < open_scenes.size():
+				saved_current_scene = open_scenes[current_tab_index]
+	
+	if saved_current_scene == "" and not open_scenes.is_empty():
+		saved_current_scene = open_scenes[0]
+	
 	for scene_path in open_scenes:
 		saved_scenes.append(scene_path)
 		print("保存场景标签页: ", scene_path)
+	
+	print("当前激活的场景: ", saved_current_scene)
 
 func close_all_tabs():
 	if not editor_interface:
@@ -120,10 +139,35 @@ func restore_tabs():
 	
 	print("开始恢复标签页...")
 	
+	var scenes_to_open = []
+	var current_scene_to_open = ""
+	
 	for scene_path in saved_scenes:
 		if ResourceLoader.exists(scene_path):
-			editor_interface.open_scene_from_path(scene_path)
-			print("恢复场景标签页: ", scene_path)
+			if scene_path == saved_current_scene:
+				current_scene_to_open = scene_path
+			else:
+				scenes_to_open.append(scene_path)
 		else:
 			print("场景文件不存在: ", scene_path)
+	
+	for scene_path in scenes_to_open:
+		editor_interface.open_scene_from_path(scene_path)
+		print("恢复场景标签页: ", scene_path)
+		await Engine.get_main_loop().process_frame
+	
+	if current_scene_to_open != "":
+		editor_interface.open_scene_from_path(current_scene_to_open)
+		print("恢复当前激活的场景: ", current_scene_to_open)
+		await Engine.get_main_loop().process_frame
+		
+		var base_control = editor_interface.get_base_control()
+		var scene_tabs = base_control.find_child("SceneTabs", true, false)
+		if scene_tabs:
+			var open_scenes = editor_interface.get_open_scenes()
+			for i in range(open_scenes.size()):
+				if open_scenes[i] == current_scene_to_open:
+					scene_tabs.current_tab = i
+					print("设置当前标签页为: ", i)
+					break
 
