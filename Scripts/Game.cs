@@ -323,9 +323,7 @@ public class Game
 				var slot = slots[i];
 				var title = slot.Item is null ? $"槽位{i + 1}: 空" : $"槽位{i + 1}: {slot.Item.Name}";
 				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
-				var desc = slot.Item is null
-					? allowedDesc
-					: $"{slot.Item.flag.GetDisplayName()}\n{slot.Item.Description}";
+				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
 			}
 			var hasUnequip = container is Item && parentSlot != null && parentSlot.Item != null;
@@ -362,11 +360,7 @@ public class Game
 				for (var i = 0; i < inv.Count; i++)
 				{
 					var it = inv[i];
-					invOptions[i] = new()
-					{
-						title = it.Name,
-						description = $"{it.flag.GetDisplayName()}\n{it.Description}",
-					};
+					invOptions[i] = new() { title = it.Name, description = FormatItemDescription(it), };
 				}
 				var menu = DialogueManager.CreateMenuDialogue("选择装备", true, invOptions);
 				var choice = await menu;
@@ -385,4 +379,8 @@ public class Game
 			}
 		await ExpandItemContainer(owner, slot.Item, slot);
 	}
+	/// <summary>
+	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
+	/// </summary>
+	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
 }
