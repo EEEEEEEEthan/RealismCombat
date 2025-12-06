@@ -129,9 +129,9 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			new ItemConfig
 			{
 				Name = "绵甲",
-				Description = "贴身绵甲.除了提供微弱的防护,还能减少与盔甲的摩擦",
-				Flag = ItemFlagCode.InnerLayer,
-				SlotFlags = new[] { ItemFlagCode.MiddleLayer, ItemFlagCode.Belt, },
+				Description = "廉价的武装衣.征召兵们最常穿的装备",
+				Flag = ItemFlagCode.TorsoArmor,
+				SlotFlags = Array.Empty<ItemFlagCode>(),
 				Length = 60.0,
 				Weight = 0.8,
 				HitPointMax = 12,
@@ -143,8 +143,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			{
 				Name = "链甲",
 				Description = "由铁环串联而成的护甲,他们柔软但是沉重.通常需要耗费一个工匠数年时间才能完成",
-				Flag = ItemFlagCode.MiddleLayer,
-				SlotFlags = new[] { ItemFlagCode.OuterCoat, ItemFlagCode.Belt, },
+				Flag = ItemFlagCode.TorsoArmor,
+				SlotFlags = Array.Empty<ItemFlagCode>(),
 				Length = 65.0,
 				Weight = 6.5,
 				HitPointMax = 18,
@@ -156,8 +156,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			{
 				Name = "板甲",
 				Description = "由金属板制成的护甲,防护能力强大,但是重量也很惊人",
-				Flag = ItemFlagCode.OuterCoat,
-				SlotFlags = new[] { ItemFlagCode.Belt, },
+				Flag = ItemFlagCode.TorsoArmor,
+				SlotFlags = Array.Empty<ItemFlagCode>(),
 				Length = 70.0,
 				Weight = 12.0,
 				HitPointMax = 25,

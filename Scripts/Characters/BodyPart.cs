@@ -38,7 +38,6 @@ public static class BodyPartExtensions
 }
 public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 {
-	static readonly ItemFlagCode armArmorFlags = ItemFlagCode.InnerLayer | ItemFlagCode.MiddleLayer | ItemFlagCode.OuterCoat;
 	public readonly BodyPartCode id;
 	private readonly List<Buff> buffs = [];
 	/// <summary>
@@ -135,10 +134,14 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 		{
 			BodyPartCode.LeftArm or BodyPartCode.RightArm => new[]
 			{
-				new ItemSlot(armArmorFlags, this),
-				new ItemSlot(ItemFlagCode.Arm, this, false),
+				new ItemSlot(ItemFlagCode.HandArmor, this),
+				new ItemSlot(ItemFlagCode.Arm, this),
 			},
-			BodyPartCode.Torso => new[] { new ItemSlot(ItemFlagCode.InnerLayer, this), },
+			BodyPartCode.Torso => new[]
+			{
+				new ItemSlot(ItemFlagCode.TorsoArmor, this),
+				new ItemSlot(ItemFlagCode.Belt, this),
+			},
 			_ => Array.Empty<ItemSlot>(),
 		};
 	}

@@ -11,17 +11,13 @@ public enum ItemFlagCode
 	/// </summary>
 	Arm = 1 << 0,
 	/// <summary>
-	///     内衬类型装备
+	///     躯干护甲
 	/// </summary>
-	InnerLayer = 1 << 1,
+	TorsoArmor = 1 << 1,
 	/// <summary>
-	///     中层类型装备
+	///     护手
 	/// </summary>
-	MiddleLayer = 1 << 2,
-	/// <summary>
-	///     外套类型装备
-	/// </summary>
-	OuterCoat = 1 << 3,
+	HandArmor = 1 << 2,
 	/// <summary>
 	///     皮带类型装备
 	/// </summary>
@@ -46,9 +42,8 @@ public static class ItemFlagCodeExtensions
 				names.Add(code switch
 				{
 					ItemFlagCode.Arm => "武器",
-					ItemFlagCode.InnerLayer => "内衬",
-					ItemFlagCode.MiddleLayer => "中层",
-					ItemFlagCode.OuterCoat => "外套",
+					ItemFlagCode.TorsoArmor => "躯干护甲",
+					ItemFlagCode.HandArmor => "护手",
 					ItemFlagCode.Belt => "皮带",
 					_ => code.ToString(),
 				});
