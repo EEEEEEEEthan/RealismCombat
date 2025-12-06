@@ -5,6 +5,9 @@ using Godot;
 public class SlashAttack(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat)
 	: AttackBase(actor, actorBodyPart, target, combatTarget, combat)
 {
+	internal override double DodgeImpact => 0.45;
+	internal override double BlockImpact => 0.65;
+	internal override bool UsesWeapon => true;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
 	/// </summary>

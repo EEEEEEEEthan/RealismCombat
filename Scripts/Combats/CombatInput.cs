@@ -58,6 +58,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 {
 	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
+		string FormatChance(double value) => $"{Math.Round(value * 100)}%";
 		while (true)
 		{
 			var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
@@ -153,6 +154,10 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 											.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
 										description += "\n" + string.Join("\n", buffLines);
 									}
+									var previewAttack = selectedAttack.create(character, selectedBodyPart, selectedOpponent, o, combat);
+									var reactionChance = ReactionSuccessCalculator.Calculate(previewAttack);
+									description += $"\n闪避成功率 {FormatChance(reactionChance.DodgeChance)}";
+									description += $"\n格挡成功率 {FormatChance(reactionChance.BlockChance)}";
 									return new MenuOption
 									{
 										title = o.Name,

@@ -7,6 +7,8 @@ using Godot;
 public class GrabAttack(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat)
 	: AttackBase(actor, actorBodyPart, target, combatTarget, combat)
 {
+	internal override double DodgeImpact => 0.7;
+	internal override double BlockImpact => 0.25;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
 	/// </summary>

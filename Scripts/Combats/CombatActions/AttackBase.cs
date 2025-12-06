@@ -8,6 +8,9 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat)
 	: CombatAction(actor, combat, 3, 3)
 {
+	internal abstract double DodgeImpact { get; }
+	internal abstract double BlockImpact { get; }
+	internal virtual bool UsesWeapon => false;
 	/// <summary>
 	///     检查身体部位是否有武器
 	/// </summary>
@@ -55,29 +58,42 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 		using var ____ = targetNode.ExpandScope();
 		await DialogueManager.ShowGenericDialogue(GetExecuteDialogueText());
 		var reaction = await combat.HandleIncomingAttack(this);
+		var reactionOutcome = ReactionSuccessCalculator.Resolve(reaction, this);
 		var finalTarget = combatTarget;
 		var attackHit = true;
 		var resultMessages = new List<string>();
 		var hitPosition = combat.combatNode.GetHitPosition(actor);
 		actorNode.MoveTo(hitPosition);
-		switch (reaction.Type)
+		switch (reactionOutcome.Type)
 		{
-			case ReactionType.Dodge:
+			case ReactionType.Dodge when reactionOutcome.Succeeded:
 				await Task.Delay(10);
 				targetNode.MoveTo(combat.combatNode.GetDogePosition(target));
-				resultMessages.Add($"{target.name}及时闪避, 攻击落空");
+				resultMessages.Add($"{target.name}闪避成功(成功率{FormatChance(reactionOutcome.SuccessChance)})");
 				attackHit = false;
 				break;
-			case ReactionType.Block:
+			case ReactionType.Dodge:
+				resultMessages.Add($"{target.name}尝试闪避但失败(成功率{FormatChance(reactionOutcome.SuccessChance)})");
+				await Task.Delay(100);
+				targetNode.Shake();
+				AudioManager.PlaySfx(ResourceTable.retroHurt1);
+				break;
+			case ReactionType.Block when reactionOutcome.Succeeded && reactionOutcome.BlockTarget != null:
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
 				targetNode.FlashFrame();
 				await Task.Delay(100);
 				targetNode.MoveTo(targetPosition);
-				finalTarget = reaction.BlockTarget!;
+				finalTarget = reactionOutcome.BlockTarget ?? combatTarget;
 				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
-				resultMessages.Add($"{target.name}使用{finalTarget.Name}进行了格挡");
+				resultMessages.Add($"{target.name}使用{finalTarget.Name}格挡成功(成功率{FormatChance(reactionOutcome.SuccessChance)})");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
+				break;
+			case ReactionType.Block:
+				resultMessages.Add($"{target.name}尝试格挡但失败(成功率{FormatChance(reactionOutcome.SuccessChance)})");
+				await Task.Delay(100);
+				targetNode.Shake();
+				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
 			case ReactionType.None:
 				await Task.Delay(100);
@@ -113,4 +129,5 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 	///     攻击命中后的额外效果，子类可以重写
 	/// </summary>
 	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages) => Task.CompletedTask;
+	static string FormatChance(double value) => $"{Math.Round(value * 100)}%";
 }
