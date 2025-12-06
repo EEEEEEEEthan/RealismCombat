@@ -29,7 +29,7 @@ public static class BodyPartExtensions
 			BodyPartCode.LeftArm => "左臂",
 			BodyPartCode.RightArm => "右臂",
 			BodyPartCode.Torso => "躯干",
-			BodyPartCode.Groin => "腹股沟",
+			BodyPartCode.Groin => "裆部",
 			BodyPartCode.LeftLeg => "左腿",
 			BodyPartCode.RightLeg => "右腿",
 			_ => @this.ToString(),
