@@ -232,7 +232,7 @@ public partial class CharacterNode : Control
 	{
 		UpdateOverviewVisibility();
 		var container = CardFrame;
-		var targetSize = Expanded ? maxSize : minSize;
+		var targetSize = GetTargetSize();
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
@@ -244,7 +244,7 @@ public partial class CharacterNode : Control
 		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
 		var container = CardFrame;
-		var targetSize = Expanded ? maxSize : minSize;
+		var targetSize = GetTargetSize();
 		resizeTween?.Kill();
 		container.Size = targetSize;
 		UpdateRootContainerBasePosition();
@@ -254,6 +254,17 @@ public partial class CharacterNode : Control
 		rootContainerBasePosition = CardFrame.Position;
 		rootContainerBasePositionInitialized = true;
 	}
+	/// <summary>
+	///     计算展开状态下的目标尺寸，避免由于子节点显隐导致留白。
+	/// </summary>
+	Vector2 GetExpandedSize()
+	{
+		if (!IsNodeReady()) return maxSize;
+		PropertyContainer.QueueSort();
+		var containerSize = PropertyContainer.GetCombinedMinimumSize();
+		return maxSize with { Y = Mathf.Max(minSize.Y, containerSize.Y), };
+	}
+	Vector2 GetTargetSize() => Expanded ? GetExpandedSize() : minSize;
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
 	{
 		var node = PropertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
