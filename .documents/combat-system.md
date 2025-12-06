@@ -168,3 +168,9 @@
 - `MenuDialogue`、`ProgramRoot` 与 `CommandHandler` 在等待输入时会调用 `GameServer.McpCheckpoint()`，向 MCP 客户端广播当前状态
 - `CommandHandler` 将 `game_select_option` 指令转化为 `MenuDialogue.SelectAndConfirm()`，实现远程操控菜单项
 - `GameServer` 使用 `LogListener` 汇总日志，并在下行响应中返回完整文本，便于自动化分析与回放
+
+## 战后收尾
+
+- `Combat` 构造时会记录所有已装备物品与其所属槽位（含嵌套容器）
+- 结束战斗调用 `EndBattle()`：优先尝试将物品归还原槽；若槽位已被占用，会将占位物品移入物品栏后再放回原物；对于已不在角色身上的容器不会强行归还
+- 收尾阶段同时清除全部 Buff，并设置战斗等待结果；异常路径也会走 `EndBattle()`，避免装备状态丢失

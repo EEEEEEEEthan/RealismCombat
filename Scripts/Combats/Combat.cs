@@ -7,9 +7,11 @@ public class Combat
 {
 	public readonly CombatNode combatNode;
 	public readonly HashSet<Item> droppedItems = [];
+	readonly Dictionary<Item, (Character owner, ItemSlot slot)> originalSlots = new();
 	readonly PlayerInput playerInput;
 	readonly AIInput aiInput;
 	readonly TaskCompletionSource<bool> taskCompletionSource = new();
+	bool hasEnded;
 	public double Time { get; private set; }
 	public Character? Considering { get; private set; }
 	IEnumerable<Character> AllFighters => Allies.Union(Enemies);
@@ -21,6 +23,8 @@ public class Combat
 		Enemies = enemies;
 		this.combatNode = combatNode;
 		combatNode.Initialize(this);
+		CaptureOriginalSlots(Allies);
+		CaptureOriginalSlots(Enemies);
 		playerInput = new(this);
 		aiInput = new(this);
 		StartLoop();
@@ -87,7 +91,7 @@ public class Combat
 		catch (Exception e)
 		{
 			Log.PrintException(e);
-			taskCompletionSource.TrySetResult(false);
+			EndBattle(false);
 		}
 	}
 	bool TryGetActor(out Character actor)
@@ -101,18 +105,24 @@ public class Combat
 		if (!Allies.Any(c => c.IsAlive))
 		{
 			Log.Print("战斗失败");
-			ClearAllBuffs();
-			taskCompletionSource.TrySetResult(false);
+			EndBattle(false);
 			return true;
 		}
 		if (!Enemies.Any(c => c.IsAlive))
 		{
 			Log.Print("敌人被消灭，你胜利了");
-			ClearAllBuffs();
-			taskCompletionSource.TrySetResult(true);
+			EndBattle(true);
 			return true;
 		}
 		return false;
+	}
+	void EndBattle(bool victory)
+	{
+		if (hasEnded) return;
+		hasEnded = true;
+		RestoreOriginalSlots();
+		ClearAllBuffs();
+		taskCompletionSource.TrySetResult(victory);
 	}
 	void ClearAllBuffs()
 	{
@@ -163,5 +173,98 @@ public class Combat
 		{
 			buffOwner.RemoveBuff(buff);
 		}
+	}
+	void CaptureOriginalSlots(IEnumerable<Character> characters)
+	{
+		foreach (var character in characters)
+		{
+			CaptureOriginalSlots(character);
+		}
+	}
+	void CaptureOriginalSlots(Character character)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			CaptureOriginalSlots(character, bodyPart);
+		}
+	}
+	void CaptureOriginalSlots(Character owner, IItemContainer container)
+	{
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			originalSlots[item] = (owner, slot);
+			CaptureOriginalSlots(owner, item);
+		}
+	}
+	void RestoreOriginalSlots()
+	{
+		foreach (var pair in originalSlots)
+		{
+			var item = pair.Key;
+			var owner = pair.Value.owner;
+			var slot = pair.Value.slot;
+			if (!IsContainerOnCharacter(owner, slot.Container)) continue;
+			var removed = TryRemoveItem(owner, item);
+			var stillOwned = removed || droppedItems.Contains(item);
+			if (!stillOwned) continue;
+			var occupied = slot.Item;
+			if (occupied != null && !ReferenceEquals(occupied, item))
+			{
+				slot.Item = null;
+				owner.inventory.Items.Add(occupied);
+			}
+			slot.Item = item;
+			droppedItems.Remove(item);
+		}
+	}
+	static bool IsContainerOnCharacter(Character character, IItemContainer target)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			if (ReferenceEquals(bodyPart, target)) return true;
+			if (IsContainerOnDescendants(bodyPart, target)) return true;
+		}
+		return false;
+	}
+	static bool IsContainerOnDescendants(IItemContainer container, IItemContainer target)
+	{
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			if (ReferenceEquals(item, target)) return true;
+			if (IsContainerOnDescendants(item, target)) return true;
+		}
+		return false;
+	}
+	static bool TryRemoveItem(Character character, Item item)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			if (TryRemoveItem(bodyPart, item)) return true;
+		}
+		var inventory = character.inventory.Items;
+		for (var i = 0; i < inventory.Count; i++)
+		{
+			if (!ReferenceEquals(inventory[i], item)) continue;
+			inventory.RemoveAt(i);
+			return true;
+		}
+		return false;
+	}
+	static bool TryRemoveItem(IItemContainer container, Item item)
+	{
+		foreach (var slot in container.Slots)
+		{
+			if (ReferenceEquals(slot.Item, item))
+			{
+				slot.Item = null;
+				return true;
+			}
+			if (slot.Item != null && TryRemoveItem(slot.Item, item)) return true;
+		}
+		return false;
 	}
 }
