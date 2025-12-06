@@ -27,6 +27,24 @@ var player = new AudioStreamPlayer
 };
 ```
 
+### 节点引用方式
+
+- 场景文件中需要被代码引用的节点应使用百分号命名（%命名），在场景编辑器中设置 `unique_name_in_owner = true`
+- 代码中使用 `GetNode<T>("%节点名")` 访问，避免硬编码路径字符串，提高可维护性
+- 节点名称应使用语义化的名称，与代码中的属性名保持一致
+
+```csharp
+[field: MaybeNull] Container OptionContainer => field ??= GetNode<Container>("%OptionContainer");
+[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("%Printer");
+```
+
+场景文件示例：
+```
+[node name="OptionContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+```
+
 ## 目录组织与资源加载
 
 - 所有场景放在 `Scenes/`，脚本放在 `Scripts/`，保持描述性文件名
