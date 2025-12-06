@@ -4,6 +4,10 @@ public class ItemSlot(ItemFlagCode flag, IItemContainer container)
 {
 	public readonly IItemContainer container = container ?? throw new ArgumentNullException(nameof(container));
 	public IItemContainer Container => container;
+	/// <summary>
+	///     槽位可接受的装备类型
+	/// </summary>
+	public ItemFlagCode Flag => flag;
 	public Item? Item
 	{
 		get;

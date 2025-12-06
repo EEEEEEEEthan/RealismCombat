@@ -24,7 +24,7 @@
 
 `ItemSlot` 管理单个装备槽位，位于 `Scripts/Items/ItemSlot.cs`：
 
-- 构造函数接受 `ItemFlagCode flag`，定义可接受的装备类型
+- 构造函数接受 `ItemFlagCode flag`，定义可接受的装备类型，并通过 `Flag` 属性对外暴露
 - 赋值 `Item` 时会校验标志，不匹配将抛出 `ArgumentException`
 - 支持二进制序列化，使用 `ReadScope()`、`WriteScope()` 保证数据块完整性
 - 构造时必须传入所属容器（`IItemContainer`），槽位会持有只读 `container`/`Container` 引用；`Item` 与 `BodyPart` 在创建或反序列化时负责传入自身，额外跳过的冗余槽也会绑定当前容器
@@ -38,6 +38,10 @@
 - `MiddleLayer`：中层
 - `OuterCoat`：外套
 - `Belt`：皮带
+
+#### 显示名称
+
+`ItemFlagCodeExtensions.GetDisplayName` 将标志组合转换为中文名称（以`、`分隔），用于菜单提示等 UI 场景。
 
 ### ItemIdCode 枚举与内置配置
 
