@@ -10,7 +10,7 @@ public class Game
 	static List<Character> CreateDefaultPlayers()
 	{
 		var hero = new Character("Ethan");
-		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.LongSword));
 		hero.inventory.Items.Add(Item.Create(ItemIdCode.CottonLiner));
 		hero.inventory.Items.Add(Item.Create(ItemIdCode.ChainMail));
 		hero.inventory.Items.Add(Item.Create(ItemIdCode.PlateArmor));
@@ -137,6 +137,7 @@ public class Game
 							return;
 						}
 					}
+					if (players.Count > 0 && HasPlateArmorAndLongSword(players[0])) break;
 				}
 				++Chapter;
 			}
@@ -154,11 +155,14 @@ public class Game
 					await dialogue.ShowTextTask("Ethan四处躲避着巡逻的士兵");
 					await dialogue.ShowTextTask("但还是被一个身穿华丽盔甲的男人发现了");
 				}
-				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
-					await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
-					await dialogue.ShowTextTask("或许还有一个好消息: 附近没有其他人");
-					var choice = await dialogue.ShowTextTask("Ethan开始紧张...", "上前交涉", "突袭!");
+					var choice = 0;
+					using (DialogueManager.CreateGenericDialogue(out var dialogue))
+					{
+						await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
+						await dialogue.ShowTextTask("或许还有一个好消息: 附近没有其他人");
+						choice = await dialogue.ShowTextTask("Ethan开始紧张...", "上前交涉", "突袭!");
+					}
 					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 					var combatNode = combatNodeScene.Instantiate<CombatNode>();
 					gameNode.AddChild(combatNode);
@@ -190,6 +194,26 @@ public class Game
 			Log.PrintException(e);
 			Quit();
 		}
+	}
+	bool HasPlateArmorAndLongSword(Character character) =>
+		HasEquippedItem(character, ItemIdCode.PlateArmor) && HasEquippedItem(character, ItemIdCode.LongSword);
+	bool HasEquippedItem(Character character, ItemIdCode id)
+	{
+		foreach (var bodyPart in character.bodyParts)
+			if (HasEquippedItem(bodyPart, id))
+				return true;
+		return false;
+	}
+	bool HasEquippedItem(IItemContainer container, ItemIdCode id)
+	{
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			if (item.id == id) return true;
+			if (HasEquippedItem(item, id)) return true;
+		}
+		return false;
 	}
 	void WritePlayers(BinaryWriter writer)
 	{
