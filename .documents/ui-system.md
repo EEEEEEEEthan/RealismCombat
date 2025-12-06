@@ -54,7 +54,9 @@
 - 支持在同一对话框实例中多次调用 `ShowTextTask()` 追加多段文本
 - 长按按键时会将 `Printer.interval` 设为 `0`，实现快速跳过
 - 对话框不会自动销毁，需要外部调用 `DialogueManager.DestroyDialogue()` 或使用便捷方法 `ShowGenericDialogue()`
-- 当 `LaunchArgs.port` 存在时会自动跳过玩家输入，方便自动化测试持续推进
+- 当 `LaunchArgs.port` 存在时：
+  - 文本无选项会自动完成等待，便于自动化推进
+  - 选项展示后会输出“请选择(game_select_option)”并调用 `GameServer.McpCheckpoint()`，可用 MCP 指令 `game_select_option` 远程选择并确认
 
 ## 菜单对话框 (MenuDialogue)
 

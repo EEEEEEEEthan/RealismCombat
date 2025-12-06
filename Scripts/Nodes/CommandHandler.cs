@@ -61,7 +61,20 @@ public partial class CommandHandler(ProgramRoot programRoot) : Node
 				case "game_select_option":
 				{
 					var index = int.Parse(cmd.Args["id"]);
-					((MenuDialogue)DialogueManager.GetTopDialogue()!).SelectAndConfirm(index);
+					var dialogue = DialogueManager.GetTopDialogue();
+					switch (dialogue)
+					{
+						case MenuDialogue menuDialogue:
+							menuDialogue.SelectAndConfirm(index);
+							break;
+						case GenericDialogue genericDialogue:
+							genericDialogue.SelectAndConfirm(index);
+							break;
+						default:
+							Log.PrintError("当前对话框不支持远程选项");
+							GameServer.McpCheckpoint();
+							break;
+					}
 					break;
 				}
 				default:

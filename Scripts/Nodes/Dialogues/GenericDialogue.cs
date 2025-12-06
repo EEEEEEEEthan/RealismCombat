@@ -15,6 +15,7 @@ public partial class GenericDialogue : BaseDialogue
 	int selectedOptionIndex = -1;
 	double time;
 	bool keyDown;
+	bool mcpCheckpointRaised;
 	public GenericDialogue()
 	{
 		container = new();
@@ -62,12 +63,13 @@ public partial class GenericDialogue : BaseDialogue
 			icon.SelfModulate = time > 0.5 ? new Color(1, 1, 1, 1) : GameColors.transparent;
 			if (time > 1) time = 0;
 		}
-		if (LaunchArgs.port != null && hasTask && !printing)
+		if (LaunchArgs.port != null && hasTask && !printing && hasOptions && pendingOptions == null)
 		{
-			if (hasOptions)
-				ConfirmSelection();
-			else
-				CompleteActiveTask(-1);
+			TryNotifyMcpCheckpoint();
+		}
+		if (LaunchArgs.port != null && hasTask && !printing && !hasOptions && pendingOptions == null)
+		{
+			CompleteActiveTask(-1);
 		}
 	}
 	/// <summary>
@@ -83,6 +85,7 @@ public partial class GenericDialogue : BaseDialogue
 		activeTask = new();
 		time = 0;
 		keyDown = false;
+		mcpCheckpointRaised = false;
 		ClearOptions();
 		pendingOptions = null;
 		var content = string.IsNullOrEmpty(text) ? string.Empty : text;
@@ -140,6 +143,23 @@ public partial class GenericDialogue : BaseDialogue
 			MoveSelection(1);
 		}
 	}
+	public void SelectAndConfirm(int index)
+	{
+		if (activeTask is null) return;
+		if (pendingOptions != null)
+		{
+			BuildOptions(pendingOptions);
+			pendingOptions = null;
+			UpdateIconVisibility();
+		}
+		if (optionEntries.Count == 0)
+		{
+			CompleteActiveTask(-1);
+			return;
+		}
+		SelectOption(index);
+		ConfirmSelection();
+	}
 	void BuildOptions(IReadOnlyList<string> options)
 	{
 		ClearOptions();
@@ -166,8 +186,10 @@ public partial class GenericDialogue : BaseDialogue
 			optionBox.AddChild(label);
 			optionsContainer.AddChild(optionBox);
 			optionEntries.Add((pointer, label));
+			Log.Print($"{i} - {options[i]}");
 		}
 		if (optionEntries.Count > 0) SelectOption(0);
+		if (LaunchArgs.port != null && options.Count > 0) TryNotifyMcpCheckpoint();
 	}
 	void ClearOptions()
 	{
@@ -205,6 +227,7 @@ public partial class GenericDialogue : BaseDialogue
 		pendingOptions = null;
 		ClearOptions();
 		UpdateIconVisibility();
+		mcpCheckpointRaised = false;
 		task?.TrySetResult(result);
 	}
 	void UpdateIconVisibility()
@@ -212,5 +235,14 @@ public partial class GenericDialogue : BaseDialogue
 		var hasOptions = optionEntries.Count > 0 && optionsContainer.Visible;
 		icon.Visible = !hasOptions;
 		if (hasOptions) icon.SelfModulate = GameColors.transparent;
+	}
+	void TryNotifyMcpCheckpoint()
+	{
+		if (mcpCheckpointRaised) return;
+		if (LaunchArgs.port == null) return;
+		if (optionEntries.Count == 0) return;
+		mcpCheckpointRaised = true;
+		Log.Print("请选择(game_select_option)");
+		GameServer.McpCheckpoint();
 	}
 }
