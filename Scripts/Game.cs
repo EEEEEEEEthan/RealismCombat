@@ -166,11 +166,12 @@ public class Game
 							return;
 						}
 					}
-					if (players.Count > 0 &&
+					var proceed = readyForDeparture &&
 						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
 						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
-						HasEquippedItem(players[0], ItemIdCode.CottonPants))
-						break;
+						HasEquippedItem(players[0], ItemIdCode.CottonPants) &&
+						choice == 0;
+					if (proceed) break;
 				}
 				ScriptIndex = ScriptCode._2_Wander;
 			}
