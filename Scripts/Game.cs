@@ -106,9 +106,17 @@ public class Game
 				}
 				while (true)
 				{
+					var readyForDeparture = players.Count > 0 &&
+						HasEquippedItem(players[0], ItemIdCode.PlateArmor) &&
+						HasEquippedItem(players[0], ItemIdCode.LongSword);
 					var choice = await DialogueManager.CreateMenuDialogue(
 						"第一章 流浪",
-						new MenuOption { title = "走吧...", description = "离开这个鬼地方", },
+						new MenuOption
+						{
+							title = "走吧...",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好盔甲和剑",
+							disabled = !readyForDeparture,
+						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
 						new MenuOption { title = "存档", description = "保存当前进度", },
 						new MenuOption { title = "退出游戏", description = "返回主菜单", }
