@@ -16,6 +16,7 @@ public partial class GenericDialogue : BaseDialogue
 	double time;
 	bool keyDown;
 	bool mcpCheckpointRaised;
+	bool InMcpMode => LaunchArgs.port != null;
 	public GenericDialogue()
 	{
 		container = new();
@@ -63,14 +64,7 @@ public partial class GenericDialogue : BaseDialogue
 			icon.SelfModulate = time > 0.5 ? new Color(1, 1, 1, 1) : GameColors.transparent;
 			if (time > 1) time = 0;
 		}
-		if (LaunchArgs.port != null && hasTask && !printing && hasOptions && pendingOptions == null)
-		{
-			TryNotifyMcpCheckpoint();
-		}
-		if (LaunchArgs.port != null && hasTask && !printing && !hasOptions && pendingOptions == null)
-		{
-			CompleteActiveTask(-1);
-		}
+		ProcessMcpAutomation(hasTask, hasOptions, printing);
 	}
 	/// <summary>
 	///     追加文本并在完成打印或选择后返回
@@ -160,6 +154,23 @@ public partial class GenericDialogue : BaseDialogue
 		SelectOption(index);
 		ConfirmSelection();
 	}
+	/// <summary>
+	///     MCP 模式下自动推进或提示选择
+	/// </summary>
+	/// <param name="hasTask">是否存在进行中的任务</param>
+	/// <param name="hasOptions">是否已经展示选项</param>
+	/// <param name="printing">是否仍在打印文本</param>
+	void ProcessMcpAutomation(bool hasTask, bool hasOptions, bool printing)
+	{
+		if (!InMcpMode) return;
+		if (!hasTask || printing || pendingOptions != null) return;
+		if (hasOptions)
+		{
+			TryNotifyMcpCheckpoint();
+			return;
+		}
+		CompleteActiveTask(-1);
+	}
 	void BuildOptions(IReadOnlyList<string> options)
 	{
 		ClearOptions();
@@ -239,7 +250,7 @@ public partial class GenericDialogue : BaseDialogue
 	void TryNotifyMcpCheckpoint()
 	{
 		if (mcpCheckpointRaised) return;
-		if (LaunchArgs.port == null) return;
+		if (!InMcpMode) return;
 		if (optionEntries.Count == 0) return;
 		mcpCheckpointRaised = true;
 		Log.Print("请选择(game_select_option)");
