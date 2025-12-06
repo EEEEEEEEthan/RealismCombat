@@ -356,23 +356,10 @@ public class Game
 					return;
 				}
 				var inv = owner.inventory.Items;
-				var candidateIndices = new List<int>();
-				for (var i = 0; i < inv.Count; i++)
-				{
-					var it = inv[i];
-					if (CanEquip(it, slot)) candidateIndices.Add(i);
-				}
-				if (candidateIndices.Count == 0)
+				if (!TryBuildEquipOptions(inv, slot, out var invOptions, out var candidateIndices))
 				{
 					await DialogueManager.ShowGenericDialogue("没有适合该槽位的装备");
 					return;
-				}
-				var invOptions = new MenuOption[candidateIndices.Count];
-				for (var i = 0; i < candidateIndices.Count; i++)
-				{
-					var candidateInvIndex = candidateIndices[i];
-					var it = inv[candidateInvIndex];
-					invOptions[i] = new() { title = it.Name, description = FormatItemDescription(it), };
 				}
 				var menu = DialogueManager.CreateMenuDialogue("选择装备", true, invOptions);
 				var choice = await menu;
@@ -397,4 +384,21 @@ public class Game
 	/// </summary>
 	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
 	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
+	/// <summary>
+	///     构建与槽位匹配的物品栏选项
+	/// </summary>
+	static bool TryBuildEquipOptions(List<Item> inventoryItems, ItemSlot slot, out MenuOption[] options, out List<int> indices)
+	{
+		var optionList = new List<MenuOption>();
+		indices = new List<int>();
+		for (var i = 0; i < inventoryItems.Count; i++)
+		{
+			var item = inventoryItems[i];
+			if (!CanEquip(item, slot)) continue;
+			indices.Add(i);
+			optionList.Add(new MenuOption { title = item.Name, description = FormatItemDescription(item), });
+		}
+		options = optionList.ToArray();
+		return options.Length > 0;
+	}
 }
