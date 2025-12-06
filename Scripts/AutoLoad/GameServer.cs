@@ -104,6 +104,7 @@ public sealed partial class GameServer : Node
 		{
 			if (writer == null || !ClientIsConnected) return false;
 			var logs = logListener?.StopCollecting() ?? "执行完毕";
+            if(string.IsNullOrEmpty(logs)) throw new Exception("no logs collected");
 			try
 			{
 				writer.Write(logs);
