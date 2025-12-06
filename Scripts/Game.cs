@@ -13,26 +13,34 @@ public enum ScriptCode
 }
 public class Game
 {
-	static List<Character> CreateDefaultPlayers()
-	{
-		var hero = new Character("Ethan");
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.LongSword));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.ChainMail));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.Belt));
-		return [hero,];
-	}
-	static Character[] CreateDefaultEnemies()
-	{
-		var goblin = new Character("Goblin");
-		if (goblin.rightArm.Slots.Length > 1) goblin.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
-		return [goblin,];
-	}
 	static List<Character> ReadPlayers(BinaryReader reader)
 	{
 		var count = reader.ReadInt32();
 		var result = new List<Character>();
 		for (var i = 0; i < count; i++) result.Add(new(reader));
 		return result;
+	}
+	/// <summary>
+	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
+	/// </summary>
+	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
+	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
+	/// <summary>
+	///     构建与槽位匹配的物品栏选项
+	/// </summary>
+	static bool TryBuildEquipOptions(List<Item> inventoryItems, ItemSlot slot, out MenuOption[] options, out List<int> indices)
+	{
+		var optionList = new List<MenuOption>();
+		indices = new();
+		for (var i = 0; i < inventoryItems.Count; i++)
+		{
+			var item = inventoryItems[i];
+			if (!CanEquip(item, slot)) continue;
+			indices.Add(i);
+			optionList.Add(new() { title = item.Name, description = FormatItemDescription(item), });
+		}
+		options = optionList.ToArray();
+		return options.Length > 0;
 	}
 	readonly string saveFilePath;
 	readonly TaskCompletionSource taskCompletionSource = new();
@@ -48,7 +56,12 @@ public class Game
 	{
 		this.saveFilePath = saveFilePath;
 		this.gameNode = gameNode;
-		players = CreateDefaultPlayers();
+		var hero = new Character("Ethan");
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.LongSword));
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.ChainMail));
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.Belt));
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.CottonPants));
+		players = [hero,];
 		StartGameLoop();
 	}
 	/// <summary>
@@ -116,13 +129,14 @@ public class Game
 				{
 					var readyForDeparture = players.Count > 0 &&
 						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword);
+						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
+						HasEquippedItem(players[0], ItemIdCode.CottonPants);
 					var choice = await DialogueManager.CreateMenuDialogue(
 						"第一章 流浪",
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好链甲和剑",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好链甲、长剑和夹棉护腿",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
@@ -154,7 +168,8 @@ public class Game
 					}
 					if (players.Count > 0 &&
 						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword))
+						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
+						HasEquippedItem(players[0], ItemIdCode.CottonPants))
 						break;
 				}
 				ScriptIndex = ScriptCode._2_Wander;
@@ -286,9 +301,8 @@ public class Game
 			var bodyParts = character.bodyParts;
 			var equippableParts = new List<BodyPart>();
 			foreach (var bp in bodyParts)
-			{
-				if (bp.Slots.Length > 0) equippableParts.Add(bp);
-			}
+				if (bp.Slots.Length > 0)
+					equippableParts.Add(bp);
 			if (equippableParts.Count == 0)
 			{
 				await DialogueManager.ShowGenericDialogue("没有可装备的部位");
@@ -385,27 +399,5 @@ public class Game
 				}
 			}
 		await ExpandItemContainer(owner, slot.Item, slot);
-	}
-	/// <summary>
-	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
-	/// </summary>
-	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
-	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
-	/// <summary>
-	///     构建与槽位匹配的物品栏选项
-	/// </summary>
-	static bool TryBuildEquipOptions(List<Item> inventoryItems, ItemSlot slot, out MenuOption[] options, out List<int> indices)
-	{
-		var optionList = new List<MenuOption>();
-		indices = new List<int>();
-		for (var i = 0; i < inventoryItems.Count; i++)
-		{
-			var item = inventoryItems[i];
-			if (!CanEquip(item, slot)) continue;
-			indices.Add(i);
-			optionList.Add(new MenuOption { title = item.Name, description = FormatItemDescription(item), });
-		}
-		options = optionList.ToArray();
-		return options.Length > 0;
 	}
 }

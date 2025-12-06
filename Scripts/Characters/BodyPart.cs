@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Godot;
@@ -38,8 +37,17 @@ public static class BodyPartExtensions
 }
 public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 {
+	static int GetMaxHitPoint(BodyPartCode id) =>
+		id switch
+		{
+			BodyPartCode.Head => 5,
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
+			BodyPartCode.Groin => 6,
+			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
+			_ => 10,
+		};
 	public readonly BodyPartCode id;
-	private readonly List<Buff> buffs = [];
+	readonly List<Buff> buffs = [];
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
@@ -52,61 +60,44 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 	///     目标在日志或界面上的名称
 	/// </summary>
 	public string Name => id.GetName();
-	/// <summary>
-	///     获取包含当前装备的身体部位名称
-	/// </summary>
-	public string GetNameWithEquipments()
-	{
-		var parts = new List<string> { Name };
-		((IItemContainer)this).AppendEquippedItemNames(parts);
-		return string.Concat(parts);
-	}
 	public ItemSlot[] Slots { get; }
 	/// <summary>
 	///     获取所有Buff列表
 	/// </summary>
 	public IReadOnlyList<Buff> Buffs => buffs;
-	/// <summary>
-	///     添加Buff
-	/// </summary>
-	public void AddBuff(Buff buff)
-	{
-		buffs.Add(buff);
-	}
-	/// <summary>
-	///     移除Buff
-	/// </summary>
-	public void RemoveBuff(Buff buff)
-	{
-		buffs.Remove(buff);
-	}
-	/// <summary>
-	///     检查是否拥有指定类型的Buff
-	/// </summary>
-	public bool HasBuff(BuffCode buffCode)
-	{
-		foreach (var buff in buffs)
-		{
-			if (buff.code == buffCode)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	public BodyPart(BodyPartCode id, ItemSlot[] slots)
-	{
-		this.id = id;
-		var maxHitPoint = GetMaxHitPoint(id);
-		HitPoint = new(maxHitPoint, maxHitPoint);
-		Slots = slots;
-	}
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
 		var maxHitPoint = GetMaxHitPoint(id);
 		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = CreateSlots(id);
+	}
+	/// <summary>
+	///     获取包含当前装备的身体部位名称
+	/// </summary>
+	public string GetNameWithEquipments()
+	{
+		var parts = new List<string> { Name, };
+		((IItemContainer)this).AppendEquippedItemNames(parts);
+		return string.Concat(parts);
+	}
+	/// <summary>
+	///     添加Buff
+	/// </summary>
+	public void AddBuff(Buff buff) => buffs.Add(buff);
+	/// <summary>
+	///     移除Buff
+	/// </summary>
+	public void RemoveBuff(Buff buff) => buffs.Remove(buff);
+	/// <summary>
+	///     检查是否拥有指定类型的Buff
+	/// </summary>
+	public bool HasBuff(BuffCode buff)
+	{
+		foreach (var b in buffs)
+			if (b.code == buff)
+				return true;
+		return false;
 	}
 	public void Deserialize(BinaryReader reader)
 	{
@@ -128,30 +119,12 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 			foreach (var slot in Slots) slot.Serialize(writer);
 		}
 	}
-	ItemSlot[] CreateSlots(BodyPartCode id)
-	{
-		return id switch
-		{
-			BodyPartCode.LeftArm or BodyPartCode.RightArm => new[]
-			{
-				new ItemSlot(ItemFlagCode.HandArmor, this),
-				new ItemSlot(ItemFlagCode.Arm, this),
-			},
-			BodyPartCode.Torso => new[]
-			{
-				new ItemSlot(ItemFlagCode.TorsoArmor, this),
-				new ItemSlot(ItemFlagCode.Belt, this),
-			},
-			_ => Array.Empty<ItemSlot>(),
-		};
-	}
-	static int GetMaxHitPoint(BodyPartCode id) =>
+	ItemSlot[] CreateSlots(BodyPartCode id) =>
 		id switch
 		{
-			BodyPartCode.Head => 5,
-			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
-			BodyPartCode.Groin => 6,
-			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
-			_ => 10,
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => [new(ItemFlagCode.HandArmor, this), new(ItemFlagCode.Arm, this, false),],
+			BodyPartCode.Groin => [new(ItemFlagCode.LegArmor, this),],
+			BodyPartCode.Torso => [new(ItemFlagCode.TorsoArmor, this), new(ItemFlagCode.Belt, this),],
+			_ => [],
 		};
 }

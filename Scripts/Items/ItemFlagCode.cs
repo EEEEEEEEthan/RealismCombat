@@ -19,6 +19,10 @@ public enum ItemFlagCode
 	/// </summary>
 	HandArmor = 1 << 2,
 	/// <summary>
+	///     腿部护甲
+	/// </summary>
+	LegArmor = 1 << 3,
+	/// <summary>
 	///     皮带类型装备
 	/// </summary>
 	Belt = 1 << 4,
@@ -44,6 +48,7 @@ public static class ItemFlagCodeExtensions
 					ItemFlagCode.Arm => "武器",
 					ItemFlagCode.TorsoArmor => "躯干护甲",
 					ItemFlagCode.HandArmor => "护手",
+					ItemFlagCode.LegArmor => "腿甲",
 					ItemFlagCode.Belt => "皮带",
 					_ => code.ToString(),
 				});
