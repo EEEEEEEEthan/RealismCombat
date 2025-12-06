@@ -21,6 +21,7 @@
 
 ### 运行时流程
 - [运行时流程](runtime-flow.md) - ProgramRoot、Game、MCP 模式与场景结构
+- [存档系统](save-system.md) - 存档槽位、Snapshot 序列化与菜单展示
 
 ### 工具与服务
 - [日志系统](log-system.md) - Log、LogListener 日志输出与收集
