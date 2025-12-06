@@ -24,7 +24,7 @@ public class Game
 	static List<Character> ReadPlayers(BinaryReader reader)
 	{
 		var count = reader.ReadInt32();
-		var result = new List<Character>(count);
+		var result = new List<Character>();
 		for (var i = 0; i < count; i++) result.Add(new(reader));
 		return result;
 	}
@@ -57,6 +57,7 @@ public class Game
 		this.gameNode = gameNode ?? throw new ArgumentNullException(nameof(gameNode));
 		_ = new Snapshot(reader);
 		players = ReadPlayers(reader);
+		Chapter = reader.ReadInt32();
 		StartGameLoop();
 	}
 	public Snapshot GetSnapshot() => new(this);
@@ -71,6 +72,7 @@ public class Game
 		var snapshot = GetSnapshot();
 		snapshot.Serialize(writer);
 		WritePlayers(writer);
+		writer.Write(Chapter);
 	}
 	void Quit()
 	{
