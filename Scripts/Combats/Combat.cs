@@ -9,7 +9,7 @@ public class Combat
 	public readonly HashSet<Item> droppedItems = [];
 	readonly PlayerInput playerInput;
 	readonly AIInput aiInput;
-	readonly TaskCompletionSource taskCompletionSource = new();
+	readonly TaskCompletionSource<bool> taskCompletionSource = new();
 	public double Time { get; private set; }
 	public Character? Considering { get; private set; }
 	IEnumerable<Character> AllFighters => Allies.Union(Enemies);
@@ -25,7 +25,7 @@ public class Combat
 		aiInput = new(this);
 		StartLoop();
 	}
-	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
+	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
 		var defender = attack.Target;
@@ -87,7 +87,7 @@ public class Combat
 		catch (Exception e)
 		{
 			Log.PrintException(e);
-			taskCompletionSource.TrySetResult();
+			taskCompletionSource.TrySetResult(false);
 		}
 	}
 	bool TryGetActor(out Character actor)
@@ -102,14 +102,14 @@ public class Combat
 		{
 			Log.Print("战斗失败");
 			ClearAllBuffs();
-			taskCompletionSource.TrySetResult();
+			taskCompletionSource.TrySetResult(false);
 			return true;
 		}
 		if (!Enemies.Any(c => c.IsAlive))
 		{
 			Log.Print("敌人被消灭，你胜利了");
 			ClearAllBuffs();
-			taskCompletionSource.TrySetResult();
+			taskCompletionSource.TrySetResult(true);
 			return true;
 		}
 		return false;
