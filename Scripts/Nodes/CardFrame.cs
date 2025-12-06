@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Godot;
+[Tool]
 public partial class CardFrame : Control
 {
 	const float FlashDuration = 0.2f;

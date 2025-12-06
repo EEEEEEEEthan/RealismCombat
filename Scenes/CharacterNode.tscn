@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bomncrbost0bs"]
 
 [ext_resource type="Script" uid="uid://odhuswpi1sfq" path="res://Scripts/Nodes/Games/CharacterNode.cs" id="1_cptgj"]
-[ext_resource type="PackedScene" path="res://Scenes/CardFrame.tscn" id="2_lbkts"]
+[ext_resource type="PackedScene" uid="uid://o84y7p4fv15r" path="res://Scenes/CardFrame.tscn" id="2_lbkts"]
 
 [node name="CharacterNode" type="Control" unique_id=1255385813]
 custom_minimum_size = Vector2(55, 39)
@@ -21,7 +21,6 @@ anchors_preset = 0
 [node name="CardFrame" parent="MoveAnchor" unique_id=1922213664 instance=ExtResource("2_lbkts")]
 unique_name_in_owner = true
 layout_mode = 0
-offset_bottom = 86.0
 
 [node name="Mask" type="Control" parent="MoveAnchor/CardFrame" unique_id=955748591]
 clip_contents = true
