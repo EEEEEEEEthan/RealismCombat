@@ -42,6 +42,39 @@ public class Game
 		options = optionList.ToArray();
 		return options.Length > 0;
 	}
+	static List<(Item Belt, ItemSlot Slot)> GetBeltWeaponCandidates(Character character)
+	{
+		var result = new List<(Item, ItemSlot)>();
+		foreach (var bodyPart in character.bodyParts) CollectBeltWeapons(bodyPart, result);
+		return result;
+	}
+	static void CollectBeltWeapons(IItemContainer container, List<(Item, ItemSlot)> result)
+	{
+		foreach (var slot in container.Slots)
+		{
+			if (slot.Item == null) continue;
+			var item = slot.Item;
+			if ((item.flag & ItemFlagCode.Belt) != 0)
+			{
+				foreach (var beltSlot in item.Slots)
+					if (beltSlot.Item is { flag: var flag } && (flag & ItemFlagCode.Arm) != 0)
+						result.Add((item, beltSlot));
+			}
+			CollectBeltWeapons(item, result);
+		}
+	}
+	static (BodyPart bodyPart, ItemSlot slot)? FindEmptyHandSlot(Character character)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			if (!bodyPart.Available) continue;
+			if (bodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) continue;
+			foreach (var slot in bodyPart.Slots)
+				if (slot.Item == null && (slot.Flag & ItemFlagCode.Arm) != 0)
+					return (bodyPart, slot);
+		}
+		return null;
+	}
 	readonly string saveFilePath;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	readonly Node gameNode;
@@ -194,15 +227,43 @@ public class Game
 					{
 						await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
 						await dialogue.ShowTextTask("或许还有一个好消息: 附近没有其他人");
-						choice = await dialogue.ShowTextTask("Ethan开始紧张...", "上前交涉", "突袭!");
+						var beltWeaponCandidates = GetBeltWeaponCandidates(players[0]);
+						var emptyHandSlot = FindEmptyHandSlot(players[0]);
+						var optionList = new List<string> { "上前交涉", };
+						if (emptyHandSlot != null && beltWeaponCandidates.Count > 0)
+						{
+							foreach (var candidate in beltWeaponCandidates)
+							{
+								var weaponName = candidate.Slot.Item?.Name ?? "武器";
+								optionList.Add($"抽出{weaponName}");
+							}
+						}
+						choice = await dialogue.ShowTextTask("Ethan开始紧张...", optionList.ToArray());
 					}
 					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 					var combatNode = combatNodeScene.Instantiate<CombatNode>();
 					gameNode.AddChild(combatNode);
-					if (choice == 1)
-						players[0].actionPoint.value = players[0].actionPoint.maxValue;
-					else
+					if (choice == 0)
+					{
 						players[0].actionPoint.value = 0;
+					}
+					else
+					{
+						var beltWeaponCandidates = GetBeltWeaponCandidates(players[0]);
+						var emptyHandSlot = FindEmptyHandSlot(players[0]);
+						var candidateIndex = choice - 1;
+						if (emptyHandSlot != null && candidateIndex >= 0 && candidateIndex < beltWeaponCandidates.Count)
+						{
+							var selected = beltWeaponCandidates[candidateIndex];
+							var weapon = selected.Slot.Item;
+							if (weapon != null)
+							{
+								emptyHandSlot.Value.slot.Item = weapon;
+								selected.Slot.Item = null;
+							}
+						}
+						players[0].actionPoint.value = players[0].actionPoint.maxValue;
+					}
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
