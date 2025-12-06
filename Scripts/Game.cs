@@ -370,7 +370,6 @@ public class Game
 				{
 					slot.Item = candidate;
 					inv.RemoveAt(choice);
-					await DialogueManager.ShowGenericDialogue("已更换装备");
 					return;
 				}
 				catch (ArgumentException)
