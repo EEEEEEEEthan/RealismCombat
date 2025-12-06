@@ -13,9 +13,8 @@ public class ItemSlot(ItemFlagCode flag, IItemContainer container)
 		get;
 		set
 		{
-			if (value != null)
-				if ((value.flag & flag) == 0)
-					throw new ArgumentException("装备类型不匹配!");
+			if (value != null && (value.flag & flag) == 0)
+				throw new ArgumentException("装备类型不匹配!");
 			field = value;
 		}
 	}

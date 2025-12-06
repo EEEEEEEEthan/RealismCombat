@@ -87,28 +87,14 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 	public BodyPart(BodyPartCode id, ItemSlot[] slots)
 	{
 		this.id = id;
-		var maxHitPoint = id switch
-		{
-			BodyPartCode.Head => 5,
-			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
-			BodyPartCode.Groin => 6,
-			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
-			_ => 10,
-		};
+		var maxHitPoint = GetMaxHitPoint(id);
 		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = slots;
 	}
 	public BodyPart(BodyPartCode id, ItemFlagCode[] slotFlags)
 	{
 		this.id = id;
-		var maxHitPoint = id switch
-		{
-			BodyPartCode.Head => 5,
-			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
-			BodyPartCode.Groin => 6,
-			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
-			_ => 10,
-		};
+		var maxHitPoint = GetMaxHitPoint(id);
 		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = CreateSlots(slotFlags);
 	}
@@ -138,4 +124,13 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i], this);
 		return slots;
 	}
+	static int GetMaxHitPoint(BodyPartCode id) =>
+		id switch
+		{
+			BodyPartCode.Head => 5,
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
+			BodyPartCode.Groin => 6,
+			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
+			_ => 10,
+		};
 }
