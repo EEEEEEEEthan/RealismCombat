@@ -30,7 +30,7 @@ public sealed partial class GameServer : Node
 	public static bool McpCheckpoint()
 	{
 		if (instance == null) return false;
-		if(instance.response == null) throw new Exception("no request in progress");
+		Log.Print("[GameServer] MCP 检查点响应已发送");
 		var result = instance.SendResponseInternal();
 		instance.response?.TrySetResult(true);
 		return result;

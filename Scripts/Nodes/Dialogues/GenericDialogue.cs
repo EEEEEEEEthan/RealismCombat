@@ -228,7 +228,7 @@ public partial class GenericDialogue : BaseDialogue
 	}
 	void ConfirmSelection()
 	{
-		if (selectedOptionIndex < 0 && optionEntries.Count > 0) SelectOption(0);
+		Log.Print($"选择了选项{selectedOptionIndex} - {optionEntries[selectedOptionIndex].label}");
 		CompleteActiveTask(selectedOptionIndex < 0 ? -1 : selectedOptionIndex);
 	}
 	void CompleteActiveTask(int result)
