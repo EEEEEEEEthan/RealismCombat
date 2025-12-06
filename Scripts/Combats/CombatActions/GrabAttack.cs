@@ -9,6 +9,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Character targe
 {
 	internal override double DodgeImpact => 0.7;
 	internal override double BlockImpact => 0.25;
+	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
 	/// </summary>
@@ -19,7 +20,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Character targe
 	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart) && !HasWeapon(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}抓取{target.name}的{combatTarget.Name}!";
-	protected override int CalculateDamage() => 0;
+	protected override Damage CalculateDamage() => Damage.Zero;
 	/// <summary>
 	///     抓取攻击命中后有概率施加束缚和擒拿buff
 	/// </summary>

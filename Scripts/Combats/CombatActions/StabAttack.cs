@@ -7,6 +7,7 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Character targe
 {
 	internal override double DodgeImpact => 0.55;
 	internal override double BlockImpact => 0.5;
+	internal override AttackTypeCode AttackType => AttackTypeCode.Thrust;
 	internal override bool UsesWeapon => true;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
@@ -18,5 +19,4 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Character targe
 	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}刺击{target.name}的{combatTarget.Name}!";
-	protected override int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
 }

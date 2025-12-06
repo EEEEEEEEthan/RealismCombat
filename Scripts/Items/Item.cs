@@ -26,6 +26,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		public double Length { get; init; }
 		public double Weight { get; init; }
 		public int HitPointMax { get; init; }
+		public DamageProfile DamageProfile { get; init; }
+		public Protection Protection { get; init; }
 	}
 	static readonly Dictionary<ItemIdCode, ItemConfig> configs = new()
 	{
@@ -40,6 +42,12 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 100.0,
 				Weight = 1.2,
 				HitPointMax = 10,
+				DamageProfile = new(
+					new Damage(4f, 0f, 3f),
+					new Damage(0f, 4f, 0f),
+					Damage.Zero
+				),
+				Protection = Protection.Zero,
 			}
 		},
 		{
@@ -53,6 +61,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 60.0,
 				Weight = 0.8,
 				HitPointMax = 12,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new Protection(1f, 1f, 1f),
 			}
 		},
 		{
@@ -66,6 +76,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 65.0,
 				Weight = 6.5,
 				HitPointMax = 18,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new Protection(4f, 2f, 1f),
 			}
 		},
 		{
@@ -79,6 +91,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 70.0,
 				Weight = 12.0,
 				HitPointMax = 25,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new Protection(4f, 4f, 2f),
 			}
 		},
 		{
@@ -92,6 +106,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 90.0,
 				Weight = 0.5,
 				HitPointMax = 8,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = Protection.Zero,
 			}
 		},
 		{
@@ -105,6 +121,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 90.0,
 				Weight = 0.6,
 				HitPointMax = 8,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new Protection(1f, 1f, 1f),
 			}
 		},
 		{
@@ -118,6 +136,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 95.0,
 				Weight = 4.5,
 				HitPointMax = 14,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new Protection(4f, 2f, 1f),
 			}
 		},
 		{
@@ -131,6 +151,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 				Length = 95.0,
 				Weight = 7.5,
 				HitPointMax = 20,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new Protection(4f, 4f, 2f),
 			}
 		},
 	};
@@ -159,6 +181,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	public PropertyInt HitPoint { get; }
 	public double Length { get; }
 	public double Weight { get; }
+	public DamageProfile DamageProfile { get; }
+	public Protection Protection { get; }
 	public bool Available => HitPoint.value > 0;
 	public IReadOnlyList<Buff> Buffs => buffs;
 	Item(ItemIdCode id, ItemConfig config)
@@ -171,6 +195,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		Weight = config.Weight;
 		Slots = CreateSlots(config.SlotFlags, this);
 		HitPoint = new(config.HitPointMax, config.HitPointMax);
+		DamageProfile = config.DamageProfile;
+		Protection = config.Protection;
 	}
 	public void AddBuff(Buff buff) => buffs.Add(buff);
 	public void RemoveBuff(Buff buff) => buffs.Remove(buff);

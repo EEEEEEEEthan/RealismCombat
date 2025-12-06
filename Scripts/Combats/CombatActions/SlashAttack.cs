@@ -7,6 +7,7 @@ public class SlashAttack(Character actor, BodyPart actorBodyPart, Character targ
 {
 	internal override double DodgeImpact => 0.45;
 	internal override double BlockImpact => 0.65;
+	internal override AttackTypeCode AttackType => AttackTypeCode.Swing;
 	internal override bool UsesWeapon => true;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
@@ -18,5 +19,4 @@ public class SlashAttack(Character actor, BodyPart actorBodyPart, Character targ
 	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart) && HasWeapon(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}斩击{target.name}的{combatTarget.Name}!";
-	protected override int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
 }

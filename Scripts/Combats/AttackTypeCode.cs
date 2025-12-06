@@ -4,13 +4,13 @@
 public enum AttackTypeCode
 {
 	/// <summary>
-	///     劈砍
+	///     挥砍
 	/// </summary>
-	Slash,
+	Swing,
 	/// <summary>
-	///     穿刺
+	///     捅扎
 	/// </summary>
-	Pierce,
+	Thrust,
 	/// <summary>
 	///     特殊
 	/// </summary>

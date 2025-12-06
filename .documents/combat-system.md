@@ -59,14 +59,14 @@
 - 所有攻击类型都继承自 `AttackBase`，并实现以下抽象方法：
   - `GetStartDialogueText()`：返回攻击开始时的对话文本
   - `GetExecuteDialogueText()`：返回攻击执行时的对话文本
-  - `CalculateDamage()`：计算并返回伤害值
+  - `CalculateDamage()`：计算并返回伤害值（返回 `Damage`，包含劈砍/穿刺/钝击三项）
 - 每种攻击类型都有 `CanUse(BodyPart bodyPart)` 静态方法，用于验证该身体部位是否可以使用该攻击类型
 - 当前实现的攻击类型：
-  - `SlashAttack`（斩击）：只允许有武器的手臂使用
-  - `StabAttack`（刺击）：只允许手臂使用
-  - `KickAttack`（踢）：只允许腿使用
-  - `HeadbuttAttack`（头槌）：只允许头使用
-  - `ChargeAttack`（撞击）：只允许躯干使用
+  - `SlashAttack`（Swing 挥砍）：只允许有武器的手臂使用
+  - `StabAttack`（Thrust 捅扎）：只允许手臂使用
+  - `KickAttack`（Special 特殊）：只允许腿使用
+  - `HeadbuttAttack`（Special 特殊）：只允许头使用
+  - `ChargeAttack`（Special 特殊）：只允许躯干使用
   - `GrabAttack`（抓取）：只允许没有武器的手臂使用，不造成伤害，主要用于施加束缚和擒拿 buff
 - `GetAvailableAttacks()` 方法会根据身体部位返回所有可用的攻击类型列表
 

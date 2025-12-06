@@ -7,6 +7,7 @@ public class KickAttack(Character actor, BodyPart actorBodyPart, Character targe
 {
 	internal override double DodgeImpact => 0.6;
 	internal override double BlockImpact => 0.4;
+	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
 	/// </summary>
@@ -17,5 +18,4 @@ public class KickAttack(Character actor, BodyPart actorBodyPart, Character targe
 	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}踢击{target.name}的{combatTarget.Name}!";
-	protected override int CalculateDamage() => (int)(GD.Randi() % 3u) + 1;
 }
