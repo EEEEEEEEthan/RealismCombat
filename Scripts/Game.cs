@@ -340,8 +340,7 @@ public class Game
 			foreach (var visibleSlot in visibleSlots)
 			{
 				var slot = visibleSlot.Slot;
-				var titleIndex = visibleSlot.Index + 1;
-				var title = slot.Item is null ? $"槽位{titleIndex}: 空" : $"槽位{titleIndex}: {slot.Item.Name}";
+				var title = slot.Item is null ? "#空" : $"#{slot.Item.Name}";
 				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
