@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-public class ItemSlot(ItemFlagCode flag, IItemContainer container)
+public class ItemSlot(ItemFlagCode flag, IItemContainer container, bool visibleInMenu = true)
 {
 	public readonly IItemContainer container = container ?? throw new ArgumentNullException(nameof(container));
 	public IItemContainer Container => container;
@@ -8,6 +8,10 @@ public class ItemSlot(ItemFlagCode flag, IItemContainer container)
 	///     槽位可接受的装备类型
 	/// </summary>
 	public ItemFlagCode Flag => flag;
+	/// <summary>
+	///     是否在装备菜单中可见
+	/// </summary>
+	public bool VisibleInMenu { get; } = visibleInMenu;
 	public Item? Item
 	{
 		get;

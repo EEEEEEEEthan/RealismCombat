@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 public class Character
@@ -27,13 +26,13 @@ public class Character
 		inventory = new();
 		bodyParts =
 		[
-			head = new(BodyPartCode.Head, Array.Empty<ItemFlagCode>()),
-			leftArm = new(BodyPartCode.LeftArm, new[] { ItemFlagCode.Arm, }),
-			rightArm = new(BodyPartCode.RightArm, new[] { ItemFlagCode.Arm, }),
-			torso = new(BodyPartCode.Torso, new[] { ItemFlagCode.InnerLayer, }),
-			groin = new(BodyPartCode.Groin, Array.Empty<ItemFlagCode>()),
-			leftLeg = new(BodyPartCode.LeftLeg, Array.Empty<ItemFlagCode>()),
-			rightLeg = new(BodyPartCode.RightLeg, Array.Empty<ItemFlagCode>()),
+			head = new(BodyPartCode.Head),
+			leftArm = new(BodyPartCode.LeftArm),
+			rightArm = new(BodyPartCode.RightArm),
+			torso = new(BodyPartCode.Torso),
+			groin = new(BodyPartCode.Groin),
+			leftLeg = new(BodyPartCode.LeftLeg),
+			rightLeg = new(BodyPartCode.RightLeg),
 		];
 	}
 	public Character(BinaryReader reader)
@@ -46,13 +45,13 @@ public class Character
 			inventory = new();
 			bodyParts =
 			[
-				head = new(BodyPartCode.Head, Array.Empty<ItemFlagCode>()),
-				leftArm = new(BodyPartCode.LeftArm, new[] { ItemFlagCode.Arm, }),
-				rightArm = new(BodyPartCode.RightArm, new[] { ItemFlagCode.Arm, }),
-				torso = new(BodyPartCode.Torso, new[] { ItemFlagCode.InnerLayer, }),
-				groin = new(BodyPartCode.Groin, Array.Empty<ItemFlagCode>()),
-				leftLeg = new(BodyPartCode.LeftLeg, Array.Empty<ItemFlagCode>()),
-				rightLeg = new(BodyPartCode.RightLeg, Array.Empty<ItemFlagCode>()),
+				head = new(BodyPartCode.Head),
+				leftArm = new(BodyPartCode.LeftArm),
+				rightArm = new(BodyPartCode.RightArm),
+				torso = new(BodyPartCode.Torso),
+				groin = new(BodyPartCode.Groin),
+				leftLeg = new(BodyPartCode.LeftLeg),
+				rightLeg = new(BodyPartCode.RightLeg),
 			];
 			foreach (var bodyPart in bodyParts) bodyPart.Deserialize(reader);
 			inventory.Deserialize(reader);

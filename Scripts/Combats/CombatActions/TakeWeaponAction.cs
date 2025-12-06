@@ -109,7 +109,7 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot 
 	static ItemSlot? FindEmptyHandSlot(BodyPart bodyPart)
 	{
 		foreach (var slot in bodyPart.Slots)
-			if (slot.Item == null)
+			if (slot.Item == null && (slot.Flag & ItemFlagCode.Arm) != 0)
 				return slot;
 		return null;
 	}

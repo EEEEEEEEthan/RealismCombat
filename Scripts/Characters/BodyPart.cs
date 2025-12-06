@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Godot;
@@ -37,6 +38,7 @@ public static class BodyPartExtensions
 }
 public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 {
+	static readonly ItemFlagCode armArmorFlags = ItemFlagCode.InnerLayer | ItemFlagCode.MiddleLayer | ItemFlagCode.OuterCoat;
 	public readonly BodyPartCode id;
 	private readonly List<Buff> buffs = [];
 	/// <summary>
@@ -91,12 +93,12 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = slots;
 	}
-	public BodyPart(BodyPartCode id, ItemFlagCode[] slotFlags)
+	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
 		var maxHitPoint = GetMaxHitPoint(id);
 		HitPoint = new(maxHitPoint, maxHitPoint);
-		Slots = CreateSlots(slotFlags);
+		Slots = CreateSlots(id);
 	}
 	public void Deserialize(BinaryReader reader)
 	{
@@ -118,11 +120,18 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 			foreach (var slot in Slots) slot.Serialize(writer);
 		}
 	}
-	ItemSlot[] CreateSlots(ItemFlagCode[] slotFlags)
+	ItemSlot[] CreateSlots(BodyPartCode id)
 	{
-		var slots = new ItemSlot[slotFlags.Length];
-		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i], this);
-		return slots;
+		return id switch
+		{
+			BodyPartCode.LeftArm or BodyPartCode.RightArm => new[]
+			{
+				new ItemSlot(armArmorFlags, this),
+				new ItemSlot(ItemFlagCode.Arm, this, false),
+			},
+			BodyPartCode.Torso => new[] { new ItemSlot(ItemFlagCode.InnerLayer, this), },
+			_ => Array.Empty<ItemSlot>(),
+		};
 	}
 	static int GetMaxHitPoint(BodyPartCode id) =>
 		id switch

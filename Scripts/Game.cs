@@ -26,7 +26,7 @@ public class Game
 	static Character[] CreateDefaultEnemies()
 	{
 		var goblin = new Character("Goblin");
-		if (goblin.rightArm.Slots.Length > 0) goblin.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
+		if (goblin.rightArm.Slots.Length > 1) goblin.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 		return [goblin,];
 	}
 	static List<Character> ReadPlayers(BinaryReader reader)
@@ -191,7 +191,7 @@ public class Game
 					else
 						players[0].actionPoint.value = 0;
 					var enemy = new Character("贵族兵");
-					if (enemy.rightArm.Slots.Length > 0) enemy.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
+					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
 					var enemies = new[]
 					{
@@ -317,11 +317,19 @@ public class Game
 		while (true)
 		{
 			var slots = container.Slots;
-			var dynamicOptions = new List<MenuOption>(slots.Length + 2);
+			var visibleSlots = new List<(ItemSlot Slot, int Index)>(slots.Length);
 			for (var i = 0; i < slots.Length; i++)
 			{
 				var slot = slots[i];
-				var title = slot.Item is null ? $"槽位{i + 1}: 空" : $"槽位{i + 1}: {slot.Item.Name}";
+				if (!slot.VisibleInMenu) continue;
+				visibleSlots.Add((slot, i));
+			}
+			var dynamicOptions = new List<MenuOption>(visibleSlots.Count + 2);
+			foreach (var visibleSlot in visibleSlots)
+			{
+				var slot = visibleSlot.Slot;
+				var titleIndex = visibleSlot.Index + 1;
+				var title = slot.Item is null ? $"槽位{titleIndex}: 空" : $"槽位{titleIndex}: {slot.Item.Name}";
 				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
@@ -339,7 +347,8 @@ public class Game
 				await DialogueManager.ShowGenericDialogue("已卸下装备并放入物品栏");
 				return;
 			}
-			await ExpandItemSlot(owner, slots[choice]);
+			if (choice >= visibleSlots.Count) return;
+			await ExpandItemSlot(owner, visibleSlots[choice].Slot);
 		}
 	}
 	/// <summary>
