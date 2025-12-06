@@ -53,9 +53,8 @@ public class Game
 	/// <param name="gameNode">用于承载场景的节点</param>
 	public Game(string saveFilePath, BinaryReader reader, Node gameNode)
 	{
-		if (gameNode is null) throw new ArgumentNullException(nameof(gameNode));
 		this.saveFilePath = saveFilePath;
-		this.gameNode = gameNode;
+		this.gameNode = gameNode ?? throw new ArgumentNullException(nameof(gameNode));
 		_ = new Snapshot(reader);
 		players = ReadPlayers(reader);
 		StartGameLoop();
@@ -88,7 +87,20 @@ public class Game
 				{
 					using (DialogueManager.CreateGenericDialogue(out var dialogue))
 					{
-						await dialogue.ShowTextTask("Ethan离开了他的家乡");
+						await dialogue.ShowTextTask("年轻人");
+						await dialogue.ShowTextTask("你一定没听过这个故事吧", "...");
+						await dialogue.ShowTextTask("那是很久很久以前的事情了");
+						await dialogue.ShowTextTask("就在我们这儿,有一名年轻的没落贵族");
+						await dialogue.ShowTextTask("他从小失去了母亲");
+						await dialogue.ShowTextTask("他的父亲成为政治斗争的牺牲品");
+						await dialogue.ShowTextTask("他叫Ethan");
+					}
+					using (DialogueManager.CreateGenericDialogue(out var dialogue))
+					{
+						await dialogue.ShowTextTask("不久之后,私生子之战爆发了");
+						await dialogue.ShowTextTask("可笑吧", "是", "否");
+						await dialogue.ShowTextTask("但是老爷们总是乐此不疲");
+						await dialogue.ShowTextTask("Ethan厌倦了政治,不想站队,于是选择了离开");
 					}
 				}
 				var menu = DialogueManager.CreateMenuDialogue(
