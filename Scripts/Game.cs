@@ -190,7 +190,7 @@ public class Game
 						players[0].actionPoint.value = players[0].actionPoint.maxValue;
 					else
 						players[0].actionPoint.value = 0;
-					var enemy = new Character("华丽盔甲的男人");
+					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 0) enemy.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
 					var enemies = new[]
