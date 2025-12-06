@@ -18,6 +18,10 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	public readonly ItemIdCode id;
 	readonly List<Buff> buffs = [];
 	public string Name { get; }
+	/// <summary>
+	///     装备描述
+	/// </summary>
+	public string Description { get; }
 	public ItemSlot[] Slots { get; }
 	public PropertyInt HitPoint { get; }
 	public double Length { get; }
@@ -29,6 +33,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		this.id = id;
 		flag = config.Flag;
 		Name = config.Name;
+		Description = string.IsNullOrEmpty(config.Description) ? config.Name : config.Description;
 		Length = config.Length;
 		Weight = config.Weight;
 		Slots = CreateSlots(config.SlotFlags, this);
@@ -97,6 +102,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	public readonly struct ItemConfig
 	{
 		public string Name { get; init; }
+		public string? Description { get; init; }
 		public ItemFlagCode Flag { get; init; }
 		public ItemFlagCode[]? SlotFlags { get; init; }
 		public double Length { get; init; }
@@ -110,6 +116,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			new ItemConfig
 			{
 				Name = "长剑",
+				Description = "比短剑长一点",
 				Flag = ItemFlagCode.Arm,
 				SlotFlags = Array.Empty<ItemFlagCode>(),
 				Length = 100.0,
@@ -121,7 +128,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			ItemIdCode.CottonLiner,
 			new ItemConfig
 			{
-				Name = "棉质内衬",
+				Name = "绵甲",
+				Description = "贴身绵甲.除了提供微弱的防护,还能减少与盔甲的摩擦",
 				Flag = ItemFlagCode.InnerLayer,
 				SlotFlags = new[] { ItemFlagCode.MiddleLayer, ItemFlagCode.Belt, },
 				Length = 60.0,
@@ -134,6 +142,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			new ItemConfig
 			{
 				Name = "链甲",
+				Description = "由铁环串联而成的护甲,他们柔软但是沉重.通常需要耗费一个工匠数年时间才能完成",
 				Flag = ItemFlagCode.MiddleLayer,
 				SlotFlags = new[] { ItemFlagCode.OuterCoat, ItemFlagCode.Belt, },
 				Length = 65.0,
@@ -146,6 +155,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			new ItemConfig
 			{
 				Name = "板甲",
+				Description = "由金属板制成的护甲,防护能力强大,但是重量也很惊人",
 				Flag = ItemFlagCode.OuterCoat,
 				SlotFlags = new[] { ItemFlagCode.Belt, },
 				Length = 70.0,
@@ -158,6 +168,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			new ItemConfig
 			{
 				Name = "皮带",
+				Description = "用来固定武器的皮带.上面可以挂很多武器",
 				Flag = ItemFlagCode.Belt,
 				SlotFlags = new[] { ItemFlagCode.Arm, ItemFlagCode.Arm, ItemFlagCode.Arm, ItemFlagCode.Arm, },
 				Length = 90.0,

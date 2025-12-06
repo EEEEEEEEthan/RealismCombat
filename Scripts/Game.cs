@@ -323,7 +323,7 @@ public class Game
 				var slot = slots[i];
 				var title = slot.Item is null ? $"槽位{i + 1}: 空" : $"槽位{i + 1}: {slot.Item.Name}";
 				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
-				var desc = slot.Item is null ? allowedDesc : slot.Item.Name;
+				var desc = slot.Item is null ? allowedDesc : slot.Item.Description;
 				dynamicOptions.Add(new() { title = title, description = desc, });
 			}
 			var hasUnequip = container is Item && parentSlot != null && parentSlot.Item != null;
