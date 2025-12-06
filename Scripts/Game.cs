@@ -124,7 +124,7 @@ public class Game
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好盔甲和剑",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好板甲和剑",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
