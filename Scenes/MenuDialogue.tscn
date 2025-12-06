@@ -4,11 +4,11 @@
 [ext_resource type="Script" uid="uid://csbs6nioep4l" path="res://Scripts/Nodes/Printer.cs" id="2_1"]
 [ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icon8.png" id="3_8parw"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_g8yql"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_8parw"]
 atlas = ExtResource("3_8parw")
 region = Rect2(8, 0, 8, 8)
 
-[node name="MenuDialogue" type="PanelContainer"]
+[node name="MenuDialogue" type="PanelContainer" unique_id=129844507]
 custom_minimum_size = Vector2(128, 96)
 anchors_preset = 12
 anchor_top = 1.0
@@ -17,18 +17,20 @@ anchor_bottom = 1.0
 offset_top = -96.0
 script = ExtResource("1_1")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1579565]
 layout_mode = 2
 theme_override_constants/margin_left = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=546179735]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+[node name="OptionContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1574539439]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Printer" type="RichTextLabel" parent="MarginContainer/HBoxContainer"]
+[node name="Printer" type="RichTextLabel" parent="MarginContainer/HBoxContainer" unique_id=1974484280]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 scroll_active = false
@@ -37,27 +39,30 @@ scroll_following_visible_characters = true
 visible_characters = 0
 script = ExtResource("2_1")
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=1604112544]
 layout_mode = 2
 
-[node name="Indexer" type="Control" parent="Control"]
+[node name="Indexer" type="Control" parent="Control" unique_id=1500841488]
+unique_name_in_owner = true
 anchors_preset = 0
 
-[node name="TextureRect" type="TextureRect" parent="Control/Indexer"]
+[node name="IndexerTextureRect" type="TextureRect" parent="Control/Indexer" unique_id=714463411]
+unique_name_in_owner = true
 layout_mode = 0
 offset_left = -5.0
 offset_top = -4.0
 offset_right = 3.0
 offset_bottom = 4.0
-texture = SubResource("AtlasTexture_g8yql")
+texture = SubResource("AtlasTexture_8parw")
 stretch_mode = 4
 
-[node name="TitleContainer" type="PanelContainer" parent="Control"]
+[node name="TitleContainer" type="PanelContainer" parent="Control" unique_id=1248319867]
 layout_mode = 0
 offset_left = 2.0
 offset_top = -20.0
 offset_right = 37.0
 
-[node name="Title" type="Label" parent="Control/TitleContainer"]
+[node name="TitleLabel" type="Label" parent="Control/TitleContainer" unique_id=1914591447]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Title"

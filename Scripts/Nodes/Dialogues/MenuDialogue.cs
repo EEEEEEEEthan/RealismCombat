@@ -29,14 +29,15 @@ public partial class MenuDialogue : BaseDialogue
 	bool allowEscapeReturn;
 	int returnOptionIndex = -1;
 	int currentIndex = -1;
-	[field: MaybeNull] Container OptionContainer => field ??= GetNode<Container>("MarginContainer/HBoxContainer/VBoxContainer");
-	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("MarginContainer/HBoxContainer/Printer");
-	[field: MaybeNull] Control OptionIndexer => field ??= GetNode<Control>("Control/Indexer");
-	[field: MaybeNull] TextureRect IndexerTextureRect => field ??= GetNode<TextureRect>("Control/Indexer/TextureRect");
-	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("Control/TitleContainer/Title");
+	[field: MaybeNull] Container OptionContainer => field ??= GetNode<Container>("%OptionContainer");
+	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("%Printer");
+	[field: MaybeNull] Control OptionIndexer => field ??= GetNode<Control>("%Indexer");
+	[field: MaybeNull] TextureRect IndexerTextureRect => field ??= GetNode<TextureRect>("%IndexerTextureRect");
+	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel");
 	public override void _Ready()
 	{
 		base._Ready();
+		if (Engine.IsEditorHint()) return;
 		IndexerTextureRect.Texture = SpriteTable.arrowRight;
 		if (options.Count > 0)
 		{
