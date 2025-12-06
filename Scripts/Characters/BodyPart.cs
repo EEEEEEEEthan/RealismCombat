@@ -53,6 +53,15 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 	///     目标在日志或界面上的名称
 	/// </summary>
 	public string Name => id.GetName();
+	/// <summary>
+	///     获取包含当前装备的身体部位名称
+	/// </summary>
+	public string GetNameWithEquipments()
+	{
+		var parts = new List<string> { Name };
+		((IItemContainer)this).AppendEquippedItemNames(parts);
+		return string.Concat(parts);
+	}
 	public ItemSlot[] Slots { get; }
 	/// <summary>
 	///     获取所有Buff列表

@@ -75,7 +75,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					}
 					return new MenuOption
 					{
-						title = bp.Name,
+						title = bp.GetNameWithEquipments(),
 						description = description,
 					};
 				})
@@ -160,7 +160,9 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 									description += $"\n格挡成功率 {FormatChance(reactionChance.BlockChance)}";
 									return new MenuOption
 									{
-										title = o.Name,
+										title = o is BodyPart targetBodyPart
+											? targetBodyPart.GetNameWithEquipments()
+											: o.Name,
 										description = description,
 									};
 								})
@@ -243,7 +245,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 							}
 							return new MenuOption
 							{
-								title = t.Name,
+								title = t is BodyPart bodyPart ? bodyPart.GetNameWithEquipments() : t.Name,
 								description = description,
 							};
 						})

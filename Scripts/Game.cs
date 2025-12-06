@@ -300,7 +300,7 @@ public class Game
 			for (var i = 0; i < equippableParts.Count; i++)
 			{
 				var bp = equippableParts[i];
-				var title = $"{bp.Name}";
+				var title = bp.GetNameWithEquipments();
 				options[i] = new() { title = title, description = "查看或更换该部位装备", };
 			}
 			var menu = DialogueManager.CreateMenuDialogue("选择身体部位", true, options);
