@@ -28,7 +28,7 @@ public class Character
 			head = new(BodyPartCode.Head, []),
 			leftArm = new(BodyPartCode.LeftArm, [new(ItemFlagCode.Arm),]),
 			rightArm = new(BodyPartCode.RightArm, [new(ItemFlagCode.Arm),]),
-			torso = new(BodyPartCode.Torso, []),
+			torso = new(BodyPartCode.Torso, [new(ItemFlagCode.InnerLayer),]),
 			leftLeg = new(BodyPartCode.LeftLeg, []),
 			rightLeg = new(BodyPartCode.RightLeg, []),
 		];
@@ -46,7 +46,7 @@ public class Character
 				head = new(BodyPartCode.Head, []),
 				leftArm = new(BodyPartCode.LeftArm, [new(ItemFlagCode.Arm),]),
 				rightArm = new(BodyPartCode.RightArm, [new(ItemFlagCode.Arm),]),
-				torso = new(BodyPartCode.Torso, []),
+				torso = new(BodyPartCode.Torso, [new(ItemFlagCode.InnerLayer),]),
 				leftLeg = new(BodyPartCode.LeftLeg, []),
 				rightLeg = new(BodyPartCode.RightLeg, []),
 			];

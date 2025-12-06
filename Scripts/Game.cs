@@ -10,13 +10,17 @@ public class Game
 	static List<Character> CreateDefaultPlayers()
 	{
 		var hero = new Character("Ethan");
-		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = new LongSword();
+		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.CottonLiner));
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.ChainMail));
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.PlateArmor));
+		hero.inventory.Items.Add(Item.Create(ItemIdCode.Belt));
 		return [hero,];
 	}
 	static Character[] CreateDefaultEnemies()
 	{
 		var goblin = new Character("Goblin");
-		if (goblin.rightArm.Slots.Length > 0) goblin.rightArm.Slots[0].Item = new LongSword();
+		if (goblin.rightArm.Slots.Length > 0) goblin.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
 		return [goblin,];
 	}
 	static List<Character> ReadPlayers(BinaryReader reader)
@@ -163,7 +167,7 @@ public class Game
 					else
 						players[0].actionPoint.value = 0;
 					var enemy = new Character("华丽盔甲的男人");
-					if (enemy.rightArm.Slots.Length > 0) enemy.rightArm.Slots[0].Item = new LongSword();
+					if (enemy.rightArm.Slots.Length > 0) enemy.rightArm.Slots[0].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
 					var enemies = new[]
 					{

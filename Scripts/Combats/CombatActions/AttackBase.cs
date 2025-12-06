@@ -14,7 +14,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 	protected static bool HasWeapon(BodyPart bodyPart)
 	{
 		foreach (var slot in bodyPart.Slots)
-			if (slot.Item is IArm)
+			if (slot.Item != null && (slot.Item.flag & ItemFlagCode.Arm) != 0)
 				return true;
 		return false;
 	}
