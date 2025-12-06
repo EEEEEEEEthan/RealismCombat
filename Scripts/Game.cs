@@ -85,7 +85,6 @@ public class Game
 	{
 		try
 		{
-			var menuTitle = "游戏菜单";
 			if (Chapter == 0)
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
@@ -137,7 +136,9 @@ public class Game
 							return;
 						}
 					}
-					if (players.Count > 0 && HasPlateArmorAndLongSword(players[0])) break;
+					if (players.Count > 0 &&
+						HasEquippedItem(players[0], ItemIdCode.PlateArmor) &&
+						HasEquippedItem(players[0], ItemIdCode.LongSword)) break;
 				}
 				++Chapter;
 			}
@@ -156,7 +157,7 @@ public class Game
 					await dialogue.ShowTextTask("但还是被一个身穿华丽盔甲的男人发现了");
 				}
 				{
-					var choice = 0;
+					int choice;
 					using (DialogueManager.CreateGenericDialogue(out var dialogue))
 					{
 						await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
@@ -195,8 +196,9 @@ public class Game
 			Quit();
 		}
 	}
-	bool HasPlateArmorAndLongSword(Character character) =>
-		HasEquippedItem(character, ItemIdCode.PlateArmor) && HasEquippedItem(character, ItemIdCode.LongSword);
+	/// <summary>
+	///     在角色身上查找指定装备
+	/// </summary>
 	bool HasEquippedItem(Character character, ItemIdCode id)
 	{
 		foreach (var bodyPart in character.bodyParts)
@@ -204,6 +206,9 @@ public class Game
 				return true;
 		return false;
 	}
+	/// <summary>
+	///     在容器及其子容器中查找指定装备
+	/// </summary>
 	bool HasEquippedItem(IItemContainer container, ItemIdCode id)
 	{
 		foreach (var slot in container.Slots)
