@@ -356,20 +356,33 @@ public class Game
 					return;
 				}
 				var inv = owner.inventory.Items;
-				var invOptions = new MenuOption[inv.Count];
+				var candidateIndices = new List<int>();
 				for (var i = 0; i < inv.Count; i++)
 				{
 					var it = inv[i];
+					if (CanEquip(it, slot)) candidateIndices.Add(i);
+				}
+				if (candidateIndices.Count == 0)
+				{
+					await DialogueManager.ShowGenericDialogue("没有适合该槽位的装备");
+					return;
+				}
+				var invOptions = new MenuOption[candidateIndices.Count];
+				for (var i = 0; i < candidateIndices.Count; i++)
+				{
+					var candidateInvIndex = candidateIndices[i];
+					var it = inv[candidateInvIndex];
 					invOptions[i] = new() { title = it.Name, description = FormatItemDescription(it), };
 				}
 				var menu = DialogueManager.CreateMenuDialogue("选择装备", true, invOptions);
 				var choice = await menu;
 				if (choice == invOptions.Length) return;
-				var candidate = inv[choice];
+				var selectedInvIndex = candidateIndices[choice];
+				var candidate = inv[selectedInvIndex];
 				try
 				{
 					slot.Item = candidate;
-					inv.RemoveAt(choice);
+					inv.RemoveAt(selectedInvIndex);
 					return;
 				}
 				catch (ArgumentException)
@@ -383,4 +396,5 @@ public class Game
 	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
 	/// </summary>
 	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
+	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
 }
