@@ -42,23 +42,17 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			var firstEnabledIndex = -1;
 			for (var i = 0; i < options.Count; i++)
-			{
 				if (!options[i].disabled)
 				{
 					firstEnabledIndex = i;
 					break;
 				}
-			}
 			if (firstEnabledIndex >= 0) Select(firstEnabledIndex);
 		}
 		Log.Print("请选择(game_select_option)");
 		GameServer.McpCheckpoint();
 		ItemRectChanged += UpdateIndexer;
 		UpdateIndexer();
-	}
-	void UpdateTitle()
-	{
-		
 	}
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public void SelectAndConfirm(int index)
@@ -111,6 +105,7 @@ public partial class MenuDialogue : BaseDialogue
 			taskCompletionSource.TrySetResult(index);
 		}
 	}
+	void UpdateTitle() { }
 	void BuildOptions()
 	{
 		for (var i = 0; i < options.Count; i++)
@@ -120,10 +115,7 @@ public partial class MenuDialogue : BaseDialogue
 			{
 				Text = option.title,
 			};
-			if (option.disabled)
-			{
-				label.Modulate = new Color(178f / 255f, 178f / 255f, 178f / 255f);
-			}
+			if (option.disabled) label.Modulate = new(178f / 255f, 178f / 255f, 178f / 255f);
 			OptionContainer.AddChild(label);
 			optionLabels.Add(label);
 			Log.Print($"{i} - {option.title} {option.description}");
@@ -171,9 +163,9 @@ public partial class MenuDialogue : BaseDialogue
 		Log.Print($"选择了选项{currentIndex} - {options[currentIndex].title}");
 		if (options[currentIndex].disabled)
 		{
-            Log.Print("选项不可用。");
+			Log.Print("选项不可用。");
 			GameServer.McpCheckpoint();
-            return;
+			return;
 		}
 		GetViewport().SetInputAsHandled();
 		Close();
