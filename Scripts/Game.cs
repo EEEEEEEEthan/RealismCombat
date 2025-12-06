@@ -11,9 +11,7 @@ public class Game
 	{
 		var hero = new Character("Ethan");
 		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = new LongSword();
-		var raven = new Character("Raven");
-		if (raven.rightArm.Slots.Length > 0) raven.rightArm.Slots[0].Item = new LongSword();
-		return [hero, raven,];
+		return [hero,];
 	}
 	static Character[] CreateDefaultEnemies()
 	{
