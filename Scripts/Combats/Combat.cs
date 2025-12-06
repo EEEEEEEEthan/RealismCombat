@@ -12,6 +12,7 @@ public class Combat
 	readonly TaskCompletionSource taskCompletionSource = new();
 	public double Time { get; private set; }
 	public Character? Considering { get; private set; }
+	IEnumerable<Character> AllFighters => Allies.Union(Enemies);
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
 	public Combat(Character[] allies, Character[] enemies, CombatNode combatNode)
@@ -54,7 +55,7 @@ public class Combat
 			while (true)
 			{
 				if (CheckBattleOutcome()) break;
-				foreach (var character in Allies.Union(Enemies).Where(c => c.IsAlive))
+				foreach (var character in AllFighters.Where(c => c.IsAlive))
 				{
 					var action = character.combatAction;
 					if (action is not null)
@@ -80,7 +81,7 @@ public class Combat
 				await Task.Delay(100);
 				Time += 0.1;
 				Log.Print($"{nameof(Time)}={Time:F1}");
-				foreach (var character in Allies.Union(Enemies).Where(c => c.IsAlive)) character.actionPoint.value += character.speed.value * 0.1f;
+				foreach (var character in AllFighters.Where(c => c.IsAlive)) character.actionPoint.value += character.speed.value * 0.1f;
 			}
 		}
 		catch (Exception e)
@@ -91,7 +92,7 @@ public class Combat
 	}
 	bool TryGetActor(out Character actor)
 	{
-		var result = Allies.Union(Enemies).Where(c => c.IsAlive).FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
+		var result = AllFighters.Where(c => c.IsAlive).FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
 		actor = result!;
 		return result != null;
 	}
@@ -115,7 +116,7 @@ public class Combat
 	}
 	void ClearAllBuffs()
 	{
-		foreach (var character in Allies.Union(Enemies))
+		foreach (var character in AllFighters)
 		{
 			ClearCharacterBuffs(character);
 		}
