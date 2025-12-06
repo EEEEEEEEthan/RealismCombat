@@ -87,7 +87,8 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var selectedBodyPart = availableBodyParts[bodyPartIndex];
 				var availableAttacks = GetAvailableAttacks(selectedBodyPart);
 				var canTakeWeapon = TakeWeaponAction.CanUse(character, selectedBodyPart);
-				if (availableAttacks.Count == 0 && !canTakeWeapon)
+				var canDropWeapon = DropWeaponAction.CanUse(character, selectedBodyPart);
+				if (availableAttacks.Count == 0 && !canTakeWeapon && !canDropWeapon)
 				{
 					await DialogueManager.ShowGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何行动");
 					continue;
@@ -99,69 +100,90 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						description = string.Empty,
 						disabled = !a.canUse,
 					})
-					.ToArray();
+					.ToList();
+				if (canDropWeapon)
+				{
+					actionOptions.Add(new MenuOption
+					{
+						title = "丢弃",
+						description = "将手中的武器扔到地上",
+					});
+				}
 				if (canTakeWeapon)
 				{
-					actionOptions = actionOptions
-						.Append(new MenuOption
+					actionOptions.Add(new MenuOption
+					{
+						title = "拿",
+						description = "从腰带取出武器拿在手中",
+					});
+				}
+				var actionMenu = DialogueManager.CreateMenuDialogue("选择行动", true, actionOptions.ToArray());
+				var actionIndex = await actionMenu;
+				if (actionIndex == actionOptions.Count) continue;
+				if (actionIndex < availableAttacks.Count)
+				{
+					if (!availableAttacks[actionIndex].canUse) continue;
+					var selectedAttack = availableAttacks[actionIndex];
+					var aliveOpponents = GetAliveOpponents(character);
+					if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
+					var options = aliveOpponents
+						.Select(o => new MenuOption
 						{
-							title = "拿",
-							description = "从腰带取出武器拿在手中",
+							title = o.name,
+							description = string.Empty,
 						})
 						.ToArray();
+					while (true)
+					{
+						var menu = DialogueManager.CreateMenuDialogue("选择对手", true, options);
+						var selected = await menu;
+						if (selected == aliveOpponents.Length) break;
+						var selectedOpponent = aliveOpponents[selected];
+						while (true)
+						{
+							var aliveTargets = GetAvailableTargets(selectedOpponent);
+							if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+							var targetOptions = aliveTargets
+								.Select(o =>
+								{
+									var description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}";
+									if (o is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
+									{
+										var buffLines = buffOwner.Buffs
+											.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+										description += "\n" + string.Join("\n", buffLines);
+									}
+									return new MenuOption
+									{
+										title = o.Name,
+										description = description,
+									};
+								})
+								.ToArray();
+							var targetMenu = DialogueManager.CreateMenuDialogue("选择目标", true, targetOptions);
+							var targetIndex = await targetMenu;
+							if (targetIndex == aliveTargets.Length) break;
+							return selectedAttack.create(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
+						}
+					}
 				}
-				var actionMenu = DialogueManager.CreateMenuDialogue("选择行动", true, actionOptions);
-				var actionIndex = await actionMenu;
-				if (actionIndex == actionOptions.Length) continue;
-				if (canTakeWeapon && actionIndex == actionOptions.Length - 1)
+				var dropIndex = availableAttacks.Count;
+				if (canDropWeapon)
+				{
+					if (actionIndex == dropIndex)
+					{
+						var dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
+						if (dropAction != null) return dropAction;
+						await DialogueManager.ShowGenericDialogue($"{selectedBodyPart.Name}没有可丢弃的武器");
+						continue;
+					}
+					dropIndex++;
+				}
+				if (canTakeWeapon && actionIndex == dropIndex)
 				{
 					var takeAction = await TakeWeaponAction.CreateByPlayerSelection(character, selectedBodyPart, combat);
 					if (takeAction != null) return takeAction;
 					continue;
-				}
-				if (!availableAttacks[actionIndex].canUse) continue;
-				var selectedAttack = availableAttacks[actionIndex];
-				var aliveOpponents = GetAliveOpponents(character);
-				if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
-				var options = aliveOpponents
-					.Select(o => new MenuOption
-					{
-						title = o.name,
-						description = string.Empty,
-					})
-					.ToArray();
-				while (true)
-				{
-					var menu = DialogueManager.CreateMenuDialogue("选择对手", true, options);
-					var selected = await menu;
-					if (selected == aliveOpponents.Length) break;
-					var selectedOpponent = aliveOpponents[selected];
-					while (true)
-					{
-						var aliveTargets = GetAvailableTargets(selectedOpponent);
-						if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
-						var targetOptions = aliveTargets
-							.Select(o =>
-							{
-								var description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}";
-								if (o is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
-								{
-									var buffLines = buffOwner.Buffs
-										.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
-									description += "\n" + string.Join("\n", buffLines);
-								}
-								return new MenuOption
-								{
-									title = o.Name,
-									description = description,
-								};
-							})
-							.ToArray();
-						var targetMenu = DialogueManager.CreateMenuDialogue("选择目标", true, targetOptions);
-						var targetIndex = await targetMenu;
-						if (targetIndex == aliveTargets.Length) break;
-						return selectedAttack.create(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
-					}
 				}
 			}
 		}
@@ -246,16 +268,18 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var availableAttacks = GetAvailableAttacks(selectedBodyPart);
 		var usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
 		var takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
-		if (usableAttacks.Count == 0 && takeAction == null)
+		var dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
+		if (usableAttacks.Count == 0 && takeAction == null && dropAction == null)
 		{
 			bodyPartIndex = (bodyPartIndex + 1) % availableBodyParts.Length;
 			selectedBodyPart = availableBodyParts[bodyPartIndex];
 			availableAttacks = GetAvailableAttacks(selectedBodyPart);
 			usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
 			takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
-			if (usableAttacks.Count == 0 && takeAction == null) throw new InvalidOperationException("未找到可用的攻击类型");
+			dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
+			if (usableAttacks.Count == 0 && takeAction == null && dropAction == null) throw new InvalidOperationException("未找到可用的攻击类型");
 		}
-		var actionCount = usableAttacks.Count + (takeAction != null ? 1 : 0);
+		var actionCount = usableAttacks.Count + (takeAction != null ? 1 : 0) + (dropAction != null ? 1 : 0);
 		var attackRandomValue = GD.Randi();
 		var actionIndex = (int)(attackRandomValue % (uint)actionCount);
 		if (actionIndex < usableAttacks.Count)
@@ -268,6 +292,12 @@ public class AIInput(Combat combat) : CombatInput(combat)
 			var randomValue = GD.Randi();
 			var index = (int)(randomValue % (uint)aliveTargets.Length);
 			return Task.FromResult<CombatAction>(selectedAttack.create(character, selectedBodyPart, target, aliveTargets[index], combat));
+		}
+		actionIndex -= usableAttacks.Count;
+		if (dropAction != null)
+		{
+			if (actionIndex == 0) return Task.FromResult<CombatAction>(dropAction);
+			actionIndex--;
 		}
 		if (takeAction != null) return Task.FromResult(takeAction);
 		throw new InvalidOperationException("未找到可用的行动");
