@@ -59,9 +59,19 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
 		string FormatChance(double value) => $"{Math.Round(value * 100)}%";
+		bool HasAvailableActions(BodyPart bodyPart)
+		{
+			var availableAttacks = GetAvailableAttacks(bodyPart);
+			var canTakeWeapon = TakeWeaponAction.CanUse(character, bodyPart);
+			var canDropWeapon = DropWeaponAction.CanUse(character, bodyPart);
+			return availableAttacks.Count > 0 || canTakeWeapon || canDropWeapon;
+		}
 		while (true)
 		{
-			var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
+			var availableBodyParts = GetAvailableTargets(character)
+				.Cast<BodyPart>()
+				.Where(HasAvailableActions)
+				.ToArray();
 			if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
 			var bodyPartOptions = availableBodyParts
 				.Select(bp =>
