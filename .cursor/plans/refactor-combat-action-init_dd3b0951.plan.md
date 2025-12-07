@@ -57,18 +57,6 @@ public Task StartTask();
 public Task<bool> UpdateTask();
 
 }
-
-每回合就应该是这样:
-var list = [
-
-new Slash(combat, actor),
-
-new Kick(combat, actor),
-
-...
-
-]
-
-过滤掉所有AvailableActorObjects里都不存在的发起者身体部位
-选身体部位,选目标,选目标身体部位的过程即往这些对象设置值的过程.
+战斗过程选身体部位,然后创建所有Action,然后列出列表,选择其中一个.
+选目标,选目标身体部位的过程即往这些对象设置值的过程.
 全部设置完后走老流程
