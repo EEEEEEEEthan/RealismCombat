@@ -6,18 +6,17 @@ public partial class MenuOptionList : MarginContainer
 {
 	const int VisibleLines = 8;
 	readonly List<Label> optionLabels = [];
-	Control indicatorHost;
-	TextureRect indicatorTexture;
-	VBoxContainer optionContainer;
-	string[] options = [];
+	readonly Control indicatorHost;
+	readonly TextureRect indicatorTexture;
+	readonly VBoxContainer optionContainer;
 	[Export]
-	public string[]? Options
+	public string[] Options
 	{
-		get => options;
+		get => field;
 		set
 		{
-			options = value ?? [];
-			if (Index >= options.Length) Index = options.Length == 0 ? -1 : options.Length - 1;
+			field = value ?? [];
+			if (Index >= field.Length) Index = field.Length == 0 ? -1 : field.Length - 1;
 			Rebuild();
 		}
 	}
@@ -27,10 +26,10 @@ public partial class MenuOptionList : MarginContainer
 		get;
 		set
 		{
-			var next = options.Length == 0 ? -1 : Mathf.Clamp(value, 0, options.Length - 1);
+			var next = Options.Length == 0 ? -1 : Mathf.Clamp(value, 0, Options.Length - 1);
 			field = next;
 			if (TopVisibleIndex >= next) TopVisibleIndex = Mathf.Max(next - 1, 0);
-			if (TopVisibleIndex + VisibleLines - 1 <= next) TopVisibleIndex = Mathf.Min(next - VisibleLines + 2, Mathf.Max(options.Length - VisibleLines, 0));
+			if (TopVisibleIndex + VisibleLines - 1 <= next) TopVisibleIndex = Mathf.Min(next - VisibleLines + 2, Mathf.Max(Options.Length - VisibleLines, 0));
 			Rebuild();
 		}
 	} = -1;
@@ -103,18 +102,18 @@ public partial class MenuOptionList : MarginContainer
 				case 0 when TopVisibleIndex > 0:
 					optionLabels[i].Text = $"...(+{TopVisibleIndex + 1})";
 					break;
-				case VisibleLines - 1 when TopVisibleIndex + VisibleLines < options.Length:
-					optionLabels[i].Text = $"...(+{options.Length - (TopVisibleIndex + VisibleLines - 1)})";
+				case VisibleLines - 1 when TopVisibleIndex + VisibleLines < Options.Length:
+					optionLabels[i].Text = $"...(+{Options.Length - (TopVisibleIndex + VisibleLines - 1)})";
 					break;
 				default:
 				{
 					var optionIndex = TopVisibleIndex + i;
-					if (optionIndex >= options.Length)
+					if (optionIndex >= Options.Length)
 					{
 						optionLabels[i].Text = "";
 						continue;
 					}
-					optionLabels[i].Text = options[optionIndex];
+					optionLabels[i].Text = Options[optionIndex];
 					break;
 				}
 			}
