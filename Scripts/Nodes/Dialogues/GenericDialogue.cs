@@ -63,16 +63,18 @@ public partial class GenericDialogue : BaseDialogue
 			icon.SelfModulate = time > 0.5 ? new(1, 1, 1) : GameColors.transparent;
 			if (time > 1) time = 0;
 		}
-		if (mcpAutomationProcessed) return;
-		mcpAutomationProcessed = true;
-		if (!InMcpMode) return;
-		if (task is not null || printing || pendingOptions != null) return;
-		if (optionEntries.Count > 0)
+		if (InMcpMode)
 		{
-			GameServer.McpCheckpoint();
-			return;
+			if (mcpAutomationProcessed) return;
+			mcpAutomationProcessed = true;
+			if (task is not null || printing || pendingOptions != null) return;
+			if (optionEntries.Count > 0)
+			{
+				GameServer.McpCheckpoint();
+				return;
+			}
+			CompleteActiveTask(-1);
 		}
-		CompleteActiveTask(-1);
 	}
 	/// <summary>
 	///     追加文本并在完成打印或选择后返回
