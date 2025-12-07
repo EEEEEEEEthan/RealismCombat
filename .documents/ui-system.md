@@ -6,6 +6,10 @@
 - 使用 `[Tool]` 属性以便编辑器可见；不再依赖 `GlobalClass` 暴露为全局类
 - 通过 `ResourceTable` 统一加载 `PackedScene`，并提供静态 `Create(...)` 工厂创建实例
 
+## 背景展示
+
+- 需要提供背景图片的显示与隐藏系统，支持在不同场景切换时控制背景显隐
+
 ## 对话框管理 (DialogueManager)
 
 - Godot AutoLoad 单例，位于 `Scripts/AutoLoad/`
