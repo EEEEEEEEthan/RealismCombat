@@ -28,15 +28,15 @@ todos:
 5) 自测与检查：跑对应逻辑的自测流程（对话选择、AI随机），确认无编译错误、流程正常。
 
 API示例:
-public class ActionBase(Combat combat, Character actor)
+public class ActionBase(Combat combat, Character actor, ICombatTarget actorObject)
 
 {
 
-public readonly Character actor;
-
 public readonly Combat combat;
 
-public ICombatTarget ActorObject { get; set; }
+public readonly Character actor;
+
+public readonly actorObject;
 
 public bool CanUse => Available && !Disalbed;
 
