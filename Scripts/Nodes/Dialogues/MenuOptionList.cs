@@ -6,11 +6,11 @@ using Godot;
 public partial class MenuOptionList : MarginContainer
 {
 	const int VisibleLines = 8;
-	readonly List<Label?> optionLabels = new();
+	readonly List<Label?> optionLabels = [];
 	Control? indicatorHost;
 	TextureRect? indicatorTexture;
 	VBoxContainer? optionContainer;
-	string[] options = Array.Empty<string>();
+	string[] options = [];
 	int index = -1;
 	int windowStart;
 	bool building;
@@ -20,7 +20,7 @@ public partial class MenuOptionList : MarginContainer
 		get => options;
 		set
 		{
-			options = value ?? Array.Empty<string>();
+			options = value ?? [];
 			if (index >= options.Length) index = options.Length == 0 ? -1 : options.Length - 1;
 			Rebuild();
 		}
@@ -132,7 +132,7 @@ public partial class MenuOptionList : MarginContainer
 			windowStart = 0;
 			indicatorHost!.Visible = false;
 			building = false;
-			return new();
+			return [];
 		}
 		return BuildEntriesForStart(windowStart);
 	}
@@ -161,7 +161,7 @@ public partial class MenuOptionList : MarginContainer
 		for (var i = 0; i < entries.Count; i++)
 		{
 			(var text, var optionIndex) = entries[i];
-			var label = new Label { Text = text };
+			var label = new Label { Text = text, };
 			optionContainer!.AddChild(label);
 			if (optionIndex >= 0 && optionIndex < optionLabels.Count) optionLabels[optionIndex] = label;
 		}
@@ -169,7 +169,7 @@ public partial class MenuOptionList : MarginContainer
 	void RemoveExistingLabels()
 	{
 		var children = optionContainer!.GetChildren();
-		foreach (Node child in children)
+		foreach (var child in children)
 		{
 			optionContainer.RemoveChild(child);
 			child.QueueFree();

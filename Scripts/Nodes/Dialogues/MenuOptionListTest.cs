@@ -8,7 +8,7 @@ public partial class MenuOptionListTest : Control
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (OptionList is not { } optionList) return;
-		var options = optionList.Options ?? Array.Empty<string>();
+		var options = optionList.Options ?? [];
 		if (options.Length == 0) return;
 		if (@event.IsActionPressed("ui_up"))
 		{
