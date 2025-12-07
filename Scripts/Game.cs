@@ -285,6 +285,7 @@ public class Game
 			if (selected is null) return;
 			var back = await SelectBodyPartAndExpand(selected);
 			if (!back) return;
+			if (players.Count == 1) return;
 		}
 	}
 	/// <summary>
@@ -297,6 +298,7 @@ public class Game
 			await DialogueManager.ShowGenericDialogue("没有可用角色");
 			return null;
 		}
+		if (players.Count == 1) return players[0];
 		var options = new MenuOption[players.Count];
 		for (var i = 0; i < players.Count; i++)
 		{
