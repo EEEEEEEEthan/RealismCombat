@@ -119,7 +119,7 @@ public partial class CharacterNode : Control
 		leftArmHitPointNode = GetOrCreatePropertyNode("LeftArmHitPoint", "左臂");
 		rightArmHitPointNode = GetOrCreatePropertyNode("RightArmHitPoint", "右臂");
 		torsoHitPointNode = GetOrCreatePropertyNode("TorsoHitPoint", "躯干");
-		groinHitPointNode = GetOrCreatePropertyNode("GroinHitPoint", "腹股沟");
+		groinHitPointNode = GetOrCreatePropertyNode("GroinHitPoint", "裆部");
 		leftLegHitPointNode = GetOrCreatePropertyNode("LeftLegHitPoint", "左腿");
 		rightLegHitPointNode = GetOrCreatePropertyNode("RightLegHitPoint", "右腿");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
