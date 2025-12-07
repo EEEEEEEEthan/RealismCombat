@@ -114,7 +114,10 @@ public partial class MenuOptionList : MarginContainer
 			return;
 		}
 		if (index < 0 && options.Length > 0) index = 0;
-		KeepIndexVisible();
+		if (options.Length == 0)
+			windowStart = 0;
+		else
+			windowStart = FindWindowStart(index);
 		var displayEntries = BuildDisplayEntries();
 		PrepareLabelPool(displayEntries.Count);
 		ResetOptionLabels();
@@ -178,15 +181,6 @@ public partial class MenuOptionList : MarginContainer
 			label.Visible = true;
 			if (optionIndex >= 0 && optionIndex < optionLabels.Count) optionLabels[optionIndex] = label;
 		}
-	}
-	void KeepIndexVisible()
-	{
-		if (options.Length == 0)
-		{
-			windowStart = 0;
-			return;
-		}
-		windowStart = FindWindowStart(index);
 	}
 	int FindWindowStart(int targetIndex)
 	{
