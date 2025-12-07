@@ -5,6 +5,25 @@ public partial class MenuOptionListTest : Control
 {
 	MenuOptionList? optionList;
 	MenuOptionList? OptionList => optionList ??= GetNodeOrNull<MenuOptionList>("%MenuOptionList");
+	public override void _Ready()
+	{
+		if (OptionList is not { } optionList) return;
+		optionList.Options =
+		[
+			new MenuOptionResource { text = "aaaa", disabled = false },
+			new MenuOptionResource { text = "bbbb", disabled = true },
+			new MenuOptionResource { text = "cccc", disabled = false },
+			new MenuOptionResource { text = "dddd", disabled = false },
+			new MenuOptionResource { text = "eeee", disabled = true },
+			new MenuOptionResource { text = "ffff", disabled = false },
+			new MenuOptionResource { text = "gggg", disabled = false },
+			new MenuOptionResource { text = "hhhh", disabled = false },
+			new MenuOptionResource { text = "iiii", disabled = false },
+			new MenuOptionResource { text = "jjjj", disabled = false },
+			new MenuOptionResource { text = "kkkk", disabled = false },
+		];
+		optionList.Index = 0;
+	}
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (OptionList is not { } optionList) return;

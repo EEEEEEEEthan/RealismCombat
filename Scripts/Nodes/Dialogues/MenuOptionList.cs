@@ -5,12 +5,13 @@ using Godot;
 public partial class MenuOptionList : MarginContainer
 {
 	const int VisibleLines = 8;
+	static readonly Color disabledColor = new(178f / 255f, 178f / 255f, 178f / 255f);
 	readonly List<Label> optionLabels = [];
 	readonly Control indicatorHost;
 	readonly TextureRect indicatorTexture;
 	readonly VBoxContainer optionContainer;
 	[Export]
-	public string[] Options
+	public MenuOptionResource?[]? Options
 	{
 		get => field;
 		set
@@ -19,17 +20,18 @@ public partial class MenuOptionList : MarginContainer
 			if (Index >= field.Length) Index = field.Length == 0 ? -1 : field.Length - 1;
 			Rebuild();
 		}
-	}
+	} = [];
 	[Export]
 	public int Index
 	{
 		get;
 		set
 		{
-			var next = Options.Length == 0 ? -1 : Mathf.Clamp(value, 0, Options.Length - 1);
+			var options = Options ?? [];
+			var next = options.Length == 0 ? -1 : Mathf.Clamp(value, 0, options.Length - 1);
 			field = next;
 			if (TopVisibleIndex >= next) TopVisibleIndex = Mathf.Max(next - 1, 0);
-			if (TopVisibleIndex + VisibleLines - 1 <= next) TopVisibleIndex = Mathf.Min(next - VisibleLines + 2, Mathf.Max(Options.Length - VisibleLines, 0));
+			if (TopVisibleIndex + VisibleLines - 1 <= next) TopVisibleIndex = Mathf.Min(next - VisibleLines + 2, Mathf.Max(options.Length - VisibleLines, 0));
 			Rebuild();
 		}
 	} = -1;
@@ -96,27 +98,33 @@ public partial class MenuOptionList : MarginContainer
 	public override void _Ready() => CallDeferred(nameof(Rebuild));
 	void Rebuild()
 	{
+		var options = Options ?? [];
 		for (var i = 0; i < VisibleLines; i++)
+		{
+			optionLabels[i].Modulate = Colors.White;
 			switch (i)
 			{
 				case 0 when TopVisibleIndex > 0:
 					optionLabels[i].Text = $"...(+{TopVisibleIndex + 1})";
 					break;
-				case VisibleLines - 1 when TopVisibleIndex + VisibleLines < Options.Length:
-					optionLabels[i].Text = $"...(+{Options.Length - (TopVisibleIndex + VisibleLines - 1)})";
+				case VisibleLines - 1 when TopVisibleIndex + VisibleLines < options.Length:
+					optionLabels[i].Text = $"...(+{options.Length - (TopVisibleIndex + VisibleLines - 1)})";
 					break;
 				default:
 				{
 					var optionIndex = TopVisibleIndex + i;
-					if (optionIndex >= Options.Length)
+					if (optionIndex >= options.Length)
 					{
 						optionLabels[i].Text = "";
 						continue;
 					}
-					optionLabels[i].Text = Options[optionIndex];
+					var option = options[optionIndex];
+					optionLabels[i].Text = option?.text ?? "";
+					optionLabels[i].Modulate = option?.disabled == true ? disabledColor : Colors.White;
 					break;
 				}
 			}
+		}
 		if (Index >= 0) indicatorTexture.GlobalPosition = optionLabels[Index - TopVisibleIndex].GlobalPosition + new Vector2(-indicatorTexture.Size.X, 2);
 	}
 }
