@@ -201,7 +201,7 @@ public class Game
 					await dialogue.ShowTextTask("但还是被一个身穿华丽盔甲的男人发现了");
 				}
 				{
-					int choice;
+					Item? weapon = null;
 					using (DialogueManager.CreateGenericDialogue(out var dialogue))
 					{
 						await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
@@ -215,11 +215,11 @@ public class Game
 								var weaponName = candidate.Slot.Item?.Name ?? "武器";
 								optionList.Add($"抽出{weaponName}");
 							}
-						choice = await dialogue.ShowTextTask("Ethan开始紧张...", optionList.ToArray());
+						var choice = await dialogue.ShowTextTask("Ethan开始紧张...", optionList.ToArray());
 						if (choice > 0 && emptyHandSlot != null && beltWeaponCandidates.Count >= choice)
 						{
 							var selected = beltWeaponCandidates[choice - 1];
-							var weapon = selected.Slot.Item;
+							weapon = selected.Slot.Item;
 							if (weapon != null)
 							{
 								emptyHandSlot.Value.slot.Item = weapon;
@@ -227,10 +227,21 @@ public class Game
 							}
 						}
 					}
+					if (weapon == null)
+						using (DialogueManager.CreateGenericDialogue(out var dialogue))
+						{
+							await dialogue.ShowTextTask("Ethan试图与那个男人交涉", "自我介绍", "你是谁");
+							await dialogue.ShowTextTask("男人什么也没说,右手摸向了腰间的剑柄...");
+						}
+					else
+						using (DialogueManager.CreateGenericDialogue(out var dialogue))
+						{
+							await dialogue.ShowTextTask($"Ethan迅速抽出{weapon!.Name}");
+						}
 					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 					var combatNode = combatNodeScene.Instantiate<CombatNode>();
 					gameNode.AddChild(combatNode);
-					players[0].actionPoint.value = choice == 0 ? 0 : players[0].actionPoint.maxValue;
+					players[0].actionPoint.value = weapon == null ? 0 : players[0].actionPoint.maxValue;
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
