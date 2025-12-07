@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://c2d0drf1qwbk3"]
+[gd_scene load_steps=6 format=3 uid="uid://c2d0drf1qwbk3"]
 
 [ext_resource type="Script" uid="uid://csre71h23hvnv" path="res://Scripts/Nodes/Dialogues/MenuDialogue.cs" id="1_1"]
 [ext_resource type="Script" uid="uid://csbs6nioep4l" path="res://Scripts/Nodes/Printer.cs" id="2_1"]
+[ext_resource type="Script" uid="uid://by01biocif2qi" path="res://Scripts/Nodes/Dialogues/MenuOptionList.cs" id="4_by01b"]
 [ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icon8.png" id="3_8parw"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8parw"]
@@ -25,9 +26,10 @@ theme_override_constants/margin_left = 3
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="OptionContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1574539439]
+[node name="OptionContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer" unique_id=1574539439]
 unique_name_in_owner = true
 layout_mode = 2
+script = ExtResource("4_by01b")
 
 [node name="Printer" type="RichTextLabel" parent="MarginContainer/HBoxContainer" unique_id=1974484280]
 unique_name_in_owner = true
@@ -41,20 +43,6 @@ script = ExtResource("2_1")
 
 [node name="Control" type="Control" parent="." unique_id=1604112544]
 layout_mode = 2
-
-[node name="Indexer" type="Control" parent="Control" unique_id=1500841488]
-unique_name_in_owner = true
-anchors_preset = 0
-
-[node name="IndexerTextureRect" type="TextureRect" parent="Control/Indexer" unique_id=714463411]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = -5.0
-offset_top = -4.0
-offset_right = 3.0
-offset_bottom = 4.0
-texture = SubResource("AtlasTexture_8parw")
-stretch_mode = 4
 
 [node name="TitleContainer" type="PanelContainer" parent="Control" unique_id=1248319867]
 layout_mode = 0

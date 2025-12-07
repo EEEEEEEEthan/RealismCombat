@@ -27,27 +27,21 @@ public partial class MenuDialogue : BaseDialogue
 		return node;
 	}
 	readonly List<MenuOption> options = [];
-	readonly List<Label> optionLabels = [];
 	readonly TaskCompletionSource<int> taskCompletionSource = new();
 	bool allowEscapeReturn;
 	int returnOptionIndex = -1;
 	int currentIndex = -1;
-	[field: MaybeNull] Container OptionContainer => field ??= GetNode<Container>("%OptionContainer");
+	[field: MaybeNull] MenuOptionList OptionContainer => field ??= GetNode<MenuOptionList>("%OptionContainer");
 	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("%Printer");
-	[field: MaybeNull] Control OptionIndexer => field ??= GetNode<Control>("%Indexer");
-	[field: MaybeNull] TextureRect IndexerTextureRect => field ??= GetNode<TextureRect>("%IndexerTextureRect");
 	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel"); 
 	public override void _Ready()
 	{
 		base._Ready();
 		if (Engine.IsEditorHint()) return;
-		IndexerTextureRect.Texture = SpriteTable.arrowRight;
 		if (options.Count > 0)
 		{
 			Select(0);
 		}
-		ItemRectChanged += UpdateIndexer;
-		UpdateIndexer();
 	}
 	public TaskAwaiter<int> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	public void SelectAndConfirm(int index)
@@ -91,16 +85,15 @@ public partial class MenuDialogue : BaseDialogue
 	void UpdateTitle() { }
 	void BuildOptions()
 	{
+		var optionResources = new List<MenuOptionResource>();
 		for (var i = 0; i < options.Count; i++)
 		{
 			var option = options[i];
-			var label = new Label
+			optionResources.Add(new()
 			{
-				Text = option.title,
-			};
-			if (option.disabled) label.Modulate = new(178f / 255f, 178f / 255f, 178f / 255f);
-			OptionContainer.AddChild(label);
-			optionLabels.Add(label);
+				text = option.title,
+				disabled = option.disabled,
+			});
 			Log.Print($"{i} - {option.title} {option.description}");
 		}
 		if (allowEscapeReturn)
@@ -113,14 +106,14 @@ public partial class MenuDialogue : BaseDialogue
 				disabled = false,
 			};
 			options.Add(returnOption);
-			var returnLabel = new Label
+			optionResources.Add(new()
 			{
-				Text = returnOption.title,
-			};
-			OptionContainer.AddChild(returnLabel);
-			optionLabels.Add(returnLabel);
+				text = returnOption.title,
+				disabled = returnOption.disabled,
+			});
 			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
 		}
+		OptionContainer.Options = optionResources.ToArray();
 	}
 	void Select(int index)
 	{
@@ -129,16 +122,7 @@ public partial class MenuDialogue : BaseDialogue
 		currentIndex = index;
 		Printer.Text = options[currentIndex].description;
 		Printer.VisibleCharacters = 0;
-		UpdateIndexer();
-	}
-	void UpdateIndexer()
-	{
-		if (currentIndex < 0 || currentIndex >= optionLabels.Count) return;
-		var selectedLabel = optionLabels[currentIndex];
-		OptionIndexer.GlobalPosition = new(
-			OptionIndexer.GlobalPosition.X,
-			selectedLabel.GlobalPosition.Y + selectedLabel.Size.Y / 2 - OptionIndexer.Size.Y / 2
-		);
+		OptionContainer.Index = currentIndex;
 	}
 	void Confirm()
 	{
