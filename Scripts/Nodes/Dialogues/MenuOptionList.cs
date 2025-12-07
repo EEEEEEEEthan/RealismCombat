@@ -6,7 +6,7 @@ public partial class MenuOptionList : MarginContainer
 {
 	const int VisibleLines = 8;
 	static readonly Color disabledColor = new(178f / 255f, 178f / 255f, 178f / 255f);
-	readonly List<Label> optionLabels = [];
+	readonly List<RichTextLabel> optionLabels = [];
 	readonly Control indicatorHost;
 	readonly TextureRect indicatorTexture;
 	readonly VBoxContainer optionContainer;
@@ -85,11 +85,15 @@ public partial class MenuOptionList : MarginContainer
 		optionContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
 		for (var i = 0; i < VisibleLines; i++)
 		{
-			var label = new Label
+			var label = new RichTextLabel
 			{
 				Name = $"OptionLabel{i}",
 				SizeFlagsHorizontal = SizeFlags.ExpandFill,
 				SizeFlagsVertical = SizeFlags.ShrinkBegin,
+				ScrollActive = false,
+				FitContent = true,
+				BbcodeEnabled = true,
+				AutowrapMode = TextServer.AutowrapMode.Off,
 			};
 			optionContainer.AddChild(label);
 			optionLabels.Add(label);
