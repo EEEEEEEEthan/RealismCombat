@@ -36,7 +36,7 @@ public readonly Character actor;
 
 public readonly Combat combat;
 
-public IEnumerable<ICombatTarget> AvailableActorObjects { get; }
+public IEnumerable<(ICombatTarget target, bool disabled)> AvailableActorObjects { get; }
 
 public ICombatTarget ActorObject { get; set; }
 
@@ -44,7 +44,7 @@ public IEnumerable<Character> AvailableTargets { get; }
 
 public Character Target { get; set; }
 
-public IEnumerable<ICombatTarget> AvailableTargetObjects { get; }
+public IEnumerable<(ICombatTarget, bool disabled)> AvailableTargetObjects { get; }
 
 public ICombatTarget TargetObject { get; set; }
 
@@ -53,3 +53,20 @@ public Task StartTask();
 public Task<bool> UpdateTask();
 
 }
+
+每回合就应该是这样:
+var list = [
+
+new Slash(combat, actor),
+
+new Kick(combat, actor),
+
+...
+
+]
+
+CombatInput第一步改成选择动作,列出AvailableActorObjects, AvailableTargets, AvailableTargetObjects不为空的项目
+第二步选择发起者的身体部位,从AvailableActorObjects里选一个,如果只有一个也手动选
+第三步选择目标角色,从AvailableTargets里选一个,如果只有一个就自动选
+第四步选择目标部位,从AvailableTargetObjects里选一个,如果只有一个也手动选
+disabled指要显示,但是菜单里是灰色
