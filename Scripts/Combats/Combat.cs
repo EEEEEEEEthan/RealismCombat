@@ -21,6 +21,7 @@ public class Combat
 	{
 		Allies = allies;
 		Enemies = enemies;
+		ResetAllReactions();
 		this.combatNode = combatNode;
 		combatNode.Initialize(this);
 		CaptureOriginalSlots(Allies);
@@ -99,6 +100,10 @@ public class Combat
 		var result = AllFighters.Where(c => c.IsAlive).FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
 		actor = result!;
 		return result != null;
+	}
+	void ResetAllReactions()
+	{
+		foreach (var character in AllFighters) character.reaction = 0;
 	}
 	bool CheckBattleOutcome()
 	{
