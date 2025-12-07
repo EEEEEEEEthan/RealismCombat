@@ -1,20 +1,25 @@
-[gd_scene load_steps=2 format=3 uid="uid://qvxtdc13tl8v"]
+[gd_scene load_steps=3 format=3 uid="uid://qvxtdc13tl8v"]
 
 [ext_resource type="Script" uid="uid://by01biocif2qi" path="res://Scripts/Nodes/Dialogues/MenuOptionList.cs" id="1_1"]
+[ext_resource type="Script" uid="uid://bq8jx6ea26t4" path="res://Scripts/Nodes/Dialogues/MenuOptionListTest.cs" id="1_2"]
 
-[node name="MenuOptionListTest2" type="Control" unique_id=1613984335]
+[node name="MenuOptionListTest3" type="Control" unique_id=1613984335]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_2")
 
 [node name="MenuOptionList" type="MarginContainer" parent="." unique_id=1030986834]
+unique_name_in_owner = true
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 102.0
+offset_top = 39.0
+offset_right = 142.0
+offset_bottom = 199.0
 script = ExtResource("1_1")
 Options = PackedStringArray("aaaa", "bbbb", "cccc", "dddd", "eeee", "ffff", "gggg", "hhhh", "iiii", "jjjj", "kkkk")
-Index = 0
+Index = 2
 metadata/_custom_type_script = "uid://by01biocif2qi"
