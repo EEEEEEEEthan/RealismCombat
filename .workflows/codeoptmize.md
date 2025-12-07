@@ -5,6 +5,5 @@
 3. 利用提取方法、合并条件、拆分长函数等方式精简逻辑, 提升可读性
 4. 参考[开发规范](../.documents/coding-standards.md)의架构约定, 确保依赖注入、可空处理与初始化原子性符合项目要求
 5. 遵循项目风格, 为关键逻辑补充必要的文档注释, 避免行内注释
-6. 如涉及性能优化, 编写或更新自测脚本, 使用[mcp工具](../.documents/测试工具.md)验证表现
+6. 如果有任何代码(.cs文件)变更,使用`cleanupcode.exe RealismCombat.sln --include="文件1;文件2;文件3" --profile="full" --settings=RealismCombat.sln.DotSettings` 格式化代码. 多个文件用分号分隔. 如果没有代码变更请跳过此步骤。
 7. 完成后自查差异, 确认未引入新的警告或错误, 并记录潜在风险
-
