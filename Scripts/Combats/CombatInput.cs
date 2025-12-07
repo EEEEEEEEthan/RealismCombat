@@ -64,7 +64,9 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var availableAttacks = GetAvailableAttacks(bodyPart);
 			var canTakeWeapon = TakeWeaponAction.CanUse(character, bodyPart);
 			var canDropWeapon = DropWeaponAction.CanUse(character, bodyPart);
-			return availableAttacks.Count > 0 || canTakeWeapon || canDropWeapon;
+			var canBreakFree = BreakFreeAction.CanUse(character, bodyPart);
+			var canRelease = ReleaseAction.CanUse(character, bodyPart, combat);
+			return availableAttacks.Count > 0 || canTakeWeapon || canDropWeapon || canBreakFree || canRelease;
 		}
 		while (true)
 		{
@@ -99,7 +101,12 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var availableAttacks = GetAvailableAttacks(selectedBodyPart);
 				var canTakeWeapon = TakeWeaponAction.CanUse(character, selectedBodyPart);
 				var canDropWeapon = DropWeaponAction.CanUse(character, selectedBodyPart);
-				if (availableAttacks.Count == 0 && !canTakeWeapon && !canDropWeapon)
+				var specialActions = new List<(string name, bool canUse, Func<CombatAction?> create)>
+				{
+					("抽出", BreakFreeAction.CanUse(character, selectedBodyPart), () => BreakFreeAction.Create(character, selectedBodyPart, combat)),
+					("放手", ReleaseAction.CanUse(character, selectedBodyPart, combat), () => ReleaseAction.Create(character, selectedBodyPart, combat)),
+				};
+				if (availableAttacks.Count == 0 && !canTakeWeapon && !canDropWeapon && specialActions.TrueForAll(a => !a.canUse))
 				{
 					await DialogueManager.ShowGenericDialogue($"{character.name}的{selectedBodyPart.Name}无法使用任何行动");
 					continue;
@@ -112,6 +119,15 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						disabled = !a.canUse,
 					})
 					.ToList();
+				foreach (var action in specialActions)
+				{
+					actionOptions.Add(new MenuOption
+					{
+						title = action.name,
+						description = string.Empty,
+						disabled = !action.canUse,
+					});
+				}
 				if (canDropWeapon)
 				{
 					actionOptions.Add(new MenuOption
@@ -184,7 +200,18 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						}
 					}
 				}
-				var dropIndex = availableAttacks.Count;
+				var specialStartIndex = availableAttacks.Count;
+				var specialEndIndex = specialStartIndex + specialActions.Count;
+				if (actionIndex < specialEndIndex)
+				{
+					var special = specialActions[actionIndex - specialStartIndex];
+					if (!special.canUse) continue;
+					var action = special.create();
+					if (action != null) return action;
+					await DialogueManager.ShowGenericDialogue("行动无法执行");
+					continue;
+				}
+				var dropIndex = specialEndIndex;
 				if (canDropWeapon)
 				{
 					if (actionIndex == dropIndex)
@@ -287,6 +314,8 @@ public class AIInput(Combat combat) : CombatInput(combat)
 			var takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
 			var dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
 			var actionPool = new List<Func<CombatAction?>>();
+			var breakAction = BreakFreeAction.Create(character, selectedBodyPart, combat);
+			var releaseAction = ReleaseAction.Create(character, selectedBodyPart, combat);
 			foreach (var attack in usableAttacks)
 			{
 				actionPool.Add(() =>
@@ -300,6 +329,8 @@ public class AIInput(Combat combat) : CombatInput(combat)
 					return attack.create(character, selectedBodyPart, target, aliveTargets[index], combat);
 				});
 			}
+			if (breakAction != null) actionPool.Add(() => breakAction);
+			if (releaseAction != null) actionPool.Add(() => releaseAction);
 			if (dropAction != null) actionPool.Add(() => dropAction);
 			if (takeAction != null) actionPool.Add(() => takeAction);
 			if (actionPool.Count == 0) continue;
