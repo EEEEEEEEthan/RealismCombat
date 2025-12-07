@@ -24,12 +24,26 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 	/// </summary>
 	public bool WillOnlyDropWeapon => !actorBodyPart.HasBuff(BuffCode.Grappling, true) && FindWeaponSlot(actorBodyPart) != null;
 	public override bool Available => IsUsable();
-	protected override Task OnStartTask()
+	bool dropHandled;
+	protected override async Task OnStartTask()
 	{
-		if (actorBodyPart.HasBuff(BuffCode.Grappling, true)) return DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");
+		if (actorBodyPart.HasBuff(BuffCode.Grappling, true))
+		{
+			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");
+			return;
+		}
 		var weaponSlot = FindWeaponSlot(actorBodyPart);
-		var weaponName = weaponSlot?.Item?.Name ?? "武器";
-		return DialogueManager.ShowGenericDialogue($"{actor.name}准备丢下{actorBodyPart.Name}上的{weaponName}");
+		if (weaponSlot?.Item == null)
+		{
+			dropHandled = true;
+			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有可丢弃的武器");
+			return;
+		}
+		var droppedWeapon = weaponSlot.Item;
+		weaponSlot.Item = null;
+		combat.droppedItems.Add(droppedWeapon);
+		dropHandled = true;
+		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}的{droppedWeapon.Name}");
 	}
 	protected override async Task OnExecute()
 	{
@@ -42,6 +56,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 			await DialogueManager.ShowGenericDialogue(message);
 			return;
 		}
+		if (dropHandled) return;
 		var weaponSlot = FindWeaponSlot(actorBodyPart);
 		if (weaponSlot?.Item == null)
 		{
@@ -51,7 +66,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		var droppedWeapon = weaponSlot.Item;
 		weaponSlot.Item = null;
 		combat.droppedItems.Add(droppedWeapon);
-		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}上的{droppedWeapon.Name}");
+		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}的{droppedWeapon.Name}");
 	}
 	bool RemoveGrapplingBuffs(IItemContainer container)
 	{
