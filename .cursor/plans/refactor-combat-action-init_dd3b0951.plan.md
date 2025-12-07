@@ -22,7 +22,7 @@ todos:
 # 战斗流程重构方案
 
 1) 理解当前Action接口与调用链：阅读 `Scripts/Combats/CombatActions` 下的主要Action构造签名与 `CombatInput` 现有选目标流程，明确bodyPart/target/combatTarget依赖点。
-2) 调整Action构造函数：统一保留 `Character actor, Combat combat` 参数，移除 bodyPart/target/combatTarget 等其余构造参数，并提供必要的设置方式（如属性或Init方法）以便后续注入。同步更新派生类引用。
+2) 调整Action构造函数：统一保留 `Character actor, Combat combat, actorObject` 参数，移除 bodyPart/target/combatTarget 等其余构造参数，并提供必要的设置方式（如属性或Init方法）以便后续注入。同步更新派生类引用。
 3) 重构 `CombatInput` 构建流程：按“选身体部位→选目标角色→选目标CombatTarget”顺序收集上下文，使用选择结果填充Action实例所需字段，再列出可用Action选项，确保AI/玩家流程兼容。
 4) 补充/调整判定与可用性校验：更新 `CanUse` 等方法以适配新构造方式，确保选项展示、禁用逻辑与执行阶段一致。
 5) 自测与检查：跑对应逻辑的自测流程（对话选择、AI随机），确认无编译错误、流程正常。
