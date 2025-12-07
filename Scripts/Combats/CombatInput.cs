@@ -160,11 +160,16 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 							description = string.Empty,
 						})
 						.ToArray();
+					var attackCancelled = false;
 					while (true)
 					{
 						var menu = DialogueManager.CreateMenuDialogue("选择对手", true, options);
 						var selected = await menu;
-						if (selected == aliveOpponents.Length) break;
+						if (selected == aliveOpponents.Length)
+						{
+							attackCancelled = true;
+							break;
+						}
 						var selectedOpponent = aliveOpponents[selected];
 						while (true)
 						{
@@ -199,6 +204,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 							return selectedAttack.create(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
 						}
 					}
+					if (attackCancelled) continue;
 				}
 				var specialStartIndex = availableAttacks.Count;
 				var specialEndIndex = specialStartIndex + specialActions.Count;
