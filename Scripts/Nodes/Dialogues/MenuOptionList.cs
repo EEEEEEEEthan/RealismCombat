@@ -22,7 +22,7 @@ public partial class MenuOptionList : MarginContainer
 		}
 	}
 	[Export]
-	public int Index
+	int Index
 	{
 		get;
 		set
