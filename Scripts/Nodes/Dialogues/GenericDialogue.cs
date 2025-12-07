@@ -32,13 +32,16 @@ public partial class GenericDialogue : BaseDialogue
 		optionsContainer = new()
 		{
 			Name = "OptionsContainer",
-			Alignment = BoxContainer.AlignmentMode.End,
+			Alignment = BoxContainer.AlignmentMode.Begin,
 			Visible = false,
 		};
+		optionsContainer.SizeFlagsVertical = SizeFlags.ShrinkBegin;
 		optionsContainer.AddThemeConstantOverride("separation", 8);
 		container.AddChild(optionsContainer);
 		printer.VisibleCharacters = 0;
 		printer.Text = string.Empty;
+		printer.AutowrapMode = TextServer.AutowrapMode.Arbitrary;
+		printer.FitContent = true;
 	}
 	public override void _Process(double delta)
 	{
@@ -94,43 +97,44 @@ public partial class GenericDialogue : BaseDialogue
 		printer.Text += prefix + content;
 		printer.VisibleCharacters = previousCharacters;
 		Log.Print(content);
-		if (options is { Length: > 0, })
+		if (options is not { Length: > 0, })
 		{
-			var validOptions = new List<string>();
-			foreach (var option in options)
-				if (!string.IsNullOrEmpty(option))
-					validOptions.Add(option);
-			if (validOptions.Count > 0)
+			printer.SizeFlagsVertical = SizeFlags.ExpandFill;
+		}
+		else
+		{
+			printer.SizeFlagsVertical = SizeFlags.Expand;
+			ClearOptions();
+			Log.Print("请选择(game_select_option)");
+			optionsContainer.Visible = !printer.Printing;
+			optionsContainer.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+			for (var i = 0; i < options.Length; i++)
 			{
-				ClearOptions();
-				Log.Print("请选择(game_select_option)");
-				optionsContainer.Visible = !printer.Printing;
-				for (var i = 0; i < validOptions.Count; i++)
+				var optionBox = new VBoxContainer
 				{
-					var optionBox = new VBoxContainer
-					{
-						Name = $"Option{i}",
-						Alignment = BoxContainer.AlignmentMode.Center,
-					};
-					var pointer = new TextureRect
-					{
-						Texture = SpriteTable.arrowDown,
-						StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-						Visible = false,
-					};
-					var label = new Label
-					{
-						Text = validOptions[i],
-						HorizontalAlignment = HorizontalAlignment.Center,
-					};
-					optionBox.AddChild(pointer);
-					optionBox.AddChild(label);
-					optionsContainer.AddChild(optionBox);
-					optionEntries.Add((pointer, label));
-					Log.Print($"{i} - {validOptions[i]}");
-				}
-				if (optionEntries.Count > 0) SelectOption(0);
+					Name = $"Option{i}",
+					Alignment = BoxContainer.AlignmentMode.Begin,
+				};
+				optionBox.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+				var pointer = new TextureRect
+				{
+					Texture = SpriteTable.arrowDown,
+					StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+					Visible = false,
+				};
+				var label = new Label
+				{
+					Text = options[i],
+					HorizontalAlignment = HorizontalAlignment.Left,
+					VerticalAlignment = VerticalAlignment.Top,
+				};
+				optionBox.AddChild(pointer);
+				optionBox.AddChild(label);
+				optionsContainer.AddChild(optionBox);
+				optionEntries.Add((pointer, label));
+				Log.Print($"{i} - {options[i]}");
 			}
+			if (optionEntries.Count > 0) SelectOption(0);
 		}
 		UpdateIconVisibility();
 		return task.Task;
