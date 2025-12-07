@@ -40,11 +40,6 @@ public class Game
 		}
 		return string.Concat(parts);
 	}
-	/// <summary>
-	///     在导航路径末尾追加节点
-	/// </summary>
-	static string AppendNavigation(string navigation, string next) =>
-		string.IsNullOrEmpty(navigation) ? next : $"{navigation}>{next}";
 	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
 	/// <summary>
 	///     构建与槽位匹配的物品栏选项
@@ -227,13 +222,14 @@ public class Game
 					await dialogue.ShowTextTask("但还是被一个身穿华丽盔甲的男人发现了");
 				}
 				{
+					var player = players[0];
 					Item? weapon = null;
 					using (DialogueManager.CreateGenericDialogue(out var dialogue))
 					{
 						await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
 						await dialogue.ShowTextTask("或许还有一个好消息: 附近没有其他人");
-						var beltWeaponCandidates = players[0].GetBeltWeaponCandidates();
-						var emptyHandSlot = players[0].FindEmptyHandSlot();
+						var beltWeaponCandidates = player.GetBeltWeaponCandidates();
+						var emptyHandSlot = player.FindEmptyHandSlot();
 						var optionList = new List<string> { "上前交涉", };
 						if (emptyHandSlot != null && beltWeaponCandidates.Count > 0)
 							foreach (var candidate in beltWeaponCandidates)
@@ -267,9 +263,9 @@ public class Game
 					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 					var combatNode = combatNodeScene.Instantiate<CombatNode>();
 					gameNode.AddChild(combatNode);
-					players[0].actionPoint.value = weapon == null
-						? players[0].actionPoint.maxValue / 2
-						: players[0].actionPoint.maxValue;
+					player.actionPoint.value = weapon == null
+						? player.actionPoint.maxValue / 2
+						: player.actionPoint.maxValue;
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
@@ -279,7 +275,7 @@ public class Game
 					enemy.availableCombatActions[CombatActionCode.Release] = 0f;
 					enemy.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
 					enemy.availableCombatActions[CombatActionCode.Charge] = 0f;
-					players[0].availableCombatActions[CombatActionCode.Charge] = 0f;
+					player.availableCombatActions[CombatActionCode.Charge] = 0f;
 					var enemies = new[]
 					{
 						enemy,
@@ -436,7 +432,7 @@ public class Game
 				return;
 			}
 			if (choice >= visibleSlots.Count) return;
-			var slotNavigationTitle = AppendNavigation(navigationTitle, visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.GetDisplayName());
+			var slotNavigationTitle = $"{navigationTitle}>{visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.GetDisplayName()}";
 			await ExpandItemSlot(owner, visibleSlots[choice], slotNavigationTitle);
 		}
 	}
@@ -453,7 +449,7 @@ public class Game
 					await DialogueManager.ShowGenericDialogue("物品栏为空");
 					return;
 				}
-				var equipNavigationTitle = AppendNavigation(navigationTitle, "选择装备");
+				var equipNavigationTitle = $"{navigationTitle}>选择装备";
 				var inv = owner.inventory.Items;
 				if (!TryBuildEquipOptions(inv, slot, out var invOptions, out var candidateIndices))
 				{
