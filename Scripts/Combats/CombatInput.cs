@@ -86,6 +86,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				.Where(pair => pair.actions.Count > 0)
 				.ToArray();
 			if (bodyPartActions.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
+			var turnTitle = $"{character.name}的回合";
 			var bodyPartOptions = bodyPartActions
 				.Select(pair =>
 				{
@@ -97,10 +98,11 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					};
 				})
 				.ToArray();
-			var bodyPartMenu = DialogueManager.CreateMenuDialogue($"{character.name}的回合", true, bodyPartOptions);
+			var bodyPartMenu = DialogueManager.CreateMenuDialogue(turnTitle, true, bodyPartOptions);
 			var bodyPartIndex = await bodyPartMenu;
 			if (bodyPartIndex == bodyPartOptions.Length) continue;
 			var selectedBodyPart = bodyPartActions[bodyPartIndex].bodyPart;
+			var bodyPartTitle = $"{character.name}的{selectedBodyPart.Name}";
 			while (true)
 			{
 				var actions = BuildActions(character, selectedBodyPart);
@@ -119,7 +121,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						disabled = a.action.Disabled,
 					})
 					.ToArray();
-				var actionMenu = DialogueManager.CreateMenuDialogue("选择行动", true, actionOptions);
+				var actionMenu = DialogueManager.CreateMenuDialogue(bodyPartTitle, true, actionOptions);
 				var actionIndex = await actionMenu;
 				if (actionIndex == actionOptions.Length) break;
 				var selected = actions[actionIndex];
@@ -128,7 +130,8 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					await DialogueManager.ShowGenericDialogue("行动无法执行");
 					continue;
 				}
-				var prepared = await PrepareAction(selected.action, FormatChance);
+				var actionTitle = $"{bodyPartTitle}{selected.name}";
+				var prepared = await PrepareAction(selected.action, FormatChance, actionTitle);
 				if (prepared != null) return prepared;
 			}
 		}
@@ -195,13 +198,14 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	}
 	async Task<CombatAction?> PrepareAction(
 		CombatAction action,
-		Func<double, string> formatChance
+		Func<double, string> formatChance,
+		string navigationTitle
 	)
 	{
 		switch (action)
 		{
 			case AttackBase attack:
-				return await PrepareAttackAction(attack, formatChance);
+				return await PrepareAttackAction(attack, formatChance, navigationTitle);
 			case TakeWeaponAction takeWeaponAction:
 			{
 				var prepared = await takeWeaponAction.PrepareByPlayerSelection();
@@ -216,7 +220,11 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				return action;
 		}
 	}
-	async Task<CombatAction?> PrepareAttackAction(AttackBase attack, Func<double, string> formatChance)
+	async Task<CombatAction?> PrepareAttackAction(
+		AttackBase attack,
+		Func<double, string> formatChance,
+		string navigationTitle
+	)
 	{
 		while (true)
 		{
@@ -236,13 +244,13 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						description = string.Empty,
 					})
 					.ToArray();
-				var menu = DialogueManager.CreateMenuDialogue("选择对手", true, options);
+				var menu = DialogueManager.CreateMenuDialogue(navigationTitle, true, options);
 				var selected = await menu;
 				if (selected == options.Length) return null;
 				target = availableTargets[selected];
 			}
 			attack.Target = target;
-			var targetObject = await SelectTargetObject(attack, target, formatChance);
+			var targetObject = await SelectTargetObject(attack, target, formatChance, navigationTitle);
 			if (targetObject == null)
 			{
 				if (availableTargets.Length == 1) return null;
@@ -252,7 +260,12 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			return attack;
 		}
 	}
-	async Task<ICombatTarget?> SelectTargetObject(AttackBase attack, Character opponent, Func<double, string> formatChance)
+	async Task<ICombatTarget?> SelectTargetObject(
+		AttackBase attack,
+		Character opponent,
+		Func<double, string> formatChance,
+		string navigationTitle
+	)
 	{
 		while (true)
 		{
@@ -275,7 +288,8 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					};
 				})
 				.ToArray();
-			var menu = DialogueManager.CreateMenuDialogue($"选择{opponent.name}的目标", true, options);
+			var menuTitle = $"{navigationTitle}{opponent.name}的";
+			var menu = DialogueManager.CreateMenuDialogue(menuTitle, true, options);
 			var selectedIndex = await menu;
 			if (selectedIndex == options.Length) return null;
 			var selected = availableTargets[selectedIndex];
