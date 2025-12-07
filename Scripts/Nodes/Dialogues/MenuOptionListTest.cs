@@ -3,10 +3,10 @@ using Godot;
 public partial class MenuOptionListTest : Control
 {
 	MenuOptionList? optionList;
-	MenuOptionList OptionList => optionList ??= GetNode<MenuOptionList>("%MenuOptionList");
+	MenuOptionList? OptionList => optionList ??= GetNodeOrNull<MenuOptionList>("%MenuOptionList");
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		var optionList = OptionList;
+		if (OptionList is not { } optionList) return;
 		var options = optionList.Options;
 		if (options.Length == 0) return;
 		if (@event.IsActionPressed("ui_up"))
