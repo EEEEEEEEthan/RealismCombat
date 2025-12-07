@@ -35,7 +35,6 @@ public partial class MenuOptionList : MarginContainer
 			var next = options.Length == 0 ? -1 : Mathf.Clamp(value, 0, options.Length - 1);
 			if (index == next) return;
 			index = next;
-			KeepIndexVisible();
 			Rebuild();
 			CallDeferred(MethodName.UpdateIndicatorPosition);
 		}
