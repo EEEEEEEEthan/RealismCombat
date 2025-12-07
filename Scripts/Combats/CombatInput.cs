@@ -20,6 +20,17 @@ public abstract class CombatInput(Combat combat)
 		}
 		return targets.ToArray();
 	}
+	protected static string BuildTargetDescription(ICombatTarget target)
+	{
+		var description = $"生命 {target.HitPoint.value}/{target.HitPoint.maxValue}";
+		if (target is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
+		{
+			var buffLines = buffOwner.Buffs
+				.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+			description += "\n" + string.Join("\n", buffLines);
+		}
+		return description;
+	}
 	protected readonly Combat combat = combat;
 	public abstract Task<CombatAction> MakeDecisionTask(Character character);
 	public virtual Task<ReactionDecision> MakeReactionDecisionTask(
@@ -45,7 +56,6 @@ public abstract class CombatInput(Combat combat)
 		TryAdd("抓", new GrabAttack(actor, bodyPart, combat));
 		TryAdd("抽出", new BreakFreeAction(actor, bodyPart, combat));
 		TryAdd("放手", new ReleaseAction(actor, bodyPart, combat));
-		TryAdd("丢弃", new DropWeaponAction(actor, bodyPart, combat));
 		TryAdd("拿", new TakeWeaponAction(actor, bodyPart, combat));
 		return actions;
 	}
@@ -67,17 +77,10 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				.Select(pair =>
 				{
 					var bp = pair.bodyPart;
-					var description = $"生命 {bp.HitPoint.value}/{bp.HitPoint.maxValue}";
-					if (bp.Buffs.Count > 0)
-					{
-						var buffLines = bp.Buffs
-							.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
-						description += "\n" + string.Join("\n", buffLines);
-					}
 					return new MenuOption
 					{
 						title = bp.GetNameWithEquipments(),
-						description = description,
+						description = BuildTargetDescription(bp),
 					};
 				})
 				.ToArray();
@@ -112,6 +115,66 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				}
 				var prepared = await PrepareAction(selected.action, FormatChance);
 				if (prepared != null) return prepared;
+			}
+		}
+	}
+	public override async Task<ReactionDecision> MakeReactionDecisionTask(
+		Character defender,
+		Character attacker,
+		ICombatTarget target
+	)
+	{
+		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
+		while (true)
+		{
+			var menu = DialogueManager.CreateMenuDialogue(
+				"选择反应",
+				new MenuOption
+				{
+					title = "格挡",
+					description = "消耗1点反应, 选择身体或武器承受伤害",
+				},
+				new MenuOption
+				{
+					title = "闪避",
+					description = "消耗1点反应, 打断自身行动并躲开伤害",
+				},
+				new MenuOption
+				{
+					title = "承受",
+					description = "不进行额外反应",
+				}
+			);
+			var selected = await menu;
+			switch (selected)
+			{
+				case 0:
+				{
+					var blockTargets = GetBlockTargets(defender);
+					if (blockTargets.Length == 0)
+					{
+						await DialogueManager.ShowGenericDialogue($"{defender.name}没有可用的格挡目标");
+						continue;
+					}
+					var options = blockTargets
+						.Select(t =>
+						{
+							return new MenuOption
+							{
+								title = t is BodyPart bodyPart ? bodyPart.GetNameWithEquipments() : t.Name,
+								description = BuildTargetDescription(t),
+							};
+						})
+						.ToArray();
+					var blockMenu = DialogueManager.CreateMenuDialogue("选择格挡目标", true, options);
+					var blockIndex = await blockMenu;
+					if (blockIndex == options.Length) continue;
+					return ReactionDecision.CreateBlock(blockTargets[blockIndex]);
+				}
+				case 1:
+					return ReactionDecision.CreateDodge();
+				default:
+					return ReactionDecision.CreateEndure();
 			}
 		}
 	}
@@ -185,13 +248,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				{
 					var target = tuple.target;
 					attack.TargetObject = target;
-					var description = $"生命 {target.HitPoint.value}/{target.HitPoint.maxValue}";
-					if (target is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
-					{
-						var buffLines = buffOwner.Buffs
-							.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
-						description += "\n" + string.Join("\n", buffLines);
-					}
+					var description = BuildTargetDescription(target);
 					var reactionChance = ReactionSuccessCalculator.Calculate(attack);
 					description += $"\n闪避成功率 {formatChance(reactionChance.DodgeChance)}";
 					description += $"\n格挡成功率 {formatChance(reactionChance.BlockChance)}";
@@ -209,73 +266,6 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var selected = availableTargets[selectedIndex];
 			if (selected.disabled) continue;
 			return selected.target;
-		}
-	}
-	public override async Task<ReactionDecision> MakeReactionDecisionTask(
-		Character defender,
-		Character attacker,
-		ICombatTarget target
-	)
-	{
-		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
-		while (true)
-		{
-			var menu = DialogueManager.CreateMenuDialogue(
-				"选择反应",
-				new MenuOption
-				{
-					title = "格挡",
-					description = "消耗1点反应, 选择身体或武器承受伤害",
-				},
-				new MenuOption
-				{
-					title = "闪避",
-					description = "消耗1点反应, 打断自身行动并躲开伤害",
-				},
-				new MenuOption
-				{
-					title = "承受",
-					description = "不进行额外反应",
-				}
-			);
-			var selected = await menu;
-			switch (selected)
-			{
-				case 0:
-				{
-					var blockTargets = GetBlockTargets(defender);
-					if (blockTargets.Length == 0)
-					{
-						await DialogueManager.ShowGenericDialogue($"{defender.name}没有可用的格挡目标");
-						continue;
-					}
-					var options = blockTargets
-						.Select(t =>
-						{
-							var description = $"生命 {t.HitPoint.value}/{t.HitPoint.maxValue}";
-							if (t is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
-							{
-								var buffLines = buffOwner.Buffs
-									.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
-								description += "\n" + string.Join("\n", buffLines);
-							}
-							return new MenuOption
-							{
-								title = t is BodyPart bodyPart ? bodyPart.GetNameWithEquipments() : t.Name,
-								description = description,
-							};
-						})
-						.ToArray();
-					var blockMenu = DialogueManager.CreateMenuDialogue("选择格挡目标", true, options);
-					var blockIndex = await blockMenu;
-					if (blockIndex == options.Length) continue;
-					return ReactionDecision.CreateBlock(blockTargets[blockIndex]);
-				}
-				case 1:
-					return ReactionDecision.CreateDodge();
-				default:
-					return ReactionDecision.CreateEndure();
-			}
 		}
 	}
 }
@@ -301,6 +291,21 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		}
 		throw new InvalidOperationException("未找到可用的行动");
 	}
+	public override Task<ReactionDecision> MakeReactionDecisionTask(
+		Character defender,
+		Character attacker,
+		ICombatTarget target
+	)
+	{
+		if (defender.reaction <= 0) return Task.FromResult(ReactionDecision.CreateEndure());
+		var blockTargets = GetBlockTargets(defender);
+		if (blockTargets.Length == 0) return Task.FromResult(ReactionDecision.CreateEndure());
+		var itemTargets = blockTargets.Where(t => t is Item).ToArray();
+		var candidateTargets = itemTargets.Length > 0 ? itemTargets : blockTargets;
+		var randomValue = GD.Randi();
+		var index = (int)(randomValue % (uint)candidateTargets.Length);
+		return Task.FromResult(ReactionDecision.CreateBlock(candidateTargets[index]));
+	}
 	bool TryPrepareAIAction(CombatAction action)
 	{
 		switch (action)
@@ -325,20 +330,5 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var objectIndex = (int)(GD.Randi() % (uint)targetObjects.Length);
 		attack.TargetObject = targetObjects[objectIndex].target;
 		return true;
-	}
-	public override Task<ReactionDecision> MakeReactionDecisionTask(
-		Character defender,
-		Character attacker,
-		ICombatTarget target
-	)
-	{
-		if (defender.reaction <= 0) return Task.FromResult(ReactionDecision.CreateEndure());
-		var blockTargets = GetBlockTargets(defender);
-		if (blockTargets.Length == 0) return Task.FromResult(ReactionDecision.CreateEndure());
-		var itemTargets = blockTargets.Where(t => t is Item).ToArray();
-		var candidateTargets = itemTargets.Length > 0 ? itemTargets : blockTargets;
-		var randomValue = GD.Randi();
-		var index = (int)(randomValue % (uint)candidateTargets.Length);
-		return Task.FromResult(ReactionDecision.CreateBlock(candidateTargets[index]));
 	}
 }
