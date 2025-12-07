@@ -46,6 +46,7 @@ public class Combat
 		{
 			case ReactionType.Block when reactionAvailable && decision.BlockTarget is { Available: true, }:
 				defender.reaction = Math.Max(0, defender.reaction - 1);
+				defender.combatAction = null;
 				return decision;
 			case ReactionType.Dodge when reactionAvailable:
 				defender.reaction = Math.Max(0, defender.reaction - 1);
