@@ -9,6 +9,7 @@ public class DropWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 	ItemSlot? weaponSlot;
 	Item? weapon;
 	string? startText;
+public override string Description => "丢弃当前手上武器到地面，腾出手部装备槽";
 	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{

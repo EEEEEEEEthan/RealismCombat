@@ -8,6 +8,7 @@ public abstract class CombatAction(Character actor, Combat combat, ICombatTarget
 	public Character Actor => actor;
 	public Combat Combat => combat;
 	public ICombatTarget ActorObject => actorObject;
+public abstract string Description { get; }
 	public virtual bool Available => true;
 	public virtual bool Disabled => false;
 	public bool CanUse => Available && !Disabled;

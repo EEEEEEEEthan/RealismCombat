@@ -5,6 +5,7 @@ using Godot;
 public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat)
 {
+	public override string Description => BuildAttackDescription("用头部进行头槌攻击，近距离的特殊冲撞");
 	internal override double DodgeImpact => 0.35;
 	internal override double BlockImpact => 0.35;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;

@@ -5,6 +5,7 @@ using Godot;
 public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat)
 {
+	public override string Description => BuildAttackDescription("持武器刺击目标，造成刺击伤害，依赖手部武器");
 	internal override double DodgeImpact => 0.55;
 	internal override double BlockImpact => 0.5;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Thrust;

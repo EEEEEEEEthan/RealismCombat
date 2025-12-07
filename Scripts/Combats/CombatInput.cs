@@ -97,7 +97,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					.Select(a => new MenuOption
 					{
 						title = a.name,
-						description = string.Empty,
+						description = a.action.Description,
 						disabled = a.action.Disabled,
 					})
 					.ToArray();

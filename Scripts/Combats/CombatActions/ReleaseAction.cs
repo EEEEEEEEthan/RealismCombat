@@ -7,6 +7,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
+	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
 	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{
