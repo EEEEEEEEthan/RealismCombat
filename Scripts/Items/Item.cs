@@ -64,20 +64,6 @@ public class Item : ICombatTarget, IItemContainer
 	public Protection Protection { get; }
 	public bool Available => HitPoint.value > 0;
 	public List<Buff> Buffs { get; } = [];
-	public bool HasBuff(BuffCode buff, bool recursive)
-	{
-		foreach (var owned in Buffs)
-			if (owned.code == buff)
-				return true;
-		if (!recursive) return false;
-		foreach (var slot in Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			if (item.HasBuff(buff, true)) return true;
-		}
-		return false;
-	}
 	Item(ItemIdCode id, ItemConfig config)
 	{
 		this.id = id;
