@@ -47,7 +47,6 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 			_ => 10,
 		};
 	public readonly BodyPartCode id;
-	readonly List<Buff> buffs = [];
 	/// <summary>
 	///     目标是否仍具备有效状态
 	/// </summary>
@@ -64,7 +63,7 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 	/// <summary>
 	///     获取所有Buff列表
 	/// </summary>
-	public List<Buff> Buffs => buffs;
+	public List<Buff> Buffs { get; } = [];
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
