@@ -23,7 +23,7 @@ public partial class BleedingNode : Control
 		{
 			time = GD.Randf() * 0.3;
 			index++;
-			child!.Texture = SpriteTable.bleeding[index % SpriteTable.bleeding.Count];
+			child!.Texture = SpriteTable.Bleeding[index % SpriteTable.Bleeding.Count];
 		}
 	}
 	public override void _Ready()

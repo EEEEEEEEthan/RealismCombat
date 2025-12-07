@@ -297,7 +297,7 @@ public partial class CharacterNode : Control
 		for (var i = 0; i < ReactionCount; i++)
 		{
 			var textureRect = new TextureRect();
-			textureRect.Texture = SpriteTable.star;
+			textureRect.Texture = SpriteTable.Star;
 			ReactionContainer.AddChild(textureRect);
 		}
 	}

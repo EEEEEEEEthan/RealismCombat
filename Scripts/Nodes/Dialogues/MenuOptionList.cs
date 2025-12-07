@@ -57,7 +57,7 @@ public partial class MenuOptionList : MarginContainer
 			OffsetRight = 0,
 			OffsetBottom = 0,
 			Position = Vector2.Zero,
-			Texture = SpriteTable.arrowRight,
+			Texture = SpriteTable.ArrowRight,
 		};
 		indicatorHost.AddChild(indicatorTexture);
 		optionContainer = new() { Name = "OptionContainer", };

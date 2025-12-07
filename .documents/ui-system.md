@@ -80,7 +80,7 @@
 - 提供 8 行可视窗口（`VisibleLines`），超出部分使用省略行 `...(+N)` 展示剩余数量，上滚与下滚各占一行
 - 通过导出属性 `Options` 绑定 `MenuOptionResource` 数组，支持编辑器直接填充；`Index` 控制当前选中项并自动校正可视窗口
 - 禁用项使用统一灰色 (`Color(178/255,178/255,178/255)`)，文本取 `MenuOptionResource.text`
-- 指示箭头使用 `SpriteTable.arrowRight`，挂载在内部 `indicatorHost` 上，选中项时同步到对应 Label 的全局位置
+- 指示箭头使用 `SpriteTable.ArrowRight`，挂载在内部 `indicatorHost` 上，选中项时同步到对应 Label 的全局位置
 - `_Ready()` 中延迟调用 `Rebuild()`，确保节点完全准备后再渲染列表，避免编辑器和运行时出现空引用
 - `MenuDialogue` 的 `BuildOptions()` 会将 `MenuOption` 转换为 `MenuOptionResource`，并驱动 `Index` 以便与描述文本同步
 

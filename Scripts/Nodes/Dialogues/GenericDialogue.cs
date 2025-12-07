@@ -27,7 +27,7 @@ public partial class GenericDialogue : BaseDialogue
 		icon = new();
 		icon.Name = "Icon";
 		container.AddChild(icon);
-		icon.Texture = SpriteTable.arrowDown;
+		icon.Texture = SpriteTable.ArrowDown;
 		icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		optionsContainer = new()
 		{
@@ -118,7 +118,7 @@ public partial class GenericDialogue : BaseDialogue
 				optionBox.SizeFlagsVertical = SizeFlags.ShrinkBegin;
 				var pointer = new TextureRect
 				{
-					Texture = SpriteTable.arrowDown,
+					Texture = SpriteTable.ArrowDown,
 					StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
 					Visible = false,
 				};

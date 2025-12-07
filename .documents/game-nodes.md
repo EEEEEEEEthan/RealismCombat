@@ -305,13 +305,13 @@ propertyNode2.FlashRed();
 ##### 功能
 
 - 显示角色受伤时的流血动画
-- 使用 `SpriteTable.bleeding` 中的动画帧，共 11 帧
+- 使用 `SpriteTable.Bleeding` 中的动画帧，共 11 帧
 - 在 `_Process()` 中根据随机间隔切换动画帧，实现不规则闪烁效果
 
 ##### 动画机制
 
 - 时间间隔在 0 到 0.3 秒之间随机（`GD.Randf() * 0.3`）
-- 动画帧循环播放，使用模运算（`index % SpriteTable.bleeding.Count`）
+- 动画帧循环播放，使用模运算（`index % SpriteTable.Bleeding.Count`）
 - 当节点可见性改变时，会重置动画索引和时间，确保动画连贯
 
 ##### 使用示例

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 public class Cache<T>(Func<T> factory)
 {
@@ -28,23 +29,33 @@ public static class ResourceTable
 }
 public static class SpriteTable
 {
-	public static readonly Cache<AtlasTexture> arrowDown = new(() => CreateAtlas(ResourceTable.icon8, 16, 2, 8, 5));
-	public static readonly Cache<AtlasTexture> arrowRight = new(() => CreateAtlas(ResourceTable.icon8, 8, 0, 8, 8));
-	public static readonly Cache<AtlasTexture> star = new(() => CreateAtlas(ResourceTable.icon8, 9, 9, 5, 5));
-	public static readonly IReadOnlyList<Cache<AtlasTexture>> bleeding = new List<Cache<AtlasTexture>>
-	{
-		new(() => CreateAtlas(ResourceTable.bleeding, 0, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 16, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 32, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 48, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 64, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 80, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 96, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 112, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 128, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 144, 0, 16, 16)),
-		new(() => CreateAtlas(ResourceTable.bleeding, 160, 0, 16, 16)),
-	};
+	[field: MaybeNull] public static AtlasTexture ArrowRight => field ??= CreateAtlas(ResourceTable.icon8, 8, 0, 8, 8);
+	[field: MaybeNull] public static AtlasTexture Star => field ??= CreateAtlas(ResourceTable.icon8, 9, 9, 5, 5);
+	[field: MaybeNull]
+	public static IReadOnlyList<AtlasTexture> Bleeding =>
+		field ??= new List<AtlasTexture>
+		{
+			CreateAtlas(ResourceTable.bleeding, 0, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 16, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 32, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 48, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 64, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 80, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 96, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 112, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 128, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 144, 0, 16, 16),
+			CreateAtlas(ResourceTable.bleeding, 160, 0, 16, 16),
+		};
+	[field: MaybeNull] public static AtlasTexture ArrowDown => field ??= CreateAtlas(ResourceTable.icon8, 16, 2, 8, 5);
+	[field: MaybeNull] public static AtlasTexture LongSword => field ??= CreateAtlas(ResourceTable.icon8, 0, 16, 8, 8);
+	[field: MaybeNull] public static AtlasTexture CottonLiner => field ??= CreateAtlas(ResourceTable.icon8, 0, 24, 8, 8);
+	[field: MaybeNull] public static AtlasTexture ChainMail => field ??= CreateAtlas(ResourceTable.icon8, 8, 24, 8, 8);
+	[field: MaybeNull] public static AtlasTexture PlateArmor => field ??= CreateAtlas(ResourceTable.icon8, 16, 24, 8, 8);
+	[field: MaybeNull] public static AtlasTexture Belt => field ??= CreateAtlas(ResourceTable.icon8, 24, 24, 8, 8);
+	[field: MaybeNull] public static AtlasTexture CottonPants => field ??= CreateAtlas(ResourceTable.icon8, 0, 32, 8, 8);
+	[field: MaybeNull] public static AtlasTexture ChainChausses => field ??= CreateAtlas(ResourceTable.icon8, 8, 32, 8, 8);
+	[field: MaybeNull] public static AtlasTexture PlateGreaves => field ??= CreateAtlas(ResourceTable.icon8, 16, 32, 8, 8);
 	static AtlasTexture CreateAtlas(Texture2D texture, int x, int y, int width, int height)
 	{
 		var atlas = new AtlasTexture();
