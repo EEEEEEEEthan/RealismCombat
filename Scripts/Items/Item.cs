@@ -19,14 +19,11 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i], owner);
 		return slots;
 	}
-	static bool IsDamageProfileEmpty(DamageProfile profile) =>
-		profile.Swing.IsZero && profile.Thrust.IsZero && profile.Special.IsZero;
-	static bool IsProtectionZero(Protection protection) =>
-		protection.slash <= 0f && protection.pierce <= 0f && protection.blunt <= 0f;
+	static bool IsDamageProfileEmpty(DamageProfile profile) => profile.Swing.IsZero && profile.Thrust.IsZero && profile.Special.IsZero;
+	static bool IsProtectionZero(Protection protection) => protection.slash <= 0f && protection.pierce <= 0f && protection.blunt <= 0f;
 	static string FormatNumber(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	static string FormatNumber(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
-	static string FormatDamage(Damage damage) =>
-		$"{FormatNumber(damage.slash)}砍{FormatNumber(damage.pierce)}刺{FormatNumber(damage.blunt)}钝";
+	static string FormatDamage(Damage damage) => $"{FormatNumber(damage.slash)}砍{FormatNumber(damage.pierce)}刺{FormatNumber(damage.blunt)}钝";
 	static string FormatProtection(Protection protection) =>
 		$"{FormatNumber(protection.slash)}砍{FormatNumber(protection.pierce)}刺{FormatNumber(protection.blunt)}钝";
 	static string BuildDescription(ItemConfig config)
@@ -39,10 +36,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 			lines.Add($"捅扎:{FormatDamage(config.DamageProfile.Thrust)}");
 			lines.Add($"特殊:{FormatDamage(config.DamageProfile.Special)}");
 		}
-		if (!IsProtectionZero(config.Protection))
-		{
-			lines.Add($"防护:{FormatProtection(config.Protection)}");
-		}
+		if (!IsProtectionZero(config.Protection)) lines.Add($"防护:{FormatProtection(config.Protection)}");
 		lines.Add($"长度:{FormatNumber(config.Length)} 重量:{FormatNumber(config.Weight)} 耐久:{config.HitPointMax}");
 		var story = config.Story;
 		if (!string.IsNullOrWhiteSpace(story))
@@ -55,7 +49,6 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	}
 	public readonly ItemFlagCode flag;
 	public readonly ItemIdCode id;
-	readonly List<Buff> buffs = [];
 	public string Name { get; }
 	/// <summary>
 	///     装备描述
@@ -70,7 +63,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	public DamageProfile DamageProfile { get; }
 	public Protection Protection { get; }
 	public bool Available => HitPoint.value > 0;
-	public List<Buff> Buffs => buffs;
+	public List<Buff> Buffs { get; } = [];
 	Item(ItemIdCode id, ItemConfig config)
 	{
 		this.id = id;
