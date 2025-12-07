@@ -10,6 +10,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Character targe
 	internal override double DodgeImpact => 0.7;
 	internal override double BlockImpact => 0.25;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
+	protected override bool ShouldResolveDamage => false;
 	/// <summary>
 	///     检查身体部位是否适配此攻击类型
 	/// </summary>

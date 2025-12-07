@@ -14,6 +14,10 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 	internal virtual double DamageMultiplier => 1.0;
 	internal virtual bool UsesWeapon => false;
 	/// <summary>
+	///     是否结算伤害
+	/// </summary>
+	protected virtual bool ShouldResolveDamage => true;
+	/// <summary>
 	///     检查身体部位是否有武器
 	/// </summary>
 	protected static bool HasWeapon(BodyPart bodyPart)
@@ -108,30 +112,39 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 		actorNode.MoveTo(actorPosition);
 		if (attackHit)
 		{
-			var rawDamage = CalculateDamage();
-			var protection = DamageResolver.GetProtection(finalTarget);
-			var mitigatedDamage = rawDamage.ApplyProtection(protection);
-			var damageValue = Mathf.CeilToInt(mitigatedDamage.Total);
-			if (damageValue > 0)
+			if (ShouldResolveDamage)
 			{
-				finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damageValue, 0, finalTarget.HitPoint.maxValue);
-				targetNode.FlashPropertyNode(finalTarget);
-				if (finalTarget is not Item)
+				var rawDamage = CalculateDamage();
+				var protection = DamageResolver.GetProtection(finalTarget);
+				var mitigatedDamage = rawDamage.ApplyProtection(protection);
+				var damageValue = Mathf.CeilToInt(mitigatedDamage.Total);
+				if (damageValue > 0)
 				{
-					resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
+					finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damageValue, 0, finalTarget.HitPoint.maxValue);
+					targetNode.FlashPropertyNode(finalTarget);
+					if (finalTarget is not Item)
+					{
+						resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
+					}
+					else
+					{
+						resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害");
+					}
+					if (!finalTarget.Available)
+						resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
+					if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
+					await OnAttackHit(finalTarget, resultMessages);
 				}
 				else
 				{
-					resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害");
+					resultMessages.Add($"{target.name}的{finalTarget.Name}被防护抵消了伤害");
 				}
-				if (!finalTarget.Available)
-					resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
-				if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
-				await OnAttackHit(finalTarget, resultMessages);
 			}
 			else
 			{
-				resultMessages.Add($"{target.name}的{finalTarget.Name}被防护抵消了伤害");
+				await OnAttackHit(finalTarget, resultMessages);
+				if (resultMessages.Count == 0)
+					resultMessages.Add($"{actor.name}的攻击未造成显著效果");
 			}
 		}
 		else if (resultMessages.Count == 0)
