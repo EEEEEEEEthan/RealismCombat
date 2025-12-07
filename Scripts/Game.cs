@@ -24,6 +24,17 @@ public class Game
 	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
 	/// </summary>
 	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
+	/// <summary>
+	///     获取槽位标题: 空为#空, 有装备时附带其子装备
+	/// </summary>
+	static string FormatSlotTitle(ItemSlot slot)
+	{
+		var item = slot.Item;
+		if (item == null) return "#空";
+		var parts = new List<string> { $"#{item.Name}", };
+		((IItemContainer)item).AppendEquippedItemNames(parts);
+		return string.Concat(parts);
+	}
 	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
 	/// <summary>
 	///     构建与槽位匹配的物品栏选项
@@ -359,7 +370,7 @@ public class Game
 			foreach (var visibleSlot in visibleSlots)
 			{
 				var slot = visibleSlot.Slot;
-				var title = slot.Item is null ? "#空" : $"#{slot.Item.Name}";
+				var title = FormatSlotTitle(slot);
 				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
