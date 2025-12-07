@@ -146,8 +146,40 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		var reactionAvailable = defender.reaction > 0;
 		while (true)
 		{
+			var attack = attacker.combatAction as AttackBase;
+			var attackerText = $"{attacker.name}的攻击";
+			if (attack != null)
+			{
+				if (attack.UsesWeapon)
+				{
+					var weaponName = attack.ActorBodyPart.Slots
+						.Select(slot => slot.Item)
+						.FirstOrDefault(item => item != null && (item.flag & ItemFlagCode.Arm) != 0)
+						?.Name;
+					if (!string.IsNullOrEmpty(weaponName)) attackerText = $"{attacker.name}{weaponName}";
+					else attackerText = $"{attacker.name}{attack.ActorBodyPart.Name}";
+				}
+				else
+				{
+					attackerText = $"{attacker.name}{attack.ActorBodyPart.Name}";
+				}
+			}
+			var defenderText = target is BodyPart bodyPart
+				? $"{defender.name}{bodyPart.GetNameWithEquipments()}"
+				: $"{defender.name}{target.Name}";
+			var attackName = attack?.Code switch
+			{
+				CombatActionCode.Slash => "斩击",
+				CombatActionCode.Stab => "刺击",
+				CombatActionCode.Kick => "踢",
+				CombatActionCode.Headbutt => "头槌",
+				CombatActionCode.Charge => "撞击",
+				CombatActionCode.Grab => "抓",
+				_ => "攻击",
+			};
+			var menuTitle = $"{attackerText}对{defenderText}的{attackName}";
 			var menu = DialogueManager.CreateMenuDialogue(
-				"选择反应",
+				menuTitle,
 				new MenuOption
 				{
 					title = "格挡",
