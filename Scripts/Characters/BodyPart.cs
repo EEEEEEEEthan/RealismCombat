@@ -35,7 +35,7 @@ public static class BodyPartExtensions
 			_ => @this.ToString(),
 		};
 }
-public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
+public class BodyPart : ICombatTarget, IItemContainer
 {
 	static int GetMaxHitPoint(BodyPartCode id) =>
 		id switch
@@ -77,7 +77,12 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 	public string GetNameWithEquipments()
 	{
 		var parts = new List<string> { Name, };
-		((IItemContainer)this).AppendEquippedItemNames(parts);
+		foreach (var slot in Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			parts.Add(item.IconTag);
+		}
 		return string.Concat(parts);
 	}
 	public void Deserialize(BinaryReader reader)

@@ -57,6 +57,7 @@
 ### IItemContainer 接口
 
 `IItemContainer` 定义 `ItemSlot[] Slots`，由 `Item` 与 `BodyPart` 实现，用于统一处理嵌套与部位装备。
+接口不再提供附加装备名称的帮助方法，需要展示时在调用侧直接遍历槽位拼接 `IconTag`。
 
 ### Inventory 类
 

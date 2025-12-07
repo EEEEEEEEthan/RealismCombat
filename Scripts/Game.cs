@@ -32,7 +32,12 @@ public class Game
 		var item = slot.Item;
 		if (item == null) return "#空";
 		var parts = new List<string> { $"#{item.Name}", };
-		((IItemContainer)item).AppendEquippedItemNames(parts);
+		foreach (var childSlot in item.Slots)
+		{
+			var childItem = childSlot.Item;
+			if (childItem == null) continue;
+			parts.Add(childItem.IconTag);
+		}
 		return string.Concat(parts);
 	}
 	/// <summary>
