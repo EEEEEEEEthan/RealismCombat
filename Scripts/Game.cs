@@ -267,7 +267,9 @@ public class Game
 					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 					var combatNode = combatNodeScene.Instantiate<CombatNode>();
 					gameNode.AddChild(combatNode);
-					players[0].actionPoint.value = weapon == null ? 0 : players[0].actionPoint.maxValue;
+					players[0].actionPoint.value = weapon == null
+						? players[0].actionPoint.maxValue / 2
+						: players[0].actionPoint.maxValue;
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
