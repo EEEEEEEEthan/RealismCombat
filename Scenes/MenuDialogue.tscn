@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" uid="uid://csre71h23hvnv" path="res://Scripts/Nodes/Dialogues/MenuDialogue.cs" id="1_1"]
 [ext_resource type="Script" uid="uid://csbs6nioep4l" path="res://Scripts/Nodes/Printer.cs" id="2_1"]
+[ext_resource type="Texture2D" uid="uid://bon3i1ll2wesm" path="res://Textures/Icon16.png" id="3_g8yql"]
 [ext_resource type="Script" uid="uid://by01biocif2qi" path="res://Scripts/Nodes/Dialogues/MenuOptionList.cs" id="4_by01b"]
-[ext_resource type="Texture2D" uid="uid://dx4mo5l4ao1ru" path="res://Textures/Icon8.png" id="3_8parw"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_8parw"]
-atlas = ExtResource("3_8parw")
-region = Rect2(8, 0, 8, 8)
+[sub_resource type="AtlasTexture" id="AtlasTexture_jq7du"]
+atlas = ExtResource("3_g8yql")
+region = Rect2(16, 16, 16, 16)
 
 [node name="MenuDialogue" type="PanelContainer" unique_id=129844507]
 custom_minimum_size = Vector2(128, 96)
@@ -28,8 +28,17 @@ theme_override_constants/separation = 4
 
 [node name="OptionContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer" unique_id=1574539439]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 script = ExtResource("4_by01b")
+
+[node name="TextureRect" type="NinePatchRect" parent="MarginContainer/HBoxContainer" unique_id=722867567]
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+texture = SubResource("AtlasTexture_jq7du")
+region_rect = Rect2(7, 0, 1, 16)
+patch_margin_top = 2
+patch_margin_bottom = 2
 
 [node name="Printer" type="RichTextLabel" parent="MarginContainer/HBoxContainer" unique_id=1974484280]
 unique_name_in_owner = true
