@@ -70,7 +70,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	public DamageProfile DamageProfile { get; }
 	public Protection Protection { get; }
 	public bool Available => HitPoint.value > 0;
-	public IReadOnlyList<Buff> Buffs => buffs;
+	public List<Buff> Buffs => buffs;
 	Item(ItemIdCode id, ItemConfig config)
 	{
 		this.id = id;
@@ -84,15 +84,6 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		HitPoint = new(config.HitPointMax, config.HitPointMax);
 		DamageProfile = config.DamageProfile;
 		Protection = config.Protection;
-	}
-	public void AddBuff(Buff buff) => buffs.Add(buff);
-	public void RemoveBuff(Buff buff) => buffs.Remove(buff);
-	public bool HasBuff(BuffCode buff)
-	{
-		foreach (var b in buffs)
-			if (b.code == buff)
-				return true;
-		return false;
 	}
 	#region serialize
 	public static Item Load(BinaryReader reader)

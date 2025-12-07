@@ -9,10 +9,10 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 {
 	public override CombatActionCode Code => CombatActionCode.Grab;
 	public override string Description => BuildAttackDescription("徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态");
+	protected override bool ShouldResolveDamage => false;
 	internal override double DodgeImpact => 0.7;
 	internal override double BlockImpact => 0.25;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
-	protected override bool ShouldResolveDamage => false;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && IsArm(bodyPart.id) && !HasWeapon(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}抓取{TargetCharacter.name}的{TargetCombatObject.Name}!";
@@ -26,13 +26,13 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 			if (target.torso is IBuffOwner targetTorsoBuffOwner)
 			{
 				var restrainedBuff = new Buff(BuffCode.Restrained, actor);
-				targetTorsoBuffOwner.AddBuff(restrainedBuff);
+				targetTorsoBuffOwner.Buffs.Add(restrainedBuff);
 				resultMessages.Add($"{target.name}的{finalTarget.Name}被{actor.name}抓住了!");
 			}
 			if (actorBodyPart is IBuffOwner actorBuffOwner)
 			{
 				var grapplingBuff = new Buff(BuffCode.Grappling, actor);
-				actorBuffOwner.AddBuff(grapplingBuff);
+				actorBuffOwner.Buffs.Add(grapplingBuff);
 				resultMessages.Add($"{actor.name}的{actorBodyPart.Name}正在擒拿{target.name}!");
 			}
 		}

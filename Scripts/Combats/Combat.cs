@@ -168,11 +168,7 @@ public class Combat
 	}
 	static void ClearBuffs(IBuffOwner buffOwner)
 	{
-		var buffsToRemove = new List<Buff>(buffOwner.Buffs);
-		foreach (var buff in buffsToRemove)
-		{
-			buffOwner.RemoveBuff(buff);
-		}
+		buffOwner.Buffs.Clear();
 	}
 	void CaptureOriginalSlots(IEnumerable<Character> characters)
 	{

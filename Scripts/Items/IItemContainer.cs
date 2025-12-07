@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-
-public interface IItemContainer
+public interface IItemContainer : IBuffOwner
 {
 	ItemSlot[] Slots { get; }
 	public void AppendEquippedItemNames(List<string> parts)

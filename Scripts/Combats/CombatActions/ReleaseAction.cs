@@ -6,6 +6,27 @@ using System.Threading.Tasks;
 public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat combat)
 	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
+	static bool HasGrapplingBuff(IItemContainer container)
+	{
+		if (container is IBuffOwner owner)
+			foreach (var buff in owner.Buffs)
+				if (buff.code == BuffCode.Grappling)
+					return true;
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			if (HasGrapplingBuff(item)) return true;
+		}
+		return false;
+	}
+	static ItemSlot? FindWeaponSlot(BodyPart bodyPart)
+	{
+		foreach (var slot in bodyPart.Slots)
+			if (slot.Item != null)
+				return slot;
+		return null;
+	}
 	readonly BodyPart actorBodyPart = actorBodyPart;
 	public override CombatActionCode Code => CombatActionCode.Release;
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
@@ -39,22 +60,6 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		combat.droppedItems.Add(droppedWeapon);
 		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}上的{droppedWeapon.Name}");
 	}
-	static bool HasGrapplingBuff(IItemContainer container)
-	{
-		if (container is IBuffOwner owner)
-		{
-			foreach (var buff in owner.Buffs)
-				if (buff.code == BuffCode.Grappling)
-					return true;
-		}
-		foreach (var slot in container.Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			if (HasGrapplingBuff(item)) return true;
-		}
-		return false;
-	}
 	bool RemoveGrapplingBuffs(IItemContainer container)
 	{
 		var removed = false;
@@ -66,7 +71,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 					toRemove.Add(buff);
 			foreach (var buff in toRemove)
 			{
-				owner.RemoveBuff(buff);
+				owner.Buffs.Remove(buff);
 				removed = true;
 			}
 		}
@@ -81,14 +86,8 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 	int RemoveRestrainedBuffsFromOthers()
 	{
 		var freedCount = 0;
-		foreach (var character in combat.Allies)
-		{
-			freedCount += RemoveRestrainedBuffs(character);
-		}
-		foreach (var character in combat.Enemies)
-		{
-			freedCount += RemoveRestrainedBuffs(character);
-		}
+		foreach (var character in combat.Allies) freedCount += RemoveRestrainedBuffs(character);
+		foreach (var character in combat.Enemies) freedCount += RemoveRestrainedBuffs(character);
 		return freedCount;
 	}
 	int RemoveRestrainedBuffs(Character target)
@@ -104,10 +103,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 				freedCount += RemoveRestrainedBuffs(item);
 			}
 		}
-		foreach (var item in target.inventory.Items)
-		{
-			freedCount += RemoveRestrainedBuffs(item);
-		}
+		foreach (var item in target.inventory.Items) freedCount += RemoveRestrainedBuffs(item);
 		return freedCount;
 	}
 	int RemoveRestrainedBuffs(IItemContainer container)
@@ -121,7 +117,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 					toRemove.Add(buff);
 			foreach (var buff in toRemove)
 			{
-				owner.RemoveBuff(buff);
+				owner.Buffs.Remove(buff);
 				freedCount++;
 			}
 		}
@@ -133,13 +129,6 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		}
 		return freedCount;
 	}
-	static ItemSlot? FindWeaponSlot(BodyPart bodyPart)
-	{
-		foreach (var slot in bodyPart.Slots)
-			if (slot.Item != null)
-				return slot;
-		return null;
-	}
 	bool IsUsable()
 	{
 		if (!actorBodyPart.Available) return false;
@@ -147,5 +136,3 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		return HasGrapplingBuff(actorBodyPart) || FindWeaponSlot(actorBodyPart) != null;
 	}
 }
-
-

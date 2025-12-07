@@ -64,7 +64,7 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 	/// <summary>
 	///     获取所有Buff列表
 	/// </summary>
-	public IReadOnlyList<Buff> Buffs => buffs;
+	public List<Buff> Buffs => buffs;
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
@@ -80,24 +80,6 @@ public class BodyPart : ICombatTarget, IItemContainer, IBuffOwner
 		var parts = new List<string> { Name, };
 		((IItemContainer)this).AppendEquippedItemNames(parts);
 		return string.Concat(parts);
-	}
-	/// <summary>
-	///     添加Buff
-	/// </summary>
-	public void AddBuff(Buff buff) => buffs.Add(buff);
-	/// <summary>
-	///     移除Buff
-	/// </summary>
-	public void RemoveBuff(Buff buff) => buffs.Remove(buff);
-	/// <summary>
-	///     检查是否拥有指定类型的Buff
-	/// </summary>
-	public bool HasBuff(BuffCode buff)
-	{
-		foreach (var b in buffs)
-			if (b.code == buff)
-				return true;
-		return false;
 	}
 	public void Deserialize(BinaryReader reader)
 	{
