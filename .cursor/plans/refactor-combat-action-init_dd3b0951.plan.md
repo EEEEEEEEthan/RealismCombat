@@ -36,9 +36,13 @@ public readonly Character actor;
 
 public readonly Combat combat;
 
-public IEnumerable<(ICombatTarget target, bool disabled)> AvailableActorObjects { get; }
-
 public ICombatTarget ActorObject { get; set; }
+
+public bool CanUse => Available && !Disalbed;
+
+public bool Disabled { get; }  // disabled的项出现在菜单但是是灰色
+
+public bool Available { get; }  // inavailable的项不显示在菜单
 
 public IEnumerable<Character> AvailableTargets { get; }
 
