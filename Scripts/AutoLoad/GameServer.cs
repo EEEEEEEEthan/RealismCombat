@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -30,7 +31,8 @@ public sealed partial class GameServer : Node
 	public static bool McpCheckpoint()
 	{
 		if (instance == null) return false;
-		Log.Print("[GameServer] MCP 检查点响应已发送");
+		var trace = new StackTrace(0, true);
+		Log.Print($"[GameServer] MCP 检查点响应已发送 {trace}");
 		var result = instance.SendResponseInternal();
 		instance.response?.TrySetResult(true);
 		return result;
@@ -104,7 +106,7 @@ public sealed partial class GameServer : Node
 		{
 			if (writer == null || !ClientIsConnected) return false;
 			var logs = logListener?.StopCollecting() ?? "执行完毕";
-            if(string.IsNullOrEmpty(logs)) throw new Exception("no logs collected");
+			if (string.IsNullOrEmpty(logs)) throw new("no logs collected");
 			try
 			{
 				writer.Write(logs);

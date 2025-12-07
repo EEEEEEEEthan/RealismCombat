@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 public readonly struct McpCommand
 {
@@ -17,6 +18,7 @@ public readonly struct McpCommand
 		for (var i = 1; i < parts.Length; i += 2) args[parts[i]] = parts[i + 1];
 		return new(command, args);
 	}
+	public string DebugMessage => $"Command: {Command}, Args: {string.Join(",", Args.Select(pair => $"{pair.Key}={pair.Value}"))}";
 	public string Command { get; init; }
 	public IReadOnlyDictionary<string, string> Args { get; init; }
 	public McpCommand(string command, IReadOnlyDictionary<string, string>? args = null)

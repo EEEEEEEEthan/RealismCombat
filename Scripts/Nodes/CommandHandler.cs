@@ -39,7 +39,7 @@ public partial class CommandHandler(ProgramRoot programRoot) : Node
 	}
 	void HandleCommand(McpCommand cmd)
 	{
-		Log.Print($"[CommandHandler] 处理命令: {cmd.Command}");
+		Log.Print($"[CommandHandler] 处理命令: {cmd.DebugMessage}");
 		try
 		{
 			switch (cmd.Command)
