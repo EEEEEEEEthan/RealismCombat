@@ -1,6 +1,6 @@
 using Godot;
 /// <summary>
-///     刺击攻击，只允许手臂使用
+///     刺击攻击，只允许持武器的手臂使用
 /// </summary>
 public class StabAttack(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat)
 	: AttackBase(actor, actorBodyPart, target, combatTarget, combat)
@@ -16,7 +16,7 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Character targe
 	/// <summary>
 	///     验证攻击是否可以使用（综合验证，包括身体部位适配性和可用性）
 	/// </summary>
-	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
+	public static bool CanUse(BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart) && HasWeapon(bodyPart);
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}刺击{target.name}的{combatTarget.Name}!";
 }
