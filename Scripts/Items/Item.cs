@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 /// <summary>
 ///     战斗中可以被选择的装备实体
@@ -17,6 +18,40 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		var slots = new ItemSlot[slotFlags.Length];
 		for (var i = 0; i < slotFlags.Length; i++) slots[i] = new(slotFlags[i], owner);
 		return slots;
+	}
+	static bool IsDamageProfileEmpty(DamageProfile profile) =>
+		profile.Swing.IsZero && profile.Thrust.IsZero && profile.Special.IsZero;
+	static bool IsProtectionZero(Protection protection) =>
+		protection.slash <= 0f && protection.pierce <= 0f && protection.blunt <= 0f;
+	static string FormatNumber(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+	static string FormatNumber(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+	static string FormatDamage(Damage damage) =>
+		$"{FormatNumber(damage.slash)}砍{FormatNumber(damage.pierce)}刺{FormatNumber(damage.blunt)}钝";
+	static string FormatProtection(Protection protection) =>
+		$"{FormatNumber(protection.slash)}砍{FormatNumber(protection.pierce)}刺{FormatNumber(protection.blunt)}钝";
+	static string BuildDescription(ItemConfig config)
+	{
+		var lines = new List<string>();
+		var hasDamageProfile = !IsDamageProfileEmpty(config.DamageProfile);
+		if (hasDamageProfile)
+		{
+			lines.Add($"挥舞:{FormatDamage(config.DamageProfile.Swing)}");
+			lines.Add($"捅扎:{FormatDamage(config.DamageProfile.Thrust)}");
+			lines.Add($"特殊:{FormatDamage(config.DamageProfile.Special)}");
+		}
+		if (!IsProtectionZero(config.Protection))
+		{
+			lines.Add($"防护:{FormatProtection(config.Protection)}");
+		}
+		lines.Add($"长度:{FormatNumber(config.Length)} 重量:{FormatNumber(config.Weight)} 耐久:{config.HitPointMax}");
+		var story = config.Story;
+		if (!string.IsNullOrWhiteSpace(story))
+		{
+			if (lines.Count > 0) lines.Add(string.Empty);
+			lines.Add(story);
+		}
+		if (lines.Count == 0) return config.Name;
+		return string.Join("\n", lines);
 	}
 	public readonly ItemFlagCode flag;
 	public readonly ItemIdCode id;
@@ -41,7 +76,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		this.id = id;
 		flag = config.Flag;
 		Name = config.Name;
-		Description = string.IsNullOrEmpty(config.Description) ? config.Name : config.Description;
+		Description = BuildDescription(config);
 		Icon = config.Icon;
 		Length = config.Length;
 		Weight = config.Weight;

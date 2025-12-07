@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Godot;
+﻿using System.Collections.Generic;
 public readonly struct ItemConfig
 {
 	public static readonly IReadOnlyDictionary<ItemIdCode, ItemConfig> configs = new Dictionary<ItemIdCode, ItemConfig>
@@ -10,7 +8,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "长剑",
-				Description = "比短剑长一点",
+				Story = "比短剑长一点",
 				Flag = ItemFlagCode.Arm,
 				SlotFlags = [],
 				Length = 100.0,
@@ -30,7 +28,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "绵甲",
-				Description = "廉价的武装衣.征召兵们最常穿的装备",
+				Story = "廉价的武装衣.征召兵们最常穿的装备",
 				Flag = ItemFlagCode.TorsoArmor,
 				SlotFlags = [],
 				Length = 60.0,
@@ -46,7 +44,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "链甲",
-				Description = "由铁环串联而成的护甲,他们柔软但是沉重.通常需要耗费一个工匠数年时间才能完成",
+				Story = "由铁环串联而成的护甲,他们柔软但是沉重.通常需要耗费一个工匠数年时间才能完成",
 				Flag = ItemFlagCode.TorsoArmor,
 				SlotFlags = [],
 				Length = 65.0,
@@ -62,7 +60,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "板甲",
-				Description = "由金属板制成的护甲,防护能力强大,但是重量也很惊人",
+				Story = "由金属板制成的护甲,防护能力强大,但是重量也很惊人",
 				Flag = ItemFlagCode.TorsoArmor,
 				SlotFlags = [],
 				Length = 70.0,
@@ -78,7 +76,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "皮带",
-				Description = "用来固定武器的皮带.上面可以挂很多武器",
+				Story = "用来固定武器的皮带.上面可以挂很多武器",
 				Flag = ItemFlagCode.Belt,
 				SlotFlags = [ItemFlagCode.Arm, ItemFlagCode.Arm, ItemFlagCode.Arm, ItemFlagCode.Arm,],
 				Length = 90.0,
@@ -94,7 +92,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "棉裤",
-				Description = "填充棉絮的护腿,保暖又廉价",
+				Story = "填充棉絮的护腿,保暖又廉价",
 				Flag = ItemFlagCode.LegArmor,
 				SlotFlags = [],
 				Length = 90.0,
@@ -110,7 +108,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "链甲护腿",
-				Description = "由细密铁环编织的护腿,沉重但可靠",
+				Story = "由细密铁环编织的护腿,沉重但可靠",
 				Flag = ItemFlagCode.LegArmor,
 				SlotFlags = [],
 				Length = 95.0,
@@ -126,7 +124,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "板甲护腿",
-				Description = "覆盖小腿的金属板,能挡住大部分攻击",
+				Story = "覆盖小腿的金属板,能挡住大部分攻击",
 				Flag = ItemFlagCode.LegArmor,
 				SlotFlags = [],
 				Length = 95.0,
@@ -140,7 +138,7 @@ public readonly struct ItemConfig
 	};
 	public string Icon { get; private init; }
 	public string Name { get; private init; }
-	public string? Description { get; private init; }
+	public string? Story { get; private init; }
 	public ItemFlagCode Flag { get; private init; }
 	public ItemFlagCode[]? SlotFlags { get; private init; }
 	public double Length { get; private init; }
