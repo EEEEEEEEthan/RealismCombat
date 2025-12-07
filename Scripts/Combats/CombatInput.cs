@@ -67,6 +67,17 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	public override async Task<CombatAction> MakeDecisionTask(Character character)
 	{
 		string FormatChance(double value) => $"{Math.Round(value * 100)}%";
+		string FormatDamage(Damage damage)
+		{
+			static string FormatValue(float value) => value.ToString("0.##");
+			var parts = new[]
+			{
+				$"砍{FormatValue(damage.slash)}",
+				$"刺{FormatValue(damage.pierce)}",
+				$"钝{FormatValue(damage.blunt)}",
+			};
+			return $"伤害 {string.Join(" ", parts)}";
+		}
 		while (true)
 		{
 			var bodyPartActions = GetAvailableTargets(character)
@@ -102,7 +113,9 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					.Select(a => new MenuOption
 					{
 						title = a.name,
-						description = a.action.Description,
+						description = a.action is AttackBase attack
+							? $"{FormatDamage(attack.GetPreviewDamage())}\n{a.action.Description}"
+							: a.action.Description,
 						disabled = a.action.Disabled,
 					})
 					.ToArray();

@@ -43,6 +43,7 @@ public override abstract string Description { get; }
 	}
 	public ICombatTarget CombatTarget => TargetCombatObject;
 	protected virtual bool ShouldResolveDamage => true;
+	public virtual Damage GetPreviewDamage() => CalculateDamage();
 	protected string BuildAttackDescription(string narrative)
 	{
 		var typeText = AttackType switch
