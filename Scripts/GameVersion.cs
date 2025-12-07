@@ -2,7 +2,7 @@ using System;
 using System.IO;
 public readonly struct GameVersion : IEquatable<GameVersion>
 {
-	public static readonly GameVersion newest = new(0, 0, 0);
+	public static readonly GameVersion newest = new(0, 0, 2);
 	public static bool operator ==(GameVersion a, GameVersion b) => a.value == b.value;
 	public static bool operator !=(GameVersion a, GameVersion b) => a.value != b.value;
 	public static bool operator <(GameVersion a, GameVersion b) => a.value < b.value;

@@ -18,6 +18,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	ICombatTarget? combatTarget;
 	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	public BodyPart ActorBodyPart => actorBodyPart;
+	public override abstract CombatActionCode Code { get; }
 public override abstract string Description { get; }
 	public override bool Available => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
 	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);

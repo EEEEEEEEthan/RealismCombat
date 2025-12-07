@@ -5,6 +5,7 @@ using Godot;
 public class KickAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat)
 {
+	public override CombatActionCode Code => CombatActionCode.Kick;
 	public override string Description => BuildAttackDescription("用腿部发动踢击，依赖腿部可用性进行近战攻击");
 	internal override double DodgeImpact => 0.6;
 	internal override double BlockImpact => 0.4;

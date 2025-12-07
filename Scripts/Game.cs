@@ -13,11 +13,11 @@ public enum ScriptCode
 }
 public class Game
 {
-	static List<Character> ReadPlayers(BinaryReader reader)
+	static List<Character> ReadPlayers(BinaryReader reader, GameVersion version)
 	{
 		var count = reader.ReadInt32();
 		var result = new List<Character>();
-		for (var i = 0; i < count; i++) result.Add(new(reader));
+		for (var i = 0; i < count; i++) result.Add(new(reader, version));
 		return result;
 	}
 	/// <summary>
@@ -58,6 +58,27 @@ public class Game
 		options = optionList.ToArray();
 		return options.Length > 0;
 	}
+	static readonly CombatActionCode[] PlayerStarterActions =
+	[
+		CombatActionCode.Slash,
+		CombatActionCode.Stab,
+		CombatActionCode.BreakFree,
+		CombatActionCode.Release,
+		CombatActionCode.TakeWeapon,
+	];
+	static readonly CombatActionCode[] NobleSoldierActions =
+	[
+		CombatActionCode.Slash,
+		CombatActionCode.BreakFree,
+		CombatActionCode.Release,
+		CombatActionCode.TakeWeapon,
+	];
+	static void ApplyCombatActions(Character target, IReadOnlyCollection<CombatActionCode> actions)
+	{
+		target.availableCombatActions.Clear();
+		foreach (var code in actions) target.availableCombatActions[code] = 0f;
+		if (target.availableCombatActions.Count == 0) target.availableCombatActions[CombatActionCode.Slash] = 0f;
+	}
 	readonly string saveFilePath;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	readonly Node gameNode;
@@ -81,6 +102,7 @@ public class Game
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
 		if (hero.groin.Slots.Length > 0) hero.groin.Slots[0].Item = cottonPants;
+		ApplyCombatActions(hero, PlayerStarterActions);
 		players = [hero,];
 		StartGameLoop();
 	}
@@ -94,8 +116,12 @@ public class Game
 	{
 		this.saveFilePath = saveFilePath;
 		this.gameNode = gameNode ?? throw new ArgumentNullException(nameof(gameNode));
-		_ = new Snapshot(reader);
-		players = ReadPlayers(reader);
+		var snapshot = new Snapshot(reader);
+		var version = snapshot.Version;
+		players = ReadPlayers(reader, version);
+		if (version < new GameVersion(0, 0, 1))
+			foreach (var player in players)
+				ApplyCombatActions(player, PlayerStarterActions);
 		ScriptIndex = (ScriptCode)reader.ReadInt32();
 		StartGameLoop();
 	}
@@ -249,6 +275,7 @@ public class Game
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
+					ApplyCombatActions(enemy, NobleSoldierActions);
 					var enemies = new[]
 					{
 						enemy,

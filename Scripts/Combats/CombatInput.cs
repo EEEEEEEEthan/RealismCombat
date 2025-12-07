@@ -42,21 +42,23 @@ public abstract class CombatInput(Combat combat)
 	protected List<(string name, CombatAction action)> BuildActions(Character actor, BodyPart bodyPart)
 	{
 		var actions = new List<(string, CombatAction)>();
-		void TryAdd(string name, CombatAction? action)
+		void TryAdd(CombatActionCode code, string name, Func<CombatAction?> factory)
 		{
+			if (!actor.availableCombatActions.ContainsKey(code)) return;
+			var action = factory();
 			if (action == null) return;
 			if (!action.Available) return;
 			actions.Add((name, action));
 		}
-		TryAdd("斩击", new SlashAttack(actor, bodyPart, combat));
-		TryAdd("刺击", new StabAttack(actor, bodyPart, combat));
-		TryAdd("踢", new KickAttack(actor, bodyPart, combat));
-		TryAdd("头槌", new HeadbuttAttack(actor, bodyPart, combat));
-		TryAdd("撞击", new ChargeAttack(actor, bodyPart, combat));
-		TryAdd("抓", new GrabAttack(actor, bodyPart, combat));
-		TryAdd("抽出", new BreakFreeAction(actor, bodyPart, combat));
-		TryAdd("放手", new ReleaseAction(actor, bodyPart, combat));
-		TryAdd("拿", new TakeWeaponAction(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Slash, "斩击", () => new SlashAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Stab, "刺击", () => new StabAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Kick, "踢", () => new KickAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Headbutt, "头槌", () => new HeadbuttAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Charge, "撞击", () => new ChargeAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Grab, "抓", () => new GrabAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.BreakFree, "抽出", () => new BreakFreeAction(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Release, "放手", () => new ReleaseAction(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.TakeWeapon, "拿", () => new TakeWeaponAction(actor, bodyPart, combat));
 		return actions;
 	}
 }

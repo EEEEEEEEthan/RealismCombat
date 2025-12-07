@@ -5,6 +5,7 @@ using Godot;
 public class SlashAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat)
 {
+	public override CombatActionCode Code => CombatActionCode.Slash;
 	public override string Description => BuildAttackDescription("持武器挥砍目标，造成挥砍伤害，依赖手部武器");
 	internal override double DodgeImpact => 0.45;
 	internal override double BlockImpact => 0.65;
