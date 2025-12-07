@@ -143,7 +143,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		ICombatTarget target
 	)
 	{
-		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
+		var reactionAvailable = defender.reaction > 0;
 		while (true)
 		{
 			var menu = DialogueManager.CreateMenuDialogue(
@@ -152,11 +152,13 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				{
 					title = "格挡",
 					description = "消耗1点反应, 选择身体或武器承受伤害",
+					disabled = !reactionAvailable,
 				},
 				new MenuOption
 				{
 					title = "闪避",
 					description = "消耗1点反应, 打断自身行动并躲开伤害",
+					disabled = !reactionAvailable,
 				},
 				new MenuOption
 				{
@@ -169,6 +171,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			{
 				case 0:
 				{
+					if (!reactionAvailable) continue;
 					var blockTargets = GetBlockTargets(defender);
 					if (blockTargets.Length == 0)
 					{
@@ -191,6 +194,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					return ReactionDecision.CreateBlock(blockTargets[blockIndex]);
 				}
 				case 1:
+					if (!reactionAvailable) continue;
 					return ReactionDecision.CreateDodge();
 				default:
 					return ReactionDecision.CreateEndure();

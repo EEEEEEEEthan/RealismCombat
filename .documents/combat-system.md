@@ -82,7 +82,7 @@
 ## 反应系统
 
 - 每个角色拥有 `reaction` 属性，表示当前可用的反应点数，默认值为 1
-- 当角色受到攻击时，若 `reaction > 0`，会通过 `CombatInput.MakeReactionDecisionTask()` 获取反应决策
+- 当角色受到攻击时，若 `reaction > 0`，会通过 `CombatInput.MakeReactionDecisionTask()` 获取反应决策；`reaction <= 0` 时 AI 直接承受，玩家界面中格挡与闪避选项会灰化不可用，仅保留承受
 - 反应类型包括：
   - 格挡（Block）：消耗 1 点反应，选择身体部位或装备承受伤害，伤害会转移到格挡目标
   - 闪避（Dodge）：消耗 1 点反应，打断自身当前行动并躲开攻击，攻击完全落空

@@ -34,17 +34,18 @@ public class Combat
 	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
 		var defender = attack.Target;
-		if (defender.reaction <= 0) return ReactionDecision.CreateEndure();
 		var attacker = attack.Actor;
 		var target = attack.CombatTarget;
 		CombatInput input = Allies.Contains(defender) ? playerInput : aiInput;
+		var reactionAvailable = defender.reaction > 0;
+		if (!reactionAvailable && input is AIInput) return ReactionDecision.CreateEndure();
 		var decision = await input.MakeReactionDecisionTask(defender, attacker, target);
 		switch (decision.Type)
 		{
-			case ReactionType.Block when decision.BlockTarget is { Available: true, }:
+			case ReactionType.Block when reactionAvailable && decision.BlockTarget is { Available: true, }:
 				defender.reaction = Math.Max(0, defender.reaction - 1);
 				return decision;
-			case ReactionType.Dodge:
+			case ReactionType.Dodge when reactionAvailable:
 				defender.reaction = Math.Max(0, defender.reaction - 1);
 				defender.combatAction = null;
 				return decision;
