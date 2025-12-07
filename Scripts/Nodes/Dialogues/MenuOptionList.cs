@@ -164,27 +164,15 @@ public partial class MenuOptionList : MarginContainer
 	{
 		if (index < 0) index = 0;
 
-		var hiddenAbove = start;
-		var showTopEllipsis = hiddenAbove > 1;
-		var remainingSlots = VisibleLines - (showTopEllipsis ? 1 : 0);
-		var displayCount = Math.Min(remainingSlots, options.Length - start);
-		var hiddenAfter = options.Length - (start + displayCount);
-		var showBottomEllipsis = hiddenAfter > 1;
-		if (showBottomEllipsis && displayCount == remainingSlots)
-		{
-			displayCount = Math.Max(0, displayCount - 1);
-			hiddenAfter = options.Length - (start + displayCount);
-			showBottomEllipsis = hiddenAfter > 1;
-		}
-
+		var layout = EvaluateWindow(start);
 		var entries = new List<(string text, int optionIndex)>();
-		if (showTopEllipsis) entries.Add(($"...+{hiddenAbove}", -1));
-		for (var i = 0; i < displayCount; i++)
+		if (layout.showTop) entries.Add(($"...+{layout.hiddenAbove}", -1));
+		for (var i = 0; i < layout.displayCount; i++)
 		{
 			var optionIndex = start + i;
 			entries.Add((options[optionIndex], optionIndex));
 		}
-		if (showBottomEllipsis) entries.Add(($"...+{hiddenAfter}", -1));
+		if (layout.showBottom) entries.Add(($"...+{layout.hiddenAfter}", -1));
 		return entries;
 	}
 
@@ -241,12 +229,12 @@ public partial class MenuOptionList : MarginContainer
 	{
 		var maxStart = Math.Max(0, options.Length - VisibleLines);
 		var bestStart = 0;
-		var bestScore = -1;
+		var bestScore = int.MinValue;
 		for (var candidate = 0; candidate <= maxStart; candidate++)
 		{
 			if (!ContainsIndex(candidate, targetIndex)) continue;
-			var (showTop, showBottom) = EvaluateEllipsis(candidate);
-			var score = (showTop ? 1 : 0) + (showBottom ? 1 : 0);
+			var layout = EvaluateWindow(candidate);
+			var score = (layout.showTop ? layout.hiddenAbove : 0) + (layout.showBottom ? layout.hiddenAfter : 0);
 			if (score > bestScore)
 			{
 				bestScore = score;
@@ -270,7 +258,7 @@ public partial class MenuOptionList : MarginContainer
 		return false;
 	}
 
-	(bool showTop, bool showBottom) EvaluateEllipsis(int start)
+	(bool showTop, bool showBottom, int hiddenAbove, int hiddenAfter, int displayCount) EvaluateWindow(int start)
 	{
 		var hiddenAbove = start;
 		var showTopEllipsis = hiddenAbove > 1;
@@ -284,7 +272,7 @@ public partial class MenuOptionList : MarginContainer
 			hiddenAfter = options.Length - (start + displayCount);
 			showBottomEllipsis = hiddenAfter > 1;
 		}
-		return (showTopEllipsis, showBottomEllipsis);
+		return (showTopEllipsis, showBottomEllipsis, hiddenAbove, hiddenAfter, displayCount);
 	}
 
 	void UpdateIndicatorPosition()
