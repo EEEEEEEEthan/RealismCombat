@@ -31,8 +31,6 @@ public sealed partial class GameServer : Node
 	public static bool McpCheckpoint()
 	{
 		if (instance == null) return false;
-		var trace = new StackTrace(0, true);
-		Log.Print($"[GameServer] MCP 检查点响应已发送 {trace}");
 		var result = instance.SendResponseInternal();
 		instance.response?.TrySetResult(true);
 		return result;
