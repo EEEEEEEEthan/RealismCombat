@@ -35,6 +35,11 @@ public class Game
 		((IItemContainer)item).AppendEquippedItemNames(parts);
 		return string.Concat(parts);
 	}
+	/// <summary>
+	///     在导航路径末尾追加节点
+	/// </summary>
+	static string AppendNavigation(string navigation, string next) =>
+		string.IsNullOrEmpty(navigation) ? next : $"{navigation}>{next}";
 	static bool CanEquip(Item item, ItemSlot slot) => (item.flag & slot.Flag) != 0;
 	/// <summary>
 	///     构建与槽位匹配的物品栏选项
@@ -355,31 +360,32 @@ public class Game
 				var title = bp.GetNameWithEquipments();
 				options[i] = new() { title = title, description = "查看或更换该部位装备", };
 			}
-			var menu = DialogueManager.CreateMenuDialogue("查看装备", true, options);
+			var menu = DialogueManager.CreateMenuDialogue($"{character.name}的装备", true, options);
 			var choice = await menu;
 			if (choice == options.Length) return true;
-			await ExpandItemContainer(character, equippableParts[choice], null);
+			var navigationTitle = $"{character.name}>{equippableParts[choice].Name}";
+			await ExpandItemContainer(character, equippableParts[choice], null, navigationTitle);
 		}
 	}
 	/// <summary>
 	///     展开 IItemContainer：列出所有槽位，并在为装备时提供卸下
 	/// </summary>
-	async Task ExpandItemContainer(Character owner, IItemContainer container, ItemSlot? parentSlot)
+	async Task ExpandItemContainer(Character owner, IItemContainer container, ItemSlot? parentSlot, string navigationTitle)
 	{
 		while (true)
 		{
 			var slots = container.Slots;
-			var visibleSlots = new List<(ItemSlot Slot, int Index)>(slots.Length);
+			var visibleSlots = new List<ItemSlot>(slots.Length);
 			for (var i = 0; i < slots.Length; i++)
 			{
 				var slot = slots[i];
 				if (!slot.VisibleInMenu) continue;
-				visibleSlots.Add((slot, i));
+				visibleSlots.Add(slot);
 			}
 			var dynamicOptions = new List<MenuOption>(visibleSlots.Count + 2);
 			foreach (var visibleSlot in visibleSlots)
 			{
-				var slot = visibleSlot.Slot;
+				var slot = visibleSlot;
 				var title = FormatSlotTitle(slot);
 				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
@@ -387,7 +393,7 @@ public class Game
 			}
 			var hasUnequip = container is Item && parentSlot != null && parentSlot.Item != null;
 			if (hasUnequip) dynamicOptions.Add(new() { title = "卸下", description = "将此装备放入物品栏", });
-			var menu = DialogueManager.CreateMenuDialogue("选择槽位", true, [.. dynamicOptions,]);
+			var menu = DialogueManager.CreateMenuDialogue(navigationTitle, true, [.. dynamicOptions,]);
 			var choice = await menu;
 			if (choice == dynamicOptions.Count) return;
 			if (hasUnequip && choice == dynamicOptions.Count - 1)
@@ -399,13 +405,14 @@ public class Game
 				return;
 			}
 			if (choice >= visibleSlots.Count) return;
-			await ExpandItemSlot(owner, visibleSlots[choice].Slot);
+			var slotNavigationTitle = AppendNavigation(navigationTitle, visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.GetDisplayName());
+			await ExpandItemSlot(owner, visibleSlots[choice], slotNavigationTitle);
 		}
 	}
 	/// <summary>
 	///     展开 ItemSlot：空时从物品栏换装；有装备时进入其容器
 	/// </summary>
-	async Task ExpandItemSlot(Character owner, ItemSlot slot)
+	async Task ExpandItemSlot(Character owner, ItemSlot slot, string navigationTitle)
 	{
 		if (slot.Item is null)
 			while (true)
@@ -415,13 +422,14 @@ public class Game
 					await DialogueManager.ShowGenericDialogue("物品栏为空");
 					return;
 				}
+				var equipNavigationTitle = AppendNavigation(navigationTitle, "选择装备");
 				var inv = owner.inventory.Items;
 				if (!TryBuildEquipOptions(inv, slot, out var invOptions, out var candidateIndices))
 				{
 					await DialogueManager.ShowGenericDialogue("没有适合该槽位的装备");
 					return;
 				}
-				var menu = DialogueManager.CreateMenuDialogue("选择装备", true, invOptions);
+				var menu = DialogueManager.CreateMenuDialogue(equipNavigationTitle, true, invOptions);
 				var choice = await menu;
 				if (choice == invOptions.Length) return;
 				var selectedInvIndex = candidateIndices[choice];
@@ -437,6 +445,6 @@ public class Game
 					await DialogueManager.ShowGenericDialogue("装备类型不匹配，无法更换");
 				}
 			}
-		await ExpandItemContainer(owner, slot.Item, slot);
+		await ExpandItemContainer(owner, slot.Item, slot, navigationTitle);
 	}
 }
