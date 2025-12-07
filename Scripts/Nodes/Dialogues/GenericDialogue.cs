@@ -69,7 +69,7 @@ public partial class GenericDialogue : BaseDialogue
 		if (task is not null || printing || pendingOptions != null) return;
 		if (optionEntries.Count > 0)
 		{
-			TryNotifyMcpCheckpoint();
+			GameServer.McpCheckpoint();
 			return;
 		}
 		CompleteActiveTask(-1);
@@ -230,11 +230,5 @@ public partial class GenericDialogue : BaseDialogue
 		var hasOptions = optionEntries.Count > 0 && optionsContainer.Visible;
 		icon.Visible = !hasOptions;
 		if (hasOptions) icon.SelfModulate = GameColors.transparent;
-	}
-	void TryNotifyMcpCheckpoint()
-	{
-		if (!InMcpMode) return;
-		if (optionEntries.Count == 0) return;
-		GameServer.McpCheckpoint();
 	}
 }
