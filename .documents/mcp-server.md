@@ -186,16 +186,30 @@ case "debug_get_node_details":
 
 ###### game_select_option
 
-选择并确认当前菜单选项。
+选择并确认当前对话框的选项。
 
 - 从参数中获取选项索引（`id`）
-- 调用 `MenuDialogue.SelectAndConfirm()` 选择并确认
-- 如果当前对话框不是 `MenuDialogue`，可能抛出异常
+- 若当前对话框是 `MenuDialogue`，调用 `SelectAndConfirm`
+- 若当前对话框是 `GenericDialogue`，调用 `SelectAndConfirm`
+- 其他对话框会打印错误并立即触发 `McpCheckpoint()`，防止客户端长时间等待
 
 ```csharp
 case "game_select_option":
     var index = int.Parse(cmd.Args["id"]);
-    ((MenuDialogue)DialogueManager.GetTopDialogue()!).SelectAndConfirm(index);
+    var dialogue = DialogueManager.GetTopDialogue();
+    switch (dialogue)
+    {
+        case MenuDialogue menuDialogue:
+            menuDialogue.SelectAndConfirm(index);
+            break;
+        case GenericDialogue genericDialogue:
+            genericDialogue.SelectAndConfirm(index);
+            break;
+        default:
+            Log.PrintError("当前对话框不支持远程选项");
+            GameServer.McpCheckpoint();
+            break;
+    }
     break;
 ```
 
