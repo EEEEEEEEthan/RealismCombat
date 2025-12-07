@@ -4,10 +4,10 @@ overview: 调整CombatActions构造参数与CombatInput构建流程，改为角�
 todos:
   - id: review-apis
     content: 梳理动作构造与依赖调用链
-    status: completed
+    status: pending
   - id: refactor-constructors
     content: 重构Action构造为actor+combat并增设注入接口
-    status: in_progress
+    status: pending
   - id: rebuild-combatinput
     content: 改造CombatInput选择流程填充上下文
     status: pending
