@@ -4,10 +4,10 @@ overview: 调整CombatActions构造参数与CombatInput构建流程，改为角�
 todos:
   - id: review-apis
     content: 梳理动作构造与依赖调用链
-    status: in_progress
+    status: completed
   - id: refactor-constructors
     content: 重构Action构造为actor+combat并增设注入接口
-    status: pending
+    status: in_progress
   - id: rebuild-combatinput
     content: 改造CombatInput选择流程填充上下文
     status: pending
@@ -65,10 +65,6 @@ new Kick(combat, actor),
 
 ]
 
-CombatInput第一步改成选择动作,列出AvailableActorObjects, AvailableTargets, AvailableTargetObjects不为空的项目
-第二步选择发起者的身体部位,从AvailableActorObjects里选一个,如果只有一个也手动选
-第三步选择目标角色,从AvailableTargets里选一个,如果只有一个就自动选
-第四步选择目标部位,从AvailableTargetObjects里选一个,如果只有一个也手动选
-disabled指要显示,但是菜单里是灰色
-
-AI的行为即列出所有可用组合(权重暂时设置1),随机选一个
+过滤掉所有AvailableActorObjects里都不存在的发起者身体部位
+选身体部位,选目标,选目标身体部位的过程即往这些对象设置值的过程.
+全部设置完后走老流程
