@@ -316,6 +316,8 @@ public class AIInput(Combat combat) : CombatInput(combat)
 				return TryAssignRandomTargets(attack);
 			case TakeWeaponAction takeWeaponAction:
 				return takeWeaponAction.PrepareByAI();
+			case ReleaseAction release when release.WillOnlyDropWeapon:
+				return false;
 			default:
 				return true;
 		}

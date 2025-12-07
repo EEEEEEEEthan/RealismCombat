@@ -6,34 +6,27 @@ using System.Threading.Tasks;
 public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat combat)
 	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
-	static bool HasGrapplingBuff(IItemContainer container)
-	{
-		if (container is IBuffOwner owner)
-			foreach (var buff in owner.Buffs)
-				if (buff.code == BuffCode.Grappling)
-					return true;
-		foreach (var slot in container.Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			if (HasGrapplingBuff(item)) return true;
-		}
-		return false;
-	}
 	static ItemSlot? FindWeaponSlot(BodyPart bodyPart)
 	{
 		foreach (var slot in bodyPart.Slots)
-			if (slot.Item != null)
-				return slot;
+		{
+			if (slot.Item == null) continue;
+			if ((slot.Flag & ItemFlagCode.Arm) == 0) continue;
+			return slot;
+		}
 		return null;
 	}
 	readonly BodyPart actorBodyPart = actorBodyPart;
 	public override CombatActionCode Code => CombatActionCode.Release;
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
+	/// <summary>
+	///     判断当前是否只会执行丢弃武器
+	/// </summary>
+	public bool WillOnlyDropWeapon => !actorBodyPart.HasBuff(BuffCode.Grappling, true) && FindWeaponSlot(actorBodyPart) != null;
 	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{
-		if (HasGrapplingBuff(actorBodyPart)) return DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");
+		if (actorBodyPart.HasBuff(BuffCode.Grappling, true)) return DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");
 		var weaponSlot = FindWeaponSlot(actorBodyPart);
 		var weaponName = weaponSlot?.Item?.Name ?? "武器";
 		return DialogueManager.ShowGenericDialogue($"{actor.name}准备丢下{actorBodyPart.Name}上的{weaponName}");
@@ -133,6 +126,6 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 	{
 		if (!actorBodyPart.Available) return false;
 		if (actorBodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) return false;
-		return HasGrapplingBuff(actorBodyPart) || FindWeaponSlot(actorBodyPart) != null;
+		return actorBodyPart.HasBuff(BuffCode.Grappling, true) || FindWeaponSlot(actorBodyPart) != null;
 	}
 }

@@ -64,6 +64,20 @@ public class BodyPart : ICombatTarget, IItemContainer
 	///     获取所有Buff列表
 	/// </summary>
 	public List<Buff> Buffs { get; } = [];
+	public bool HasBuff(BuffCode buff, bool recursive)
+	{
+		foreach (var owned in Buffs)
+			if (owned.code == buff)
+				return true;
+		if (!recursive) return false;
+		foreach (var slot in Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			if (item.HasBuff(buff, true)) return true;
+		}
+		return false;
+	}
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
