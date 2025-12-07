@@ -5,7 +5,7 @@ using System.IO;
 /// <summary>
 ///     战斗中可以被选择的装备实体
 /// </summary>
-public class Item : ICombatTarget, IItemContainer, IBuffOwner
+public class Item : ICombatTarget, IItemContainer
 {
 	public static Item Create(ItemIdCode id)
 	{
