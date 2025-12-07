@@ -22,7 +22,7 @@ public readonly struct ItemConfig
 					Damage.Zero
 				),
 				Protection = Protection.Zero,
-				IconGetter = () => SpriteTable.LongSword,
+				Icon = "res://Textures/Items/Icons1.png",
 			}
 		},
 		{
@@ -38,7 +38,7 @@ public readonly struct ItemConfig
 				HitPointMax = 12,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
-				IconGetter = () => SpriteTable.CottonLiner,
+				Icon = "res://Textures/Items/Icons2.png",
 			}
 		},
 		{
@@ -54,7 +54,7 @@ public readonly struct ItemConfig
 				HitPointMax = 18,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 2f, 1f),
-				IconGetter = () => SpriteTable.ChainMail,
+				Icon = "res://Textures/Items/Icons3.png",
 			}
 		},
 		{
@@ -70,7 +70,7 @@ public readonly struct ItemConfig
 				HitPointMax = 25,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
-				IconGetter = () => SpriteTable.PlateArmor,
+				Icon = "res://Textures/Items/Icons4.png",
 			}
 		},
 		{
@@ -86,7 +86,7 @@ public readonly struct ItemConfig
 				HitPointMax = 8,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = Protection.Zero,
-				IconGetter = () => SpriteTable.Belt,
+				Icon = "res://Textures/Items/Icons5.png",
 			}
 		},
 		{
@@ -102,7 +102,7 @@ public readonly struct ItemConfig
 				HitPointMax = 8,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
-				IconGetter = () => SpriteTable.CottonPants,
+				Icon = "res://Textures/Items/Icons6.png",
 			}
 		},
 		{
@@ -118,7 +118,7 @@ public readonly struct ItemConfig
 				HitPointMax = 14,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 2f, 1f),
-				IconGetter = () => SpriteTable.ChainChausses,
+				Icon = "res://Textures/Items/Icons7.png",
 			}
 		},
 		{
@@ -134,11 +134,11 @@ public readonly struct ItemConfig
 				HitPointMax = 20,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
-				IconGetter = () => SpriteTable.PlateGreaves,
+				Icon = "res://Textures/Items/Icons8.png",
 			}
 		},
 	};
-	public Texture2D Icon => IconGetter();
+	public string Icon { get; private init; }
 	public string Name { get; private init; }
 	public string? Description { get; private init; }
 	public ItemFlagCode Flag { get; private init; }
@@ -148,5 +148,4 @@ public readonly struct ItemConfig
 	public int HitPointMax { get; private init; }
 	public DamageProfile DamageProfile { get; private init; }
 	public Protection Protection { get; private init; }
-	Func<Texture2D> IconGetter { get; init; }
 }

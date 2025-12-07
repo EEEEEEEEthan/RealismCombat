@@ -48,14 +48,6 @@ public static class SpriteTable
 			CreateAtlas(ResourceTable.bleeding, 160, 0, 16, 16),
 		};
 	[field: MaybeNull] public static AtlasTexture ArrowDown => field ??= CreateAtlas(ResourceTable.icon8, 16, 2, 8, 5);
-	[field: MaybeNull] public static AtlasTexture LongSword => field ??= CreateAtlas(ResourceTable.icon8, 0, 16, 8, 8);
-	[field: MaybeNull] public static AtlasTexture CottonLiner => field ??= CreateAtlas(ResourceTable.icon8, 0, 24, 8, 8);
-	[field: MaybeNull] public static AtlasTexture ChainMail => field ??= CreateAtlas(ResourceTable.icon8, 8, 24, 8, 8);
-	[field: MaybeNull] public static AtlasTexture PlateArmor => field ??= CreateAtlas(ResourceTable.icon8, 16, 24, 8, 8);
-	[field: MaybeNull] public static AtlasTexture Belt => field ??= CreateAtlas(ResourceTable.icon8, 24, 24, 8, 8);
-	[field: MaybeNull] public static AtlasTexture CottonPants => field ??= CreateAtlas(ResourceTable.icon8, 0, 32, 8, 8);
-	[field: MaybeNull] public static AtlasTexture ChainChausses => field ??= CreateAtlas(ResourceTable.icon8, 8, 32, 8, 8);
-	[field: MaybeNull] public static AtlasTexture PlateGreaves => field ??= CreateAtlas(ResourceTable.icon8, 16, 32, 8, 8);
 	static AtlasTexture CreateAtlas(Texture2D texture, int x, int y, int width, int height)
 	{
 		var atlas = new AtlasTexture();
