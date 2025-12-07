@@ -6,7 +6,6 @@ using Godot;
 public partial class MenuOptionList : MarginContainer
 {
 	const int VisibleLines = 8;
-	readonly List<Label> labelPool = new();
 	readonly List<Label?> optionLabels = new();
 	Control? indicatorHost;
 	TextureRect? indicatorTexture;
@@ -119,9 +118,7 @@ public partial class MenuOptionList : MarginContainer
 		else
 			windowStart = FindWindowStart(index);
 		var displayEntries = BuildDisplayEntries();
-		PrepareLabelPool(displayEntries.Count);
 		ResetOptionLabels();
-		HideAllLabels();
 		FillLabels(displayEntries);
 		UpdateIndicatorPosition();
 		CallDeferred(MethodName.UpdateIndicatorPosition);
@@ -153,33 +150,29 @@ public partial class MenuOptionList : MarginContainer
 		if (layout.showBottom) entries.Add(($"...+{layout.hiddenAfter}", -1));
 		return entries;
 	}
-	void PrepareLabelPool(int needed)
-	{
-		while (labelPool.Count < needed)
-		{
-			var label = new Label();
-			labelPool.Add(label);
-			optionContainer!.AddChild(label);
-		}
-	}
 	void ResetOptionLabels()
 	{
 		optionLabels.Clear();
 		for (var i = 0; i < options.Length; i++) optionLabels.Add(null);
 	}
-	void HideAllLabels()
-	{
-		foreach (var label in labelPool) label.Visible = false;
-	}
 	void FillLabels(List<(string text, int optionIndex)> entries)
 	{
+		RemoveExistingLabels();
 		for (var i = 0; i < entries.Count; i++)
 		{
 			(var text, var optionIndex) = entries[i];
-			var label = labelPool[i];
-			label.Text = text;
-			label.Visible = true;
+			var label = new Label { Text = text };
+			optionContainer!.AddChild(label);
 			if (optionIndex >= 0 && optionIndex < optionLabels.Count) optionLabels[optionIndex] = label;
+		}
+	}
+	void RemoveExistingLabels()
+	{
+		var children = optionContainer!.GetChildren();
+		foreach (Node child in children)
+		{
+			optionContainer.RemoveChild(child);
+			child.QueueFree();
 		}
 	}
 	int FindWindowStart(int targetIndex)
