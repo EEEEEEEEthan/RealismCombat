@@ -216,7 +216,7 @@ public class Game
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
-					await dialogue.ShowTextTask("Ethan穿上了父亲的旧盔甲,拿上了他的长剑");
+					await dialogue.ShowTextTask("Ethan拿上了父亲的长剑");
 					await dialogue.ShowTextTask("或许他的心里还存有一点家族荣誉的念想");
 					await dialogue.ShowTextTask("走吧...");
 				}
