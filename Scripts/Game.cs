@@ -68,10 +68,14 @@ public class Game
 		this.saveFilePath = saveFilePath;
 		this.gameNode = gameNode;
 		var hero = new Character("Ethan");
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.LongSword));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.ChainMail));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.Belt));
-		hero.inventory.Items.Add(Item.Create(ItemIdCode.CottonPants));
+		var longSword = Item.Create(ItemIdCode.LongSword);
+		var cottonLiner = Item.Create(ItemIdCode.CottonLiner);
+		var belt = Item.Create(ItemIdCode.Belt);
+		var cottonPants = Item.Create(ItemIdCode.CottonPants);
+		hero.inventory.Items.Add(longSword);
+		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
+		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
+		if (hero.groin.Slots.Length > 0) hero.groin.Slots[0].Item = cottonPants;
 		players = [hero,];
 		StartGameLoop();
 	}
@@ -139,15 +143,14 @@ public class Game
 				while (true)
 				{
 					var readyForDeparture = players.Count > 0 &&
-						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
-						HasEquippedItem(players[0], ItemIdCode.CottonPants);
+						HasEquippedItem(players[0], ItemIdCode.LongSword);
+					var proceed = false;
 					var choice = await DialogueManager.CreateMenuDialogue(
 						"第一章 流浪",
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好链甲、长剑和夹棉护腿",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好长剑",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
@@ -158,6 +161,7 @@ public class Game
 					{
 						case 0:
 						{
+							proceed = readyForDeparture && HasEquippedItem(players[0], ItemIdCode.LongSword);
 							break;
 						}
 						case 1:
@@ -177,11 +181,6 @@ public class Game
 							return;
 						}
 					}
-					var proceed = readyForDeparture &&
-						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
-						HasEquippedItem(players[0], ItemIdCode.CottonPants) &&
-						choice == 0;
 					if (proceed) break;
 				}
 				ScriptIndex = ScriptCode._2_Wander;
@@ -236,7 +235,7 @@ public class Game
 					else
 						using (DialogueManager.CreateGenericDialogue(out var dialogue))
 						{
-							await dialogue.ShowTextTask($"Ethan迅速抽出{weapon!.Name}");
+							await dialogue.ShowTextTask($"Ethan迅速抽出{weapon.Name}");
 						}
 					PackedScene combatNodeScene = ResourceTable.combatNodeScene;
 					var combatNode = combatNodeScene.Instantiate<CombatNode>();
