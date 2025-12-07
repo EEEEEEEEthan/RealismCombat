@@ -153,6 +153,49 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					var selectedAttack = availableAttacks[actionIndex];
 					var aliveOpponents = GetAliveOpponents(character);
 					if (aliveOpponents.Length == 0) throw new InvalidOperationException("未找到可攻击目标");
+					MenuOption[] BuildTargetOptions(Character opponent, ICombatTarget[] aliveTargets) =>
+						aliveTargets
+							.Select(o =>
+							{
+								var description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}";
+								if (o is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
+								{
+									var buffLines = buffOwner.Buffs
+										.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+									description += "\n" + string.Join("\n", buffLines);
+								}
+								var previewAttack = selectedAttack.create(character, selectedBodyPart, opponent, o, combat);
+								var reactionChance = ReactionSuccessCalculator.Calculate(previewAttack);
+								description += $"\n闪避成功率 {FormatChance(reactionChance.DodgeChance)}";
+								description += $"\n格挡成功率 {FormatChance(reactionChance.BlockChance)}";
+								return new MenuOption
+								{
+									title = o is BodyPart targetBodyPart
+										? targetBodyPart.GetNameWithEquipments()
+										: o.Name,
+									description = description,
+								};
+							})
+							.ToArray();
+					async Task<CombatAction?> selectTarget(Character opponent)
+					{
+						while (true)
+						{
+							var aliveTargets = GetAvailableTargets(opponent);
+							if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
+							var targetOptions = BuildTargetOptions(opponent, aliveTargets);
+							var targetMenu = DialogueManager.CreateMenuDialogue("选择目标", true, targetOptions);
+							var targetIndex = await targetMenu;
+							if (targetIndex == aliveTargets.Length) return null;
+							return selectedAttack.create(character, selectedBodyPart, opponent, aliveTargets[targetIndex], combat);
+						}
+					}
+					if (aliveOpponents.Length == 1)
+					{
+						var targetAction = await selectTarget(aliveOpponents[0]);
+						if (targetAction != null) return targetAction;
+						continue;
+					}
 					var options = aliveOpponents
 						.Select(o => new MenuOption
 						{
@@ -160,51 +203,16 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 							description = string.Empty,
 						})
 						.ToArray();
-					var attackCancelled = false;
 					while (true)
 					{
 						var menu = DialogueManager.CreateMenuDialogue("选择对手", true, options);
 						var selected = await menu;
-						if (selected == aliveOpponents.Length)
-						{
-							attackCancelled = true;
-							break;
-						}
+						if (selected == aliveOpponents.Length) break;
 						var selectedOpponent = aliveOpponents[selected];
-						while (true)
-						{
-							var aliveTargets = GetAvailableTargets(selectedOpponent);
-							if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
-							var targetOptions = aliveTargets
-								.Select(o =>
-								{
-									var description = $"生命 {o.HitPoint.value}/{o.HitPoint.maxValue}";
-									if (o is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
-									{
-										var buffLines = buffOwner.Buffs
-											.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
-										description += "\n" + string.Join("\n", buffLines);
-									}
-									var previewAttack = selectedAttack.create(character, selectedBodyPart, selectedOpponent, o, combat);
-									var reactionChance = ReactionSuccessCalculator.Calculate(previewAttack);
-									description += $"\n闪避成功率 {FormatChance(reactionChance.DodgeChance)}";
-									description += $"\n格挡成功率 {FormatChance(reactionChance.BlockChance)}";
-									return new MenuOption
-									{
-										title = o is BodyPart targetBodyPart
-											? targetBodyPart.GetNameWithEquipments()
-											: o.Name,
-										description = description,
-									};
-								})
-								.ToArray();
-							var targetMenu = DialogueManager.CreateMenuDialogue("选择目标", true, targetOptions);
-							var targetIndex = await targetMenu;
-							if (targetIndex == aliveTargets.Length) break;
-							return selectedAttack.create(character, selectedBodyPart, selectedOpponent, aliveTargets[targetIndex], combat);
-						}
+						var targetAction = await selectTarget(selectedOpponent);
+						if (targetAction != null) return targetAction;
 					}
-					if (attackCancelled) continue;
+					continue;
 				}
 				var specialStartIndex = availableAttacks.Count;
 				var specialEndIndex = specialStartIndex + specialActions.Count;
