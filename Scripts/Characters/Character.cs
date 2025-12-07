@@ -40,6 +40,7 @@ public class Character
 			rightLeg = new(BodyPartCode.RightLeg),
 		];
 		availableCombatActions[CombatActionCode.Slash] = 0f;
+		availableCombatActions[CombatActionCode.PickWeapon] = 0f;
 	}
 	public Character(BinaryReader reader) : this(reader, GameVersion.newest) { }
 	public Character(BinaryReader reader, GameVersion version)
@@ -71,7 +72,15 @@ public class Character
 				var value = reader.ReadSingle();
 				availableCombatActions[code] = value;
 			}
-			if (availableCombatActions.Count == 0) availableCombatActions[CombatActionCode.Slash] = 0f;
+			if (availableCombatActions.Count == 0)
+			{
+				availableCombatActions[CombatActionCode.Slash] = 0f;
+				availableCombatActions[CombatActionCode.PickWeapon] = 0f;
+			}
+			else if (!availableCombatActions.ContainsKey(CombatActionCode.PickWeapon))
+			{
+				availableCombatActions[CombatActionCode.PickWeapon] = 0f;
+			}
 		}
 	}
 	public void Serialize(BinaryWriter writer)

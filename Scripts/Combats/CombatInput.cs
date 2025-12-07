@@ -59,6 +59,7 @@ public abstract class CombatInput(Combat combat)
 		TryAdd(CombatActionCode.BreakFree, "抽出", () => new BreakFreeAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.Release, "放手", () => new ReleaseAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.TakeWeapon, "拿", () => new TakeWeaponAction(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.PickWeapon, "捡", () => new PickWeaponAction(actor, bodyPart, combat));
 		return actions;
 	}
 }
@@ -216,6 +217,16 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				}
 				return takeWeaponAction;
 			}
+			case PickWeaponAction pickWeaponAction:
+			{
+				var prepared = await pickWeaponAction.PrepareByPlayerSelection();
+				if (!prepared)
+				{
+					await DialogueManager.ShowGenericDialogue("没有可以捡起的武器");
+					return null;
+				}
+				return pickWeaponAction;
+			}
 			default:
 				return action;
 		}
@@ -343,6 +354,8 @@ public class AIInput(Combat combat) : CombatInput(combat)
 				return TryAssignRandomTargets(attack);
 			case TakeWeaponAction takeWeaponAction:
 				return takeWeaponAction.PrepareByAI();
+			case PickWeaponAction pickWeaponAction:
+				return pickWeaponAction.PrepareByAI();
 			case ReleaseAction release when release.WillOnlyDropWeapon:
 				return false;
 			default:

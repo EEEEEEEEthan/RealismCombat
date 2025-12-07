@@ -87,6 +87,7 @@ public class Game
 		hero.availableCombatActions[CombatActionCode.BreakFree] = 0f;
 		hero.availableCombatActions[CombatActionCode.Release] = 0f;
 		hero.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
+		hero.availableCombatActions[CombatActionCode.PickWeapon] = 0f;
 		players = [hero,];
 		StartGameLoop();
 	}
@@ -112,6 +113,7 @@ public class Game
 				player.availableCombatActions[CombatActionCode.BreakFree] = 0f;
 				player.availableCombatActions[CombatActionCode.Release] = 0f;
 				player.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
+				player.availableCombatActions[CombatActionCode.PickWeapon] = 0f;
 			}
 		ScriptIndex = (ScriptCode)reader.ReadInt32();
 		StartGameLoop();

@@ -13,5 +13,6 @@ public enum CombatActionCode
 	BreakFree,
 	Release,
 	TakeWeapon,
+	PickWeapon,
 }
 
