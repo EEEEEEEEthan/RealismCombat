@@ -270,7 +270,7 @@ public class Game
 						: player.actionPoint.maxValue;
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
-					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
+					enemy.actionPoint.value = 7;
 					enemy.availableCombatActions.Clear();
 					enemy.availableCombatActions[CombatActionCode.Slash] = 0f;
 					enemy.availableCombatActions[CombatActionCode.BreakFree] = 0f;
