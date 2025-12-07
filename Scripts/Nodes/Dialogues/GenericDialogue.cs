@@ -12,7 +12,6 @@ public partial class GenericDialogue : BaseDialogue
 	readonly VBoxContainer container;
 	readonly HBoxContainer optionsContainer;
 	TaskCompletionSource<int>? task;
-	List<string>? pendingOptions;
 	int selectedOptionIndex = -1;
 	double time;
 	bool keyDown;
@@ -46,13 +45,12 @@ public partial class GenericDialogue : BaseDialogue
 		if (keyDown && !Input.IsAnythingPressed()) keyDown = false;
 		printer.interval = keyDown ? 0 : 0.1f;
 		var printing = printer.Printing;
-		var hasOptions = optionsContainer.Visible && optionEntries.Count > 0;
-		if (!printing && task is not null && pendingOptions != null)
+		if (task is not null && !printing && optionEntries.Count > 0 && !optionsContainer.Visible)
 		{
-			BuildOptions(pendingOptions);
-			pendingOptions = null;
+			optionsContainer.Visible = true;
 			UpdateIconVisibility();
 		}
+		var hasOptions = optionsContainer.Visible && optionEntries.Count > 0;
 		if (task is null || printing || string.IsNullOrEmpty(printer.Text) || hasOptions)
 		{
 			icon.SelfModulate = GameColors.transparent;
@@ -66,8 +64,8 @@ public partial class GenericDialogue : BaseDialogue
 		if (InMcpMode)
 		{
 			if (mcpAutomationProcessed) return;
+			if (task is null || printing) return;
 			mcpAutomationProcessed = true;
-			if (task is not null || printing || pendingOptions != null) return;
 			if (optionEntries.Count > 0)
 			{
 				GameServer.McpCheckpoint();
@@ -90,7 +88,6 @@ public partial class GenericDialogue : BaseDialogue
 		time = 0;
 		keyDown = false;
 		ClearOptions();
-		pendingOptions = null;
 		var content = string.IsNullOrEmpty(text) ? string.Empty : text;
 		var prefix = string.IsNullOrEmpty(printer.Text) ? string.Empty : "\n";
 		var previousCharacters = printer.GetTotalCharacterCount();
@@ -103,7 +100,37 @@ public partial class GenericDialogue : BaseDialogue
 			foreach (var option in options)
 				if (!string.IsNullOrEmpty(option))
 					validOptions.Add(option);
-			if (validOptions.Count > 0) pendingOptions = validOptions;
+			if (validOptions.Count > 0)
+			{
+				ClearOptions();
+				Log.Print("请选择(game_select_option)");
+				optionsContainer.Visible = !printer.Printing;
+				for (var i = 0; i < validOptions.Count; i++)
+				{
+					var optionBox = new VBoxContainer
+					{
+						Name = $"Option{i}",
+						Alignment = BoxContainer.AlignmentMode.Center,
+					};
+					var pointer = new TextureRect
+					{
+						Texture = SpriteTable.arrowDown,
+						StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+						Visible = false,
+					};
+					var label = new Label
+					{
+						Text = validOptions[i],
+						HorizontalAlignment = HorizontalAlignment.Center,
+					};
+					optionBox.AddChild(pointer);
+					optionBox.AddChild(label);
+					optionsContainer.AddChild(optionBox);
+					optionEntries.Add((pointer, label));
+					Log.Print($"{i} - {validOptions[i]}");
+				}
+				if (optionEntries.Count > 0) SelectOption(0);
+			}
 		}
 		UpdateIconVisibility();
 		return task.Task;
@@ -111,12 +138,6 @@ public partial class GenericDialogue : BaseDialogue
 	public void SelectAndConfirm(int index)
 	{
 		if (task is null) return;
-		if (pendingOptions != null)
-		{
-			BuildOptions(pendingOptions);
-			pendingOptions = null;
-			UpdateIconVisibility();
-		}
 		if (optionEntries.Count == 0)
 		{
 			CompleteActiveTask(-1);
@@ -133,12 +154,6 @@ public partial class GenericDialogue : BaseDialogue
 		{
 			keyDown = true;
 			return;
-		}
-		if (pendingOptions != null)
-		{
-			BuildOptions(pendingOptions);
-			pendingOptions = null;
-			UpdateIconVisibility();
 		}
 		if (optionEntries.Count == 0)
 		{
@@ -160,37 +175,6 @@ public partial class GenericDialogue : BaseDialogue
 			GetViewport().SetInputAsHandled();
 			MoveSelection(1);
 		}
-	}
-	void BuildOptions(IReadOnlyList<string> options)
-	{
-		ClearOptions();
-		Log.Print("请选择(game_select_option)");
-		optionsContainer.Visible = true;
-		for (var i = 0; i < options.Count; i++)
-		{
-			var optionBox = new VBoxContainer
-			{
-				Name = $"Option{i}",
-				Alignment = BoxContainer.AlignmentMode.Center,
-			};
-			var pointer = new TextureRect
-			{
-				Texture = SpriteTable.arrowDown,
-				StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-				Visible = false,
-			};
-			var label = new Label
-			{
-				Text = options[i],
-				HorizontalAlignment = HorizontalAlignment.Center,
-			};
-			optionBox.AddChild(pointer);
-			optionBox.AddChild(label);
-			optionsContainer.AddChild(optionBox);
-			optionEntries.Add((pointer, label));
-			Log.Print($"{i} - {options[i]}");
-		}
-		if (optionEntries.Count > 0) SelectOption(0);
 	}
 	void ClearOptions()
 	{
@@ -222,7 +206,6 @@ public partial class GenericDialogue : BaseDialogue
 	{
 		var task = this.task;
 		this.task = null;
-		pendingOptions = null;
 		ClearOptions();
 		UpdateIconVisibility();
 		task?.TrySetResult(result);
