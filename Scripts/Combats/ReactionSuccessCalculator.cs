@@ -65,6 +65,7 @@ public static class ReactionSuccessCalculator
 	const double BlockWeaponWeight = 0.9;
 	const double BlockActionWeight = 1.2;
 	const double BlockLoadWeight = 0.8;
+	const double BlockCenterBonus = 0.35;
 	const double UnarmedDodgeShift = 0.5;
 	const double UnarmedBlockShift = 0.3;
 	const double DodgeBias = -0.15;
@@ -85,12 +86,17 @@ public static class ReactionSuccessCalculator
 		                 + DodgeActionWeight * attack.DodgeImpact
 		                 - DodgeLoadWeight * defenderLoadScore
 		                 + (isUnarmedAttack ? UnarmedDodgeShift : 0.0);
+		var blockTargetBonus = 0.0;
+		if (attack.TargetObject is BodyPart targetBodyPart &&
+		    (targetBodyPart.id is BodyPartCode.Torso or BodyPartCode.Groin))
+			blockTargetBonus = BlockCenterBonus;
 		var blockScore = BlockBias
 		                 + BlockLengthWeight * weaponLengthScore
 		                 + BlockWeaponWeight * weaponWeightScore
 		                 + BlockActionWeight * attack.BlockImpact
 		                 - BlockLoadWeight * defenderLoadScore
-		                 + (isUnarmedAttack ? UnarmedBlockShift : 0.0);
+		                 + (isUnarmedAttack ? UnarmedBlockShift : 0.0)
+		                 + blockTargetBonus;
 		return new ReactionChance(
 			Sigmoid(dodgeScore),
 			Sigmoid(blockScore)
