@@ -1,14 +1,22 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-
 [Tool]
 [GlobalClass]
 public partial class MenuOptionList : MarginContainer
 {
 	const int VisibleLines = 8;
-
-	[Export] public string[]? Options
+	readonly List<Label> labelPool = new();
+	readonly List<Label?> optionLabels = new();
+	Control? indicatorHost;
+	TextureRect? indicatorTexture;
+	VBoxContainer? optionContainer;
+	string[] options = Array.Empty<string>();
+	int index = -1;
+	int windowStart;
+	bool building;
+	[Export]
+	public string[]? Options
 	{
 		get => options;
 		set
@@ -18,8 +26,8 @@ public partial class MenuOptionList : MarginContainer
 			Rebuild();
 		}
 	}
-
-	[Export] public int Index
+	[Export]
+	public int Index
 	{
 		get => index;
 		set
@@ -32,49 +40,24 @@ public partial class MenuOptionList : MarginContainer
 			CallDeferred(MethodName.UpdateIndicatorPosition);
 		}
 	}
-
-	Control? indicatorHost;
-	TextureRect? indicatorTexture;
-	VBoxContainer? optionContainer;
-	readonly List<Label> labelPool = new();
-	readonly List<Label?> optionLabels = new();
-	string[] options = Array.Empty<string>();
-	int index = -1;
-	int windowStart;
-	bool building;
-
-	public override void _EnterTree()
+	public MenuOptionList()
 	{
-		EnsureNodes();
-	}
-
-	public override void _Ready()
-	{
-		Rebuild();
-		CallDeferred(MethodName.UpdateIndicatorPosition);
-	}
-
-	void EnsureNodes()
-	{
-		if (indicatorHost != null && optionContainer != null) return;
-
 		if (GetNodeOrNull<Control>("IndicatorHost") is { } foundIndicator)
 		{
 			indicatorHost = foundIndicator;
 		}
 		else
 		{
-			indicatorHost = new Control { Name = "IndicatorHost" };
+			indicatorHost = new() { Name = "IndicatorHost", };
 			AddChild(indicatorHost);
 		}
-
 		if (indicatorHost.GetNodeOrNull<TextureRect>("IndicatorTexture") is { } foundTexture)
 		{
 			indicatorTexture = foundTexture;
 		}
 		else
 		{
-			indicatorTexture = new TextureRect
+			indicatorTexture = new()
 			{
 				Name = "IndicatorTexture",
 				StretchMode = TextureRect.StretchModeEnum.KeepCentered,
@@ -86,17 +69,15 @@ public partial class MenuOptionList : MarginContainer
 			};
 			indicatorHost.AddChild(indicatorTexture);
 		}
-
 		if (GetNodeOrNull<VBoxContainer>("OptionContainer") is { } foundContainer)
 		{
 			optionContainer = foundContainer;
 		}
 		else
 		{
-			optionContainer = new VBoxContainer { Name = "OptionContainer" };
+			optionContainer = new() { Name = "OptionContainer", };
 			AddChild(optionContainer);
 		}
-
 		indicatorHost.AnchorLeft = 0;
 		indicatorHost.AnchorRight = 1;
 		indicatorHost.AnchorTop = 0;
@@ -108,7 +89,6 @@ public partial class MenuOptionList : MarginContainer
 		indicatorHost.OffsetTop = 0;
 		indicatorHost.OffsetRight = 0;
 		indicatorHost.OffsetBottom = 0;
-
 		optionContainer.AnchorLeft = 0;
 		optionContainer.AnchorTop = 0;
 		optionContainer.AnchorRight = 1;
@@ -120,22 +100,22 @@ public partial class MenuOptionList : MarginContainer
 		optionContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 		optionContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
 	}
-
+	public override void _Ready()
+	{
+		Rebuild();
+		CallDeferred(MethodName.UpdateIndicatorPosition);
+	}
 	void Rebuild()
 	{
 		if (building) return;
 		building = true;
-		EnsureNodes();
-
 		if (indicatorHost == null || optionContainer == null || indicatorTexture == null)
 		{
 			building = false;
 			return;
 		}
-
 		if (index < 0 && options.Length > 0) index = 0;
 		KeepIndexVisible();
-
 		var displayEntries = BuildDisplayEntries();
 		PrepareLabelPool(displayEntries.Count);
 		ResetOptionLabels();
@@ -145,7 +125,6 @@ public partial class MenuOptionList : MarginContainer
 		CallDeferred(MethodName.UpdateIndicatorPosition);
 		building = false;
 	}
-
 	List<(string text, int optionIndex)> BuildDisplayEntries()
 	{
 		if (options.Length == 0)
@@ -156,14 +135,11 @@ public partial class MenuOptionList : MarginContainer
 			building = false;
 			return new();
 		}
-
 		return BuildEntriesForStart(windowStart);
 	}
-
 	List<(string text, int optionIndex)> BuildEntriesForStart(int start)
 	{
 		if (index < 0) index = 0;
-
 		var layout = EvaluateWindow(start);
 		var entries = new List<(string text, int optionIndex)>();
 		if (layout.showTop) entries.Add(($"...+{layout.hiddenAbove}", -1));
@@ -175,7 +151,6 @@ public partial class MenuOptionList : MarginContainer
 		if (layout.showBottom) entries.Add(($"...+{layout.hiddenAfter}", -1));
 		return entries;
 	}
-
 	void PrepareLabelPool(int needed)
 	{
 		while (labelPool.Count < needed)
@@ -185,35 +160,26 @@ public partial class MenuOptionList : MarginContainer
 			optionContainer!.AddChild(label);
 		}
 	}
-
 	void ResetOptionLabels()
 	{
 		optionLabels.Clear();
 		for (var i = 0; i < options.Length; i++) optionLabels.Add(null);
 	}
-
 	void HideAllLabels()
 	{
-		foreach (var label in labelPool)
-			label.Visible = false;
+		foreach (var label in labelPool) label.Visible = false;
 	}
-
 	void FillLabels(List<(string text, int optionIndex)> entries)
 	{
 		for (var i = 0; i < entries.Count; i++)
 		{
-			var (text, optionIndex) = entries[i];
+			(var text, var optionIndex) = entries[i];
 			var label = labelPool[i];
 			label.Text = text;
 			label.Visible = true;
-			if (optionIndex >= 0 && optionIndex < optionLabels.Count)
-			{
-				optionLabels[optionIndex] = label;
-			}
+			if (optionIndex >= 0 && optionIndex < optionLabels.Count) optionLabels[optionIndex] = label;
 		}
-
 	}
-
 	void KeepIndexVisible()
 	{
 		if (options.Length == 0)
@@ -221,10 +187,8 @@ public partial class MenuOptionList : MarginContainer
 			windowStart = 0;
 			return;
 		}
-
 		windowStart = FindWindowStart(index);
 	}
-
 	int FindWindowStart(int targetIndex)
 	{
 		var maxStart = Math.Max(0, options.Length - VisibleLines);
@@ -247,17 +211,14 @@ public partial class MenuOptionList : MarginContainer
 		}
 		return bestStart;
 	}
-
 	bool ContainsIndex(int candidateStart, int targetIndex)
 	{
 		var entries = BuildEntriesForStart(candidateStart);
 		foreach (var entry in entries)
-		{
-			if (entry.optionIndex == targetIndex) return true;
-		}
+			if (entry.optionIndex == targetIndex)
+				return true;
 		return false;
 	}
-
 	(bool showTop, bool showBottom, int hiddenAbove, int hiddenAfter, int displayCount) EvaluateWindow(int start)
 	{
 		var hiddenAbove = start;
@@ -274,16 +235,21 @@ public partial class MenuOptionList : MarginContainer
 		}
 		return (showTopEllipsis, showBottomEllipsis, hiddenAbove, hiddenAfter, displayCount);
 	}
-
 	void UpdateIndicatorPosition()
 	{
-		EnsureNodes();
 		var host = indicatorHost!;
 		var texture = indicatorTexture!;
-		if (index < 0 || index >= optionLabels.Count) { host.Visible = false; return; }
+		if (index < 0 || index >= optionLabels.Count)
+		{
+			host.Visible = false;
+			return;
+		}
 		var label = optionLabels[index];
-		if (label == null || !IsInstanceValid(label)) { host.Visible = false; return; }
-
+		if (label == null || !IsInstanceValid(label))
+		{
+			host.Visible = false;
+			return;
+		}
 		texture.Texture = SpriteTable.arrowRight;
 		host.Visible = true;
 		var local = optionContainer!.GetGlobalTransformWithCanvas().AffineInverse() * label.GetGlobalTransformWithCanvas().Origin;
@@ -292,7 +258,6 @@ public partial class MenuOptionList : MarginContainer
 		var indicatorWidth = indicatorTexture.Size.X > 0 ? indicatorTexture.Size.X : texSize.X;
 		var targetX = -indicatorWidth - 2f;
 		var localY = local.Y + label.Size.Y / 2f - indicatorTexture.Size.Y / 2f;
-		indicatorTexture.Position = new Vector2(targetX, localY);
+		indicatorTexture.Position = new(targetX, localY);
 	}
 }
-
