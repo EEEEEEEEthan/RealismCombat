@@ -97,6 +97,7 @@ public partial class ProgramRoot : Node
 	public override void _Ready()
 	{
 		Log.Print("[ProgramRoot] 程序启动");
+		GD.Randomize();
 		var godotPath = Settings.Get("godot");
 		if (godotPath != null) Log.Print($"[ProgramRoot] 从配置读取godot路径: {godotPath}");
 		if (LaunchArgs.port.HasValue)

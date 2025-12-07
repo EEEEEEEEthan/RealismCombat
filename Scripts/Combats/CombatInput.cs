@@ -269,44 +269,40 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	{
 		var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
 		if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
-		var bodyPartRandomValue = GD.Randi();
-		var bodyPartIndex = (int)(bodyPartRandomValue % (uint)availableBodyParts.Length);
-		var selectedBodyPart = availableBodyParts[bodyPartIndex];
-		var availableAttacks = GetAvailableAttacks(selectedBodyPart);
-		var usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
-		var takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
-		var dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
-		if (usableAttacks.Count == 0 && takeAction == null && dropAction == null)
+		var randomizedBodyParts = availableBodyParts.OrderBy(_ => GD.Randi()).ToArray();
+		foreach (var selectedBodyPart in randomizedBodyParts)
 		{
-			bodyPartIndex = (bodyPartIndex + 1) % availableBodyParts.Length;
-			selectedBodyPart = availableBodyParts[bodyPartIndex];
-			availableAttacks = GetAvailableAttacks(selectedBodyPart);
-			usableAttacks = availableAttacks.Where(a => a.canUse).ToList();
-			takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
-			dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
-			if (usableAttacks.Count == 0 && takeAction == null && dropAction == null) throw new InvalidOperationException("未找到可用的攻击类型");
+			var availableAttacks = GetAvailableAttacks(selectedBodyPart);
+			var usableAttacks = availableAttacks.Where(a => a.canUse).OrderBy(_ => GD.Randi()).ToList();
+			var takeAction = TakeWeaponAction.CreateByAI(character, selectedBodyPart, combat);
+			var dropAction = DropWeaponAction.Create(character, selectedBodyPart, combat);
+			var actionPool = new List<Func<CombatAction?>>();
+			foreach (var attack in usableAttacks)
+			{
+				actionPool.Add(() =>
+				{
+					var target = GetRandomOpponent(character);
+					if (target == null) return null;
+					var aliveTargets = GetAvailableTargets(target);
+					if (aliveTargets.Length == 0) return null;
+					var randomValue = GD.Randi();
+					var index = (int)(randomValue % (uint)aliveTargets.Length);
+					return attack.create(character, selectedBodyPart, target, aliveTargets[index], combat);
+				});
+			}
+			if (dropAction != null) actionPool.Add(() => dropAction);
+			if (takeAction != null) actionPool.Add(() => takeAction);
+			if (actionPool.Count == 0) continue;
+			var actionIndex = (int)(GD.Randi() % (uint)actionPool.Count);
+			var selectedAction = actionPool[actionIndex]();
+			if (selectedAction != null) return Task.FromResult(selectedAction);
+			for (var i = 0; i < actionPool.Count; i++)
+			{
+				if (i == actionIndex) continue;
+				var fallbackAction = actionPool[i]();
+				if (fallbackAction != null) return Task.FromResult(fallbackAction);
+			}
 		}
-		var actionCount = usableAttacks.Count + (takeAction != null ? 1 : 0) + (dropAction != null ? 1 : 0);
-		var attackRandomValue = GD.Randi();
-		var actionIndex = (int)(attackRandomValue % (uint)actionCount);
-		if (actionIndex < usableAttacks.Count)
-		{
-			var selectedAttack = usableAttacks[actionIndex];
-			var target = GetRandomOpponent(character);
-			if (target == null) throw new InvalidOperationException("未找到可攻击目标");
-			var aliveTargets = GetAvailableTargets(target);
-			if (aliveTargets.Length == 0) throw new InvalidOperationException("未找到可攻击部位");
-			var randomValue = GD.Randi();
-			var index = (int)(randomValue % (uint)aliveTargets.Length);
-			return Task.FromResult<CombatAction>(selectedAttack.create(character, selectedBodyPart, target, aliveTargets[index], combat));
-		}
-		actionIndex -= usableAttacks.Count;
-		if (dropAction != null)
-		{
-			if (actionIndex == 0) return Task.FromResult<CombatAction>(dropAction);
-			actionIndex--;
-		}
-		if (takeAction != null) return Task.FromResult(takeAction);
 		throw new InvalidOperationException("未找到可用的行动");
 	}
 	public override Task<ReactionDecision> MakeReactionDecisionTask(
@@ -318,8 +314,10 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		if (defender.reaction <= 0) return Task.FromResult(ReactionDecision.CreateEndure());
 		var blockTargets = GetBlockTargets(defender);
 		if (blockTargets.Length == 0) return Task.FromResult(ReactionDecision.CreateEndure());
-		var priorityTarget = blockTargets.FirstOrDefault(t => t is Item);
-		var chosen = priorityTarget ?? blockTargets.First();
-		return Task.FromResult(ReactionDecision.CreateBlock(chosen));
+		var itemTargets = blockTargets.Where(t => t is Item).ToArray();
+		var candidateTargets = itemTargets.Length > 0 ? itemTargets : blockTargets;
+		var randomValue = GD.Randi();
+		var index = (int)(randomValue % (uint)candidateTargets.Length);
+		return Task.FromResult(ReactionDecision.CreateBlock(candidateTargets[index]));
 	}
 }
