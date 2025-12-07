@@ -53,7 +53,6 @@ public override abstract string Description { get; }
 			AttackTypeCode.Special => "特殊",
 			_ => "未知",
 		};
-		var damageText = $"伤害倍率: x{DamageMultiplier:0.##}";
 		static string DodgeText(double impact) => impact switch
 		{
 			>= 0.6 => "容易被闪避",
@@ -66,7 +65,7 @@ public override abstract string Description { get; }
 			>= 0.4 => "中等格挡难度",
 			_ => "不易被格挡",
 		};
-		return $"类型: {typeText}\n{damageText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{narrative}";
+		return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{narrative}";
 	}
 	protected static bool HasWeapon(BodyPart bodyPart)
 	{
