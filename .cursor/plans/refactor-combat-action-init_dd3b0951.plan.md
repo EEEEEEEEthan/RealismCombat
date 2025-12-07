@@ -70,3 +70,5 @@ CombatInput第一步改成选择动作,列出AvailableActorObjects, AvailableTar
 第三步选择目标角色,从AvailableTargets里选一个,如果只有一个就自动选
 第四步选择目标部位,从AvailableTargetObjects里选一个,如果只有一个也手动选
 disabled指要显示,但是菜单里是灰色
+
+AI的行为即列出所有可用组合(权重暂时设置1),随机选一个
