@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 ///     放手行动，可解除擒拿或丢弃武器
 /// </summary>
 public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat combat)
-	: CombatAction(actor, combat, 1, 1)
+	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
 	public static bool IsBodyPartCompatible(BodyPart bodyPart) => bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
@@ -15,6 +15,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		if (!CanUse(actor, bodyPart, combat)) return null;
 		return new ReleaseAction(actor, bodyPart, combat);
 	}
+	public override bool Available => CanUse(actor, actorBodyPart, combat);
 	protected override Task OnStartTask()
 	{
 		if (HasGrapplingBuff(actorBodyPart)) return DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");

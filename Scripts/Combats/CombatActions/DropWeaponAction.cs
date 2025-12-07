@@ -2,12 +2,13 @@ using System.Threading.Tasks;
 /// <summary>
 ///     丢弃手中武器的战斗行为
 /// </summary>
-public class DropWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot weaponSlot, Item weapon, Combat combat)
-	: CombatAction(actor, combat, 1, 1)
+public class DropWeaponAction(Character actor, BodyPart actorBodyPart, Combat combat)
+	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	readonly ItemSlot weaponSlot = weaponSlot;
-	readonly string startText = $"{actor.name}准备丢下{actorBodyPart.Name}上的{weapon.Name}";
+	ItemSlot? weaponSlot;
+	Item? weapon;
+	string? startText;
 	public static bool IsBodyPartCompatible(BodyPart bodyPart) =>
 		bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
 	public static bool CanUse(Character actor, BodyPart bodyPart)
@@ -20,16 +21,29 @@ public class DropWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot 
 	{
 		var weaponSlot = FindWeaponSlot(bodyPart);
 		if (weaponSlot?.Item == null) return null;
-		return new(actor, bodyPart, weaponSlot, weaponSlot.Item, combat);
+		var action = new DropWeaponAction(actor, bodyPart, combat);
+		action.SetWeapon(weaponSlot, weaponSlot.Item);
+		return action;
 	}
-	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue(startText);
+	public override bool Available => CanUse(actor, actorBodyPart);
+	protected override Task OnStartTask()
+	{
+		var weaponName = weapon?.Name ?? "武器";
+		return DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}准备丢下{actorBodyPart.Name}上的{weaponName}");
+	}
 	protected override async Task OnExecute()
 	{
-		if (weaponSlot.Item == null) return;
+		if (weaponSlot?.Item == null) return;
 		var droppedWeapon = weaponSlot.Item;
 		weaponSlot.Item = null;
 		combat.droppedItems.Add(droppedWeapon);
 		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}上的{droppedWeapon.Name}");
+	}
+	public void SetWeapon(ItemSlot slot, Item value)
+	{
+		weaponSlot = slot;
+		weapon = value;
+		startText = $"{actor.name}准备丢下{actorBodyPart.Name}上的{value.Name}";
 	}
 	static ItemSlot? FindWeaponSlot(BodyPart bodyPart)
 	{

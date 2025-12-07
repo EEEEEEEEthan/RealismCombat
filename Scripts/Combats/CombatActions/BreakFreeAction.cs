@@ -3,25 +3,30 @@ using Godot;
 /// <summary>
 ///     抽出行动，用于尝试摆脱束缚
 /// </summary>
-public class BreakFreeAction(Character actor, BodyPart actorBodyPart, IBuffOwner buffOwner, Buff restrainedBuff, string targetName, Combat combat)
-	: CombatAction(actor, combat, 2, 1)
+public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat combat)
+	: CombatAction(actor, combat, actorBodyPart, 2, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	readonly IBuffOwner buffOwner = buffOwner;
-	readonly Buff restrainedBuff = restrainedBuff;
-	readonly string targetName = targetName;
+	IBuffOwner? buffOwner;
+	Buff? restrainedBuff;
+	string? targetName;
 	public static bool IsBodyPartCompatible(BodyPart bodyPart) => FindRestrainedBuff(bodyPart) != null;
 	public static bool CanUse(Character actor, BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
 	public static BreakFreeAction? Create(Character actor, BodyPart bodyPart, Combat combat)
 	{
-		if (!bodyPart.Available) return null;
-		var result = FindRestrainedBuff(bodyPart);
-		if (result == null) return null;
-		return new BreakFreeAction(actor, bodyPart, result.Value.Owner, result.Value.Buff, result.Value.TargetName, combat);
+		var action = new BreakFreeAction(actor, bodyPart, combat);
+		action.RefreshContext();
+		return action.Available ? action : null;
 	}
-	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}正试摆脱{targetName}");
+	public override bool Available => actorBodyPart.Available && buffOwner != null && restrainedBuff != null;
+	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}正试摆脱{targetName ?? "目标"}");
 	protected override async Task OnExecute()
 	{
+		if (buffOwner == null || restrainedBuff == null)
+		{
+			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有束缚需要解除");
+			return;
+		}
 		var hasBuff = ContainsBuff(buffOwner, restrainedBuff);
 		var success = hasBuff && GD.Randf() < 0.5f;
 		if (success)
@@ -32,10 +37,18 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, IBuffOwner
 		}
 		if (!hasBuff)
 		{
-			await DialogueManager.ShowGenericDialogue($"{targetName}身上的束缚已经消失");
+			await DialogueManager.ShowGenericDialogue($"{targetName ?? "目标"}身上的束缚已经消失");
 			return;
 		}
-		await DialogueManager.ShowGenericDialogue($"{actor.name}未能摆脱{targetName}");
+		await DialogueManager.ShowGenericDialogue($"{actor.name}未能摆脱{targetName ?? "目标"}");
+	}
+	void RefreshContext()
+	{
+		var result = FindRestrainedBuff(actorBodyPart);
+		if (result == null) return;
+		buffOwner = result.Value.Owner;
+		restrainedBuff = result.Value.Buff;
+		targetName = result.Value.TargetName;
 	}
 	static (IBuffOwner Owner, Buff Buff, string TargetName)? FindRestrainedBuff(IItemContainer container)
 	{

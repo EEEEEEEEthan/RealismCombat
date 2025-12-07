@@ -4,13 +4,13 @@ using Godot;
 /// <summary>
 ///     从腰带取武器到手的战斗行为
 /// </summary>
-public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot targetSlot, ItemSlot sourceSlot, string beltName, Combat combat)
-	: CombatAction(actor, combat, 2, 1)
+public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, Combat combat)
+	: CombatAction(actor, combat, actorBodyPart, 2, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	readonly ItemSlot targetSlot = targetSlot;
-	readonly ItemSlot sourceSlot = sourceSlot;
-	readonly string beltName = beltName;
+	ItemSlot? targetSlot;
+	ItemSlot? sourceSlot;
+	string? beltName;
 	string? startText;
 	class BeltWeaponCandidate
 	{
@@ -24,18 +24,39 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot 
 	}
 	public static bool IsBodyPartCompatible(BodyPart bodyPart) =>
 		bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	public static bool CanUse(Character actor, BodyPart bodyPart)
+	public static new bool CanUse(Character actor, BodyPart bodyPart)
 	{
 		if (!bodyPart.Available) return false;
 		if (!IsBodyPartCompatible(bodyPart)) return false;
 		if (FindEmptyHandSlot(bodyPart) == null) return false;
 		return GetBeltWeaponCandidates(actor).Count > 0;
 	}
-	public static async Task<CombatAction?> CreateByPlayerSelection(Character actor, BodyPart bodyPart, Combat combat)
+	public static TakeWeaponAction? Create(Character actor, BodyPart bodyPart, Combat combat)
+	{
+		if (!CanUse(actor, bodyPart)) return null;
+		return new TakeWeaponAction(actor, bodyPart, combat);
+	}
+	public override bool Available => CanUse(actor, actorBodyPart);
+	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}伸手去拿{beltName ?? "腰带"}上的武器到{actorBodyPart.Name}");
+	protected override Task OnExecute()
+	{
+		if (sourceSlot?.Item == null || targetSlot == null) return Task.CompletedTask;
+		var weapon = sourceSlot.Item;
+		if (targetSlot.Item != null)
+		{
+			var dropped = targetSlot.Item;
+			targetSlot.Item = null;
+			combat.droppedItems.Add(dropped);
+		}
+		targetSlot.Item = weapon;
+		sourceSlot.Item = null;
+		return Task.CompletedTask;
+	}
+	public async Task<bool> PrepareByPlayerSelection()
 	{
 		var candidates = GetBeltWeaponCandidates(actor);
-		var targetSlot = FindEmptyHandSlot(bodyPart);
-		if (candidates.Count == 0 || targetSlot == null) return null;
+		targetSlot = FindEmptyHandSlot(actorBodyPart);
+		if (candidates.Count == 0 || targetSlot == null) return false;
 		var options = new MenuOption[candidates.Count];
 		for (var i = 0; i < candidates.Count; i++)
 		{
@@ -49,41 +70,30 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot 
 		}
 		var menu = DialogueManager.CreateMenuDialogue("选择腰带武器", true, options);
 		var choice = await menu;
-		if (choice == options.Length) return null;
+		if (choice == options.Length) return false;
 		var selected = candidates[choice];
+		AssignSlots(targetSlot, selected.Slot, selected.Belt.Name);
 		var finalWeaponName = selected.Slot.Item?.Name ?? "武器";
-		return new TakeWeaponAction(actor, bodyPart, targetSlot, selected.Slot, selected.Belt.Name, combat)
-		{
-			startText = $"{actor.name}伸手去拿{selected.Belt.Name}上的{finalWeaponName}",
-		};
+		startText = $"{actor.name}伸手去拿{selected.Belt.Name}上的{finalWeaponName}";
+		return true;
 	}
-	public static CombatAction? CreateByAI(Character actor, BodyPart bodyPart, Combat combat)
+	public bool PrepareByAI()
 	{
 		var candidates = GetBeltWeaponCandidates(actor);
-		var targetSlot = FindEmptyHandSlot(bodyPart);
-		if (candidates.Count == 0 || targetSlot == null) return null;
+		targetSlot = FindEmptyHandSlot(actorBodyPart);
+		if (candidates.Count == 0 || targetSlot == null) return false;
 		var index = (int)(GD.Randi() % (uint)candidates.Count);
 		var selected = candidates[index];
 		var weaponName = selected.Slot.Item?.Name ?? "武器";
-		return new TakeWeaponAction(actor, bodyPart, targetSlot, selected.Slot, selected.Belt.Name, combat)
-		{
-			startText = $"{actor.name}伸手去拿{selected.Belt.Name}上的{weaponName}",
-		};
+		AssignSlots(targetSlot, selected.Slot, selected.Belt.Name);
+		startText = $"{actor.name}伸手去拿{selected.Belt.Name}上的{weaponName}";
+		return true;
 	}
-	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}伸手去拿{beltName}上的武器到{actorBodyPart.Name}");
-	protected override Task OnExecute()
+	void AssignSlots(ItemSlot target, ItemSlot source, string belt)
 	{
-		var weapon = sourceSlot.Item;
-		if (weapon == null) return Task.CompletedTask;
-		if (targetSlot.Item != null)
-		{
-			var dropped = targetSlot.Item;
-			targetSlot.Item = null;
-			combat.droppedItems.Add(dropped);
-		}
-		targetSlot.Item = weapon;
-		sourceSlot.Item = null;
-		return Task.CompletedTask;
+		targetSlot = target;
+		sourceSlot = source;
+		beltName = belt;
 	}
 	static List<BeltWeaponCandidate> GetBeltWeaponCandidates(Character actor)
 	{
@@ -114,4 +124,3 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, ItemSlot 
 		return null;
 	}
 }
-

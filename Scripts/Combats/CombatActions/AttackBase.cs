@@ -1,25 +1,46 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 /// <summary>
 ///     攻击基类
 /// </summary>
-public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Character target, ICombatTarget combatTarget, Combat combat)
-	: CombatAction(actor, combat, 3, 3)
+public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat)
+	: CombatAction(actor, combat, actorBodyPart, 3, 3)
 {
 	internal abstract double DodgeImpact { get; }
 	internal abstract double BlockImpact { get; }
 	internal abstract AttackTypeCode AttackType { get; }
 	internal virtual double DamageMultiplier => 1.0;
 	internal virtual bool UsesWeapon => false;
-	/// <summary>
-	///     是否结算伤害
-	/// </summary>
+	Character? target;
+	ICombatTarget? combatTarget;
+	protected readonly BodyPart actorBodyPart = actorBodyPart;
+	public BodyPart ActorBodyPart => actorBodyPart;
+	public override bool Available => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
+	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
+	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
+	{
+		get
+		{
+			var target = Target;
+			if (target == null) return Array.Empty<(ICombatTarget, bool)>();
+			return GetAvailableTargets(target).Select(t => (t, !t.Available));
+		}
+	}
+	public override Character? Target
+	{
+		get => target;
+		set => target = value;
+	}
+	public override ICombatTarget? TargetObject
+	{
+		get => combatTarget;
+		set => combatTarget = value;
+	}
+	public ICombatTarget CombatTarget => TargetCombatObject;
 	protected virtual bool ShouldResolveDamage => true;
-	/// <summary>
-	///     检查身体部位是否有武器
-	/// </summary>
 	protected static bool HasWeapon(BodyPart bodyPart)
 	{
 		foreach (var slot in bodyPart.Slots)
@@ -27,33 +48,19 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 				return true;
 		return false;
 	}
-	/// <summary>
-	///     检查身体部位是否是手臂
-	/// </summary>
 	protected static bool IsArm(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	/// <summary>
-	///     检查身体部位是否是腿
-	/// </summary>
 	protected static bool IsLeg(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
-	public Character Actor => actor;
-	public BodyPart ActorBodyPart => actorBodyPart;
-	public Character Target => target;
-	public ICombatTarget CombatTarget => combatTarget;
-	/// <summary>
-	///     获取攻击开始时的对话文本
-	/// </summary>
+	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
+protected Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
+protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
 	protected abstract string GetStartDialogueText();
-	/// <summary>
-	///     获取攻击执行时的对话文本
-	/// </summary>
 	protected abstract string GetExecuteDialogueText();
-	/// <summary>
-	///     计算伤害值
-	/// </summary>
 	protected virtual Damage CalculateDamage() => DamageResolver.GetBaseDamage(this).Scale(DamageMultiplier);
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(GetStartDialogueText());
 	protected override async Task OnExecute()
 	{
+		var target = TargetCharacter;
+		var combatTarget = TargetCombatObject;
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
 		var targetNode = combat.combatNode.GetCharacterNode(target);
 		var actorPosition = combat.combatNode.GetPKPosition(actor);
@@ -154,9 +161,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Charac
 		await DialogueManager.ShowGenericDialogue(resultMessages);
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
 	}
-	/// <summary>
-	///     攻击命中后的额外效果，子类可以重写
-	/// </summary>
 	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages) => Task.CompletedTask;
 	static string FormatChance(double value) => $"{Math.Round(value * 100)}%";
+	static ICombatTarget[] GetAvailableTargets(Character character) =>
+		character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
+	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 }
