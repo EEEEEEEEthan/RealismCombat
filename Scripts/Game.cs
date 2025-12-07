@@ -48,7 +48,7 @@ public class Game
 			var item = inventoryItems[i];
 			if (!CanEquip(item, slot)) continue;
 			indices.Add(i);
-			optionList.Add(new() { title = item.Name, description = FormatItemDescription(item), });
+			optionList.Add(new() { title = $"{item.IconTag}{item.Name}", description = FormatItemDescription(item), });
 		}
 		options = optionList.ToArray();
 		return options.Length > 0;

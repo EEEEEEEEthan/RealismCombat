@@ -26,6 +26,8 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 	///     装备描述
 	/// </summary>
 	public string Description { get; }
+	public string Icon { get; }
+	public string IconTag => $"[img=8x8]{Icon}[/img]";
 	public ItemSlot[] Slots { get; }
 	public PropertyInt HitPoint { get; }
 	public double Length { get; }
@@ -40,6 +42,7 @@ public class Item : ICombatTarget, IItemContainer, IBuffOwner
 		flag = config.Flag;
 		Name = config.Name;
 		Description = string.IsNullOrEmpty(config.Description) ? config.Name : config.Description;
+		Icon = config.Icon;
 		Length = config.Length;
 		Weight = config.Weight;
 		Slots = CreateSlots(config.SlotFlags, this);

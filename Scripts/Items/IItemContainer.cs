@@ -9,7 +9,7 @@ public interface IItemContainer
 		{
 			var item = slot.Item;
 			if (item == null) continue;
-			parts.Add($"[{item.Name}]");
+			parts.Add(item.IconTag);
 		}
 	}
 }
