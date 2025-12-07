@@ -58,27 +58,6 @@ public class Game
 		options = optionList.ToArray();
 		return options.Length > 0;
 	}
-	static readonly CombatActionCode[] PlayerStarterActions =
-	[
-		CombatActionCode.Slash,
-		CombatActionCode.Stab,
-		CombatActionCode.BreakFree,
-		CombatActionCode.Release,
-		CombatActionCode.TakeWeapon,
-	];
-	static readonly CombatActionCode[] NobleSoldierActions =
-	[
-		CombatActionCode.Slash,
-		CombatActionCode.BreakFree,
-		CombatActionCode.Release,
-		CombatActionCode.TakeWeapon,
-	];
-	static void ApplyCombatActions(Character target, IReadOnlyCollection<CombatActionCode> actions)
-	{
-		target.availableCombatActions.Clear();
-		foreach (var code in actions) target.availableCombatActions[code] = 0f;
-		if (target.availableCombatActions.Count == 0) target.availableCombatActions[CombatActionCode.Slash] = 0f;
-	}
 	readonly string saveFilePath;
 	readonly TaskCompletionSource taskCompletionSource = new();
 	readonly Node gameNode;
@@ -102,7 +81,12 @@ public class Game
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
 		if (hero.groin.Slots.Length > 0) hero.groin.Slots[0].Item = cottonPants;
-		ApplyCombatActions(hero, PlayerStarterActions);
+		hero.availableCombatActions.Clear();
+		hero.availableCombatActions[CombatActionCode.Slash] = 0f;
+		hero.availableCombatActions[CombatActionCode.Stab] = 0f;
+		hero.availableCombatActions[CombatActionCode.BreakFree] = 0f;
+		hero.availableCombatActions[CombatActionCode.Release] = 0f;
+		hero.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
 		players = [hero,];
 		StartGameLoop();
 	}
@@ -121,7 +105,14 @@ public class Game
 		players = ReadPlayers(reader, version);
 		if (version < new GameVersion(0, 0, 1))
 			foreach (var player in players)
-				ApplyCombatActions(player, PlayerStarterActions);
+			{
+				player.availableCombatActions.Clear();
+				player.availableCombatActions[CombatActionCode.Slash] = 0f;
+				player.availableCombatActions[CombatActionCode.Stab] = 0f;
+				player.availableCombatActions[CombatActionCode.BreakFree] = 0f;
+				player.availableCombatActions[CombatActionCode.Release] = 0f;
+				player.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
+			}
 		ScriptIndex = (ScriptCode)reader.ReadInt32();
 		StartGameLoop();
 	}
@@ -275,7 +266,13 @@ public class Game
 					var enemy = new Character("贵族兵");
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = enemy.actionPoint.maxValue / 2;
-					ApplyCombatActions(enemy, NobleSoldierActions);
+					enemy.availableCombatActions.Clear();
+					enemy.availableCombatActions[CombatActionCode.Slash] = 0f;
+					enemy.availableCombatActions[CombatActionCode.BreakFree] = 0f;
+					enemy.availableCombatActions[CombatActionCode.Release] = 0f;
+					enemy.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
+					enemy.availableCombatActions[CombatActionCode.Charge] = 0f;
+					players[0].availableCombatActions[CombatActionCode.Charge] = 0f;
 					var enemies = new[]
 					{
 						enemy,
