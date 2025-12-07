@@ -355,7 +355,7 @@ public class Game
 				var title = bp.GetNameWithEquipments();
 				options[i] = new() { title = title, description = "查看或更换该部位装备", };
 			}
-			var menu = DialogueManager.CreateMenuDialogue("选择身体部位", true, options);
+			var menu = DialogueManager.CreateMenuDialogue("查看装备", true, options);
 			var choice = await menu;
 			if (choice == options.Length) return true;
 			await ExpandItemContainer(character, equippableParts[choice], null);
