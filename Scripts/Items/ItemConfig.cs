@@ -138,7 +138,7 @@ public readonly struct ItemConfig
 			}
 		},
 	};
-	public Texture2D IconTexture => IconGetter();
+	public Texture2D Icon => IconGetter();
 	public string Name { get; private init; }
 	public string? Description { get; private init; }
 	public ItemFlagCode Flag { get; private init; }
