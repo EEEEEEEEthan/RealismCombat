@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 public partial class MenuOptionListTest : Control
@@ -7,7 +8,7 @@ public partial class MenuOptionListTest : Control
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (OptionList is not { } optionList) return;
-		var options = optionList.Options;
+		var options = optionList.Options ?? Array.Empty<string>();
 		if (options.Length == 0) return;
 		if (@event.IsActionPressed("ui_up"))
 		{
