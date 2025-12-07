@@ -7,15 +7,12 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	public static bool IsBodyPartCompatible(BodyPart bodyPart) => bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	public static bool CanUse(Character actor, BodyPart bodyPart, Combat combat) =>
-		bodyPart.Available && IsBodyPartCompatible(bodyPart) && (HasGrapplingBuff(bodyPart) || FindWeaponSlot(bodyPart) != null);
 	public static ReleaseAction? Create(Character actor, BodyPart bodyPart, Combat combat)
 	{
-		if (!CanUse(actor, bodyPart, combat)) return null;
-		return new ReleaseAction(actor, bodyPart, combat);
+		var action = new ReleaseAction(actor, bodyPart, combat);
+		return action.Available ? action : null;
 	}
-	public override bool Available => CanUse(actor, actorBodyPart, combat);
+	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{
 		if (HasGrapplingBuff(actorBodyPart)) return DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");
@@ -145,6 +142,12 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 			if (slot.Item != null)
 				return slot;
 		return null;
+	}
+	bool IsUsable()
+	{
+		if (!actorBodyPart.Available) return false;
+		if (actorBodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) return false;
+		return HasGrapplingBuff(actorBodyPart) || FindWeaponSlot(actorBodyPart) != null;
 	}
 }
 

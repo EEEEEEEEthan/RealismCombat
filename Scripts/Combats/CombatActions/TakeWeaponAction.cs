@@ -22,21 +22,12 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 		public Item Belt { get; }
 		public ItemSlot Slot { get; }
 	}
-	public static bool IsBodyPartCompatible(BodyPart bodyPart) =>
-		bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	public static new bool CanUse(Character actor, BodyPart bodyPart)
-	{
-		if (!bodyPart.Available) return false;
-		if (!IsBodyPartCompatible(bodyPart)) return false;
-		if (FindEmptyHandSlot(bodyPart) == null) return false;
-		return GetBeltWeaponCandidates(actor).Count > 0;
-	}
 	public static TakeWeaponAction? Create(Character actor, BodyPart bodyPart, Combat combat)
 	{
-		if (!CanUse(actor, bodyPart)) return null;
-		return new TakeWeaponAction(actor, bodyPart, combat);
+		var action = new TakeWeaponAction(actor, bodyPart, combat);
+		return action.Available ? action : null;
 	}
-	public override bool Available => CanUse(actor, actorBodyPart);
+	public override bool Available => IsUsable();
 	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}伸手去拿{beltName ?? "腰带"}上的武器到{actorBodyPart.Name}");
 	protected override Task OnExecute()
 	{
@@ -122,5 +113,12 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 			if (slot.Item == null && (slot.Flag & ItemFlagCode.Arm) != 0)
 				return slot;
 		return null;
+	}
+	bool IsUsable()
+	{
+		if (!actorBodyPart.Available) return false;
+		if (actorBodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) return false;
+		if (FindEmptyHandSlot(actorBodyPart) == null) return false;
+		return GetBeltWeaponCandidates(actor).Count > 0;
 	}
 }

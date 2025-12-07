@@ -9,35 +9,42 @@ public class DropWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 	ItemSlot? weaponSlot;
 	Item? weapon;
 	string? startText;
-	public static bool IsBodyPartCompatible(BodyPart bodyPart) =>
-		bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	public static bool CanUse(Character actor, BodyPart bodyPart)
-	{
-		if (!bodyPart.Available) return false;
-		if (!IsBodyPartCompatible(bodyPart)) return false;
-		return FindWeaponSlot(bodyPart) != null;
-	}
 	public static DropWeaponAction? Create(Character actor, BodyPart bodyPart, Combat combat)
 	{
-		var weaponSlot = FindWeaponSlot(bodyPart);
-		if (weaponSlot?.Item == null) return null;
 		var action = new DropWeaponAction(actor, bodyPart, combat);
-		action.SetWeapon(weaponSlot, weaponSlot.Item);
+		if (!action.Available) return null;
 		return action;
 	}
-	public override bool Available => CanUse(actor, actorBodyPart);
+	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{
-		var weaponName = weapon?.Name ?? "武器";
+		var slot = ResolveWeaponSlot();
+		if (slot?.Item == null)
+			return DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有可丢弃的武器");
+		var weaponName = slot.Item?.Name ?? "武器";
 		return DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}准备丢下{actorBodyPart.Name}上的{weaponName}");
 	}
 	protected override async Task OnExecute()
 	{
-		if (weaponSlot?.Item == null) return;
-		var droppedWeapon = weaponSlot.Item;
-		weaponSlot.Item = null;
+		var slot = ResolveWeaponSlot();
+		if (slot?.Item == null)
+		{
+			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有可丢弃的武器");
+			return;
+		}
+		var droppedWeapon = slot.Item;
+		slot.Item = null;
 		combat.droppedItems.Add(droppedWeapon);
 		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}上的{droppedWeapon.Name}");
+	}
+	ItemSlot? ResolveWeaponSlot()
+	{
+		weaponSlot ??= FindWeaponSlot(actorBodyPart);
+		if (weaponSlot?.Item != null)
+			weapon = weaponSlot.Item;
+		else
+			weapon = null;
+		return weaponSlot;
 	}
 	public void SetWeapon(ItemSlot slot, Item value)
 	{
@@ -51,6 +58,12 @@ public class DropWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 			if (slot.Item != null)
 				return slot;
 		return null;
+	}
+	bool IsUsable()
+	{
+		if (!actorBodyPart.Available) return false;
+		if (actorBodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) return false;
+		return FindWeaponSlot(actorBodyPart)?.Item != null;
 	}
 }
 

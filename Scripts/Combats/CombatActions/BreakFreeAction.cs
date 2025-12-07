@@ -10,15 +10,20 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 	IBuffOwner? buffOwner;
 	Buff? restrainedBuff;
 	string? targetName;
-	public static bool IsBodyPartCompatible(BodyPart bodyPart) => FindRestrainedBuff(bodyPart) != null;
-	public static bool CanUse(Character actor, BodyPart bodyPart) => bodyPart.Available && IsBodyPartCompatible(bodyPart);
 	public static BreakFreeAction? Create(Character actor, BodyPart bodyPart, Combat combat)
 	{
 		var action = new BreakFreeAction(actor, bodyPart, combat);
 		action.RefreshContext();
 		return action.Available ? action : null;
 	}
-	public override bool Available => actorBodyPart.Available && buffOwner != null && restrainedBuff != null;
+	public override bool Available
+	{
+		get
+		{
+			RefreshContext();
+			return actorBodyPart.Available && buffOwner != null && restrainedBuff != null;
+		}
+	}
 	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}正试摆脱{targetName ?? "目标"}");
 	protected override async Task OnExecute()
 	{
