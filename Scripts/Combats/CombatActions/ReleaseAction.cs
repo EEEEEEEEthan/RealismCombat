@@ -7,11 +7,6 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 	: CombatAction(actor, combat, actorBodyPart, 1, 1)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	public static ReleaseAction? Create(Character actor, BodyPart bodyPart, Combat combat)
-	{
-		var action = new ReleaseAction(actor, bodyPart, combat);
-		return action.Available ? action : null;
-	}
 	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{

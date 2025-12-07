@@ -43,10 +43,10 @@ public abstract class CombatInput(Combat combat)
 		TryAdd("头槌", new HeadbuttAttack(actor, bodyPart, combat));
 		TryAdd("撞击", new ChargeAttack(actor, bodyPart, combat));
 		TryAdd("抓", new GrabAttack(actor, bodyPart, combat));
-		TryAdd("抽出", BreakFreeAction.Create(actor, bodyPart, combat));
-		TryAdd("放手", ReleaseAction.Create(actor, bodyPart, combat));
-		TryAdd("丢弃", DropWeaponAction.Create(actor, bodyPart, combat));
-		TryAdd("拿", TakeWeaponAction.Create(actor, bodyPart, combat));
+		TryAdd("抽出", new BreakFreeAction(actor, bodyPart, combat));
+		TryAdd("放手", new ReleaseAction(actor, bodyPart, combat));
+		TryAdd("丢弃", new DropWeaponAction(actor, bodyPart, combat));
+		TryAdd("拿", new TakeWeaponAction(actor, bodyPart, combat));
 		return actions;
 	}
 }

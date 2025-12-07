@@ -9,12 +9,6 @@ public class DropWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 	ItemSlot? weaponSlot;
 	Item? weapon;
 	string? startText;
-	public static DropWeaponAction? Create(Character actor, BodyPart bodyPart, Combat combat)
-	{
-		var action = new DropWeaponAction(actor, bodyPart, combat);
-		if (!action.Available) return null;
-		return action;
-	}
 	public override bool Available => IsUsable();
 	protected override Task OnStartTask()
 	{

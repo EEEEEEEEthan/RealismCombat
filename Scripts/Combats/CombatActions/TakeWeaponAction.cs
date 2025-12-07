@@ -22,11 +22,6 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 		public Item Belt { get; }
 		public ItemSlot Slot { get; }
 	}
-	public static TakeWeaponAction? Create(Character actor, BodyPart bodyPart, Combat combat)
-	{
-		var action = new TakeWeaponAction(actor, bodyPart, combat);
-		return action.Available ? action : null;
-	}
 	public override bool Available => IsUsable();
 	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}伸手去拿{beltName ?? "腰带"}上的武器到{actorBodyPart.Name}");
 	protected override Task OnExecute()

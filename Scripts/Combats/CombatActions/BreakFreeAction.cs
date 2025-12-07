@@ -10,12 +10,6 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 	IBuffOwner? buffOwner;
 	Buff? restrainedBuff;
 	string? targetName;
-	public static BreakFreeAction? Create(Character actor, BodyPart bodyPart, Combat combat)
-	{
-		var action = new BreakFreeAction(actor, bodyPart, combat);
-		action.RefreshContext();
-		return action.Available ? action : null;
-	}
 	public override bool Available
 	{
 		get
