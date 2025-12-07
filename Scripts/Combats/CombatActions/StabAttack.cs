@@ -7,8 +7,8 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 {
 	public override CombatActionCode Code => CombatActionCode.Stab;
 	public override string Description => BuildAttackDescription("持武器刺击目标，造成刺击伤害，依赖手部武器");
-	internal override double DodgeImpact => 0.55;
-	internal override double BlockImpact => 0.5;
+	internal override double DodgeImpact => 0.7;
+	internal override double BlockImpact => 0.35;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Thrust;
 	internal override bool UsesWeapon => true;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && IsArm(bodyPart.id) && HasWeapon(bodyPart);

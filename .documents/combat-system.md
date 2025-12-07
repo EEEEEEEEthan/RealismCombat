@@ -63,7 +63,7 @@
 - 每种攻击类型都有 `CanUse(BodyPart bodyPart)` 静态方法，用于验证该身体部位是否可以使用该攻击类型
 - 当前实现的攻击类型：
   - `SlashAttack`（Swing 挥砍）：只允许有武器的手臂使用
-  - `StabAttack`（Thrust 捅扎）：只允许有武器的手臂使用
+  - `StabAttack`（Thrust 捅扎）：只允许有武器的手臂使用，闪避影响 0.7、格挡影响 0.35，相比其他攻击更容易被闪避且更难被格挡
   - `KickAttack`（Special 特殊）：只允许腿使用
   - `HeadbuttAttack`（Special 特殊）：只允许头使用
   - `ChargeAttack`（Special 特殊）：只允许躯干使用
