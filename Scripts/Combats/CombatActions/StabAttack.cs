@@ -3,7 +3,7 @@ using Godot;
 ///     刺击攻击，只允许持武器的手臂使用
 /// </summary>
 public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
-	: AttackBase(actor, actorBodyPart, combat)
+	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
 	public override CombatActionCode Code => CombatActionCode.Stab;
 	public override string Description => BuildAttackDescription("持武器刺击目标，造成刺击伤害，依赖手部武器");

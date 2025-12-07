@@ -3,7 +3,7 @@ using Godot;
 ///     踢击攻击，只允许腿使用
 /// </summary>
 public class KickAttack(Character actor, BodyPart actorBodyPart, Combat combat)
-	: AttackBase(actor, actorBodyPart, combat)
+	: AttackBase(actor, actorBodyPart, combat, 3, 3)
 {
 	public override CombatActionCode Code => CombatActionCode.Kick;
 	public override string Description => BuildAttackDescription("用腿部发动踢击，依赖腿部可用性进行近战攻击");

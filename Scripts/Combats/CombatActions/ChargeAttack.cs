@@ -2,7 +2,7 @@
 ///     撞击攻击，只允许躯干使用
 /// </summary>
 public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat)
-	: AttackBase(actor, actorBodyPart, combat)
+	: AttackBase(actor, actorBodyPart, combat, 4, 2)
 {
 	public override CombatActionCode Code => CombatActionCode.Charge;
 	public override string Description => BuildAttackDescription("用躯干蓄力撞击目标，造成特殊近战攻击");

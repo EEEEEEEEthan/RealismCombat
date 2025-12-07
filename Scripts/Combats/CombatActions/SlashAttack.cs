@@ -3,7 +3,7 @@ using Godot;
 ///     斩击攻击，只允许有武器的手臂使用
 /// </summary>
 public class SlashAttack(Character actor, BodyPart actorBodyPart, Combat combat)
-	: AttackBase(actor, actorBodyPart, combat)
+	: AttackBase(actor, actorBodyPart, combat, 4, 2)
 {
 	public override CombatActionCode Code => CombatActionCode.Slash;
 	public override string Description => BuildAttackDescription("持武器挥砍目标，造成挥砍伤害，依赖手部武器");

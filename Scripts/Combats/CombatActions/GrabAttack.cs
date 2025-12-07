@@ -5,7 +5,7 @@ using Godot;
 ///     抓取攻击，只允许没有武器的手臂使用
 /// </summary>
 public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
-	: AttackBase(actor, actorBodyPart, combat)
+	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
 	public override CombatActionCode Code => CombatActionCode.Grab;
 	public override string Description => BuildAttackDescription("徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态");

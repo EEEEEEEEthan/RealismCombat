@@ -6,8 +6,8 @@ using Godot;
 /// <summary>
 ///     攻击基类
 /// </summary>
-public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat)
-	: CombatAction(actor, combat, actorBodyPart, 3, 3)
+public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
+	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
 	internal abstract double DodgeImpact { get; }
 	internal abstract double BlockImpact { get; }
