@@ -81,7 +81,25 @@ protected Character TargetCharacter => target ?? throw new InvalidOperationExcep
 protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
 	protected abstract string GetStartDialogueText();
 	protected abstract string GetExecuteDialogueText();
-	protected virtual Damage CalculateDamage() => DamageResolver.GetBaseDamage(this).Scale(DamageMultiplier);
+	protected virtual Damage CalculateDamage()
+	{
+		var attackType = AttackType;
+		if (UsesWeapon)
+		{
+			foreach (var slot in ActorBodyPart.Slots)
+			{
+				var weapon = slot.Item;
+				if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0)
+					return weapon.DamageProfile.Get(attackType).Scale(DamageMultiplier);
+			}
+		}
+		var baseDamage = attackType switch
+		{
+			AttackTypeCode.Special => new Damage(0f, 0f, 1f),
+			_ => Damage.Zero,
+		};
+		return baseDamage.Scale(DamageMultiplier);
+	}
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(GetStartDialogueText());
 	protected override async Task OnExecute()
 	{
