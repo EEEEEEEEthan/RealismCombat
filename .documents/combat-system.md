@@ -115,10 +115,10 @@
 
 ## 命中与护甲覆盖
 
-- 伤害结算前通过 `DamageResolver.ResolveTarget()` 决定最终受击目标与防护值
-- 若目标为身体部位，会收集该部位上所有护甲（TorsoArmor/HandArmor/LegArmor）
-- 每件护甲单独按其 `Coverage` 判定是否被命中，判定顺序随机；成功命中则使用该护甲的防护与耐久，未命中则继续尝试下一件
+- 伤害结算前在 `AttackBase.OnExecute()` 内联决定最终受击目标与防护值（原先的 `DamageResolver.ResolveTarget()` 已去除）
+- 若目标为身体部位，会收集该部位上所有护甲（TorsoArmor/HandArmor/LegArmor），逐件按随机起始顺序检验 `Coverage`；命中则使用该护甲的 `Protection`，未命中继续下一件
 - 若所有护甲都未命中，则直接命中部位，防护为 0
+- 若目标本身是装备，直接使用装备自带的 `Protection`
 - 格挡成功时同样走上述流程：若格挡目标是身体部位使用其护甲覆盖率，若是装备则直接对该装备结算，不做覆盖判定
 
 ## 角色与属性

@@ -148,7 +148,39 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 			if (ShouldResolveDamage)
 			{
 				var rawDamage = CalculateDamage();
-				var resolvedTarget = DamageResolver.ResolveTarget(finalTarget);
+				(ICombatTarget target, Protection protection) resolvedTarget = (finalTarget, Protection.Zero);
+				var resolved = false;
+				if (finalTarget is BodyPart bodyPart)
+				{
+					var armors = new List<Item>();
+					foreach (var slot in bodyPart.Slots)
+					{
+						var armorItem = slot.Item;
+						if (armorItem == null) continue;
+						if ((armorItem.flag & (ItemFlagCode.TorsoArmor | ItemFlagCode.HandArmor | ItemFlagCode.LegArmor)) != 0)
+							armors.Add(armorItem);
+					}
+					if (armors.Count > 0)
+					{
+						var startIndex = (int)(GD.Randi() % (uint)armors.Count);
+						for (var i = 0; i < armors.Count; i++)
+						{
+							var armor = armors[(startIndex + i) % armors.Count];
+							if (armor.Coverage <= 0.0) continue;
+							if (GD.Randf() < armor.Coverage)
+							{
+								resolvedTarget = (armor, armor.Protection);
+								resolved = true;
+								break;
+							}
+						}
+					}
+					if (!resolved) resolvedTarget = (bodyPart, Protection.Zero);
+				}
+				else if (finalTarget is Item item)
+				{
+					resolvedTarget = (item, item.Protection);
+				}
 				finalTarget = resolvedTarget.target;
 				var mitigatedDamage = rawDamage.ApplyProtection(resolvedTarget.protection);
 				var damageValue = Mathf.CeilToInt(mitigatedDamage.Total);
