@@ -141,15 +141,6 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			}
 		}
 	}
-	void LogAllCharactersState()
-	{
-		var fighters = combat.Allies.Concat(combat.Enemies);
-		foreach (var fighter in fighters)
-		{
-			var bodyStates = fighter.bodyParts.Select(bp => $"{bp.Name}{bp.HitPoint.value}/{bp.HitPoint.maxValue}");
-			Log.Print($"[回合状态]{fighter.name} 行动 {fighter.actionPoint.value}/{fighter.actionPoint.maxValue} 反应 {fighter.reaction} {string.Join(" ", bodyStates)}");
-		}
-	}
 	public override async Task<ReactionDecision> MakeReactionDecisionTask(
 		Character defender,
 		Character attacker,
@@ -161,7 +152,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		while (true)
 		{
 			var attack = attacker.combatAction as AttackBase;
-			var reactionChance = attack != null ? ReactionSuccessCalculator.Calculate(attack) : new ReactionChance(0.0, 0.0);
+			var reactionChance = attack != null ? ReactionSuccessCalculator.Calculate(attack) : new(0.0, 0.0);
 			var blockChanceText = $"成功率 {FormatChance(reactionChance.BlockChance)}";
 			var dodgeChanceText = $"成功率 {FormatChance(reactionChance.DodgeChance)}";
 			var attackerText = $"{attacker.name}的攻击";
@@ -169,12 +160,15 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			{
 				if (attack.UsesWeapon)
 				{
-					var weaponName = attack.ActorBodyPart.Slots
+					var weaponName = attack
+						.ActorBodyPart.Slots
 						.Select(slot => slot.Item)
 						.FirstOrDefault(item => item != null && (item.flag & ItemFlagCode.Arm) != 0)
 						?.Name;
-					if (!string.IsNullOrEmpty(weaponName)) attackerText = $"{attacker.name}{weaponName}";
-					else attackerText = $"{attacker.name}{attack.ActorBodyPart.Name}";
+					if (!string.IsNullOrEmpty(weaponName))
+						attackerText = $"{attacker.name}{weaponName}";
+					else
+						attackerText = $"{attacker.name}{attack.ActorBodyPart.Name}";
 				}
 				else
 				{
@@ -248,6 +242,16 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				default:
 					return ReactionDecision.CreateEndure();
 			}
+		}
+	}
+	void LogAllCharactersState()
+	{
+		var fighters = combat.Allies.Concat(combat.Enemies);
+		foreach (var fighter in fighters)
+		{
+			var bodyStates = fighter.bodyParts.Select(bp => $"{bp.Name}{bp.HitPoint.value}/{bp.HitPoint.maxValue}");
+			Log.Print(
+				$"[回合状态]{fighter.name} 行动 {fighter.actionPoint.value}/{fighter.actionPoint.maxValue} 反应 {fighter.reaction} {string.Join(" ", bodyStates)}");
 		}
 	}
 	async Task<CombatAction?> PrepareAction(
@@ -453,9 +457,8 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		var index = (int)(randomValue % (uint)candidateTargets.Length);
 		return Task.FromResult(ReactionDecision.CreateBlock(candidateTargets[index]));
 	}
-	bool TryPrepareAIAction(CombatAction action)
-	{
-		return action switch
+	bool TryPrepareAIAction(CombatAction action) =>
+		action switch
 		{
 			AttackBase attack => TryAssignRandomTargets(attack),
 			TakeWeaponAction takeWeaponAction => takeWeaponAction.PrepareByAI(),
@@ -463,7 +466,6 @@ public class AIInput(Combat combat) : CombatInput(combat)
 			ReleaseAction { WillOnlyDropWeapon: true, } => false,
 			_ => true,
 		};
-	}
 	bool TryAssignRandomTargets(AttackBase attack)
 	{
 		var targets = attack.AvailableTargets.ToArray();
