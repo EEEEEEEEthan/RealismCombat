@@ -48,7 +48,7 @@ public class Game
 	static bool TryBuildEquipOptions(List<Item> inventoryItems, ItemSlot slot, out MenuOption[] options, out List<int> indices)
 	{
 		var optionList = new List<MenuOption>();
-		indices = new();
+		indices = [];
 		for (var i = 0; i < inventoryItems.Count; i++)
 		{
 			var item = inventoryItems[i];
@@ -64,6 +64,7 @@ public class Game
 	readonly Node gameNode;
 	readonly List<Character> players;
 	public ScriptCode ScriptIndex { get; private set; }
+	Snapshot Snapshot => new(this);
 	/// <summary>
 	///     新游戏
 	/// </summary>
@@ -116,7 +117,6 @@ public class Game
 #endif
 		StartGameLoop();
 	}
-	public Snapshot GetSnapshot() => new(this);
 	public TaskAwaiter GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	void Save()
 	{
@@ -125,7 +125,7 @@ public class Game
 		if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
 		using var stream = new FileStream(saveFilePath, FileMode.Create, FileAccess.Write);
 		using var writer = new BinaryWriter(stream);
-		var snapshot = GetSnapshot();
+		var snapshot = Snapshot;
 		snapshot.Serialize(writer);
 		WritePlayers(writer);
 		writer.Write((int)ScriptIndex);

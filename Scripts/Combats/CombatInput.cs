@@ -157,9 +157,14 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	)
 	{
 		var reactionAvailable = defender.reaction > 0;
+		string FormatChance(double value) => $"{Math.Round(value * 100)}%";
 		while (true)
 		{
 			var attack = attacker.combatAction as AttackBase;
+			var reactionChance = attack != null ? ReactionSuccessCalculator.Calculate(attack) : new ReactionChance(0.0, 0.0);
+			var chanceText = attack != null
+				? $"格挡成功率 {FormatChance(reactionChance.BlockChance)}\n闪避成功率 {FormatChance(reactionChance.DodgeChance)}"
+				: "无法获取反应成功率";
 			var attackerText = $"{attacker.name}的攻击";
 			if (attack != null)
 			{
@@ -196,13 +201,13 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				new MenuOption
 				{
 					title = "格挡",
-					description = "消耗1点反应, 选择身体或武器承受伤害",
+					description = $"{chanceText}\n消耗1点反应, 选择身体或武器承受伤害",
 					disabled = !reactionAvailable,
 				},
 				new MenuOption
 				{
 					title = "闪避",
-					description = "消耗1点反应, 打断自身行动并躲开伤害",
+					description = $"{chanceText}\n消耗1点反应, 打断自身行动并躲开伤害",
 					disabled = !reactionAvailable,
 				},
 				new MenuOption
