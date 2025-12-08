@@ -347,6 +347,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 }
 public class AIInput(Combat combat) : CombatInput(combat)
 {
+	const float ReactionEndureChance = 0.25f;
 	public override Task<CombatAction> MakeDecisionTask(Character character)
 	{
 		var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
@@ -374,6 +375,7 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	)
 	{
 		if (defender.reaction <= 0) return Task.FromResult(ReactionDecision.CreateEndure());
+		if (GD.Randf() < ReactionEndureChance) return Task.FromResult(ReactionDecision.CreateEndure());
 		var blockTargets = GetBlockTargets(defender);
 		if (blockTargets.Length == 0) return Task.FromResult(ReactionDecision.CreateEndure());
 		var itemTargets = blockTargets.Where(t => t is Item).ToArray();
