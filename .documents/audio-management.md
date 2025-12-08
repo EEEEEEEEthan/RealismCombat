@@ -40,3 +40,8 @@
 - 战斗动作（如 `Attack`）通过 `AudioManager.PlaySfx` 播放受击音效，与 UI 动画同步
 - 可根据后续需求在 `AudioManager` 中追加淡出、音量渐变等辅助方法，所有调用者统一受益
 
+## 背景音乐场景约定
+
+- 主菜单与剧情流程默认播放 `ResourceTable.arpegio01Loop`，在 `ProgramRoot.StartGameLoop()` 与 `Game.StartGameLoop()` 入口即触发，避免启动静音
+- 进入战斗前切换到 `ResourceTable.battleMusic1`，战斗流程结束后立即恢复剧情 BGM，保证场景切换的音乐一致性
+

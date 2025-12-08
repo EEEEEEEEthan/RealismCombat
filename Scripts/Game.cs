@@ -141,6 +141,7 @@ public class Game
 	{
 		try
 		{
+			PlayStoryBgm();
 			if (ScriptIndex == ScriptCode._0_Intro)
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
@@ -282,6 +283,7 @@ public class Game
 					{
 						enemy,
 					};
+					AudioManager.PlayBgm(ResourceTable.battleMusic1);
 					var combat = new Combat(players.ToArray(), enemies, combatNode);
 					try
 					{
@@ -289,6 +291,7 @@ public class Game
 					}
 					finally
 					{
+						PlayStoryBgm();
 						combatNode.QueueFree();
 					}
 				}
@@ -300,6 +303,7 @@ public class Game
 			Quit();
 		}
 	}
+	void PlayStoryBgm() => AudioManager.PlayBgm(ResourceTable.arpegio01Loop);
 	/// <summary>
 	///     在角色身上查找指定装备
 	/// </summary>

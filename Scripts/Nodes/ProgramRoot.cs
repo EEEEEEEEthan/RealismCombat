@@ -109,6 +109,7 @@ public partial class ProgramRoot : Node
 	{
 		try
 		{
+			AudioManager.PlayBgm(ResourceTable.arpegio01Loop);
 			while (this.Valid())
 				try
 				{
