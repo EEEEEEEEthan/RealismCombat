@@ -116,18 +116,23 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		switch (reactionOutcome.Type)
 		{
 			case ReactionType.Dodge when reactionOutcome.Succeeded:
+			{
 				await Task.Delay(10);
 				targetNode.MoveTo(combat.combatNode.GetDogePosition(target));
 				resultMessages.Add($"{target.name}闪避成功");
 				attackHit = false;
 				break;
+			}
 			case ReactionType.Dodge:
+			{
 				resultMessages.Add($"{target.name}尝试闪避但失败");
 				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
+			}
 			case ReactionType.Block when reactionOutcome is { Succeeded: true }:
+			{
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
 				targetNode.FlashFrame();
@@ -138,17 +143,22 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				resultMessages.Add($"{target.name}使用{finalTarget.Name}格挡成功");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				break;
+			}
 			case ReactionType.Block:
+			{
 				resultMessages.Add($"{target.name}尝试格挡但失败");
 				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
+			}
 			case ReactionType.None:
+			{
 				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
+			}
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
