@@ -130,6 +130,7 @@
   - `PropertyDouble actionPoint`：记录当前与最大行动点，默认上限为 10
   - 六个 `BodyPart`：分别对应头、双臂、躯干与双腿，并统一暴露在 `bodyParts` 列表中
   - `combatAction`：指向当前执行中的战斗行为
+  - `AvailableCombatTargets`：返回当前可用的 `ICombatTarget` 数组，供攻击流程直接使用实例属性获取目标
 - 角色被视为存活的条件是头部与躯干仍可用，`IsAlive` 会据此返回布尔值
 - `BodyPart` 维护独立生命值，通过 `Name` 属性提供中文部位名称（通过扩展方法 `GetName()` 实现），并实现 `ICombatTarget` 接口以统一命中逻辑
 - 角色与部位均支持二进制序列化，内部借助 `ReadScope()` 与 `WriteScope()` 保证数据块长度安全

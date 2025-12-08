@@ -18,6 +18,7 @@ public class Character
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
 	public readonly IReadOnlyList<BodyPart> bodyParts;
+	public ICombatTarget[] AvailableCombatTargets => bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	public readonly Dictionary<CombatActionCode, float> availableCombatActions = new();
 	public int reaction;
 	public CombatAction? combatAction;

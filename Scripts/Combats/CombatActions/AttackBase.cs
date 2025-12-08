@@ -9,7 +9,6 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
-	static ICombatTarget[] GetAvailableTargets(Character character) => character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;
 	ICombatTarget? combatTarget;
@@ -23,7 +22,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		{
 			var target = Target;
 			if (target == null) return Array.Empty<(ICombatTarget, bool)>();
-			return GetAvailableTargets(target).Select(t => (t, !t.Available));
+			return target.AvailableCombatTargets.Select(t => (t, !t.Available));
 		}
 	}
 	public override Character? Target
