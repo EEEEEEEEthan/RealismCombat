@@ -148,8 +148,9 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 			if (ShouldResolveDamage)
 			{
 				var rawDamage = CalculateDamage();
-				var protection = DamageResolver.GetProtection(finalTarget);
-				var mitigatedDamage = rawDamage.ApplyProtection(protection);
+				var resolvedTarget = DamageResolver.ResolveTarget(finalTarget);
+				finalTarget = resolvedTarget.target;
+				var mitigatedDamage = rawDamage.ApplyProtection(resolvedTarget.protection);
 				var damageValue = Mathf.CeilToInt(mitigatedDamage.Total);
 				if (damageValue > 0)
 				{

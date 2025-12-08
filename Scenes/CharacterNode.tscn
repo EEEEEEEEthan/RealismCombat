@@ -21,6 +21,7 @@ anchors_preset = 0
 [node name="CardFrame" parent="MoveAnchor" unique_id=1922213664 instance=ExtResource("2_lbkts")]
 unique_name_in_owner = true
 layout_mode = 0
+Color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 
 [node name="Mask" type="Control" parent="MoveAnchor/CardFrame" unique_id=955748591]
 clip_contents = true

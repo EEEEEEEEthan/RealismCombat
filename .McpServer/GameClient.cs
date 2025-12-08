@@ -109,7 +109,7 @@ public sealed class GameClient : IDisposable
 				"""
 				错误: 未配置Godot路径
 				请在 .local.settings 文件中设置 godot 为 Godot 可执行文件的完整路径
-				例如: godot = C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe
+				例如: godot = C:\Program Files\Godot\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe
 				""");
 		if (!File.Exists(godotPath))
 			throw new FileNotFoundException(

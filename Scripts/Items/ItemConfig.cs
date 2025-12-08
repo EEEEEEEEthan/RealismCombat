@@ -20,6 +20,7 @@ public readonly struct ItemConfig
 					Damage.Zero
 				),
 				Protection = Protection.Zero,
+				Coverage = 0.0,
 				Icon = "res://Textures/Items/Icons1.png",
 			}
 		},
@@ -36,6 +37,7 @@ public readonly struct ItemConfig
 				HitPointMax = 12,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
+				Coverage = 0.6,
 				Icon = "res://Textures/Items/Icons2.png",
 			}
 		},
@@ -52,6 +54,7 @@ public readonly struct ItemConfig
 				HitPointMax = 18,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 2f, 1f),
+				Coverage = 0.8,
 				Icon = "res://Textures/Items/Icons3.png",
 			}
 		},
@@ -68,6 +71,7 @@ public readonly struct ItemConfig
 				HitPointMax = 25,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
+				Coverage = 0.95,
 				Icon = "res://Textures/Items/Icons4.png",
 			}
 		},
@@ -84,6 +88,7 @@ public readonly struct ItemConfig
 				HitPointMax = 8,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = Protection.Zero,
+				Coverage = 0.0,
 				Icon = "res://Textures/Items/Icons5.png",
 			}
 		},
@@ -100,6 +105,7 @@ public readonly struct ItemConfig
 				HitPointMax = 8,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
+				Coverage = 0.6,
 				Icon = "res://Textures/Items/Icons6.png",
 			}
 		},
@@ -116,6 +122,7 @@ public readonly struct ItemConfig
 				HitPointMax = 14,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 2f, 1f),
+				Coverage = 0.8,
 				Icon = "res://Textures/Items/Icons7.png",
 			}
 		},
@@ -132,6 +139,7 @@ public readonly struct ItemConfig
 				HitPointMax = 20,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
+				Coverage = 0.95,
 				Icon = "res://Textures/Items/Icons8.png",
 			}
 		},
@@ -146,4 +154,5 @@ public readonly struct ItemConfig
 	public int HitPointMax { get; private init; }
 	public DamageProfile DamageProfile { get; private init; }
 	public Protection Protection { get; private init; }
+	public double Coverage { get; private init; }
 }

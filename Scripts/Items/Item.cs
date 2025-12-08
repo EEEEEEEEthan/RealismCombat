@@ -23,6 +23,7 @@ public class Item : ICombatTarget, IItemContainer
 	static bool IsProtectionZero(Protection protection) => protection is { slash: <= 0f, pierce: <= 0f, blunt: <= 0f, };
 	static string FormatNumber(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	static string FormatNumber(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+	static string FormatPercent(double value) => $"{FormatNumber(value * 100)}%";
 	static string FormatDamage(Damage damage) => $"{FormatNumber(damage.slash)}砍{FormatNumber(damage.pierce)}刺{FormatNumber(damage.blunt)}钝";
 	static string FormatProtection(Protection protection) =>
 		$"{FormatNumber(protection.slash)}砍{FormatNumber(protection.pierce)}刺{FormatNumber(protection.blunt)}钝";
@@ -37,6 +38,7 @@ public class Item : ICombatTarget, IItemContainer
 			lines.Add($"特殊:{FormatDamage(config.DamageProfile.Special)}");
 		}
 		if (!IsProtectionZero(config.Protection)) lines.Add($"防护:{FormatProtection(config.Protection)}");
+		if (config.Coverage > 0.0) lines.Add($"覆盖率:{FormatPercent(config.Coverage)}");
 		lines.Add($"长度:{FormatNumber(config.Length)} 重量:{FormatNumber(config.Weight)} 耐久:{config.HitPointMax}");
 		var story = config.Story;
 		if (!string.IsNullOrWhiteSpace(story))
@@ -62,6 +64,7 @@ public class Item : ICombatTarget, IItemContainer
 	public double Weight { get; }
 	public DamageProfile DamageProfile { get; }
 	public Protection Protection { get; }
+	public double Coverage { get; }
 	public bool Available => HitPoint.value > 0;
 	public List<Buff> Buffs { get; } = [];
 	Item(ItemIdCode id, ItemConfig config)
@@ -77,6 +80,7 @@ public class Item : ICombatTarget, IItemContainer
 		HitPoint = new(config.HitPointMax, config.HitPointMax);
 		DamageProfile = config.DamageProfile;
 		Protection = config.Protection;
+		Coverage = config.Coverage;
 	}
 	#region serialize
 	public static Item Load(BinaryReader reader)
