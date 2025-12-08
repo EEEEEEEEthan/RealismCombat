@@ -28,7 +28,7 @@ public readonly struct ItemConfig
 			ItemIdCode.CottonLiner,
 			new()
 			{
-				Name = "绵甲",
+				Name = "武装衣",
 				Story = "廉价的武装衣.征召兵们最常穿的装备",
 				Flag = ItemFlagCode.TorsoArmor,
 				SlotFlags = [],
@@ -96,7 +96,7 @@ public readonly struct ItemConfig
 			ItemIdCode.CottonPants,
 			new()
 			{
-				Name = "棉裤",
+				Name = "武装裤",
 				Story = "填充棉絮的护腿,保暖又廉价",
 				Flag = ItemFlagCode.LegArmor,
 				SlotFlags = [],
