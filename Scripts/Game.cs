@@ -10,6 +10,7 @@ public enum ScriptCode
 	_0_Intro = 0,
 	_1_Equip = 1,
 	_2_Wander = 2,
+	_3_ToBeContinued = 3,
 }
 public class Game
 {
@@ -291,6 +292,23 @@ public class Game
 						PlayStoryBgm();
 						combatNode.QueueFree();
 					}
+					ScriptIndex = ScriptCode._3_ToBeContinued;
+				}
+			}
+			if (ScriptIndex == ScriptCode._3_ToBeContinued)
+			{
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
+				{
+					await dialogue.ShowTextTask("Ethan杀死了贵族兵");
+					await dialogue.ShowTextTask("虽然Ethan从小接受战斗训练,但这毕竟是他第一次真正面对生死");
+					await dialogue.ShowTextTask("他的心跳得飞快,手也在颤抖");
+					await dialogue.ShowTextTask("他一头扎进树林");
+				}
+				using (DialogueManager.CreateGenericDialogue(out var dialogue))
+				{
+					await dialogue.ShowTextTask("后来啊");
+					await dialogue.ShowTextTask("后来的故事,下次再说吧");
+					await dialogue.ShowTextTask("To be continued...");
 				}
 			}
 		}
