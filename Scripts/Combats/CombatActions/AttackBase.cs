@@ -169,6 +169,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		await performHit(combatTarget);
 	END:
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - postCastActionPointCost);
+		await dialogue.ShowTextTask($"{actor.name}的行动点减少了{postCastActionPointCost}点");
 		return;
 		async Task performHit(ICombatTarget target)
 		{
