@@ -307,8 +307,7 @@ public class Game
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
 					await dialogue.ShowTextTask("后来啊");
-					await dialogue.ShowTextTask("后来的故事,下次再说吧");
-					await dialogue.ShowTextTask("To be continued...");
+					await dialogue.ShowTextTask("后来的故事,你去玩<醉酒的Ethan>吧");
 				}
 				taskCompletionSource.SetResult();
 			}
