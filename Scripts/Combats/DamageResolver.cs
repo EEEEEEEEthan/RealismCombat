@@ -14,15 +14,12 @@ public static class DamageResolver
 	}
 	public static Protection GetProtection(ICombatTarget target)
 	{
-		switch (target)
+		return target switch
 		{
-			case Item item:
-				return item.Protection;
-			case BodyPart bodyPart:
-				return GetBodyPartProtection(bodyPart);
-			default:
-				return Protection.Zero;
-		}
+			Item item => item.Protection,
+			BodyPart bodyPart => GetBodyPartProtection(bodyPart),
+			_ => Protection.Zero,
+		};
 	}
 	public static Damage GetBaseDamage(AttackBase attack)
 	{

@@ -23,7 +23,7 @@ public abstract class CombatInput(Combat combat)
 	protected static string BuildTargetDescription(ICombatTarget target)
 	{
 		var description = $"生命 {target.HitPoint.value}/{target.HitPoint.maxValue}";
-		if (target is IBuffOwner buffOwner && buffOwner.Buffs.Count > 0)
+		if (target is IBuffOwner { Buffs.Count: > 0, } buffOwner)
 		{
 			var buffLines = buffOwner.Buffs
 				.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
@@ -384,19 +384,14 @@ public class AIInput(Combat combat) : CombatInput(combat)
 	}
 	bool TryPrepareAIAction(CombatAction action)
 	{
-		switch (action)
+		return action switch
 		{
-			case AttackBase attack:
-				return TryAssignRandomTargets(attack);
-			case TakeWeaponAction takeWeaponAction:
-				return takeWeaponAction.PrepareByAI();
-			case PickWeaponAction pickWeaponAction:
-				return pickWeaponAction.PrepareByAI();
-			case ReleaseAction release when release.WillOnlyDropWeapon:
-				return false;
-			default:
-				return true;
-		}
+			AttackBase attack => TryAssignRandomTargets(attack),
+			TakeWeaponAction takeWeaponAction => takeWeaponAction.PrepareByAI(),
+			PickWeaponAction pickWeaponAction => pickWeaponAction.PrepareByAI(),
+			ReleaseAction { WillOnlyDropWeapon: true, } => false,
+			_ => true,
+		};
 	}
 	bool TryAssignRandomTargets(AttackBase attack)
 	{

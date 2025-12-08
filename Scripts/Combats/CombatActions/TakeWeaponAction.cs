@@ -98,7 +98,7 @@ public override string Description => "从腰带装备中取出武器放到空�
 			if ((item.flag & ItemFlagCode.Belt) != 0)
 			{
 				foreach (var beltSlot in item.Slots)
-					if (beltSlot.Item is { flag: var flag } && (flag & ItemFlagCode.Arm) != 0)
+					if (beltSlot.Item is { flag: var flag, } && (flag & ItemFlagCode.Arm) != 0)
 						result.Add(new(item, beltSlot));
 			}
 			CollectBeltWeapons(item, result);

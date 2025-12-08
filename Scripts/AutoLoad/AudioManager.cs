@@ -22,7 +22,7 @@ public partial class AudioManager : Node
 		get
 		{
 			if (instance == null) return false;
-			if (instance.sfxPlayer != null && instance.sfxPlayer.Playing) return true;
+			if (instance.sfxPlayer is { Playing: true, }) return true;
 			foreach (var player in instance.activeSfxPlayers)
 			{
 				if (!IsInstanceValid(player)) continue;
@@ -75,7 +75,7 @@ public partial class AudioManager : Node
 			Log.PrintError("[AudioManager] 音效播放器未初始化");
 			return;
 		}
-		if (manager.sfxPlayer != null && !manager.sfxPlayer.Playing)
+		if (manager.sfxPlayer is { Playing: false, })
 		{
 			manager.sfxPlayer.Stream = stream;
 			manager.primarySfxBaseVolume = volumeDb;

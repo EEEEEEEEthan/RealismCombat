@@ -87,8 +87,7 @@ public static class ReactionSuccessCalculator
 		                 - DodgeLoadWeight * defenderLoadScore
 		                 + (isUnarmedAttack ? UnarmedDodgeShift : 0.0);
 		var blockTargetBonus = 0.0;
-		if (attack.TargetObject is BodyPart targetBodyPart &&
-		    (targetBodyPart.id is BodyPartCode.Torso or BodyPartCode.Groin))
+		if (attack.TargetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, })
 			blockTargetBonus = BlockCenterBonus;
 		var blockScore = BlockBias
 		                 + BlockLengthWeight * weaponLengthScore

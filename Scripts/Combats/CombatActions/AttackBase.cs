@@ -117,7 +117,7 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
-			case ReactionType.Block when reactionOutcome.Succeeded && reactionOutcome.BlockTarget != null:
+			case ReactionType.Block when reactionOutcome is { Succeeded: true, BlockTarget: not null, }:
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
 				targetNode.FlashFrame();

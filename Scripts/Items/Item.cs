@@ -20,7 +20,7 @@ public class Item : ICombatTarget, IItemContainer
 		return slots;
 	}
 	static bool IsDamageProfileEmpty(DamageProfile profile) => profile.Swing.IsZero && profile.Thrust.IsZero && profile.Special.IsZero;
-	static bool IsProtectionZero(Protection protection) => protection.slash <= 0f && protection.pierce <= 0f && protection.blunt <= 0f;
+	static bool IsProtectionZero(Protection protection) => protection is { slash: <= 0f, pierce: <= 0f, blunt: <= 0f, };
 	static string FormatNumber(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	static string FormatNumber(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	static string FormatDamage(Damage damage) => $"{FormatNumber(damage.slash)}砍{FormatNumber(damage.pierce)}刺{FormatNumber(damage.blunt)}钝";

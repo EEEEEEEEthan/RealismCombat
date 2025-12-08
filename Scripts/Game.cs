@@ -420,7 +420,7 @@ public class Game
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
 			}
-			var hasUnequip = container is Item && parentSlot != null && parentSlot.Item != null;
+			var hasUnequip = container is Item && parentSlot is { Item: not null, };
 			if (hasUnequip) dynamicOptions.Add(new() { title = "卸下", description = "将此装备放入物品栏", });
 			var menu = DialogueManager.CreateMenuDialogue(navigationTitle, true, [.. dynamicOptions,]);
 			var choice = await menu;

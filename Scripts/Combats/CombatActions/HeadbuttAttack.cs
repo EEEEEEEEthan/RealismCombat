@@ -10,7 +10,7 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 	internal override double DodgeImpact => 0.35;
 	internal override double BlockImpact => 0.35;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
-	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && bodyPart.id == BodyPartCode.Head;
+	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id: BodyPartCode.Head, };
 	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}头槌{TargetCharacter.name}的{TargetCombatObject.Name}!";
 }
