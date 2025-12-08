@@ -6,7 +6,7 @@ using Godot;
 ///     捡起地上武器放到空手上的战斗行动
 /// </summary>
 public class PickWeaponAction(Character actor, BodyPart actorBodyPart, Combat combat)
-	: CombatAction(actor, combat, actorBodyPart, 2, 1)
+	: CombatAction(actor, combat, actorBodyPart, 8, 3)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
 	ItemSlot? targetSlot;
