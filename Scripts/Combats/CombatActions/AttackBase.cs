@@ -9,17 +9,21 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
-	internal abstract double DodgeImpact { get; }
-	internal abstract double BlockImpact { get; }
-	internal abstract AttackTypeCode AttackType { get; }
-	internal virtual double DamageMultiplier => 1.0;
-	internal virtual bool UsesWeapon => false;
+	protected static bool HasWeapon(BodyPart bodyPart)
+	{
+		foreach (var slot in bodyPart.Slots)
+			if (slot.Item != null && (slot.Item.flag & ItemFlagCode.Arm) != 0)
+				return true;
+		return false;
+	}
+	protected static bool IsArm(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftArm or BodyPartCode.RightArm;
+	protected static bool IsLeg(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
+	static ICombatTarget[] GetAvailableTargets(Character character) => character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
+	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;
 	ICombatTarget? combatTarget;
-	protected readonly BodyPart actorBodyPart = actorBodyPart;
-	public BodyPart ActorBodyPart => actorBodyPart;
-	public override abstract CombatActionCode Code { get; }
-public override abstract string Description { get; }
+	public abstract override CombatActionCode Code { get; }
+	public abstract override string Description { get; }
 	public override bool Available => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
 	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
 	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
@@ -41,8 +45,16 @@ public override abstract string Description { get; }
 		get => combatTarget;
 		set => combatTarget = value;
 	}
+	public BodyPart ActorBodyPart => actorBodyPart;
 	public ICombatTarget CombatTarget => TargetCombatObject;
 	protected virtual bool ShouldResolveDamage => true;
+	protected Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
+	protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
+	internal abstract double DodgeImpact { get; }
+	internal abstract double BlockImpact { get; }
+	internal abstract AttackTypeCode AttackType { get; }
+	internal virtual double DamageMultiplier => 1.0;
+	internal virtual bool UsesWeapon => false;
 	public virtual Damage GetPreviewDamage() => CalculateDamage();
 	protected string BuildAttackDescription(string narrative)
 	{
@@ -53,49 +65,37 @@ public override abstract string Description { get; }
 			AttackTypeCode.Special => "特殊",
 			_ => "未知",
 		};
-		static string DodgeText(double impact) => impact switch
-		{
-			>= 0.6 => "容易被闪避",
-			>= 0.4 => "中等闪避难度",
-			_ => "不易被闪避",
-		};
-		static string BlockText(double impact) => impact switch
-		{
-			>= 0.6 => "容易被格挡",
-			>= 0.4 => "中等格挡难度",
-			_ => "不易被格挡",
-		};
+		static string DodgeText(double impact) =>
+			impact switch
+			{
+				>= 0.6 => "容易被闪避",
+				>= 0.4 => "中等闪避难度",
+				_ => "不易被闪避",
+			};
+		static string BlockText(double impact) =>
+			impact switch
+			{
+				>= 0.6 => "容易被格挡",
+				>= 0.4 => "中等格挡难度",
+				_ => "不易被格挡",
+			};
 		return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{narrative}";
 	}
-	protected static bool HasWeapon(BodyPart bodyPart)
-	{
-		foreach (var slot in bodyPart.Slots)
-			if (slot.Item != null && (slot.Item.flag & ItemFlagCode.Arm) != 0)
-				return true;
-		return false;
-	}
-	protected static bool IsArm(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	protected static bool IsLeg(BodyPartCode bodyPartCode) => bodyPartCode is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
-protected Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
-protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
 	protected abstract string GetStartDialogueText();
 	protected abstract string GetExecuteDialogueText();
 	protected virtual Damage CalculateDamage()
 	{
 		var attackType = AttackType;
 		if (UsesWeapon)
-		{
 			foreach (var slot in ActorBodyPart.Slots)
 			{
 				var weapon = slot.Item;
-				if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0)
-					return weapon.DamageProfile.Get(attackType).Scale(DamageMultiplier);
+				if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0) return weapon.DamageProfile.Get(attackType).Scale(DamageMultiplier);
 			}
-		}
 		var baseDamage = attackType switch
 		{
-			AttackTypeCode.Special => new Damage(0f, 0f, 1f),
+			AttackTypeCode.Special => new(0f, 0f, 1f),
 			_ => Damage.Zero,
 		};
 		return baseDamage.Scale(DamageMultiplier);
@@ -175,8 +175,7 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 					{
 						var armorItem = slot.Item;
 						if (armorItem == null) continue;
-						if ((armorItem.flag & (ItemFlagCode.TorsoArmor | ItemFlagCode.HandArmor | ItemFlagCode.LegArmor)) != 0)
-							armors.Add(armorItem);
+						if ((armorItem.flag & (ItemFlagCode.TorsoArmor | ItemFlagCode.HandArmor | ItemFlagCode.LegArmor)) != 0) armors.Add(armorItem);
 					}
 					if (armors.Count > 0)
 					{
@@ -207,13 +206,10 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 					finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damageValue, 0, finalTarget.HitPoint.maxValue);
 					targetNode.FlashPropertyNode(finalTarget);
 					if (finalTarget is not Item)
-					{
-						resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
-					}
+						resultMessages.Add(
+							$"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
 					else
-					{
 						resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害");
-					}
 					if (!finalTarget.Available)
 						resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
 					if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
@@ -227,8 +223,7 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 			else
 			{
 				await OnAttackHit(finalTarget, resultMessages);
-				if (resultMessages.Count == 0)
-					resultMessages.Add($"{actor.name}的攻击未造成显著效果");
+				if (resultMessages.Count == 0) resultMessages.Add($"{actor.name}的攻击未造成显著效果");
 			}
 		}
 		else if (resultMessages.Count == 0)
@@ -239,7 +234,5 @@ protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidO
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
 	}
 	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages) => Task.CompletedTask;
-	static ICombatTarget[] GetAvailableTargets(Character character) =>
-		character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 }
