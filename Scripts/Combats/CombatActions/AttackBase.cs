@@ -108,134 +108,124 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		await DialogueManager.ShowGenericDialogue(ExecuteDialogueText);
 		var reaction = await combat.HandleIncomingAttack(this);
 		var reactionOutcome = ReactionSuccessCalculator.Resolve(reaction, this);
-		var finalTarget = combatTarget;
-		var attackHit = true;
-		var resultMessages = new List<string>();
 		var hitPosition = combat.combatNode.GetHitPosition(actor);
 		actorNode.MoveTo(hitPosition);
+		DialogueManager.CreateGenericDialogue(out var dialogue);
 		switch (reactionOutcome.Type)
 		{
 			case ReactionType.Dodge when reactionOutcome.Succeeded:
 			{
 				await Task.Delay(10);
 				targetNode.MoveTo(combat.combatNode.GetDogePosition(target));
-				resultMessages.Add($"{target.name}闪避成功");
-				attackHit = false;
-				break;
+				await dialogue.ShowTextTask($"{target.name}闪避成功");
+				actorNode.MoveTo(actorPosition);
+				goto END;
 			}
 			case ReactionType.Dodge:
 			{
-				resultMessages.Add($"{target.name}尝试闪避但失败");
+				await dialogue.ShowTextTask($"{target.name}尝试闪避但失败");
 				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
-				break;
+				actorNode.MoveTo(actorPosition);
+				goto FALLBACK;
 			}
-			case ReactionType.Block when reactionOutcome is { Succeeded: true }:
+			case ReactionType.Block when reactionOutcome is { Succeeded: true, }:
 			{
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
 				targetNode.FlashFrame();
 				await Task.Delay(100);
 				targetNode.MoveTo(targetPosition);
-				finalTarget = combatTarget;
 				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
-				resultMessages.Add($"{target.name}使用{finalTarget.Name}格挡成功");
+				await dialogue.ShowTextTask($"{target.name}使用{reaction.BlockTarget!.Name}格挡成功");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
-				break;
+				actorNode.MoveTo(actorPosition);
+				// todo: 结算格挡部位伤害
+				goto END;
 			}
 			case ReactionType.Block:
 			{
-				resultMessages.Add($"{target.name}尝试格挡但失败");
+				await dialogue.ShowTextTask($"{target.name}尝试格挡但失败");
 				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
-				break;
+				actorNode.MoveTo(actorPosition);
+				goto FALLBACK;
 			}
 			case ReactionType.None:
 			{
 				await Task.Delay(100);
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
-				break;
+				actorNode.MoveTo(actorPosition);
+				goto FALLBACK;
 			}
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
-		actorNode.MoveTo(actorPosition);
-		if (attackHit)
+	FALLBACK:
+		// todo: 结算命中部位伤害
+		await performHit(combatTarget);
+	END:
+		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - postCastActionPointCost);
+		return;
+		async Task performHit(ICombatTarget target)
 		{
-			if (ShouldResolveDamage)
+			if (target is BodyPart bodyPart)
 			{
-				var rawDamage = Damage;
-				(ICombatTarget target, Protection protection) resolvedTarget = (finalTarget, Protection.Zero);
-				var resolved = false;
-				switch (finalTarget)
+				if (bodyPart.TryGetItem(ItemFlagCode.Armor, out var armor))
 				{
-					case BodyPart bodyPart:
+					if (GD.Randf() < armor.Coverage)
 					{
-						var armors = new List<Item>();
-						foreach (var slot in bodyPart.Slots)
+						// 砍伤能对护甲造成伤害
+						var damageToArmor = (int)Mathf.Max(Damage.Slash - armor.Protection.Slash, 0);
+						if (damageToArmor > 0)
 						{
-							var armorItem = slot.Item;
-							if (armorItem == null) continue;
-							if ((armorItem.flag & (ItemFlagCode.TorsoArmor | ItemFlagCode.HandArmor | ItemFlagCode.LegArmor)) != 0) armors.Add(armorItem);
-						}
-						if (armors.Count > 0)
-						{
-							var startIndex = (int)(GD.Randi() % (uint)armors.Count);
-							for (var i = 0; i < armors.Count; i++)
+							await dialogue.ShowTextTask($"攻击打在{armor.Name}上，{armor.Name}受到了{damageToArmor}点伤害");
+							armor.HitPoint.value -= damageToArmor;
+							if (armor.HitPoint.value <= 0)
 							{
-								var armor = armors[(startIndex + i) % armors.Count];
-								if (armor.Coverage <= 0.0) continue;
-								if (GD.Randf() < armor.Coverage)
-								{
-									resolvedTarget = (armor, armor.Protection);
-									resolved = true;
-									break;
-								}
+								await dialogue.ShowTextTask($"{target.Name}上的{armor.Name}坏了！");
+								bodyPart.RemoveItem(armor);
 							}
 						}
-						if (!resolved) resolvedTarget = (bodyPart, Protection.Zero);
-						break;
+						// 计算实际对身体部位的伤害
+						var damageToBody = Damage - armor.Protection;
+						var totalDamage = (int)damageToBody.Total;
+						if (totalDamage > 0)
+						{
+							await dialogue.ShowTextTask($"{target.Name}受到了{totalDamage}点伤害");
+							bodyPart.HitPoint.value -= totalDamage;
+						}
+						// todo: 砍伤能造成流血
 					}
-					case Item item:
-						resolvedTarget = (item, item.Protection);
-						break;
-				}
-				finalTarget = resolvedTarget.target;
-				var mitigatedDamage = rawDamage.ApplyProtection(resolvedTarget.protection);
-				var damageValue = Mathf.CeilToInt(mitigatedDamage.Total);
-				if (damageValue > 0)
-				{
-					finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damageValue, 0, finalTarget.HitPoint.maxValue);
-					targetNode.FlashPropertyNode(finalTarget);
-					resultMessages.Add(
-						finalTarget is not Item
-							? $"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}"
-							: $"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害");
-					if (!finalTarget.Available)
-						resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
-					if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
-					await OnAttackHit(finalTarget, resultMessages);
+					else
+					{
+						var damage = (int)Damage.Total;
+						if (damage > 0)
+						{
+							await dialogue.ShowTextTask("击中了护甲的缝隙!");
+							await dialogue.ShowTextTask($"{target.Name}受到了{damage}点伤害");
+							bodyPart.HitPoint.value -= damage;
+						}
+					}
 				}
 				else
 				{
-					resultMessages.Add($"{target.name}的{finalTarget.Name}被防护抵消了伤害");
+					var damage = (int)Damage.Total;
+					if (damage > 0)
+					{
+						await dialogue.ShowTextTask($"{target.Name}受到了{damage}点伤害");
+						bodyPart.HitPoint.value -= damage;
+					}
 				}
 			}
 			else
 			{
-				await OnAttackHit(finalTarget, resultMessages);
-				if (resultMessages.Count == 0) resultMessages.Add($"{actor.name}的攻击未造成显著效果");
+				await dialogue.ShowTextTask($"{target.Name}受到了攻击但是这种情况还没做");
 			}
 		}
-		else if (resultMessages.Count == 0)
-		{
-			resultMessages.Add($"{target.name}成功避开了攻击");
-		}
-		await DialogueManager.ShowGenericDialogue(resultMessages);
-		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - 5);
 	}
 	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages) => Task.CompletedTask;
 	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;

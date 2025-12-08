@@ -42,7 +42,7 @@ public readonly struct ReactionOutcome
 	/// <summary>
 	///     是否成功
 	/// </summary>
-	public bool Succeeded { get; }
+	public bool Succeeded { get; }  // todo: 删掉。BlockTarget != null 就表示成功格挡了
 	/// <summary>
 	///     本次判定的成功率
 	/// </summary>

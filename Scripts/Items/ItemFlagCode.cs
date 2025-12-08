@@ -26,6 +26,8 @@ public enum ItemFlagCode
 	///     皮带类型装备
 	/// </summary>
 	Belt = 1 << 4,
+	
+	Armor = TorsoArmor | HandArmor | LegArmor,
 }
 /// <summary>
 ///     装备类型显示名称工具

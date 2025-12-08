@@ -20,13 +20,13 @@ public class Item : ICombatTarget, IItemContainer
 		return slots;
 	}
 	static bool IsDamageProfileEmpty(DamageProfile profile) => profile.Swing.IsZero && profile.Thrust.IsZero && profile.Special.IsZero;
-	static bool IsProtectionZero(Protection protection) => protection is { slash: <= 0f, pierce: <= 0f, blunt: <= 0f, };
+	static bool IsProtectionZero(Protection protection) => protection is { Slash: <= 0f, Pierce: <= 0f, Blunt: <= 0f, };
 	static string FormatNumber(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	static string FormatNumber(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	static string FormatPercent(double value) => $"{FormatNumber(value * 100)}%";
-	static string FormatDamage(Damage damage) => $"{FormatNumber(damage.slash)}砍{FormatNumber(damage.pierce)}刺{FormatNumber(damage.blunt)}钝";
+	static string FormatDamage(Damage damage) => $"{FormatNumber(damage.Slash)}砍{FormatNumber(damage.Pierce)}刺{FormatNumber(damage.Blunt)}钝";
 	static string FormatProtection(Protection protection) =>
-		$"{FormatNumber(protection.slash)}砍{FormatNumber(protection.pierce)}刺{FormatNumber(protection.blunt)}钝";
+		$"{FormatNumber(protection.Slash)}砍{FormatNumber(protection.Pierce)}刺{FormatNumber(protection.Blunt)}钝";
 	static string BuildDescription(ItemConfig config)
 	{
 		var lines = new List<string>();

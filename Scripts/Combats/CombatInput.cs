@@ -76,9 +76,9 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			static string FormatValue(float value) => value.ToString("0.##");
 			var parts = new[]
 			{
-				$"砍{FormatValue(damage.slash)}",
-				$"刺{FormatValue(damage.pierce)}",
-				$"钝{FormatValue(damage.blunt)}",
+				$"砍{FormatValue(damage.Slash)}",
+				$"刺{FormatValue(damage.Pierce)}",
+				$"钝{FormatValue(damage.Blunt)}",
 			};
 			return $"伤害 {string.Join(" ", parts)}";
 		}
