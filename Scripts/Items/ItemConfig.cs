@@ -37,7 +37,7 @@ public readonly struct ItemConfig
 				HitPointMax = 12,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
-				Coverage = 0.6,
+				Coverage = 0.99,
 				Icon = "res://Textures/Items/Icons2.png",
 			}
 		},
@@ -54,7 +54,7 @@ public readonly struct ItemConfig
 				HitPointMax = 18,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 2f, 1f),
-				Coverage = 0.8,
+				Coverage = 0.95,
 				Icon = "res://Textures/Items/Icons3.png",
 			}
 		},
@@ -71,7 +71,7 @@ public readonly struct ItemConfig
 				HitPointMax = 25,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
-				Coverage = 0.95,
+				Coverage = 0.6,
 				Icon = "res://Textures/Items/Icons4.png",
 			}
 		},
@@ -105,7 +105,7 @@ public readonly struct ItemConfig
 				HitPointMax = 8,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
-				Coverage = 0.6,
+				Coverage = 0.99,
 				Icon = "res://Textures/Items/Icons6.png",
 			}
 		},
@@ -122,7 +122,7 @@ public readonly struct ItemConfig
 				HitPointMax = 14,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 2f, 1f),
-				Coverage = 0.8,
+				Coverage = 0.95,
 				Icon = "res://Textures/Items/Icons7.png",
 			}
 		},
@@ -139,7 +139,7 @@ public readonly struct ItemConfig
 				HitPointMax = 20,
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
-				Coverage = 0.95,
+				Coverage = 0.60,
 				Icon = "res://Textures/Items/Icons8.png",
 			}
 		},
