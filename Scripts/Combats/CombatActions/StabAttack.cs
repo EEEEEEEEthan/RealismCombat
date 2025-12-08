@@ -12,6 +12,6 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	internal override AttackTypeCode AttackType => AttackTypeCode.Thrust;
 	internal override bool UsesWeapon => true;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && IsArm(bodyPart.id) && HasWeapon(bodyPart);
-	protected override string GetStartDialogueText() => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	protected override string GetExecuteDialogueText() => $"{actor.name}用{actorBodyPart.Name}刺击{TargetCharacter.name}的{TargetCombatObject.Name}!";
+	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
+	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}刺击{TargetCharacter.name}的{TargetCombatObject.Name}!";
 }

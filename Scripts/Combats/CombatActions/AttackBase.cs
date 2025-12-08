@@ -82,8 +82,8 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{narrative}";
 	}
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
-	protected abstract string GetStartDialogueText();
-	protected abstract string GetExecuteDialogueText();
+	protected abstract string StartDialogueText { get; }
+	protected abstract string ExecuteDialogueText { get; }
 	protected virtual Damage CalculateDamage()
 	{
 		var attackType = AttackType;
@@ -100,7 +100,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		};
 		return baseDamage.Scale(DamageMultiplier);
 	}
-	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(GetStartDialogueText());
+	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
 	protected override async Task OnExecute()
 	{
 		var target = TargetCharacter;
@@ -113,7 +113,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
-		await DialogueManager.ShowGenericDialogue(GetExecuteDialogueText());
+		await DialogueManager.ShowGenericDialogue(ExecuteDialogueText);
 		var reaction = await combat.HandleIncomingAttack(this);
 		var reactionOutcome = ReactionSuccessCalculator.Resolve(reaction, this);
 		var finalTarget = combatTarget;
@@ -168,35 +168,38 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				var rawDamage = CalculateDamage();
 				(ICombatTarget target, Protection protection) resolvedTarget = (finalTarget, Protection.Zero);
 				var resolved = false;
-				if (finalTarget is BodyPart bodyPart)
+				switch (finalTarget)
 				{
-					var armors = new List<Item>();
-					foreach (var slot in bodyPart.Slots)
+					case BodyPart bodyPart:
 					{
-						var armorItem = slot.Item;
-						if (armorItem == null) continue;
-						if ((armorItem.flag & (ItemFlagCode.TorsoArmor | ItemFlagCode.HandArmor | ItemFlagCode.LegArmor)) != 0) armors.Add(armorItem);
-					}
-					if (armors.Count > 0)
-					{
-						var startIndex = (int)(GD.Randi() % (uint)armors.Count);
-						for (var i = 0; i < armors.Count; i++)
+						var armors = new List<Item>();
+						foreach (var slot in bodyPart.Slots)
 						{
-							var armor = armors[(startIndex + i) % armors.Count];
-							if (armor.Coverage <= 0.0) continue;
-							if (GD.Randf() < armor.Coverage)
+							var armorItem = slot.Item;
+							if (armorItem == null) continue;
+							if ((armorItem.flag & (ItemFlagCode.TorsoArmor | ItemFlagCode.HandArmor | ItemFlagCode.LegArmor)) != 0) armors.Add(armorItem);
+						}
+						if (armors.Count > 0)
+						{
+							var startIndex = (int)(GD.Randi() % (uint)armors.Count);
+							for (var i = 0; i < armors.Count; i++)
 							{
-								resolvedTarget = (armor, armor.Protection);
-								resolved = true;
-								break;
+								var armor = armors[(startIndex + i) % armors.Count];
+								if (armor.Coverage <= 0.0) continue;
+								if (GD.Randf() < armor.Coverage)
+								{
+									resolvedTarget = (armor, armor.Protection);
+									resolved = true;
+									break;
+								}
 							}
 						}
+						if (!resolved) resolvedTarget = (bodyPart, Protection.Zero);
+						break;
 					}
-					if (!resolved) resolvedTarget = (bodyPart, Protection.Zero);
-				}
-				else if (finalTarget is Item item)
-				{
-					resolvedTarget = (item, item.Protection);
+					case Item item:
+						resolvedTarget = (item, item.Protection);
+						break;
 				}
 				finalTarget = resolvedTarget.target;
 				var mitigatedDamage = rawDamage.ApplyProtection(resolvedTarget.protection);
@@ -205,11 +208,10 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				{
 					finalTarget.HitPoint.value = Mathf.Clamp(finalTarget.HitPoint.value - damageValue, 0, finalTarget.HitPoint.maxValue);
 					targetNode.FlashPropertyNode(finalTarget);
-					if (finalTarget is not Item)
-						resultMessages.Add(
-							$"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}");
-					else
-						resultMessages.Add($"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害");
+					resultMessages.Add(
+						finalTarget is not Item
+							? $"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害，剩余{finalTarget.HitPoint.value}/{finalTarget.HitPoint.maxValue}"
+							: $"{target.name}的{finalTarget.Name}受到了{damageValue}点伤害");
 					if (!finalTarget.Available)
 						resultMessages.Add(finalTarget is BodyPart ? $"{target.name}的{finalTarget.Name}失去战斗能力" : $"{target.name}的{finalTarget.Name}已无法继续使用");
 					if (!target.IsAlive) resultMessages.Add($"{target.name}倒下了");
