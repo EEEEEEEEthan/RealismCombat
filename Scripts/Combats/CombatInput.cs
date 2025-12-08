@@ -121,7 +121,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					{
 						title = a.name,
 						description = a.action is AttackBase attack
-							? $"{FormatDamage(attack.GetPreviewDamage())}\n{a.action.Description}"
+							? $"{FormatDamage(attack.Damage)}\n{a.action.Description}"
 							: a.action.Description,
 						disabled = a.action.Disabled,
 					})

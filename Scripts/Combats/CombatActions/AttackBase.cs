@@ -47,15 +47,35 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	}
 	public BodyPart ActorBodyPart => actorBodyPart;
 	public ICombatTarget CombatTarget => TargetCombatObject;
+	public Damage Damage
+	{
+		get
+		{
+			var attackType = AttackType;
+			if (UsesWeapon)
+				foreach (var slot in ActorBodyPart.Slots)
+				{
+					var weapon = slot.Item;
+					if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0) return weapon.DamageProfile.Get(attackType).Scale(DamageMultiplier);
+				}
+			var baseDamage = attackType switch
+			{
+				AttackTypeCode.Special => new(0f, 0f, 1f),
+				_ => Damage.Zero,
+			};
+			return baseDamage.Scale(DamageMultiplier);
+		}
+	}
 	protected virtual bool ShouldResolveDamage => true;
 	protected Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
 	protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
+	protected abstract string StartDialogueText { get; }
+	protected abstract string ExecuteDialogueText { get; }
 	internal abstract double DodgeImpact { get; }
 	internal abstract double BlockImpact { get; }
 	internal abstract AttackTypeCode AttackType { get; }
 	internal virtual double DamageMultiplier => 1.0;
 	internal virtual bool UsesWeapon => false;
-	public virtual Damage GetPreviewDamage() => CalculateDamage();
 	protected string BuildAttackDescription(string narrative)
 	{
 		var typeText = AttackType switch
@@ -82,24 +102,6 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{narrative}";
 	}
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
-	protected abstract string StartDialogueText { get; }
-	protected abstract string ExecuteDialogueText { get; }
-	protected virtual Damage CalculateDamage()
-	{
-		var attackType = AttackType;
-		if (UsesWeapon)
-			foreach (var slot in ActorBodyPart.Slots)
-			{
-				var weapon = slot.Item;
-				if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0) return weapon.DamageProfile.Get(attackType).Scale(DamageMultiplier);
-			}
-		var baseDamage = attackType switch
-		{
-			AttackTypeCode.Special => new(0f, 0f, 1f),
-			_ => Damage.Zero,
-		};
-		return baseDamage.Scale(DamageMultiplier);
-	}
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
 	protected override async Task OnExecute()
 	{
@@ -165,7 +167,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		{
 			if (ShouldResolveDamage)
 			{
-				var rawDamage = CalculateDamage();
+				var rawDamage = Damage;
 				(ICombatTarget target, Protection protection) resolvedTarget = (finalTarget, Protection.Zero);
 				var resolved = false;
 				switch (finalTarget)
