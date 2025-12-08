@@ -61,6 +61,21 @@ public class BodyPart : ICombatTarget, IItemContainer
 	public string Name => id.GetName();
 	public ItemSlot[] Slots { get; }
 	/// <summary>
+	///     当前部位是否装备武器
+	/// </summary>
+	public bool HasWeapon
+	{
+		get
+		{
+			foreach (var slot in Slots)
+			{
+				var item = slot.Item;
+				if (item != null && (item.flag & ItemFlagCode.Arm) != 0) return true;
+			}
+			return false;
+		}
+	}
+	/// <summary>
 	///     获取所有Buff列表
 	/// </summary>
 	public List<Buff> Buffs { get; } = [];

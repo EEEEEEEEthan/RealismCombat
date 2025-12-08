@@ -58,6 +58,7 @@
 - `bool Available`：部位是否仍可用，当 `HitPoint.value > 0` 时返回 `true`
 - `ItemSlot[] Slots`：装备槽位数组，管理该部位可装备的物品
 - `string Name`：部位在日志或界面上的显示名称，通过扩展方法 `GetName()` 获取
+- `bool HasWeapon`：判断当前部位是否挂载了 `ItemFlagCode.Arm` 类型的武器，攻击行为会据此限制可用部位
 
 #### 接口实现
 
