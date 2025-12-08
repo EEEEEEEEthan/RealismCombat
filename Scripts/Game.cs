@@ -310,6 +310,7 @@ public class Game
 					await dialogue.ShowTextTask("后来的故事,下次再说吧");
 					await dialogue.ShowTextTask("To be continued...");
 				}
+				taskCompletionSource.SetResult();
 			}
 		}
 		catch (Exception e)
