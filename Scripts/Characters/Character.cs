@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 public class Character
 {
-	static readonly GameVersion combatActionSerializationVersion = new(0, 0, 1);
-	static readonly GameVersion combatActionDictionarySerializationVersion = new(0, 0, 2);
 	public readonly PropertyInt speed;
 	public readonly PropertyDouble actionPoint;
 	public readonly string name;
