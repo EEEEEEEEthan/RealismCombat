@@ -56,7 +56,6 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			return baseDamage.Scale(DamageMultiplier);
 		}
 	}
-	protected virtual bool ShouldResolveDamage => true;
 	protected Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
 	protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
 	protected abstract string StartDialogueText { get; }
