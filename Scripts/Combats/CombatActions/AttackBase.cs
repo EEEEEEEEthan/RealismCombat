@@ -127,13 +127,13 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				targetNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
 				break;
-			case ReactionType.Block when reactionOutcome is { Succeeded: true, BlockTarget: not null, }:
+			case ReactionType.Block when reactionOutcome is { Succeeded: true }:
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
 				targetNode.FlashFrame();
 				await Task.Delay(100);
 				targetNode.MoveTo(targetPosition);
-				finalTarget = reactionOutcome.BlockTarget ?? combatTarget;
+				finalTarget = combatTarget;
 				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
 				resultMessages.Add($"{target.name}使用{finalTarget.Name}格挡成功");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
