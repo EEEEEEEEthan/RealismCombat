@@ -1,4 +1,3 @@
-using Godot;
 /// <summary>
 ///     踢击攻击，只允许腿使用
 /// </summary>
@@ -7,10 +6,10 @@ public class KickAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 {
 	public override CombatActionCode Code => CombatActionCode.Kick;
 	public override string Description => BuildAttackDescription("用腿部发动踢击，依赖腿部可用性进行近战攻击");
+	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
+	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}踢击{TargetCharacter.name}的{TargetCombatObject.Name}!";
 	internal override double DodgeImpact => 0.6;
 	internal override double BlockImpact => 0.4;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
-	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && IsLeg(bodyPart.id);
-	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}踢击{TargetCharacter.name}的{TargetCombatObject.Name}!";
+	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsLeg: true, };
 }

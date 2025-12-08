@@ -11,15 +11,11 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 	readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;
 	BodyPart? targetBodyPart;
+	bool executed;
 	public override CombatActionCode Code => CombatActionCode.Execution;
 	public override string Description => "测试: 直接让敌方任意部位生命归零";
-	public override bool Available => actorBodyPart.Available && IsArm(actorBodyPart.id);
+	public override bool Available => actorBodyPart is { Available: true, id.IsArm: true, };
 	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
-	public override Character? Target
-	{
-		get => target;
-		set => target = value;
-	}
 	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
 	{
 		get
@@ -29,12 +25,16 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 			return opponent.bodyParts.Select(bp => ((ICombatTarget)bp, false));
 		}
 	}
+	public override Character? Target
+	{
+		get => target;
+		set => target = value;
+	}
 	public override ICombatTarget? TargetObject
 	{
 		get => targetBodyPart;
 		set => targetBodyPart = value as BodyPart;
 	}
-	bool executed;
 	protected override async Task OnStartTask()
 	{
 		await DialogueManager.ShowGenericDialogue($"{actor.name}举起{actorBodyPart.Name}准备处决");
@@ -69,7 +69,5 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 		await DialogueManager.ShowGenericDialogue(message);
 		actor.combatAction = null;
 	}
-	static bool IsArm(BodyPartCode code) => code is BodyPartCode.LeftArm or BodyPartCode.RightArm;
 	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 }
-

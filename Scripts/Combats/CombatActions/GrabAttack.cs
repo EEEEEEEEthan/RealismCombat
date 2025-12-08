@@ -12,11 +12,10 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	protected override bool ShouldResolveDamage => false;
 	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}抓取{TargetCharacter.name}的{TargetCombatObject.Name}!";
-	protected override Damage Damage => Damage.Zero;
 	internal override double DodgeImpact => 0.7;
 	internal override double BlockImpact => 0.25;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
-	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && IsArm(bodyPart.id) && !bodyPart.HasWeapon;
+	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: false, };
 	protected override async Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages)
 	{
 		var grabSuccessChance = 0.5f;

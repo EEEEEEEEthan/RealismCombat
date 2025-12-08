@@ -19,21 +19,32 @@ public enum BodyPartCode
 /// </summary>
 public static class BodyPartExtensions
 {
-	/// <summary>
-	///     获取身体部位的显示名称
-	/// </summary>
-	public static string GetName(this BodyPartCode @this) =>
-		@this switch
-		{
-			BodyPartCode.Head => "头部",
-			BodyPartCode.LeftArm => "左臂",
-			BodyPartCode.RightArm => "右臂",
-			BodyPartCode.Torso => "躯干",
-			BodyPartCode.Groin => "裆部",
-			BodyPartCode.LeftLeg => "左腿",
-			BodyPartCode.RightLeg => "右腿",
-			_ => @this.ToString(),
-		};
+	extension(BodyPartCode @this)
+	{
+		/// <summary>
+		///     获取身体部位的显示名称
+		/// </summary>
+		public string Name =>
+			@this switch
+			{
+				BodyPartCode.Head => "头部",
+				BodyPartCode.LeftArm => "左臂",
+				BodyPartCode.RightArm => "右臂",
+				BodyPartCode.Torso => "躯干",
+				BodyPartCode.Groin => "裆部",
+				BodyPartCode.LeftLeg => "左腿",
+				BodyPartCode.RightLeg => "右腿",
+				_ => @this.ToString(),
+			};
+		/// <summary>
+		///     当前部位是否为手臂
+		/// </summary>
+		public bool IsArm => @this is BodyPartCode.LeftArm or BodyPartCode.RightArm;
+		/// <summary>
+		///     当前部位是否为腿部
+		/// </summary>
+		public bool IsLeg => @this is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
+	}
 }
 public class BodyPart : ICombatTarget, IItemContainer
 {
@@ -58,7 +69,7 @@ public class BodyPart : ICombatTarget, IItemContainer
 	/// <summary>
 	///     目标在日志或界面上的名称
 	/// </summary>
-	public string Name => id.GetName();
+	public string Name => id.Name;
 	public ItemSlot[] Slots { get; }
 	/// <summary>
 	///     当前部位是否装备武器

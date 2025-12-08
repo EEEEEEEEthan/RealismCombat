@@ -9,8 +9,6 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
-	protected static bool IsArm(BodyPartCode bodyPart) => bodyPart is BodyPartCode.LeftArm or BodyPartCode.RightArm;
-	protected static bool IsLeg(BodyPartCode bodyPart) => bodyPart is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
 	static ICombatTarget[] GetAvailableTargets(Character character) => character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;

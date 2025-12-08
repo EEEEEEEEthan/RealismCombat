@@ -2,6 +2,11 @@
 
 项目在 `Scripts/Extensions/` 目录下使用 `partial class Extensions` 组织常用扩展，覆盖事件调用、资源释放、二进制读写等高频场景。
 
+## 书写规范
+
+- 为与目标类型强绑定的扩展，优先采用扩展块语法 `extension(类型 @this)` 并与目标类型放在同一文件，例如 `BodyPart.cs` 中的 `BodyPartExtensions` 以 `extension(BodyPartCode @this)` 定义 `Name`、`IsArm`、`IsLeg`。
+- 通用扩展仍放在 `Scripts/Extensions/` 下的 `partial class Extensions`，按功能分类维护。
+
 ## IDisposableExtensions
 
 ### TryDispose()

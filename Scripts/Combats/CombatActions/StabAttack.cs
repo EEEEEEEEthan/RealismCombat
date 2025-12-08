@@ -12,5 +12,5 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	internal override double BlockImpact => 0.35;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Thrust;
 	internal override bool UsesWeapon => true;
-	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart.Available && IsArm(bodyPart.id) && bodyPart.HasWeapon;
+	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: true, };
 }
