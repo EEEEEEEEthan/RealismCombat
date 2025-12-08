@@ -86,6 +86,7 @@ public class Game
 		hero.availableCombatActions.Clear();
 		hero.availableCombatActions[CombatActionCode.Slash] = 0f;
 		hero.availableCombatActions[CombatActionCode.Stab] = 0f;
+		hero.availableCombatActions[CombatActionCode.Grab] = 0f;
 		hero.availableCombatActions[CombatActionCode.BreakFree] = 0f;
 		hero.availableCombatActions[CombatActionCode.Release] = 0f;
 		hero.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
