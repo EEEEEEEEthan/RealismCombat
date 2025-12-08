@@ -88,6 +88,9 @@ public class Game
 		hero.availableCombatActions[CombatActionCode.Release] = 0f;
 		hero.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
 		hero.availableCombatActions[CombatActionCode.PickWeapon] = 0f;
+#if DEBUG
+		hero.availableCombatActions[CombatActionCode.Execution] = 0f;
+#endif
 		players = [hero,];
 		StartGameLoop();
 	}
@@ -104,18 +107,12 @@ public class Game
 		var snapshot = new Snapshot(reader);
 		var version = snapshot.Version;
 		players = ReadPlayers(reader, version);
-		if (version < new GameVersion(0, 0, 1))
-			foreach (var player in players)
-			{
-				player.availableCombatActions.Clear();
-				player.availableCombatActions[CombatActionCode.Slash] = 0f;
-				player.availableCombatActions[CombatActionCode.Stab] = 0f;
-				player.availableCombatActions[CombatActionCode.BreakFree] = 0f;
-				player.availableCombatActions[CombatActionCode.Release] = 0f;
-				player.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
-				player.availableCombatActions[CombatActionCode.PickWeapon] = 0f;
-			}
 		ScriptIndex = (ScriptCode)reader.ReadInt32();
+#if DEBUG
+		foreach (var player in players)
+			if (!player.availableCombatActions.ContainsKey(CombatActionCode.Execution))
+				player.availableCombatActions[CombatActionCode.Execution] = 0f;
+#endif
 		StartGameLoop();
 	}
 	public Snapshot GetSnapshot() => new(this);

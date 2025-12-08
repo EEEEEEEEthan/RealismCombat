@@ -1,4 +1,3 @@
-using System;
 /// <summary>
 ///     战斗动作ID
 /// </summary>
@@ -14,5 +13,5 @@ public enum CombatActionCode
 	Release,
 	TakeWeapon,
 	PickWeapon,
+	Execution,
 }
-

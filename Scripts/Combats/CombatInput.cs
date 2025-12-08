@@ -60,6 +60,9 @@ public abstract class CombatInput(Combat combat)
 		TryAdd(CombatActionCode.Release, "放手", () => new ReleaseAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.TakeWeapon, "拿", () => new TakeWeaponAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.PickWeapon, "捡", () => new PickWeaponAction(actor, bodyPart, combat));
+#if DEBUG
+		TryAdd(CombatActionCode.Execution, "(测试)处决", () => new ExecutionAction(actor, bodyPart, combat));
+#endif
 		return actions;
 	}
 }
@@ -79,6 +82,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			};
 			return $"伤害 {string.Join(" ", parts)}";
 		}
+		LogAllCharactersState();
 		while (true)
 		{
 			var bodyPartActions = GetAvailableTargets(character)
@@ -135,6 +139,15 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				var prepared = await PrepareAction(selected.action, FormatChance, actionTitle);
 				if (prepared != null) return prepared;
 			}
+		}
+	}
+	void LogAllCharactersState()
+	{
+		var fighters = combat.Allies.Concat(combat.Enemies);
+		foreach (var fighter in fighters)
+		{
+			var bodyStates = fighter.bodyParts.Select(bp => $"{bp.Name}{bp.HitPoint.value}/{bp.HitPoint.maxValue}");
+			Log.Print($"[回合状态]{fighter.name} 行动 {fighter.actionPoint.value}/{fighter.actionPoint.maxValue} 反应 {fighter.reaction} {string.Join(" ", bodyStates)}");
 		}
 	}
 	public override async Task<ReactionDecision> MakeReactionDecisionTask(
@@ -263,6 +276,10 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				}
 				return pickWeaponAction;
 			}
+#if DEBUG
+			case ExecutionAction executionAction:
+				return await PrepareExecutionAction(executionAction, navigationTitle);
+#endif
 			default:
 				return action;
 		}
@@ -307,6 +324,54 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			return attack;
 		}
 	}
+#if DEBUG
+	async Task<CombatAction?> PrepareExecutionAction(ExecutionAction action, string navigationTitle)
+	{
+		while (true)
+		{
+			var availableTargets = action.AvailableTargets.ToArray();
+			if (availableTargets.Length == 0) throw new InvalidOperationException("未找到可处决的目标");
+			Character target;
+			if (availableTargets.Length == 1)
+			{
+				target = availableTargets[0];
+			}
+			else
+			{
+				var options = availableTargets
+					.Select(o => new MenuOption
+					{
+						title = o.name,
+						description = string.Empty,
+					})
+					.ToArray();
+				var menu = DialogueManager.CreateMenuDialogue(navigationTitle, true, options);
+				var selected = await menu;
+				if (selected == options.Length) return null;
+				target = availableTargets[selected];
+			}
+			action.Target = target;
+			var targetObjects = target.bodyParts.ToArray();
+			var options2 = targetObjects
+				.Select(bp => new MenuOption
+				{
+					title = bp.GetNameWithEquipments(),
+					description = BuildTargetDescription(bp),
+				})
+				.ToArray();
+			var menuTitle = $"{navigationTitle}{target.name}的";
+			var menu2 = DialogueManager.CreateMenuDialogue(menuTitle, true, options2);
+			var selectedIndex = await menu2;
+			if (selectedIndex == options2.Length)
+			{
+				if (availableTargets.Length == 1) return null;
+				continue;
+			}
+			action.TargetObject = targetObjects[selectedIndex];
+			return action;
+		}
+	}
+#endif
 	async Task<ICombatTarget?> SelectTargetObject(
 		AttackBase attack,
 		Character opponent,
