@@ -5,11 +5,6 @@ using Godot;
 /// </summary>
 public readonly struct ReactionChance
 {
-	public ReactionChance(double dodgeChance, double blockChance)
-	{
-		DodgeChance = dodgeChance;
-		BlockChance = blockChance;
-	}
 	/// <summary>
 	///     闪避成功率
 	/// </summary>
@@ -18,35 +13,33 @@ public readonly struct ReactionChance
 	///     格挡成功率
 	/// </summary>
 	public double BlockChance { get; }
+	public ReactionChance(double dodgeChance, double blockChance)
+	{
+		DodgeChance = dodgeChance;
+		BlockChance = blockChance;
+	}
 }
 /// <summary>
 ///     反应结算结果
 /// </summary>
-public readonly struct ReactionOutcome
+public readonly struct ReactionOutcome(ReactionTypeCode type, ICombatTarget? blockTarget, bool succeeded, double successChance)
 {
-	public ReactionOutcome(ReactionTypeCode type, ICombatTarget? blockTarget, bool succeeded, double successChance)
-	{
-		Type = type;
-		BlockTarget = blockTarget;
-		Succeeded = succeeded;
-		SuccessChance = successChance;
-	}
 	/// <summary>
 	///     反应类型
 	/// </summary>
-	public ReactionTypeCode Type { get; }
+	public ReactionTypeCode Type { get; } = type;
 	/// <summary>
 	///     成功格挡时使用的目标
 	/// </summary>
-	public ICombatTarget? BlockTarget { get; }
+	public ICombatTarget? BlockTarget { get; } = blockTarget;
 	/// <summary>
 	///     是否成功
 	/// </summary>
-	public bool Succeeded { get; }  // todo: 删掉。BlockTarget != null 就表示成功格挡了
+	public bool Succeeded { get; } = succeeded; // todo: 删掉。BlockTarget != null 就表示成功格挡了
 	/// <summary>
 	///     本次判定的成功率
 	/// </summary>
-	public double SuccessChance { get; }
+	public double SuccessChance { get; } = successChance;
 }
 /// <summary>
 ///     负责计算并结算闪避与格挡成功率
@@ -80,23 +73,24 @@ public static class ReactionSuccessCalculator
 		var weaponWeightScore = weapon == null ? 0.0 : ScaleToRange(weapon.Weight, WeaponWeightScale);
 		var defenderLoadScore = ScaleToRange(BaseBodyWeight + GetEquippedWeight(attack.target), DefenderLoadScale);
 		var isUnarmedAttack = weapon == null || !attack.UsesWeapon;
-		var dodgeScore = DodgeBias
-		                 - DodgeLengthWeight * weaponLengthScore
-		                 + DodgeWeaponWeight * weaponWeightScore
-		                 + DodgeActionWeight * attack.DodgeImpact
-		                 - DodgeLoadWeight * defenderLoadScore
-		                 + (isUnarmedAttack ? UnarmedDodgeShift : 0.0);
+		var dodgeScore =
+			DodgeBias -
+			DodgeLengthWeight * weaponLengthScore +
+			DodgeWeaponWeight * weaponWeightScore +
+			DodgeActionWeight * attack.DodgeImpact -
+			DodgeLoadWeight * defenderLoadScore +
+			(isUnarmedAttack ? UnarmedDodgeShift : 0.0);
 		var blockTargetBonus = 0.0;
-		if (attack.targetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, })
-			blockTargetBonus = BlockCenterBonus;
-		var blockScore = BlockBias
-		                 + BlockLengthWeight * weaponLengthScore
-		                 + BlockWeaponWeight * weaponWeightScore
-		                 + BlockActionWeight * attack.BlockImpact
-		                 - BlockLoadWeight * defenderLoadScore
-		                 + (isUnarmedAttack ? UnarmedBlockShift : 0.0)
-		                 + blockTargetBonus;
-		return new ReactionChance(
+		if (attack.targetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, }) blockTargetBonus = BlockCenterBonus;
+		var blockScore =
+			BlockBias +
+			BlockLengthWeight * weaponLengthScore +
+			BlockWeaponWeight * weaponWeightScore +
+			BlockActionWeight * attack.BlockImpact -
+			BlockLoadWeight * defenderLoadScore +
+			(isUnarmedAttack ? UnarmedBlockShift : 0.0) +
+			blockTargetBonus;
+		return new(
 			Sigmoid(dodgeScore),
 			Sigmoid(blockScore)
 		);
@@ -119,15 +113,12 @@ public static class ReactionSuccessCalculator
 			ReactionTypeCode.Block => GD.Randf() < selectedChance,
 			_ => false,
 		};
-		return new ReactionOutcome(decision.type, decision.blockTarget, success, selectedChance);
+		return new(decision.type, decision.blockTarget, success, selectedChance);
 	}
 	static double GetEquippedWeight(Character character)
 	{
 		var total = 0.0;
-		foreach (var bodyPart in character.bodyParts)
-		{
-			total += GetContainerWeight(bodyPart);
-		}
+		foreach (var bodyPart in character.bodyParts) total += GetContainerWeight(bodyPart);
 		return total;
 	}
 	static double GetContainerWeight(IItemContainer container)
@@ -144,12 +135,10 @@ public static class ReactionSuccessCalculator
 	static Item? GetWeaponInUse(BodyPart bodyPart)
 	{
 		foreach (var slot in bodyPart.Slots)
-		{
-			if (slot.Item != null && (slot.Item.flag & ItemFlagCode.Arm) != 0) return slot.Item;
-		}
+			if (slot.Item != null && (slot.Item.flag & ItemFlagCode.Arm) != 0)
+				return slot.Item;
 		return null;
 	}
 	static double ScaleToRange(double value, double scale) => 2.0 * Math.Tanh(value / scale);
 	static double Sigmoid(double value) => 1.0 / (1.0 + Math.Exp(-value));
 }
-

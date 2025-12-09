@@ -138,7 +138,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				await dialogue.ShowTextTask($"{target.name}使用{reaction.blockTarget!.Name}格挡成功");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				actorNode.MoveTo(actorPosition);
-				// todo: 结算格挡部位伤害
+				await performHit(reactionOutcome.BlockTarget!, dialogue);
 				goto END;
 			}
 			case ReactionTypeCode.Block:
