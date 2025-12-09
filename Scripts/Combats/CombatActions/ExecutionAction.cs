@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +10,11 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 	Character? target;
 	BodyPart? targetBodyPart;
 	bool executed;
-	public override CombatActionCode Id => CombatActionCode.Execution;
+	public virtual CombatActionCode Id => CombatActionCode.Execution;
 	public override string Description => "测试: 直接让敌方任意部位生命归零";
-	public override bool Available => actorBodyPart is { Available: true, id.IsArm: true, };
-	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
-	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
+	public override bool Visible => actorBodyPart is { Available: true, id.IsArm: true, };
+	public virtual IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
+	public virtual IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
 	{
 		get
 		{
@@ -24,12 +23,12 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 			return opponent.bodyParts.Select(bp => ((ICombatTarget)bp, false));
 		}
 	}
-	public override Character? Target
+	public virtual Character? Target
 	{
 		get => target;
 		set => target = value;
 	}
-	public override ICombatTarget? TargetObject
+	public virtual ICombatTarget? TargetObject
 	{
 		get => targetBodyPart;
 		set => targetBodyPart = value as BodyPart;

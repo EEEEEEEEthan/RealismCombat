@@ -12,7 +12,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;
 	ICombatTarget? combatTarget;
-	public abstract override CombatActionCode Id { get; }
+	public abstract CombatActionCode Id { get; }
 	public override string Description
 	{
 		get
@@ -41,9 +41,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{Narrative}";
 		}
 	}
-	public override bool Available => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
-	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
-	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
+	public override bool Visible => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
+	public virtual IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
+	public virtual IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
 	{
 		get
 		{
@@ -52,12 +52,12 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			return target.AvailableCombatTargets.Select(t => (t, !t.Available));
 		}
 	}
-	public override Character? Target
+	public virtual Character? Target
 	{
 		get => target;
 		set => target = value;
 	}
-	public override ICombatTarget? TargetObject
+	public virtual ICombatTarget? TargetObject
 	{
 		get => combatTarget;
 		set => combatTarget = value;

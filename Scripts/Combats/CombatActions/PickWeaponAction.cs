@@ -12,9 +12,9 @@ public class PickWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 	ItemSlot? targetSlot;
 	Item? pickedItem;
 	string? startText;
-	public override CombatActionCode Id => CombatActionCode.PickWeapon;
+	public virtual CombatActionCode Id => CombatActionCode.PickWeapon;
 	public override string Description => "捡起地上的武器放到空闲的手上";
-	public override bool Available => IsUsable();
+	public override bool Visible => IsUsable();
 	protected override Task OnStartTask() =>
 		DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}正要捡起武器");
 	protected override Task OnExecute()

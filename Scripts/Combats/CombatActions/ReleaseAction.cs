@@ -17,13 +17,13 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		return null;
 	}
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	public override CombatActionCode Id => CombatActionCode.Release;
+	public virtual CombatActionCode Id => CombatActionCode.Release;
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
 	/// <summary>
 	///     判断当前是否只会执行丢弃武器
 	/// </summary>
 	public bool WillOnlyDropWeapon => !actorBodyPart.HasBuff(BuffCode.Grappling, true) && FindWeaponSlot(actorBodyPart) != null;
-	public override bool Available => IsUsable();
+	public override bool Visible => IsUsable();
 	bool dropHandled;
 	protected override async Task OnStartTask()
 	{

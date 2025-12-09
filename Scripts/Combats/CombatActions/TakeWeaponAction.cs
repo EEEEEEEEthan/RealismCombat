@@ -12,7 +12,7 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 	ItemSlot? sourceSlot;
 	string? beltName;
 	string? startText;
-	public override CombatActionCode Id => CombatActionCode.TakeWeapon;
+	public virtual CombatActionCode Id => CombatActionCode.TakeWeapon;
 public override string Description => "从腰带装备中取出武器放到空余的手上，必要时会丢下原有物品";
 	class BeltWeaponCandidate
 	{
@@ -24,7 +24,7 @@ public override string Description => "从腰带装备中取出武器放到空�
 		public Item Belt { get; }
 		public ItemSlot Slot { get; }
 	}
-	public override bool Available => IsUsable();
+	public override bool Visible => IsUsable();
 	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue(startText ?? $"{actor.name}伸手去拿{beltName ?? "腰带"}上的武器到{actorBodyPart.Name}");
 	protected override Task OnExecute()
 	{

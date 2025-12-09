@@ -1,22 +1,19 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 public abstract class CombatAction(Character actor, Combat combat, ICombatTarget actorObject, double preCastActionPointCost, double postCastActionPointCost)
 {
 	protected readonly Character actor = actor;
 	protected readonly Combat combat = combat;
-	protected readonly ICombatTarget actorObject = actorObject;
 	public Character Actor => actor;
-	public Combat Combat => combat;
-	public ICombatTarget ActorObject => actorObject;
-	public abstract CombatActionCode Id { get; }
-public abstract string Description { get; }
-	public virtual bool Available => true;
+	public abstract string Description { get; }
+	/// <summary>
+	/// 是否在界面上显示该行动
+	/// </summary>
+	public virtual bool Visible => true;
+	/// <summary>
+	/// true: 界面上禁用该行动，false: 可用
+	/// </summary>
 	public virtual bool Disabled => false;
-	public bool CanUse => Available && !Disabled;
-	public virtual IEnumerable<Character> AvailableTargets => [];
-	public virtual Character? Target { get; set; }
-	public virtual IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects => [];
-	public virtual ICombatTarget? TargetObject { get; set; }
+	public bool CanUse => Visible && !Disabled;
 	public async Task StartTask()
 	{
 		actor.actionPoint.value -= preCastActionPointCost;

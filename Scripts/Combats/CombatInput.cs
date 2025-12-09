@@ -47,7 +47,7 @@ public abstract class CombatInput(Combat combat)
 			if (!actor.availableCombatActions.ContainsKey(code)) return;
 			var action = factory();
 			if (action == null) return;
-			if (!action.Available) return;
+			if (!action.Visible) return;
 			actions.Add((name, action));
 		}
 		TryAdd(CombatActionCode.Slash, "斩击", () => new SlashAttack(actor, bodyPart, combat));
