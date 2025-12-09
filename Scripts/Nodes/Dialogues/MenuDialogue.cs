@@ -89,6 +89,8 @@ public partial class MenuDialogue : BaseDialogue
 		for (var i = 0; i < options.Count; i++)
 		{
 			var option = options[i];
+			option.description = NormalizeDescription(option);
+			options[i] = option;
 			optionResources.Add(new()
 			{
 				text = option.title,
@@ -114,6 +116,13 @@ public partial class MenuDialogue : BaseDialogue
 			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
 		}
 		OptionContainer.Options = optionResources.ToArray();
+	}
+	static string NormalizeDescription(MenuOption option)
+	{
+		var description = option.description ?? string.Empty;
+		if (!option.disabled) return description;
+		if (string.IsNullOrEmpty(description)) return "当前不可用";
+		return description.StartsWith("当前不可用") ? description : $"当前不可用\n{description}";
 	}
 	void Select(int index)
 	{
