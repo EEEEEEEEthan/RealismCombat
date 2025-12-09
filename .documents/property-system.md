@@ -127,7 +127,7 @@ var hitPoint = new PropertyInt(reader);
 
 - `Character.speed` 使用 `PropertyInt` 存储速度
 - 默认最大值为 5
-- 每帧所有存活角色按 `speed.value * 0.1` 恢复行动点
+- 运行时通过属性 `Speed` 输出最终速度：基础速度 5 乘以负重曲线（裸装总重量 75 时为 5，重量越大递减并无限趋近于 `5/3`），行动点回复量为 `Speed * 0.1`
 
 ### 角色行动点
 

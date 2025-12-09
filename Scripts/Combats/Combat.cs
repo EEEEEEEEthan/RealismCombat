@@ -154,7 +154,7 @@ public class Combat
 				await Task.Delay(100);
 				Time += 0.1;
 				Log.Print($"{nameof(Time)}={Time:F1}");
-				foreach (var character in AllFighters.Where(c => c.IsAlive)) character.actionPoint.value += character.speed.value * 0.1f;
+				foreach (var character in AllFighters.Where(c => c.IsAlive)) character.actionPoint.value += character.Speed * 0.1;
 			}
 		}
 		catch (Exception e)

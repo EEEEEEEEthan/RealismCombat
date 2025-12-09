@@ -7,6 +7,23 @@ public static class ItemContainerExtensions
 {
 	extension(IItemContainer container)
 	{
+		/// <summary>
+		///     递归累加容器及其子节点上的所有装备重量
+		/// </summary>
+		public double WeightRecursive
+		{
+			get
+			{
+				var total = 0.0;
+				foreach (var slot in container.Slots)
+				{
+					if (slot.Item == null) continue;
+					total += slot.Item.Weight;
+					if (slot.Item.Slots.Length > 0) total += slot.Item.WeightRecursive;
+				}
+				return total;
+			}
+		}
 		public bool HasBuff(BuffCode buff, bool recursive)
 		{
 			foreach (var owned in container.Buffs)

@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 public class Character
 {
+	public const double BaseBodyWeight = 75.0;
+	public const double SpeedMinRatio = 1.0 / 3.0;
+	public const double SpeedLoadScale = 60.0;
 	public readonly PropertyInt speed;
 	public readonly PropertyDouble actionPoint;
 	public readonly string name;
@@ -21,6 +24,26 @@ public class Character
 	public CombatAction? combatAction;
 	public ICombatTarget[] AvailableCombatTargets => bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	public bool IsAlive => head.Available && torso.Available;
+	public double Speed
+	{
+		get
+		{
+			var totalWeight = Math.Max(TotalWeight, BaseBodyWeight);
+			var overload = totalWeight - BaseBodyWeight;
+			var decay = 1.0 / (1.0 + overload / SpeedLoadScale);
+			var ratio = SpeedMinRatio + (1.0 - SpeedMinRatio) * decay;
+			return speed.value * ratio;
+		}
+	}
+	public double TotalWeight
+	{
+		get
+		{
+			var total = BaseBodyWeight;
+			foreach (var bodyPart in bodyParts) total += bodyPart.WeightRecursive;
+			return total;
+		}
+	}
 	/// <summary>
 	///     收集角色所有腰带上的武器槽
 	/// </summary>
