@@ -336,12 +336,14 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				var characterNode = combat.combatNode.GetCharacterNode(character);
 				characterNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
+				target.HitPoint.value -= damage;
 				await dialogue.ShowTextTask($"{character.name}的{target.Name}受到{damage}点伤害");
 				any = true;
 			}
 			else
 			{
 				var rate = (float)damage / target.HitPoint.maxValue;
+				target.HitPoint.value -= damage;
 				switch (rate)
 				{
 					case < 0.2f:
@@ -354,7 +356,6 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 						break;
 				}
 			}
-			target.HitPoint.value -= damage;
 			if (target.HitPoint.value < 0)
 			{
 				await dialogue.ShowTextTask($"{target.Name}被击毁了!");
