@@ -274,9 +274,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 						await applyDamage(this.target!, targetObject, Damage.Total.RoundToInt(), dialogue);
 						return;
 					}
-					case Item:
+					case Item item:
 					{
-						await applyDamage(this.target!, targetObject, Damage.Total.RoundToInt(), dialogue);
+						await applyDamage(this.target!, targetObject, (Damage - item.Protection).Total.RoundToInt(), dialogue);
 						return;
 					}
 					default:
