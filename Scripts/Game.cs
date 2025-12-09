@@ -275,6 +275,20 @@ public class Game
 						? player.actionPoint.maxValue / 2
 						: player.actionPoint.maxValue;
 					var enemy = new Character("贵族兵");
+					var enemyCottonLiner = Item.Create(ItemIdCode.CottonLiner);
+					var enemyChainMail = Item.Create(ItemIdCode.ChainMail);
+					var enemyCottonPants = Item.Create(ItemIdCode.CottonPants);
+					var enemyChainChausses = Item.Create(ItemIdCode.ChainChausses);
+					if (enemy.torso.Slots.Length > 0)
+					{
+						enemy.torso.Slots[0].Item = enemyCottonLiner;
+						if (enemyCottonLiner.Slots.Length > 0) enemyCottonLiner.Slots[0].Item = enemyChainMail;
+					}
+					if (enemy.groin.Slots.Length > 0)
+					{
+						enemy.groin.Slots[0].Item = enemyCottonPants;
+						if (enemyCottonPants.Slots.Length > 0) enemyCottonPants.Slots[0].Item = enemyChainChausses;
+					}
 					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
 					enemy.actionPoint.value = 7;
 					enemy.availableCombatActions.Clear();
