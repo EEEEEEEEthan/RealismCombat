@@ -321,14 +321,14 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				if (selected == options.Length) return null;
 				target = availableTargets[selected];
 			}
-			attack.Target = target;
+			attack.targetCharacter = target;
 			var targetObject = await SelectTargetObject(attack, target, formatChance, navigationTitle);
 			if (targetObject == null)
 			{
 				if (availableTargets.Length == 1) return null;
 				continue;
 			}
-			attack.TargetObject = targetObject;
+			attack.targetObject = targetObject;
 			return attack;
 		}
 	}
@@ -395,7 +395,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				.Select(tuple =>
 				{
 					var target = tuple.target;
-					attack.TargetObject = target;
+					attack.targetObject = target;
 					var description = BuildTargetDescription(target);
 					var reactionChance = ReactionSuccessCalculator.Calculate(attack);
 					description += $"\n闪避成功率 {formatChance(reactionChance.DodgeChance)}";
@@ -472,11 +472,11 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		if (targets.Length == 0) return false;
 		var targetIndex = (int)(GD.Randi() % (uint)targets.Length);
 		var target = targets[targetIndex];
-		attack.Target = target;
+		attack.targetCharacter = target;
 		var targetObjects = attack.AvailableTargetObjects.Where(t => !t.disabled).ToArray();
 		if (targetObjects.Length == 0) return false;
 		var objectIndex = (int)(GD.Randi() % (uint)targetObjects.Length);
-		attack.TargetObject = targetObjects[objectIndex].target;
+		attack.targetObject = targetObjects[objectIndex].target;
 		return true;
 	}
 }

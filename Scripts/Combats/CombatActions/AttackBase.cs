@@ -9,10 +9,9 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
+	public Character? targetCharacter;
+	public ICombatTarget? targetObject;
 	protected readonly BodyPart actorBodyPart = actorBodyPart;
-	Character? target;
-	ICombatTarget? combatTarget;
-	public abstract CombatActionCode Id { get; }
 	public override string Description
 	{
 		get
@@ -42,29 +41,19 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		}
 	}
 	public override bool Visible => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
+	public abstract CombatActionCode Id { get; }
 	public virtual IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
 	public virtual IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
 	{
 		get
 		{
-			var target = Target;
+			var target = targetCharacter;
 			if (target == null) return [];
 			return target.AvailableCombatTargets.Select(t => (t, !t.Available));
 		}
 	}
-	public virtual Character? Target
-	{
-		get => target;
-		set => target = value;
-	}
-	public virtual ICombatTarget? TargetObject
-	{
-		get => combatTarget;
-		set => combatTarget = value;
-	}
 	public abstract string Narrative { get; }
 	public BodyPart ActorBodyPart => actorBodyPart;
-	public ICombatTarget CombatTarget => TargetCombatObject;
 	public Damage Damage
 	{
 		get
@@ -89,16 +78,14 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public abstract AttackTypeCode AttackType { get; }
 	public virtual double DamageMultiplier => 1.0;
 	public virtual bool UsesWeapon => false;
-	public Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
-	public ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
 	public abstract string StartDialogueText { get; }
 	public abstract string ExecuteDialogueText { get; }
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
 	protected override async Task OnExecute()
 	{
-		var target = TargetCharacter;
-		var combatTarget = TargetCombatObject;
+		var target = targetCharacter;
+		var combatTarget = targetObject;
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
 		var targetNode = combat.combatNode.GetCharacterNode(target);
 		var actorPosition = combat.combatNode.GetPKPosition(actor);

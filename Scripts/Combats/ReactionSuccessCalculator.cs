@@ -78,7 +78,7 @@ public static class ReactionSuccessCalculator
 		var weapon = attack.UsesWeapon ? GetWeaponInUse(attack.ActorBodyPart) : null;
 		var weaponLengthScore = weapon == null ? 0.0 : ScaleToRange(weapon.Length, WeaponLengthScale);
 		var weaponWeightScore = weapon == null ? 0.0 : ScaleToRange(weapon.Weight, WeaponWeightScale);
-		var defenderLoadScore = ScaleToRange(BaseBodyWeight + GetEquippedWeight(attack.Target), DefenderLoadScale);
+		var defenderLoadScore = ScaleToRange(BaseBodyWeight + GetEquippedWeight(attack.targetCharacter), DefenderLoadScale);
 		var isUnarmedAttack = weapon == null || !attack.UsesWeapon;
 		var dodgeScore = DodgeBias
 		                 - DodgeLengthWeight * weaponLengthScore
@@ -87,7 +87,7 @@ public static class ReactionSuccessCalculator
 		                 - DodgeLoadWeight * defenderLoadScore
 		                 + (isUnarmedAttack ? UnarmedDodgeShift : 0.0);
 		var blockTargetBonus = 0.0;
-		if (attack.TargetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, })
+		if (attack.targetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, })
 			blockTargetBonus = BlockCenterBonus;
 		var blockScore = BlockBias
 		                 + BlockLengthWeight * weaponLengthScore

@@ -11,5 +11,5 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id: BodyPartCode.Torso, };
 	public override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	public override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}撞击{TargetCharacter.name}的{TargetCombatObject.Name}!";
+	public override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}撞击{targetCharacter.name}的{targetObject.Name}!";
 }

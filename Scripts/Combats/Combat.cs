@@ -35,9 +35,9 @@ public class Combat
 	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
-		var defender = attack.Target;
+		var defender = attack.targetCharacter;
 		var attacker = attack.Actor;
-		var target = attack.CombatTarget;
+		var target = attack.targetObject;
 		CombatInput input = Allies.Contains(defender) ? playerInput : aiInput;
 		var reactionAvailable = defender.reaction > 0;
 		if (!reactionAvailable && input is AIInput) return ReactionDecision.CreateEndure();
