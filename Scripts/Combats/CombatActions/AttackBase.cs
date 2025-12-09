@@ -43,7 +43,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	}
 	public override bool Visible => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
 	public abstract CombatActionCode Id { get; }
-	public virtual IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
+	public virtual IEnumerable<Character> AvailableTargets => Opponents.Where(c => c.IsAlive);
 	public virtual IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
 	{
 		get
@@ -81,9 +81,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public virtual bool UsesWeapon => false;
 	public abstract string? PreCastText { get; }
 	public abstract string CastText { get; }
+	IEnumerable<Character> Opponents => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
-	protected virtual Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue) =>
-		Task.CompletedTask;
+	protected virtual Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue) => Task.CompletedTask;
 	protected override async Task OnStartTask()
 	{
 		var text = PreCastText;
@@ -225,5 +225,4 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			}
 		}
 	}
-	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 }
