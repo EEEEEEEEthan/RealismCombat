@@ -213,7 +213,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		{
 			var any = false;
 			if (damage <= 0) return any;
-			if (target is BodyPart bodyPart)
+			if (target is BodyPart)
 			{
 				await Task.Delay(100);
 				var characterNode = combat.combatNode.GetCharacterNode(character);
@@ -237,6 +237,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 						break;
 				}
 			}
+			target.HitPoint.value -= damage;
 			if (target.HitPoint.value < 0)
 			{
 				await dialogue.ShowTextTask($"{target.Name}被击毁了!");
