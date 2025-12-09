@@ -71,6 +71,16 @@ public class BodyPart : ICombatTarget, IItemContainer
 			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
 			_ => 10,
 		};
+	static void CollectItemsRecursive(IItemContainer container, List<Item> items)
+	{
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			items.Add(item);
+			if (item.Slots.Length > 0) CollectItemsRecursive(item, items);
+		}
+	}
 	public readonly BodyPartCode id;
 	/// <summary>
 	///     目标是否仍具备有效状态
@@ -131,6 +141,19 @@ public class BodyPart : ICombatTarget, IItemContainer
 			return $"已装备:\n{string.Join(", ", equippedItems.Select(item => item.Name))}";
 		}
 	}
+	/// <summary>
+	///     获取当前部位正在使用的武器
+	/// </summary>
+	public Item? WeaponInUse
+	{
+		get
+		{
+			foreach (var slot in Slots)
+				if (slot.Item != null && (slot.Item.flag & ItemFlagCode.Arm) != 0)
+					return slot.Item;
+			return null;
+		}
+	}
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
@@ -156,16 +179,6 @@ public class BodyPart : ICombatTarget, IItemContainer
 			HitPoint.Serialize(writer);
 			writer.Write(Slots.Length);
 			foreach (var slot in Slots) slot.Serialize(writer);
-		}
-	}
-	static void CollectItemsRecursive(IItemContainer container, List<Item> items)
-	{
-		foreach (var slot in container.Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			items.Add(item);
-			if (item.Slots.Length > 0) CollectItemsRecursive(item, items);
 		}
 	}
 	ItemSlot[] CreateSlots(BodyPartCode id) =>

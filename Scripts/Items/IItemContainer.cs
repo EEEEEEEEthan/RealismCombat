@@ -72,6 +72,20 @@ public static class ItemContainerExtensions
 			}
 			return false;
 		}
+		/// <summary>
+		///     递归计算容器内装备重量
+		/// </summary>
+		public double GetContainerWeight()
+		{
+			var total = 0.0;
+			foreach (var slot in container.Slots)
+			{
+				if (slot.Item == null) continue;
+				total += slot.Item.Weight;
+				if (slot.Item.Slots.Length > 0) total += slot.Item.GetContainerWeight();
+			}
+			return total;
+		}
 		public IEnumerable<(Item item, ItemSlot slot)> IterItemAndSlots(ItemFlagCode flags)
 		{
 			foreach (var slot in container.Slots)

@@ -10,6 +10,51 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
+	/// <summary>
+	///     计算在当前防护判定规则下本体受到的期望伤害
+	/// </summary>
+	/// <param name="damage">攻击伤害</param>
+	/// <param name="targetObject">受击目标</param>
+	/// <returns>期望的本体伤害</returns>
+	public static double CalculateExpectedBodyDamage(Damage damage, ICombatTarget targetObject)
+	{
+		if (damage.Total <= 0f) return 0d;
+		if (targetObject is not IItemContainer container) return damage.Total.RoundToInt();
+		var armors = container.IterItems(ItemFlagCode.Armor).ToList();
+		if (armors.Count == 0) return damage.Total.RoundToInt();
+		Damage ComputeResidual(int firstHit)
+		{
+			var remaining = damage;
+			for (var i = firstHit; i >= 0 && remaining.Total > 0f; i--)
+			{
+				var protection = armors[i].Protection;
+				remaining = remaining.ApplyProtection(protection);
+			}
+			return remaining;
+		}
+		var expected = 0d;
+		var firstCoverage = armors[0].Coverage;
+		var noArmorProb = 1d - firstCoverage;
+		expected += noArmorProb * damage.Total.RoundToInt();
+		var prefix = firstCoverage;
+		for (var i = 0; i < armors.Count; i++)
+		{
+			double scenarioProb;
+			if (i == armors.Count - 1)
+			{
+				scenarioProb = prefix;
+			}
+			else
+			{
+				var nextCoverage = armors[i + 1].Coverage;
+				scenarioProb = prefix * (1d - nextCoverage);
+				prefix *= nextCoverage;
+			}
+			var residual = ComputeResidual(i);
+			expected += scenarioProb * residual.Total.RoundToInt();
+		}
+		return expected;
+	}
 	public readonly BodyPart actorBodyPart = actorBodyPart;
 	public Character? target;
 	public ICombatTarget? targetObject;
@@ -76,49 +121,56 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public abstract string? PreCastText { get; }
 	public abstract string CastText { get; }
 	/// <summary>
-	///     计算在当前防护判定规则下本体受到的期望伤害
+	///     计算当前攻击对应的闪避与格挡成功率
 	/// </summary>
-	/// <param name="damage">攻击伤害</param>
-	/// <param name="targetObject">受击目标</param>
-	/// <returns>期望的本体伤害</returns>
-	public static double CalculateExpectedBodyDamage(Damage damage, ICombatTarget targetObject)
+	public ReactionChance ReactionChance
 	{
-		if (damage.Total <= 0f) return 0d;
-		if (targetObject is not IItemContainer container) return damage.Total.RoundToInt();
-		var armors = container.IterItems(ItemFlagCode.Armor).ToList();
-		if (armors.Count == 0) return damage.Total.RoundToInt();
-		Damage ComputeResidual(int firstHit)
+		get
 		{
-			var remaining = damage;
-			for (var i = firstHit; i >= 0 && remaining.Total > 0f; i--)
-			{
-				var protection = armors[i].Protection;
-				remaining = remaining.ApplyProtection(protection);
-			}
-			return remaining;
+			const double weaponLengthScale = 50.0;
+			const double weaponWeightScale = 6.0;
+			const double defenderLoadScale = 80.0;
+			const double baseBodyWeight = 70.0;
+			const double dodgeLengthWeight = 0.8;
+			const double dodgeWeaponWeight = 0.9;
+			const double dodgeActionWeight = 1.1;
+			const double dodgeLoadWeight = 0.8;
+			const double blockLengthWeight = 0.9;
+			const double blockWeaponWeight = 0.9;
+			const double blockActionWeight = 1.2;
+			const double blockLoadWeight = 0.8;
+			const double blockCenterBonus = 0.35;
+			const double unarmedDodgeShift = 0.5;
+			const double unarmedBlockShift = 0.3;
+			const double dodgeBias = -0.15;
+			const double blockBias = -0.05;
+			var weapon = UsesWeapon ? ActorBodyPart.WeaponInUse : null;
+			var weaponLengthScore = weapon == null ? 0.0 : GameMath.ScaleToRange(weapon.Length, weaponLengthScale);
+			var weaponWeightScore = weapon == null ? 0.0 : GameMath.ScaleToRange(weapon.Weight, weaponWeightScale);
+			var defenderLoadScore = GameMath.ScaleToRange(baseBodyWeight + target!.EquippedWeight, defenderLoadScale);
+			var isUnarmedAttack = weapon == null || !UsesWeapon;
+			var dodgeScore =
+				dodgeBias -
+				dodgeLengthWeight * weaponLengthScore +
+				dodgeWeaponWeight * weaponWeightScore +
+				dodgeActionWeight * DodgeImpact -
+				dodgeLoadWeight * defenderLoadScore +
+				(isUnarmedAttack ? unarmedDodgeShift : 0.0);
+			var blockTargetBonus = 0.0;
+			if (targetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, }) blockTargetBonus = blockCenterBonus;
+			var blockScore =
+				blockBias +
+				blockLengthWeight * weaponLengthScore +
+				blockWeaponWeight * weaponWeightScore +
+				blockActionWeight * BlockImpact -
+				blockLoadWeight * defenderLoadScore +
+				(isUnarmedAttack ? unarmedBlockShift : 0.0) +
+				blockTargetBonus;
+			return new(
+				GameMath.Sigmoid(dodgeScore),
+				GameMath.Sigmoid(blockScore)
+			);
 		}
-		var expected = 0d;
-		var firstCoverage = armors[0].Coverage;
-		var noArmorProb = 1d - firstCoverage;
-		expected += noArmorProb * damage.Total.RoundToInt();
-		var prefix = firstCoverage;
-		for (var i = 0; i < armors.Count; i++)
-		{
-			double scenarioProb;
-			if (i == armors.Count - 1)
-			{
-				scenarioProb = prefix;
-			}
-			else
-			{
-				var nextCoverage = armors[i + 1].Coverage;
-				scenarioProb = prefix * (1d - nextCoverage);
-				prefix *= nextCoverage;
-			}
-			var residual = ComputeResidual(i);
-			expected += scenarioProb * residual.Total.RoundToInt();
-		}
-		return expected;
 	}
 	IEnumerable<Character> Opponents => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
@@ -143,7 +195,20 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		using var ____ = targetNode.ExpandScope();
 		await DialogueManager.ShowGenericDialogue(CastText);
 		var reaction = await combat.HandleIncomingAttack(this);
-		var reactionOutcome = ReactionSuccessCalculator.Resolve(reaction, this);
+		var chance = ReactionChance;
+		var selectedChance = reaction.type switch
+		{
+			ReactionTypeCode.Dodge => chance.DodgeChance,
+			ReactionTypeCode.Block => chance.BlockChance,
+			_ => 0.0,
+		};
+		var success = reaction.type switch
+		{
+			ReactionTypeCode.Dodge => GD.Randf() < selectedChance,
+			ReactionTypeCode.Block => GD.Randf() < selectedChance,
+			_ => false,
+		};
+		var reactionOutcome = new ReactionOutcome(reaction.type, reaction.blockTarget, success, selectedChance);
 		var hitPosition = combat.combatNode.GetHitPosition(actor);
 		actorNode.MoveTo(hitPosition);
 		using var _____ = DialogueManager.CreateGenericDialogue(out var dialogue);

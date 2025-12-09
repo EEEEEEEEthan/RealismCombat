@@ -65,6 +65,18 @@ public class Character
 			return null;
 		}
 	}
+	/// <summary>
+	///     计算角色装备总重量
+	/// </summary>
+	public double EquippedWeight
+	{
+		get
+		{
+			var total = 0.0;
+			foreach (var bodyPart in bodyParts) total += bodyPart.GetContainerWeight();
+			return total;
+		}
+	}
 	public Character(string name)
 	{
 		this.name = name;

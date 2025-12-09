@@ -159,7 +159,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		while (true)
 		{
 			var attack = attacker.combatAction as AttackBase;
-			var reactionChance = attack != null ? ReactionSuccessCalculator.Calculate(attack) : new(0.0, 0.0);
+			var reactionChance = attack != null ? attack.ReactionChance : new(0.0, 0.0);
 			var blockChanceText = $"成功率 {FormatChance(reactionChance.BlockChance)}";
 			var dodgeChanceText = $"成功率 {FormatChance(reactionChance.DodgeChance)}";
 			var attackerText = $"{attacker.name}的攻击";
@@ -404,7 +404,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					var target = tuple.target;
 					attack.targetObject = target;
 					var description = BuildTargetDescription(target);
-					var reactionChance = ReactionSuccessCalculator.Calculate(attack);
+					var reactionChance = attack.ReactionChance;
 					description += $"\n闪避成功率 {formatChance(reactionChance.DodgeChance)}";
 					description += $"\n格挡成功率 {formatChance(reactionChance.BlockChance)}";
 					return new MenuOption
@@ -445,7 +445,7 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 							action.targetObject = targetObj;
 							if (!action.CanUse) continue;
 							var expected = AttackBase.CalculateExpectedBodyDamage(action.Damage, targetObj);
-							var chance = ReactionSuccessCalculator.Calculate(action);
+							var chance = action.ReactionChance;
 							var weight = expected * (1 - chance.HighestChance);
 							actions[action] = weight;
 							action = factory(bodyPart);
