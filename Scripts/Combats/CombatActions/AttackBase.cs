@@ -327,7 +327,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			// 对武器的伤害
 			if (UsesWeapon && actorBodyPart.WeaponInUse is { } weapon)
 			{
-				var weaponDamage = (damage.Blunt - weapon.Protection.Blunt).RoundToInt();
+				var weaponDamage = (damage - weapon.Protection).Total.RoundToInt();
 				any = any || await applyDamage(actor, weapon, weaponDamage, dialogue);
 			}
 			if (!any) await dialogue.ShowTextTask("什么也没发生");

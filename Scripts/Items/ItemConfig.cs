@@ -20,7 +20,7 @@ public readonly struct ItemConfig
 					new(0f, 4f, 0f),
 					Damage.Zero
 				),
-				Protection = new(4, 0, 1),
+				Protection = new(4, 4, 1),
 				Coverage = 0.0,
 				Icon = "res://Textures/Items/Icons1.png",
 			}
