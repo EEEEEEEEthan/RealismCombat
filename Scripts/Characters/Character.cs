@@ -47,7 +47,7 @@ public class Character
 	/// <summary>
 	///     收集角色所有腰带上的武器槽
 	/// </summary>
-	public List<(Item Belt, ItemSlot Slot)> BeltWeaponCandidates => torso.IterItems(ItemFlagCode.Arm).ToList();
+	public List<(Item Belt, ItemSlot Slot)> BeltWeaponCandidates => torso.IterItemAndSlots(ItemFlagCode.Arm).ToList();
 	/// <summary>
 	///     获取角色可用的空手部槽位
 	/// </summary>

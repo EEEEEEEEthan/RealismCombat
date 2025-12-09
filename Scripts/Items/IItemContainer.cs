@@ -38,19 +38,19 @@ public static class ItemContainerExtensions
 			}
 			return false;
 		}
-		public IEnumerable<Item> IterItemsRecursive(ItemFlagCode flags)
+		public IEnumerable<Item> IterItems(ItemFlagCode flags)
 		{
 			foreach (var slot in container.Slots)
 			{
 				var occupied = slot.Item;
 				if (occupied == null) continue;
 				if ((occupied.flag & flags) != 0) yield return occupied;
-				foreach (var nested in occupied.IterItemsRecursive(flags)) yield return nested;
+				foreach (var nested in occupied.IterItems(flags)) yield return nested;
 			}
 		}
 		public bool TryGetItem(ItemFlagCode flag, out Item item)
 		{
-			foreach (var found in container.IterItemsRecursive(flag))
+			foreach (var found in container.IterItems(flag))
 			{
 				item = found;
 				return true;
@@ -72,7 +72,7 @@ public static class ItemContainerExtensions
 			}
 			return false;
 		}
-		public IEnumerable<(Item, ItemSlot)> IterItems(ItemFlagCode flags)
+		public IEnumerable<(Item item, ItemSlot slot)> IterItemAndSlots(ItemFlagCode flags)
 		{
 			foreach (var slot in container.Slots)
 			{
@@ -81,7 +81,7 @@ public static class ItemContainerExtensions
 				foreach (var s in item.Slots)
 					if (s.Item is { flag: var flag, } && (flag & flags) != 0)
 						yield return (item, s);
-				foreach (var pair in item.IterItems(flags)) yield return pair;
+				foreach (var pair in item.IterItemAndSlots(flags)) yield return pair;
 			}
 		}
 	}
