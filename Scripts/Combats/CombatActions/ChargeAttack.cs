@@ -34,5 +34,6 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
 	public override string PreCastText => $"{actor.name}肩膀下沉...";
 	public override string CastText => $"{actor.name}用肩膀撞击{target!.name}的{targetObject!.Name}!";
+	public override Damage Damage => new(0f, 0f, 1f);
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id: BodyPartCode.Torso, };
 }

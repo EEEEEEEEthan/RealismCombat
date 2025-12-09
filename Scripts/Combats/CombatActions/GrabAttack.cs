@@ -36,7 +36,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 		}
 	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
-	public override double DamageMultiplier => 0.0;
+	public override Damage Damage => Damage.Zero;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: false, };
 	protected override async Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue)
 	{

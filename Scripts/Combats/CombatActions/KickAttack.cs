@@ -34,5 +34,6 @@ public class KickAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 		}
 	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
+	public override Damage Damage => new(0f, 0f, 1f);
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsLeg: true, };
 }

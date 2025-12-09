@@ -57,10 +57,10 @@
     - 格挡：伤害转移到格挡目标（身体部位或装备），播放格挡音效与动画
     - 闪避：攻击落空，受击方打断当前行动并位移
     - 承受：正常结算伤害
-  - 通过 `CalculateDamage()` 计算伤害值（通常为 1~3 点）写入最终目标的生命值，界面通过 `CharacterNode.Shake()` 与受击音效反馈
-  - 注意：`GrabAttack`（抓取攻击）不造成伤害，`CalculateDamage()` 返回 0
+- 通过 `Damage` 计算伤害值（通常为 1~3 点）写入最终目标的生命值，界面通过 `CharacterNode.Shake()` 与受击音效反馈
+- 注意：`GrabAttack`（抓取攻击）不造成伤害，直接覆写 `Damage` 返回 0
   - 持续追加部位状态、倒地提示，并在对话框关闭后额外扣除 5 点行动点
-- `AttackBase.CalculateDamage()` 直接内联原 `DamageResolver.GetBaseDamage()` 逻辑：若动作使用武器，则遍历攻击部位槽位取首个 `ItemFlagCode.Arm` 武器的 `DamageProfile.Get(AttackType)`，否则 `Special` 返回 `Damage(0,0,1)`、其余返回 `Damage.Zero`，最后统一乘以 `DamageMultiplier`
+- `AttackBase.Damage`：挥砍/刺击会遍历攻击部位槽位取首个 `ItemFlagCode.Arm` 武器的 `DamageProfile.Get(AttackType)`；特殊攻击需子类自行覆写 `Damage` 给出数值（默认 0，例如头槌返回 `Damage(0,0,1)`）
 - 外部随时可以将 `character.combatAction` 置空以中断后摇，例如强制结束战斗
 
 ## 攻击类型

@@ -55,29 +55,23 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	}
 	public abstract string Narrative { get; }
 	public BodyPart ActorBodyPart => actorBodyPart;
-	public Damage Damage
+	public virtual Damage Damage
 	{
 		get
 		{
 			var attackType = AttackType;
-			if (UsesWeapon)
+			if (UsesWeapon && attackType != AttackTypeCode.Special)
 				foreach (var slot in ActorBodyPart.Slots)
 				{
 					var weapon = slot.Item;
-					if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0) return weapon.DamageProfile.Get(attackType).Scale(DamageMultiplier);
+					if (weapon != null && (weapon.flag & ItemFlagCode.Arm) != 0) return weapon.DamageProfile.Get(attackType);
 				}
-			var baseDamage = attackType switch
-			{
-				AttackTypeCode.Special => new(0f, 0f, 1f),
-				_ => Damage.Zero,
-			};
-			return baseDamage.Scale(DamageMultiplier);
+			return Damage.Zero;
 		}
 	}
 	public abstract double DodgeImpact { get; }
 	public abstract double BlockImpact { get; }
 	public abstract AttackTypeCode AttackType { get; }
-	public virtual double DamageMultiplier => 1.0;
 	public virtual bool UsesWeapon => false;
 	public abstract string? PreCastText { get; }
 	public abstract string CastText { get; }

@@ -35,7 +35,6 @@ public class Item : ICombatTarget, IItemContainer
 		{
 			lines.Add($"挥舞:{FormatDamage(config.DamageProfile.Swing)}");
 			lines.Add($"捅扎:{FormatDamage(config.DamageProfile.Thrust)}");
-			lines.Add($"特殊:{FormatDamage(config.DamageProfile.Special)}");
 		}
 		if (!IsProtectionZero(config.Protection)) lines.Add($"防护:{FormatProtection(config.Protection)}");
 		if (config.Coverage > 0.0) lines.Add($"覆盖率:{FormatPercent(config.Coverage)}");
