@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 ///     放手行动，可解除擒拿或丢弃武器
 /// </summary>
 public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat combat)
-	: CombatAction(actor, combat, actorBodyPart, 1, 1)
+	: CombatAction(actor, combat, actorBodyPart, 0, 1)
 {
 	static ItemSlot? FindWeaponSlot(BodyPart bodyPart)
 	{
@@ -17,34 +17,15 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		return null;
 	}
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	public virtual CombatActionCode Id => CombatActionCode.Release;
+	bool dropHandled;
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
+	public override bool Visible => IsUsable();
+	public virtual CombatActionCode Id => CombatActionCode.Release;
 	/// <summary>
 	///     判断当前是否只会执行丢弃武器
 	/// </summary>
 	public bool WillOnlyDropWeapon => !actorBodyPart.HasBuff(BuffCode.Grappling, true) && FindWeaponSlot(actorBodyPart) != null;
-	public override bool Visible => IsUsable();
-	bool dropHandled;
-	protected override async Task OnStartTask()
-	{
-		if (actorBodyPart.HasBuff(BuffCode.Grappling, true))
-		{
-			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}准备放手");
-			return;
-		}
-		var weaponSlot = FindWeaponSlot(actorBodyPart);
-		if (weaponSlot?.Item == null)
-		{
-			dropHandled = true;
-			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有可丢弃的武器");
-			return;
-		}
-		var droppedWeapon = weaponSlot.Item;
-		weaponSlot.Item = null;
-		combat.droppedItems.Add(droppedWeapon);
-		dropHandled = true;
-		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}的{droppedWeapon.Name}");
-	}
+	protected override Task OnStartTask() => Task.CompletedTask;
 	protected override async Task OnExecute()
 	{
 		var released = RemoveGrapplingBuffs(actorBodyPart);

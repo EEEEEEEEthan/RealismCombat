@@ -26,7 +26,7 @@ public abstract class CombatInput(Combat combat)
 		if (target is IBuffOwner { Buffs.Count: > 0, } buffOwner)
 		{
 			var buffLines = buffOwner.Buffs
-				.Select(buff => $"[{buff.code.GetName()}]来自{buff.source?.name ?? "未知"}");
+				.Select(buff => $"[{buff.code.Name}]来自{buff.source?.name ?? "未知"}");
 			description += "\n" + string.Join("\n", buffLines);
 		}
 		return description;
