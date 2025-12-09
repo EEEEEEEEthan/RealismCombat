@@ -41,7 +41,15 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 			Item item => $"{character.name}的{item.Name}",
 			_ => $"{character.name}的目标",
 		};
-	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
+	public override string Description
+	{
+		get
+		{
+			if (actorBodyPart.HasBuff(BuffCode.Grappling, true)) return "移除施加的束缚效果";
+			if (FindWeaponSlot(actorBodyPart) != null) return "扔掉手里的武器";
+			return "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
+		}
+	}
 	public override bool Visible => actorBodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
 	/// <summary>
 	///     未擒拿且手上没有武器时禁用
