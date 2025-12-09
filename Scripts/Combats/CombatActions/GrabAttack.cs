@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 /// <summary>
@@ -10,8 +11,30 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	public override string Narrative => "徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态";
 	public override string PreCastText => $"{actor.name}抬起{actorBodyPart.Name}准备抓住目标!";
 	public override string CastText => $"{actor.name}用{actorBodyPart.Name}抓取{target!.name}的{targetObject!.Name}!";
-	public override double DodgeImpact => 0.7;
-	public override double BlockImpact => 0.25;
+	public override double DodgeImpact
+	{
+		get
+		{
+			if (targetObject is BodyPart targetPart)
+			{
+				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
+				if (heightGap >= 0.4) return 0.95;
+			}
+			return 0.7;
+		}
+	}
+	public override double BlockImpact
+	{
+		get
+		{
+			if (targetObject is BodyPart targetPart)
+			{
+				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
+				if (heightGap >= 0.4) return 0.9;
+			}
+			return 0.25;
+		}
+	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
 	public override double DamageMultiplier => 0.0;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: false, };

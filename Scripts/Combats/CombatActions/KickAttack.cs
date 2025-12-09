@@ -1,3 +1,4 @@
+using System;
 /// <summary>
 ///     踢击攻击，只允许腿使用
 /// </summary>
@@ -8,8 +9,30 @@ public class KickAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	public override string Narrative => "用腿部发动踢击，依赖腿部可用性进行近战攻击";
 	public override string PreCastText => $"{actor.name}{actorBodyPart.Name}后撤...";
 	public override string CastText => $"{actor.name}用{actorBodyPart.Name}踢{target!.name}的{targetObject!.Name}!";
-	public override double DodgeImpact => 0.6;
-	public override double BlockImpact => 0.4;
+	public override double DodgeImpact
+	{
+		get
+		{
+			if (targetObject is BodyPart targetPart)
+			{
+				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
+				if (heightGap >= 0.4) return 0.95;
+			}
+			return 0.6;
+		}
+	}
+	public override double BlockImpact
+	{
+		get
+		{
+			if (targetObject is BodyPart targetPart)
+			{
+				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
+				if (heightGap >= 0.4) return 0.9;
+			}
+			return 0.4;
+		}
+	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsLeg: true, };
 }

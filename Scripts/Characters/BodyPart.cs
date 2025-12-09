@@ -44,6 +44,19 @@ public static class BodyPartExtensions
 		///     当前部位是否为腿部
 		/// </summary>
 		public bool IsLeg => @this is BodyPartCode.LeftLeg or BodyPartCode.RightLeg;
+		/// <summary>
+		///     获取部位在身高中的归一化位置
+		/// </summary>
+		public double NormalizedHeight =>
+			@this switch
+			{
+				BodyPartCode.Head => 1.0,
+				BodyPartCode.Torso => 0.85,
+				BodyPartCode.Groin => 0.7,
+				BodyPartCode.LeftArm or BodyPartCode.RightArm => 0.75,
+				BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 0.35,
+				_ => 0.6,
+			};
 	}
 }
 public class BodyPart : ICombatTarget, IItemContainer
