@@ -69,7 +69,7 @@
 - 脚本在 `_Ready()` 中通过属性惰性绑定节点引用，并设置索引箭头纹理
 - 支持 `allowEscapeReturn`，为真时自动追加"返回"选项并响应 `ui_cancel`
 - 通过 `TaskCompletionSource<int>` 实现等待器，`await menu` 可直接获取选中的索引
-- `Select(int index)` 会更新指示箭头位置，同时将对应描述传给 `Printer`；如果选项被禁用则不会选择
+- `Select(int index)` 会更新指示箭头位置，同时将对应描述传给 `Printer`；描述文本不再使用打字机效果，切换选项时即时显示完整内容；如果选项被禁用则不会选择
 - `SelectAndConfirm(int index)` 用于 MCP 指令快速选择并确认
 - 自动调用 `GameServer.McpCheckpoint()` 提示外部当前等待状态
 - 禁用选项处理：

@@ -121,7 +121,7 @@ public partial class MenuDialogue : BaseDialogue
 		if (index < 0 || index >= options.Count) return;
 		currentIndex = index;
 		Printer.Text = options[currentIndex].description;
-		Printer.VisibleCharacters = 0;
+		Printer.VisibleCharacters = Printer.GetTotalCharacterCount();
 		OptionContainer.Index = currentIndex;
 	}
 	void Confirm()
