@@ -425,7 +425,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		}
 	}
 }
-public class AIInput(Combat combat) : CombatInput(combat)
+public class GenericAIInput(Combat combat) : CombatInput(combat)
 {
 	const float ReactionEndureChance = 0.25f;
 	public override Task<CombatAction> MakeDecisionTask(Character character)

@@ -75,7 +75,7 @@ public class Combat
 	public readonly HashSet<Item> droppedItems = [];
 	readonly Dictionary<Item, (Character owner, ItemSlot slot)> originalSlots = new();
 	readonly PlayerInput playerInput;
-	readonly AIInput aiInput;
+	readonly GenericAIInput genericAiInput;
 	readonly TaskCompletionSource<bool> taskCompletionSource = new();
 	bool hasEnded;
 	public double Time { get; private set; }
@@ -94,7 +94,7 @@ public class Combat
 		CaptureOriginalSlots(Allies);
 		CaptureOriginalSlots(Enemies);
 		playerInput = new(this);
-		aiInput = new(this);
+		genericAiInput = new(this);
 		StartLoop();
 	}
 	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
@@ -103,9 +103,9 @@ public class Combat
 		var actor = attack.actor;
 		var target = attack.target!;
 		var targetObject = attack.targetObject!;
-		CombatInput input = Allies.Contains(target) ? playerInput : aiInput;
+		CombatInput input = Allies.Contains(target) ? playerInput : genericAiInput;
 		var reactionAvailable = target.reaction > 0;
-		if (!reactionAvailable && input is AIInput) return ReactionDecision.CreateEndure();
+		if (!reactionAvailable && input is GenericAIInput) return ReactionDecision.CreateEndure();
 		var decision = await input.MakeReactionDecisionTask(target, actor, targetObject);
 		switch (decision.type)
 		{
@@ -143,7 +143,7 @@ public class Combat
 					using var __ = actorNode.ExpandScope();
 					Considering = actor;
 					await DialogueManager.ShowGenericDialogue($"{actor.name}的回合!");
-					CombatInput input = Allies.Contains(actor) ? playerInput : aiInput;
+					CombatInput input = Allies.Contains(actor) ? playerInput : genericAiInput;
 					var action = await input.MakeDecisionTask(actor);
 					Considering = null;
 					actor.combatAction = action;
