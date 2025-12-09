@@ -35,10 +35,16 @@
 `ItemFlagCode` 位于 `Scripts/Items/ItemFlagCode.cs`，当前包含：
 
 - `Arm`：武器
-- `InnerLayer`：内衬
-- `MiddleLayer`：中层
-- `OuterCoat`：外套
+- `TorsoArmor`：内层上衣
+- `TorsoArmorMiddle`：中层上衣
+- `TorsoArmorOuter`：外层上衣
+- `HandArmor`：护手
+- `LegArmor`：内层裤
+- `LegArmorMiddle`：中层裤
+- `LegArmorOuter`：外层裤
 - `Belt`：皮带
+
+护甲聚合标志 `Armor` 覆盖全部上衣/裤子层级与护手。
 
 #### 显示名称
 
@@ -49,10 +55,13 @@
 `ItemIdCode` 位于 `Scripts/Items/Item.cs`，内置物品及槽位结构：
 
 - `LongSword`：武器，标志 `Arm`，无槽位
-- `CottonLiner`：棉质内衬，标志 `InnerLayer`，槽位 `MiddleLayer`、`Belt`
-- `ChainMail`：链甲，标志 `MiddleLayer`，槽位 `OuterCoat`、`Belt`
-- `PlateArmor`：板甲，标志 `OuterCoat`，槽位 `Belt`
+- `CottonLiner`：武装衣，标志 `TorsoArmor`，槽位 `TorsoArmorMiddle`
+- `ChainMail`：链甲，标志 `TorsoArmorMiddle`，槽位 `TorsoArmorOuter`
+- `PlateArmor`：板甲，标志 `TorsoArmorOuter`，无槽位
 - `Belt`：皮带，标志 `Belt`，4 个 `Arm` 槽位
+- `CottonPants`：武装裤，标志 `LegArmor`，槽位 `LegArmorMiddle`
+- `ChainChausses`：链甲护腿，标志 `LegArmorMiddle`，槽位 `LegArmorOuter`
+- `PlateGreaves`：板甲护腿，标志 `LegArmorOuter`，无槽位
 
 ### IItemContainer 接口
 
@@ -67,7 +76,7 @@
 
 ### 装备挂载
 
-- `BodyPart` 通过 `Slots` 管理装备槽位；默认双臂有 `Arm` 槽，躯干有 `InnerLayer` 槽
+- `BodyPart` 通过 `Slots` 管理装备槽位；默认双臂有 `Arm` 槽，躯干有 `TorsoArmor` 与 `Belt` 槽，裆部有 `LegArmor` 槽
 - 装备通过 `slot.Item = Item.Create(...)` 挂载，标志不匹配会抛出异常
 - 装备菜单仅展示存在装备槽的身体部位；无槽部位不会出现在选择列表中。角色若没有可装备的部位，会提示“没有可装备的部位”并返回上级菜单
 - 选择物品栏中的装备成功换装后不再弹出成功提示，直接返回
@@ -102,4 +111,4 @@
 
 - 新增物品：在 `ItemIdCode` 与 `Item.Configs` 中添加条目，配置名称、标志、槽位、长度、重量、耐久
 - 新增装备类型：在 `ItemFlagCode` 增加标志，并在需要承载该类型的部位或物品上添加对应槽位
-- 嵌套示例：躯干(`InnerLayer`槽) → 棉质内衬(`MiddleLayer`、`Belt`) → 链甲(`OuterCoat`、`Belt`) → 板甲(`Belt`) → 皮带(4×`Arm`)；皮带槽可挂武器
+- 嵌套示例：躯干(`TorsoArmor`槽) → 武装衣(`TorsoArmorMiddle`) → 链甲(`TorsoArmorOuter`) → 板甲 → 皮带(4×`Arm`)；裆部(`LegArmor`槽) → 武装裤(`LegArmorMiddle`) → 链甲护腿(`LegArmorOuter`) → 板甲护腿

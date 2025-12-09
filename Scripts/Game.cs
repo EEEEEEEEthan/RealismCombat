@@ -77,9 +77,13 @@ public class Game
 		var hero = new Character("Ethan");
 		var longSword = Item.Create(ItemIdCode.LongSword);
 		var cottonLiner = Item.Create(ItemIdCode.CottonLiner);
+		var chainMail = Item.Create(ItemIdCode.ChainMail);
 		var belt = Item.Create(ItemIdCode.Belt);
 		var cottonPants = Item.Create(ItemIdCode.CottonPants);
+		var chainChausses = Item.Create(ItemIdCode.ChainChausses);
 		hero.inventory.Items.Add(longSword);
+		hero.inventory.Items.Add(chainMail);
+		hero.inventory.Items.Add(chainChausses);
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
 		if (hero.groin.Slots.Length > 0) hero.groin.Slots[0].Item = cottonPants;
@@ -167,14 +171,16 @@ public class Game
 				while (true)
 				{
 					var readyForDeparture = players.Count > 0 &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword);
+						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
+						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
+						HasEquippedItem(players[0], ItemIdCode.ChainChausses);
 					var proceed = false;
 					var choice = await DialogueManager.CreateMenuDialogue(
 						"第一章 流浪",
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好长剑",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好长剑、链甲、链甲裤",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
@@ -185,7 +191,7 @@ public class Game
 					{
 						case 0:
 						{
-							proceed = readyForDeparture && HasEquippedItem(players[0], ItemIdCode.LongSword);
+							proceed = readyForDeparture;
 							break;
 						}
 						case 1:
@@ -213,7 +219,7 @@ public class Game
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
-					await dialogue.ShowTextTask("Ethan拿上了父亲的长剑");
+					await dialogue.ShowTextTask("Ethan穿好了链甲和链甲裤,拿上了父亲的长剑");
 					await dialogue.ShowTextTask("或许他的心里还存有一点家族荣誉的念想");
 					await dialogue.ShowTextTask("走吧...");
 				}

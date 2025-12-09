@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Godot;
 /// <summary>
 ///     战斗中的身体部位类型
@@ -111,12 +112,9 @@ public class BodyPart : ICombatTarget, IItemContainer
 		get
 		{
 			var parts = new List<string> { Name, };
-			foreach (var slot in Slots)
-			{
-				var item = slot.Item;
-				if (item == null) continue;
-				parts.Add(item.IconTag);
-			}
+			var equippedItems = new List<Item>();
+			CollectItemsRecursive(this, equippedItems);
+			foreach (var item in equippedItems) parts.Add(item.IconTag);
 			return string.Concat(parts);
 		}
 	}
@@ -127,15 +125,10 @@ public class BodyPart : ICombatTarget, IItemContainer
 	{
 		get
 		{
-			var equippedItems = new List<string>();
-			foreach (var slot in Slots)
-			{
-				var item = slot.Item;
-				if (item == null) continue;
-				equippedItems.Add(item.Name);
-			}
+			var equippedItems = new List<Item>();
+			CollectItemsRecursive(this, equippedItems);
 			if (equippedItems.Count == 0) return string.Empty;
-			return $"已装备:\n{string.Join(", ", equippedItems)}";
+			return $"已装备:\n{string.Join(", ", equippedItems.Select(item => item.Name))}";
 		}
 	}
 	public BodyPart(BodyPartCode id)
@@ -163,6 +156,16 @@ public class BodyPart : ICombatTarget, IItemContainer
 			HitPoint.Serialize(writer);
 			writer.Write(Slots.Length);
 			foreach (var slot in Slots) slot.Serialize(writer);
+		}
+	}
+	static void CollectItemsRecursive(IItemContainer container, List<Item> items)
+	{
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			items.Add(item);
+			if (item.Slots.Length > 0) CollectItemsRecursive(item, items);
 		}
 	}
 	ItemSlot[] CreateSlots(BodyPartCode id) =>

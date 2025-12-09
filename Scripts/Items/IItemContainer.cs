@@ -38,16 +38,22 @@ public static class ItemContainerExtensions
 			}
 			return false;
 		}
-		public bool TryGetItem(ItemFlagCode flag, out Item item)
+		public IEnumerable<Item> IterItemsRecursive(ItemFlagCode flags)
 		{
 			foreach (var slot in container.Slots)
 			{
 				var occupied = slot.Item;
-				if (occupied != null && (occupied.flag & flag) != 0)
-				{
-					item = occupied;
-					return true;
-				}
+				if (occupied == null) continue;
+				if ((occupied.flag & flags) != 0) yield return occupied;
+				foreach (var nested in occupied.IterItemsRecursive(flags)) yield return nested;
+			}
+		}
+		public bool TryGetItem(ItemFlagCode flag, out Item item)
+		{
+			foreach (var found in container.IterItemsRecursive(flag))
+			{
+				item = found;
+				return true;
 			}
 			item = null!;
 			return false;
