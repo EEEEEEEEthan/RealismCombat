@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 public readonly struct ItemConfig
 {
 	public static readonly IReadOnlyDictionary<ItemIdCode, ItemConfig> configs = new Dictionary<ItemIdCode, ItemConfig>
@@ -13,13 +14,13 @@ public readonly struct ItemConfig
 				SlotFlags = [],
 				Length = 100.0,
 				Weight = 1.2,
-				HitPointMax = 10,
+				HitPointMax = 5,
 				DamageProfile = new(
 					new(4f, 0f, 3f),
 					new(0f, 4f, 0f),
 					Damage.Zero
 				),
-				Protection = Protection.Zero,
+				Protection = new(4, 0, 1),
 				Coverage = 0.0,
 				Icon = "res://Textures/Items/Icons1.png",
 			}
@@ -113,7 +114,7 @@ public readonly struct ItemConfig
 			ItemIdCode.ChainChausses,
 			new()
 			{
-				Name = "链甲护腿",
+				Name = "链甲裤",
 				Story = "由细密铁环编织的护腿,沉重但可靠",
 				Flag = ItemFlagCode.LegArmorMiddle,
 				SlotFlags = [ItemFlagCode.LegArmorOuter,],
@@ -124,23 +125,6 @@ public readonly struct ItemConfig
 				Protection = new(3f, 1f, 0f),
 				Coverage = 0.95,
 				Icon = "res://Textures/Items/Icons7.png",
-			}
-		},
-		{
-			ItemIdCode.PlateGreaves,
-			new()
-			{
-				Name = "板甲护腿",
-				Story = "覆盖小腿的金属板,能挡住大部分攻击",
-				Flag = ItemFlagCode.LegArmorOuter,
-				SlotFlags = [],
-				Length = 95.0,
-				Weight = 7.5,
-				HitPointMax = 20,
-				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
-				Protection = new(4f, 4f, 1f),
-				Coverage = 0.60,
-				Icon = "res://Textures/Items/Icons8.png",
 			}
 		},
 	};
