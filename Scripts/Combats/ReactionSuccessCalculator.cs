@@ -3,21 +3,16 @@ using Godot;
 /// <summary>
 ///     反应成功率的计算结果
 /// </summary>
-public readonly struct ReactionChance
+public readonly struct ReactionChance(double dodgeChance, double blockChance)
 {
 	/// <summary>
 	///     闪避成功率
 	/// </summary>
-	public double DodgeChance { get; }
+	public double DodgeChance { get; } = dodgeChance;
 	/// <summary>
 	///     格挡成功率
 	/// </summary>
-	public double BlockChance { get; }
-	public ReactionChance(double dodgeChance, double blockChance)
-	{
-		DodgeChance = dodgeChance;
-		BlockChance = blockChance;
-	}
+	public double BlockChance { get; } = blockChance;
 }
 /// <summary>
 ///     反应结算结果
