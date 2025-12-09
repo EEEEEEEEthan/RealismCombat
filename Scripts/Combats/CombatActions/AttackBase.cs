@@ -204,8 +204,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		};
 		var success = reaction.type switch
 		{
-			ReactionTypeCode.Dodge => GD.Randf() < selectedChance,
-			ReactionTypeCode.Block => GD.Randf() < selectedChance,
+			ReactionTypeCode.Dodge or ReactionTypeCode.Block => GD.Randf() < selectedChance,
 			_ => false,
 		};
 		var reactionOutcome = new ReactionOutcome(reaction.type, reaction.blockTarget, success, selectedChance);

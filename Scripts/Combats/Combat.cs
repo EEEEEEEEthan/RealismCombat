@@ -127,13 +127,16 @@ public class Combat
 			await DialogueManager.ShowGenericDialogue("战斗开始了!");
 			while (true)
 			{
-				if (CheckBattleOutcome()) break;
+				if (CheckBattleOutcome()) return;
 				foreach (var character in AllFighters.Where(c => c.IsAlive))
 				{
 					var action = character.combatAction;
 					if (action is not null)
 						if (!await action.UpdateTask())
+						{
 							character.combatAction = null;
+							if (CheckBattleOutcome()) return;
+						}
 				}
 				while (TryGetActor(out var actor))
 				{
@@ -148,9 +151,9 @@ public class Combat
 					Considering = null;
 					actor.combatAction = action;
 					await action.StartTask();
-					if (CheckBattleOutcome()) break;
+					if (CheckBattleOutcome()) return;
 				}
-				if (CheckBattleOutcome()) break;
+				if (CheckBattleOutcome()) return;
 				await Task.Delay(100);
 				Time += 0.1;
 				Log.Print($"{nameof(Time)}={Time:F1}");
