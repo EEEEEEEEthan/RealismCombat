@@ -304,10 +304,10 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			if (missed.Count > 0) textBuilder.Add($"攻击避开了{string.Join("、", missed)}的防护");
 			switch (firstHit)
 			{
-				case > 0:
+				case >= 0:
 					textBuilder.Add($"打在了{armors[firstHit].Name}上");
 					break;
-				case 0:
+				default:
 					textBuilder.Add($"以完美的角度打在了{targetObject.Name}上");
 					break;
 			}
