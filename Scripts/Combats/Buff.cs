@@ -29,13 +29,17 @@ public static class BuffCodeExtensions
 	}
 }
 /// <summary>
+///     Buff来源信息，记录施加者以及对应的战斗目标
+/// </summary>
+public readonly record struct BuffSource(Character Character, ICombatTarget Target);
+/// <summary>
 ///     Buff类
 /// </summary>
-public class Buff(BuffCode code, Character? source = null)
+public class Buff(BuffCode code, BuffSource? source = null)
 {
 	public readonly BuffCode code = code;
 	/// <summary>
-	///     Buff的来源角色
+	///     Buff的来源信息
 	/// </summary>
-	public readonly Character? source = source;
+	public readonly BuffSource? source = source;
 }

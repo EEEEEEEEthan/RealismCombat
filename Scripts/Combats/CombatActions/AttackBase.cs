@@ -82,6 +82,8 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public abstract string? PreCastText { get; }
 	public abstract string CastText { get; }
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
+	protected virtual Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue) =>
+		Task.CompletedTask;
 	protected override async Task OnStartTask()
 	{
 		var text = PreCastText;
@@ -161,11 +163,12 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		}
 	FALLBACK:
 		// todo: 结算命中部位伤害
-		await performHit(targetObject);
+		await performHit(targetObject, dialogue);
+		await OnAttackLanded(target, targetObject, dialogue);
 	END:
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - postCastActionPointCost);
 		return;
-		async Task performHit(ICombatTarget target)
+		async Task performHit(ICombatTarget target, GenericDialogue dialogue)
 		{
 			if (target is BodyPart bodyPart)
 			{

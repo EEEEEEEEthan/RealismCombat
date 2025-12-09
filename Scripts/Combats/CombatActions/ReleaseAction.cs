@@ -16,107 +16,106 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 		return null;
 	}
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
-	public override bool Visible => IsUsable();
-	/// <summary>
-	///     判断当前是否只会执行丢弃武器
-	/// </summary>
-	public bool WillOnlyDropWeapon => !actorBodyPart.HasBuff(BuffCode.Grappling, true) && FindWeaponSlot(actorBodyPart) != null;
+	public override bool Visible => true;
 	protected override Task OnStartTask() => Task.CompletedTask;
 	protected override async Task OnExecute()
 	{
-		var released = RemoveGrapplingBuffs(actorBodyPart);
+		var released = TryReleaseGrapples(out var grappleSource);
+		var freedTargetName = released && grappleSource.HasValue
+			? RemoveRestrainedBuff(grappleSource.Value)
+			: null;
+		var droppedWeapon = TryDropWeapon(out var weapon) ? weapon : null;
 		if (released)
 		{
-			var freedCount = RemoveRestrainedBuffsFromOthers();
 			var message = $"{actor.name}松开了手";
-			if (freedCount > 0) message += $"，{freedCount}个目标恢复行动";
+			if (freedTargetName != null)
+				message += $"，{freedTargetName}恢复行动";
+			if (droppedWeapon != null) message += $"，丢下了{actorBodyPart.Name}的{droppedWeapon.Name}";
 			await DialogueManager.ShowGenericDialogue(message);
 			return;
 		}
+		if (droppedWeapon != null)
+		{
+			await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}的{droppedWeapon.Name}");
+			return;
+		}
+		await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有可丢弃的武器");
+	}
+	bool TryReleaseGrapples(out BuffSource? source)
+	{
+		var released = false;
+		source = null;
+		var toRemove = new List<Buff>();
+		foreach (var buff in actorBodyPart.Buffs)
+			if (buff.code == BuffCode.Grappling)
+			{
+				toRemove.Add(buff);
+				source ??= buff.source;
+			}
+		foreach (var buff in toRemove)
+		{
+			actorBodyPart.Buffs.Remove(buff);
+			released = true;
+		}
+		return released;
+	}
+	string? RemoveRestrainedBuff(BuffSource grappleSource)
+	{
+		foreach (var owner in EnumerateBuffOwners(grappleSource.Character))
+		{
+			var toRemove = new List<Buff>();
+			foreach (var buff in owner.Buffs)
+				if (buff.code == BuffCode.Restrained
+					&& buff.source is { } buffSource
+					&& ReferenceEquals(buffSource.Character, actor)
+					&& ReferenceEquals(buffSource.Target, actorBodyPart))
+					toRemove.Add(buff);
+			foreach (var buff in toRemove)
+			{
+				owner.Buffs.Remove(buff);
+				return GetOwnerName(grappleSource.Character, owner);
+			}
+		}
+		return null;
+	}
+	bool TryDropWeapon(out Item? weapon)
+	{
 		var weaponSlot = FindWeaponSlot(actorBodyPart);
 		if (weaponSlot?.Item == null)
 		{
-			await DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}没有可丢弃的武器");
-			return;
+			weapon = null;
+			return false;
 		}
-		var droppedWeapon = weaponSlot.Item;
+		weapon = weaponSlot.Item;
 		weaponSlot.Item = null;
-		combat.droppedItems.Add(droppedWeapon);
-		await DialogueManager.ShowGenericDialogue($"{actor.name}丢下了{actorBodyPart.Name}的{droppedWeapon.Name}");
+		combat.droppedItems.Add(weapon);
+		return true;
 	}
-	bool RemoveGrapplingBuffs(IItemContainer container)
+	static IEnumerable<IBuffOwner> EnumerateBuffOwners(IItemContainer container)
 	{
-		var removed = false;
-		if (container is IBuffOwner owner)
-		{
-			var toRemove = new List<Buff>();
-			foreach (var buff in owner.Buffs)
-				if (buff.code == BuffCode.Grappling)
-					toRemove.Add(buff);
-			foreach (var buff in toRemove)
-			{
-				owner.Buffs.Remove(buff);
-				removed = true;
-			}
-		}
+		yield return container;
 		foreach (var slot in container.Slots)
 		{
 			var item = slot.Item;
 			if (item == null) continue;
-			if (RemoveGrapplingBuffs(item)) removed = true;
+			foreach (var owner in EnumerateBuffOwners(item)) yield return owner;
 		}
-		return removed;
 	}
-	int RemoveRestrainedBuffsFromOthers()
+	static IEnumerable<IBuffOwner> EnumerateBuffOwners(Character character)
 	{
-		var freedCount = 0;
-		foreach (var character in combat.Allies) freedCount += RemoveRestrainedBuffs(character);
-		foreach (var character in combat.Enemies) freedCount += RemoveRestrainedBuffs(character);
-		return freedCount;
+		foreach (var bodyPart in character.bodyParts)
+			foreach (var owner in EnumerateBuffOwners(bodyPart))
+				yield return owner;
+		foreach (var item in character.inventory.Items)
+			foreach (var owner in EnumerateBuffOwners(item))
+				yield return owner;
 	}
-	int RemoveRestrainedBuffs(Character target)
-	{
-		var freedCount = 0;
-		foreach (var bodyPart in target.bodyParts)
+	static string GetOwnerName(Character character, IBuffOwner owner) =>
+		owner switch
 		{
-			freedCount += RemoveRestrainedBuffs(bodyPart);
-			foreach (var slot in bodyPart.Slots)
-			{
-				var item = slot.Item;
-				if (item == null) continue;
-				freedCount += RemoveRestrainedBuffs(item);
-			}
-		}
-		foreach (var item in target.inventory.Items) freedCount += RemoveRestrainedBuffs(item);
-		return freedCount;
-	}
-	int RemoveRestrainedBuffs(IItemContainer container)
-	{
-		var freedCount = 0;
-		if (container is IBuffOwner owner)
-		{
-			var toRemove = new List<Buff>();
-			foreach (var buff in owner.Buffs)
-				if (buff.code == BuffCode.Restrained && buff.source == actor)
-					toRemove.Add(buff);
-			foreach (var buff in toRemove)
-			{
-				owner.Buffs.Remove(buff);
-				freedCount++;
-			}
-		}
-		foreach (var slot in container.Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			freedCount += RemoveRestrainedBuffs(item);
-		}
-		return freedCount;
-	}
-	bool IsUsable()
-	{
-		if (!actorBodyPart.Available) return false;
-		if (actorBodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) return false;
-		return actorBodyPart.HasBuff(BuffCode.Grappling, true) || FindWeaponSlot(actorBodyPart) != null;
-	}
+			BodyPart bodyPart => $"{character.name}的{bodyPart.GetNameWithEquipments()}",
+			Item item => $"{character.name}的{item.Name}",
+			_ => $"{character.name}的目标",
+		};
 }
+

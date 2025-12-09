@@ -6,17 +6,15 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
 
 ## 核心类型
 
-- `Buff`：位于 `Scripts/Combats/Buff.cs`，包含：
+- `Buff`：位于 `Scripts/Combats/Buff.cs`
   - `BuffCode code`：Buff 类型枚举
-  - `Character? source`：施加该 Buff 的来源角色，可为空
-- `BuffCode`：位于 `Scripts/Combats/BuffCode.cs`，当前实现：
+  - `BuffSource? source`：来源，包含 `Character Character` 与 `ICombatTarget Target`
+- `BuffCode`：位于 `Scripts/Combats/Buff.cs`
   - `Restrained`（束缚）
   - `Grappling`（擒拿）
-  - 扩展方法 `BuffCodeExtensions.GetName()` 返回中文显示名称
-- `IBuffOwner`：位于 `Scripts/Combats/IBuffOwner.cs`，可被附加 Buff 的统一接口：
-  - `IReadOnlyList<Buff> Buffs`：只读 Buff 列表
-  - `AddBuff(Buff buff)` / `RemoveBuff(Buff buff)`：添加/移除 Buff
-  - `HasBuff(BuffCode code)`：判断是否包含某类型 Buff
+  - 扩展属性 `Name` 返回中文显示名称
+- `IBuffOwner`：位于 `Scripts/Combats/IBuffOwner.cs`
+  - `List<Buff> Buffs`：可变 Buff 列表（`BodyPart`、`Item` 等实现均复用）
 
 ## 实现位置
 
@@ -25,14 +23,15 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
 
 ## 施加与清理
 
-- 施加：`GrabAttack` 在命中时有 50% 概率施加 Buff（`Scripts/Combats/CombatActions/GrabAttack.cs`）：
-  - 对目标躯干添加 `Restrained`
-  - 对攻击者使用的身体部位添加 `Grappling`
-- 展示：在玩家选择目标或反应时，UI 会在描述中列出 Buff（`Scripts/Combats/CombatInput.cs`）：
-  - 显示格式：`[中文类型]来自{来源角色或"未知"}`
-- 清理：战斗结束后统一清理 Buff（`Scripts/Combats/Combat.cs`）：
-  - 遍历双方角色 → 身体部位 → 槽位装备 → 装备的嵌套槽位
-  - 对实现 `IBuffOwner` 的目标调用 `RemoveBuff`
+- 施加：`GrabAttack` 命中后必然施加（`Scripts/Combats/CombatActions/GrabAttack.cs`）
+  - 攻击者手臂添加 `Grappling`，来源为被抓角色与被抓部位/物品
+  - 目标对象添加 `Restrained`，来源为攻击者与抓取使用的手臂
+  - 抓取伤害为 0；在同一 `GenericDialogue` 内提示“擒拿/束缚”获得，避免重复创建对话框
+- 展示：在玩家选择目标或反应时，UI 描述中列出 Buff（`Scripts/Combats/CombatInput.cs`）
+  - 显示格式：`[中文类型]来自{来源角色}-{来源目标名称}`
+- 清理：
+  - 放手：`ReleaseAction` 仅处理自身手臂的擒拿，移除对应 `Grappling`，并按来源匹配移除目标的 `Restrained`，可顺带丢弃该手臂武器
+  - 战后：`Combat` 统一清理，遍历双方角色 → 身体部位 → 槽位装备 → 装备嵌套
 
 ## 序列化
 

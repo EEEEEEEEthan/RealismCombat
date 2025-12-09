@@ -25,8 +25,15 @@ public abstract class CombatInput(Combat combat)
 		var description = $"生命 {target.HitPoint.value}/{target.HitPoint.maxValue}";
 		if (target is IBuffOwner { Buffs.Count: > 0, } buffOwner)
 		{
+			static string FormatBuffSource(Buff buff)
+			{
+				if (buff.source is not { } source) return "未知";
+				var characterName = source.Character.name;
+				var targetName = source.Target.Name;
+				return $"{characterName}-{targetName}";
+			}
 			var buffLines = buffOwner.Buffs
-				.Select(buff => $"[{buff.code.Name}]来自{buff.source?.name ?? "未知"}");
+				.Select(buff => $"[{buff.code.Name}]来自{FormatBuffSource(buff)}");
 			description += "\n" + string.Join("\n", buffLines);
 		}
 		return description;
@@ -463,7 +470,10 @@ public class AIInput(Combat combat) : CombatInput(combat)
 			AttackBase attack => TryAssignRandomTargets(attack),
 			TakeWeaponAction takeWeaponAction => takeWeaponAction.PrepareByAI(),
 			PickWeaponAction pickWeaponAction => pickWeaponAction.PrepareByAI(),
-			ReleaseAction { WillOnlyDropWeapon: true, } => false,
+			ReleaseAction { actorObject: BodyPart bodyPart, }
+				when !bodyPart.HasBuff(BuffCode.Grappling, true)
+					&& bodyPart.Slots.Any(slot => slot.Item != null && (slot.Flag & ItemFlagCode.Arm) != 0)
+				=> false,
 			_ => true,
 		};
 	bool TryAssignRandomTargets(AttackBase attack)
