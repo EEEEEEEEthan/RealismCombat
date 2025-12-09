@@ -17,11 +17,6 @@ public readonly struct Damage(float slash, float pierce, float blunt)
 	public float Blunt { get; } = blunt;
 	public float Total => Slash + Pierce + Blunt;
 	public bool IsZero => Slash <= 0f && Pierce <= 0f && Blunt <= 0f;
-	public Damage Scale(double factor)
-	{
-		var f = (float)factor;
-		return new(Slash * f, Pierce * f, Blunt * f);
-	}
 	public Damage ApplyProtection(Protection protection) =>
 		new(
 			Math.Max(0f, Slash - protection.Slash),
