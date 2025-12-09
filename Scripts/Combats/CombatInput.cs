@@ -449,6 +449,8 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 							var weight = expected * (1 - chance.HighestChance);
 							actions[action] = weight;
 							action = factory(bodyPart);
+							action.target = target;
+							action.targetObject = targetObj;
 						}
 					}
 				}
@@ -461,15 +463,14 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 			AddAttackOptions(bodyPart => new GrabAttack(character, bodyPart, combat));
 			var arms = character.bodyParts.Where(bp => bp.id.IsArm).ToArray();
 			if (arms.Length > 0 && arms.All(bp => !bp.HasWeapon))
-			{
 				foreach (var bodyPart in arms)
 				{
 					var takeWeaponAction = new TakeWeaponAction(character, bodyPart, combat);
 					if (!takeWeaponAction.CanUse) continue;
 					actions[takeWeaponAction] = 50d;
 				}
-			}
-			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsArm && (bp.HasBuff(BuffCode.Restrained, true) || bp.HasBuff(BuffCode.Grappling, true))))
+			foreach (var bodyPart in character.bodyParts.Where(bp =>
+				bp.id.IsArm && (bp.HasBuff(BuffCode.Restrained, true) || bp.HasBuff(BuffCode.Grappling, true))))
 			{
 				var releaseAction = new ReleaseAction(character, bodyPart, combat);
 				if (!releaseAction.CanUse) continue;
