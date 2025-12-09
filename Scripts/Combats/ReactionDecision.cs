@@ -2,7 +2,7 @@ using System;
 /// <summary>
 ///     战斗反应的类型
 /// </summary>
-public enum ReactionType
+public enum ReactionTypeCode
 {
 	/// <summary>
 	///     不进行额外反应
@@ -27,28 +27,28 @@ public readonly struct ReactionDecision
 	/// </summary>
 	public static ReactionDecision CreateBlock(ICombatTarget target)
 	{
-		if (target is null) throw new ArgumentNullException(nameof(target));
-		return new(ReactionType.Block, target);
+		ArgumentNullException.ThrowIfNull(target);
+		return new(ReactionTypeCode.Block, target);
 	}
 	/// <summary>
 	///     创建一个闪避决策
 	/// </summary>
-	public static ReactionDecision CreateDodge() => new(ReactionType.Dodge, null);
+	public static ReactionDecision CreateDodge() => new(ReactionTypeCode.Dodge, null);
 	/// <summary>
 	///     创建一个承受决策
 	/// </summary>
-	public static ReactionDecision CreateEndure() => new(ReactionType.None, null);
+	public static ReactionDecision CreateEndure() => new(ReactionTypeCode.None, null);
 	/// <summary>
 	///     选择的反应类型
 	/// </summary>
-	public ReactionType Type { get; }
+	public readonly ReactionTypeCode type;
 	/// <summary>
 	///     格挡时使用的目标
 	/// </summary>
-	public ICombatTarget? BlockTarget { get; }
-	public ReactionDecision(ReactionType type, ICombatTarget? blockTarget)
+	public readonly ICombatTarget? blockTarget;
+	ReactionDecision(ReactionTypeCode type, ICombatTarget? blockTarget)
 	{
-		Type = type;
-		BlockTarget = blockTarget;
+		this.type = type;
+		this.blockTarget = blockTarget;
 	}
 }

@@ -110,7 +110,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		using var _____ = DialogueManager.CreateGenericDialogue(out var dialogue);
 		switch (reactionOutcome.Type)
 		{
-			case ReactionType.Dodge when reactionOutcome.Succeeded:
+			case ReactionTypeCode.Dodge when reactionOutcome.Succeeded:
 			{
 				await Task.Delay(10);
 				targetNode.MoveTo(combat.combatNode.GetDogePosition(target));
@@ -118,7 +118,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				actorNode.MoveTo(actorPosition);
 				goto END;
 			}
-			case ReactionType.Dodge:
+			case ReactionTypeCode.Dodge:
 			{
 				await dialogue.ShowTextTask($"{target.name}尝试闪避但失败");
 				await Task.Delay(100);
@@ -127,7 +127,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				actorNode.MoveTo(actorPosition);
 				goto FALLBACK;
 			}
-			case ReactionType.Block when reactionOutcome is { Succeeded: true, }:
+			case ReactionTypeCode.Block when reactionOutcome is { Succeeded: true, }:
 			{
 				await Task.Delay(50);
 				targetNode.MoveTo(targetPosition + Vector2.Up * 12);
@@ -135,13 +135,13 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				await Task.Delay(100);
 				targetNode.MoveTo(targetPosition);
 				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
-				await dialogue.ShowTextTask($"{target.name}使用{reaction.BlockTarget!.Name}格挡成功");
+				await dialogue.ShowTextTask($"{target.name}使用{reaction.blockTarget!.Name}格挡成功");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				actorNode.MoveTo(actorPosition);
 				// todo: 结算格挡部位伤害
 				goto END;
 			}
-			case ReactionType.Block:
+			case ReactionTypeCode.Block:
 			{
 				await dialogue.ShowTextTask($"{target.name}尝试格挡但失败");
 				await Task.Delay(100);
@@ -150,7 +150,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				actorNode.MoveTo(actorPosition);
 				goto FALLBACK;
 			}
-			case ReactionType.None:
+			case ReactionTypeCode.None:
 			{
 				await Task.Delay(100);
 				targetNode.Shake();

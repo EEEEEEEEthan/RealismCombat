@@ -107,14 +107,15 @@ public class Combat
 		var reactionAvailable = target.reaction > 0;
 		if (!reactionAvailable && input is AIInput) return ReactionDecision.CreateEndure();
 		var decision = await input.MakeReactionDecisionTask(target, actor, targetObject);
-		switch (decision.Type)
+		switch (decision.type)
 		{
-			case ReactionType.Block when reactionAvailable && decision.BlockTarget is { Available: true, }:
-			case ReactionType.Dodge when reactionAvailable:
+			case ReactionTypeCode.Block when reactionAvailable && decision.blockTarget is { Available: true, }:
+			case ReactionTypeCode.Dodge when reactionAvailable:
 				target.reaction = Math.Max(0, target.reaction - 1);
 				target.combatAction = null;
 				return decision;
-			case ReactionType.None:
+			case ReactionTypeCode.None:
+				return ReactionDecision.CreateEndure();
 			default:
 				throw new InvalidOperationException("无效的反应选择");
 		}

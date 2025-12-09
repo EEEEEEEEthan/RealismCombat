@@ -24,7 +24,7 @@ public readonly struct ReactionChance
 /// </summary>
 public readonly struct ReactionOutcome
 {
-	public ReactionOutcome(ReactionType type, ICombatTarget? blockTarget, bool succeeded, double successChance)
+	public ReactionOutcome(ReactionTypeCode type, ICombatTarget? blockTarget, bool succeeded, double successChance)
 	{
 		Type = type;
 		BlockTarget = blockTarget;
@@ -34,7 +34,7 @@ public readonly struct ReactionOutcome
 	/// <summary>
 	///     反应类型
 	/// </summary>
-	public ReactionType Type { get; }
+	public ReactionTypeCode Type { get; }
 	/// <summary>
 	///     成功格挡时使用的目标
 	/// </summary>
@@ -107,19 +107,19 @@ public static class ReactionSuccessCalculator
 	public static ReactionOutcome Resolve(ReactionDecision decision, AttackBase attack)
 	{
 		var chance = Calculate(attack);
-		var selectedChance = decision.Type switch
+		var selectedChance = decision.type switch
 		{
-			ReactionType.Dodge => chance.DodgeChance,
-			ReactionType.Block => chance.BlockChance,
+			ReactionTypeCode.Dodge => chance.DodgeChance,
+			ReactionTypeCode.Block => chance.BlockChance,
 			_ => 0.0,
 		};
-		var success = decision.Type switch
+		var success = decision.type switch
 		{
-			ReactionType.Dodge => GD.Randf() < selectedChance,
-			ReactionType.Block => GD.Randf() < selectedChance,
+			ReactionTypeCode.Dodge => GD.Randf() < selectedChance,
+			ReactionTypeCode.Block => GD.Randf() < selectedChance,
 			_ => false,
 		};
-		return new ReactionOutcome(decision.Type, decision.BlockTarget, success, selectedChance);
+		return new ReactionOutcome(decision.type, decision.blockTarget, success, selectedChance);
 	}
 	static double GetEquippedWeight(Character character)
 	{
