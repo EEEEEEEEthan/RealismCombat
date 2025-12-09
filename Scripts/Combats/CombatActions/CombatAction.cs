@@ -15,7 +15,14 @@ public abstract class CombatAction(Character actor, Combat combat, ICombatTarget
 	///     true: 界面上禁用该行动，false: 可用
 	/// </summary>
 	public virtual bool Disabled => false;
-	public bool CanUse => Visible && !Disabled;
+	/// <summary>
+	///     由Buff导致的禁用
+	/// </summary>
+	public virtual bool DisabledByBuff =>
+		actorObject is BodyPart bodyPart &&
+		((bodyPart.HasBuff(BuffCode.Restrained, true) && this is not BreakFreeAction) ||
+		(bodyPart.HasBuff(BuffCode.Grappling, true) && this is not ReleaseAction));
+	public bool CanUse => Visible && !Disabled && !DisabledByBuff;
 	public async Task StartTask()
 	{
 		actor.actionPoint.value -= preCastActionPointCost;

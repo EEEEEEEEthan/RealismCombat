@@ -85,6 +85,7 @@ public class Character
 		availableCombatActions[CombatActionCode.Slash] = 0f;
 		availableCombatActions[CombatActionCode.Grab] = 0f;
 		availableCombatActions[CombatActionCode.PickWeapon] = 0f;
+		availableCombatActions[CombatActionCode.BreakFree] = 0f;
 	}
 	public Character(BinaryReader reader)
 	{

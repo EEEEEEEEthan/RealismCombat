@@ -130,14 +130,14 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						description = a.action is AttackBase attack
 							? $"{FormatDamage(attack.Damage)}\n{a.action.Description}"
 							: a.action.Description,
-						disabled = a.action.Disabled,
+						disabled = a.action.Disabled || a.action.DisabledByBuff,
 					})
 					.ToArray();
 				var actionMenu = DialogueManager.CreateMenuDialogue(bodyPartTitle, true, actionOptions);
 				var actionIndex = await actionMenu;
 				if (actionIndex == actionOptions.Length) break;
 				var selected = actions[actionIndex];
-				if (!selected.action.CanUse)
+				if (selected.action.DisabledByBuff || !selected.action.CanUse)
 				{
 					await DialogueManager.ShowGenericDialogue("行动无法执行");
 					continue;
