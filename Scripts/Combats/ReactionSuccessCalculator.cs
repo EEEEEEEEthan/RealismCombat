@@ -78,7 +78,7 @@ public static class ReactionSuccessCalculator
 		var weapon = attack.UsesWeapon ? GetWeaponInUse(attack.ActorBodyPart) : null;
 		var weaponLengthScore = weapon == null ? 0.0 : ScaleToRange(weapon.Length, WeaponLengthScale);
 		var weaponWeightScore = weapon == null ? 0.0 : ScaleToRange(weapon.Weight, WeaponWeightScale);
-		var defenderLoadScore = ScaleToRange(BaseBodyWeight + GetEquippedWeight(attack.targetCharacter), DefenderLoadScale);
+		var defenderLoadScore = ScaleToRange(BaseBodyWeight + GetEquippedWeight(attack.target), DefenderLoadScale);
 		var isUnarmedAttack = weapon == null || !attack.UsesWeapon;
 		var dodgeScore = DodgeBias
 		                 - DodgeLengthWeight * weaponLengthScore

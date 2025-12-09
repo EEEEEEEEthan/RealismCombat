@@ -11,7 +11,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
 	public readonly BodyPart actorBodyPart = actorBodyPart;
-	public Character? targetCharacter;
+	public Character? target;
 	public ICombatTarget? targetObject;
 	public override string Description
 	{
@@ -48,7 +48,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	{
 		get
 		{
-			var target = targetCharacter;
+			var target = this.target;
 			if (target == null) return [];
 			return target.AvailableCombatTargets.Select(t => (t, !t.Available));
 		}
@@ -85,8 +85,8 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
 	protected override async Task OnExecute()
 	{
-		var target = targetCharacter;
-		var combatTarget = targetObject;
+		var target = this.target!;
+		var targetObject = this.targetObject!;
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
 		var targetNode = combat.combatNode.GetCharacterNode(target);
 		var actorPosition = combat.combatNode.GetPKPosition(actor);
@@ -156,7 +156,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		}
 	FALLBACK:
 		// todo: 结算命中部位伤害
-		await performHit(combatTarget);
+		await performHit(targetObject);
 	END:
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - postCastActionPointCost);
 		return;

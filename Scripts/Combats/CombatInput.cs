@@ -321,7 +321,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				if (selected == options.Length) return null;
 				target = availableTargets[selected];
 			}
-			attack.targetCharacter = target;
+			attack.target = target;
 			var targetObject = await SelectTargetObject(attack, target, formatChance, navigationTitle);
 			if (targetObject == null)
 			{
@@ -472,7 +472,7 @@ public class AIInput(Combat combat) : CombatInput(combat)
 		if (targets.Length == 0) return false;
 		var targetIndex = (int)(GD.Randi() % (uint)targets.Length);
 		var target = targets[targetIndex];
-		attack.targetCharacter = target;
+		attack.target = target;
 		var targetObjects = attack.AvailableTargetObjects.Where(t => !t.disabled).ToArray();
 		if (targetObjects.Length == 0) return false;
 		var objectIndex = (int)(GD.Randi() % (uint)targetObjects.Length);

@@ -101,7 +101,7 @@ public class Combat
 	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
 		var actor = attack.actor;
-		var target = attack.targetCharacter!;
+		var target = attack.target!;
 		var targetObject = attack.targetObject!;
 		CombatInput input = Allies.Contains(target) ? playerInput : aiInput;
 		var reactionAvailable = target.reaction > 0;
