@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 using Godot;
 /// <summary>
 ///     攻击基类
@@ -23,21 +24,24 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				AttackTypeCode.Special => "特殊",
 				_ => "未知",
 			};
-			static string DodgeText(double impact) =>
-				impact switch
-				{
-					>= 0.6 => "容易被闪避",
-					>= 0.4 => "中等闪避难度",
-					_ => "不易被闪避",
-				};
-			static string BlockText(double impact) =>
-				impact switch
-				{
-					>= 0.6 => "容易被格挡",
-					>= 0.4 => "中等格挡难度",
-					_ => "不易被格挡",
-				};
-			return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{Narrative}";
+			var dodgeText = DodgeImpact switch
+			{
+				>= 0.6 => "容易被闪避",
+				>= 0.4 => "中等闪避难度",
+				_ => "不易被闪避",
+			};
+			var blockText = BlockImpact switch
+			{
+				>= 0.6 => "容易被格挡",
+				>= 0.4 => "中等格挡难度",
+				_ => "不易被格挡",
+			};
+			var builder = new StringBuilder();
+			builder.Append("类型: ").Append(typeText).Append('\n');
+			builder.Append("闪避倾向: ").Append(dodgeText).Append('\n');
+			builder.Append("格挡倾向: ").Append(blockText).Append('\n');
+			builder.Append(Narrative);
+			return builder.ToString();
 		}
 	}
 	public override bool Visible => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
