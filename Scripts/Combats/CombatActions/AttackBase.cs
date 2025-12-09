@@ -162,7 +162,6 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				throw new ArgumentOutOfRangeException();
 		}
 	FALLBACK:
-		// todo: 结算命中部位伤害
 		await performHit(targetObject, dialogue);
 		await OnAttackLanded(target, targetObject, dialogue);
 	END:
