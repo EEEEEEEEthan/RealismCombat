@@ -42,7 +42,7 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 			_ => $"{character.name}的目标",
 		};
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
-	public override bool Visible => true;
+	public override bool Visible => actorBodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm;
 	protected override Task OnStartTask() => Task.CompletedTask;
 	protected override async Task OnExecute()
 	{
