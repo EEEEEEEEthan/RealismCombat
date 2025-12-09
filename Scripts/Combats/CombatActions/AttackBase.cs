@@ -75,6 +75,51 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public virtual bool UsesWeapon => false;
 	public abstract string? PreCastText { get; }
 	public abstract string CastText { get; }
+	/// <summary>
+	///     计算在当前防护判定规则下本体受到的期望伤害
+	/// </summary>
+	/// <param name="damage">攻击伤害</param>
+	/// <param name="targetObject">受击目标</param>
+	/// <returns>期望的本体伤害</returns>
+	public static double CalculateExpectedBodyDamage(Damage damage, ICombatTarget targetObject)
+	{
+		if (damage.Total <= 0f) return 0d;
+		if (targetObject is not IItemContainer container) return damage.Total.RoundToInt();
+		var armors = container.IterItems(ItemFlagCode.Armor).ToList();
+		if (armors.Count == 0) return damage.Total.RoundToInt();
+		Damage ComputeResidual(int firstHit)
+		{
+			var remaining = damage;
+			for (var i = firstHit; i >= 0 && remaining.Total > 0f; i--)
+			{
+				var protection = armors[i].Protection;
+				remaining = remaining.ApplyProtection(protection);
+			}
+			return remaining;
+		}
+		var expected = 0d;
+		var firstCoverage = armors[0].Coverage;
+		var noArmorProb = 1d - firstCoverage;
+		expected += noArmorProb * damage.Total.RoundToInt();
+		var prefix = firstCoverage;
+		for (var i = 0; i < armors.Count; i++)
+		{
+			double scenarioProb;
+			if (i == armors.Count - 1)
+			{
+				scenarioProb = prefix;
+			}
+			else
+			{
+				var nextCoverage = armors[i + 1].Coverage;
+				scenarioProb = prefix * (1d - nextCoverage);
+				prefix *= nextCoverage;
+			}
+			var residual = ComputeResidual(i);
+			expected += scenarioProb * residual.Total.RoundToInt();
+		}
+		return expected;
+	}
 	IEnumerable<Character> Opponents => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
 	protected virtual Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue) => Task.CompletedTask;
@@ -193,7 +238,15 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				}
 			var textBuilder = new List<string>();
 			if (missed.Count > 0) textBuilder.Add($"攻击避开了{string.Join("、", missed)}的防护");
-			if (firstHit > 0) textBuilder.Add($"打在了{armors[firstHit].Name}上");
+			switch (firstHit)
+			{
+				case > 0:
+					textBuilder.Add($"打在了{armors[firstHit].Name}上");
+					break;
+				case 0:
+					textBuilder.Add($"以完美的角度打在了{targetObject.Name}上");
+					break;
+			}
 			await dialogue.ShowTextTask(string.Join("；", textBuilder));
 			// 计算伤害
 			var damage = Damage;

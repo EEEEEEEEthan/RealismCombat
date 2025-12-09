@@ -13,6 +13,7 @@ public readonly struct ReactionChance(double dodgeChance, double blockChance)
 	///     格挡成功率
 	/// </summary>
 	public double BlockChance { get; } = blockChance;
+	public double HighestChance => Math.Max(DodgeChance, BlockChance);
 }
 /// <summary>
 ///     反应结算结果

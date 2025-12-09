@@ -430,23 +430,64 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 	const float ReactionEndureChance = 0.25f;
 	public override Task<CombatAction> MakeDecisionTask(Character character)
 	{
-		var availableBodyParts = GetAvailableTargets(character).Cast<BodyPart>().ToArray();
-		if (availableBodyParts.Length == 0) throw new InvalidOperationException("未找到可用的身体部位");
-		var randomizedBodyParts = availableBodyParts.OrderBy(_ => GD.Randi()).ToArray();
-		foreach (var selectedBodyPart in randomizedBodyParts)
+		var actions = new Dictionary<CombatAction, double>();
 		{
-			var actions = BuildActions(character, selectedBodyPart)
-				.Select(a => a.action)
-				.Where(a => a.CanUse)
-				.OrderBy(_ => GD.Randi())
-				.ToList();
-			foreach (var action in actions)
+			void AddAttackOptions(Func<BodyPart, AttackBase> factory)
 			{
-				if (!TryPrepareAIAction(action)) continue;
-				return Task.FromResult(action);
+				foreach (var bodyPart in character.bodyParts)
+				{
+					var action = factory(bodyPart);
+					foreach (var target in combat.Allies)
+					{
+						action.target = target;
+						foreach (var targetObj in target.bodyParts)
+						{
+							action.targetObject = targetObj;
+							if (!action.CanUse) continue;
+							var expected = AttackBase.CalculateExpectedBodyDamage(action.Damage, targetObj);
+							var chance = ReactionSuccessCalculator.Calculate(action);
+							var weight = expected * (1 - chance.HighestChance);
+							actions[action] = weight;
+							action = factory(bodyPart);
+						}
+					}
+				}
+			}
+			AddAttackOptions(bodyPart => new SlashAttack(character, bodyPart, combat));
+			AddAttackOptions(bodyPart => new StabAttack(character, bodyPart, combat));
+			AddAttackOptions(bodyPart => new KickAttack(character, bodyPart, combat));
+			AddAttackOptions(bodyPart => new HeadbuttAttack(character, bodyPart, combat));
+			AddAttackOptions(bodyPart => new ChargeAttack(character, bodyPart, combat));
+			AddAttackOptions(bodyPart => new GrabAttack(character, bodyPart, combat));
+			var arms = character.bodyParts.Where(bp => bp.id.IsArm).ToArray();
+			if (arms.Length > 0 && arms.All(bp => !bp.HasWeapon))
+			{
+				foreach (var bodyPart in arms)
+				{
+					var takeWeaponAction = new TakeWeaponAction(character, bodyPart, combat);
+					if (!takeWeaponAction.CanUse) continue;
+					actions[takeWeaponAction] = 50d;
+				}
+			}
+			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsArm && (bp.HasBuff(BuffCode.Restrained, true) || bp.HasBuff(BuffCode.Grappling, true))))
+			{
+				var releaseAction = new ReleaseAction(character, bodyPart, combat);
+				if (!releaseAction.CanUse) continue;
+				actions[releaseAction] = 50d;
 			}
 		}
-		throw new InvalidOperationException("未找到可用的行动");
+		// actions里选取权重最高的
+		while (actions.Count > 0)
+		{
+			var best = actions
+				.OrderByDescending(pair => pair.Value)
+				.ThenBy(_ => GD.Randi())
+				.First()
+				.Key;
+			if (TryPrepareAIAction(best)) return Task.FromResult(best);
+			actions.Remove(best);
+		}
+		throw new InvalidOperationException("AI无法执行任何行动");
 	}
 	public override Task<ReactionDecision> MakeReactionDecisionTask(
 		Character defender,
