@@ -14,7 +14,7 @@ public enum ScriptCode
 }
 public class Game
 {
-	static List<Character> ReadPlayers(BinaryReader reader, GameVersion version)
+	static List<Character> ReadPlayers(BinaryReader reader)
 	{
 		var count = reader.ReadInt32();
 		var result = new List<Character>();
@@ -112,13 +112,10 @@ public class Game
 		this.saveFilePath = saveFilePath;
 		this.gameNode = gameNode ?? throw new ArgumentNullException(nameof(gameNode));
 		var snapshot = new Snapshot(reader);
-		var version = snapshot.Version;
-		players = ReadPlayers(reader, version);
+		players = ReadPlayers(reader);
 		ScriptIndex = (ScriptCode)reader.ReadInt32();
 #if DEBUG
-		foreach (var player in players)
-			if (!player.availableCombatActions.ContainsKey(CombatActionCode.Execution))
-				player.availableCombatActions[CombatActionCode.Execution] = 0f;
+		foreach (var player in players) player.availableCombatActions.TryAdd(CombatActionCode.Execution, 0f);
 #endif
 		StartGameLoop();
 	}

@@ -19,12 +19,18 @@ public partial class MenuDialogue : BaseDialogue
 		node.allowEscapeReturn = allowEscapeReturn;
 		node.TitleLabel.Text = title;
 		node.options.Clear();
-        Log.Print($"#{title},请选择(game_select_option)");
-		foreach (var option in initialOptions)
-			node.options.Add(option);
+		Log.Print($"#{title},请选择(game_select_option)");
+		foreach (var option in initialOptions) node.options.Add(option);
 		node.BuildOptions();
 		GameServer.McpCheckpoint();
 		return node;
+	}
+	static string NormalizeDescription(MenuOption option)
+	{
+		var description = option.description;
+		if (!option.disabled) return description;
+		if (string.IsNullOrEmpty(description)) return "当前不可用";
+		return description.StartsWith("当前不可用") ? description : $"当前不可用\n{description}";
 	}
 	readonly List<MenuOption> options = [];
 	readonly TaskCompletionSource<int> taskCompletionSource = new();
@@ -33,7 +39,7 @@ public partial class MenuDialogue : BaseDialogue
 	int currentIndex = -1;
 	[field: MaybeNull] MenuOptionList OptionContainer => field ??= GetNode<MenuOptionList>("%OptionContainer");
 	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("%Printer");
-	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel"); 
+	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel");
 	public override void _Ready()
 	{
 		base._Ready();
@@ -116,13 +122,6 @@ public partial class MenuDialogue : BaseDialogue
 			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
 		}
 		OptionContainer.Options = optionResources.ToArray();
-	}
-	static string NormalizeDescription(MenuOption option)
-	{
-		var description = option.description ?? string.Empty;
-		if (!option.disabled) return description;
-		if (string.IsNullOrEmpty(description)) return "当前不可用";
-		return description.StartsWith("当前不可用") ? description : $"当前不可用\n{description}";
 	}
 	void Select(int index)
 	{

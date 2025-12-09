@@ -40,7 +40,5 @@ public readonly struct McpCommand
 		}
 		return sb.ToString();
 	}
-	public bool TryGetArg(string key, out string value) => Args.TryGetValue(key, out value);
-	public string GetArgOrDefault(string key, string defaultValue = "") => Args.TryGetValue(key, out var value) ? value : defaultValue;
 	public override string ToString() => Serialize();
 }

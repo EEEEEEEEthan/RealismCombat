@@ -38,17 +38,11 @@ public readonly struct Protection(float slash, float pierce, float blunt)
 /// <summary>
 ///     不同攻击类别对应的基础伤害表
 /// </summary>
-public readonly struct DamageProfile
+public readonly struct DamageProfile(Damage swing, Damage thrust, Damage special)
 {
-	public Damage Swing { get; }
-	public Damage Thrust { get; }
-	public Damage Special { get; }
-	public DamageProfile(Damage swing, Damage thrust, Damage special)
-	{
-		Swing = swing;
-		Thrust = thrust;
-		Special = special;
-	}
+	public Damage Swing { get; } = swing;
+	public Damage Thrust { get; } = thrust;
+	public Damage Special { get; } = special;
 	public Damage Get(AttackTypeCode type) =>
 		type switch
 		{

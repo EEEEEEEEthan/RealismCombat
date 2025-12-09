@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Godot;
 [Tool]
 public partial class CardFrame : Control
@@ -25,10 +24,10 @@ public partial class CardFrame : Control
 			BleedingNode?.Visible = value;
 		}
 	}
-	[field: MaybeNull,] Control Background => field ??= GetNode<Control>("%Background");
-	[field: MaybeNull,] Control BleedingNode => field ??= GetNode<Control>("%Bleeding");
-	[field: MaybeNull,] Control FlashNode => field ??= GetNode<Control>("%Flash");
-	[field: MaybeNull,] Control FlashContent => field ??= FlashNode.GetNode<Control>("FlashContent");
+	Control? Background => field ??= GetNode<Control>("%Background");
+	Control? BleedingNode => field ??= GetNode<Control>("%Bleeding");
+	Control? FlashNode => field ??= GetNode<Control>("%Flash");
+	Control? FlashContent => field ??= FlashNode?.GetNode<Control>("FlashContent");
 	public override void _Ready()
 	{
 		base._Ready();
@@ -38,8 +37,8 @@ public partial class CardFrame : Control
 	public void Flash()
 	{
 		flashTween?.Kill();
-		var parentWidth = Background.Size.X;
-		var flashContentRect = FlashContent.GetRect();
+		var parentWidth = Background!.Size.X;
+		var flashContentRect = FlashContent!.GetRect();
 		var flashContentWidth = flashContentRect.Size.X;
 		var startX = -flashContentWidth;
 		var endX = parentWidth + flashContentWidth;
