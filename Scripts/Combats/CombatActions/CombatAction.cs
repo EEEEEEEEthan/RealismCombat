@@ -1,16 +1,18 @@
 using System.Threading.Tasks;
 public abstract class CombatAction(Character actor, Combat combat, ICombatTarget actorObject, double preCastActionPointCost, double postCastActionPointCost)
 {
-	protected readonly Character actor = actor;
-	protected readonly Combat combat = combat;
-	public Character Actor => actor;
+	public readonly Character actor = actor;
+	public readonly Combat combat = combat;
+	public readonly ICombatTarget actorObject = actorObject;
+	public readonly double preCastActionPointCost = preCastActionPointCost;
+	public readonly double postCastActionPointCost = postCastActionPointCost;
 	public abstract string Description { get; }
 	/// <summary>
-	/// 是否在界面上显示该行动
+	///     是否在界面上显示该行动
 	/// </summary>
 	public virtual bool Visible => true;
 	/// <summary>
-	/// true: 界面上禁用该行动，false: 可用
+	///     true: 界面上禁用该行动，false: 可用
 	/// </summary>
 	public virtual bool Disabled => false;
 	public bool CanUse => Visible && !Disabled;

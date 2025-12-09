@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Text;
+using System.Threading.Tasks;
 using Godot;
 /// <summary>
 ///     攻击基类
@@ -10,36 +10,33 @@ using Godot;
 public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat combat, double preCastActionPointCost, double postCastActionPointCost)
 	: CombatAction(actor, combat, actorBodyPart, preCastActionPointCost, postCastActionPointCost)
 {
+	public readonly BodyPart actorBodyPart = actorBodyPart;
 	public Character? targetCharacter;
 	public ICombatTarget? targetObject;
-	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	public override string Description
 	{
 		get
 		{
-			var typeText = AttackType switch
+			var builder = new StringBuilder();
+			builder.AppendLine($"类型:{AttackType switch
 			{
 				AttackTypeCode.Swing => "挥砍",
 				AttackTypeCode.Thrust => "刺击",
 				AttackTypeCode.Special => "特殊",
 				_ => "未知",
-			};
-			var dodgeText = DodgeImpact switch
+			}}");
+			builder.AppendLine(DodgeImpact switch
 			{
 				>= 0.6 => "容易被闪避",
 				>= 0.4 => "中等闪避难度",
 				_ => "不易被闪避",
-			};
-			var blockText = BlockImpact switch
+			});
+			builder.AppendLine(BlockImpact switch
 			{
 				>= 0.6 => "容易被格挡",
 				>= 0.4 => "中等格挡难度",
 				_ => "不易被格挡",
-			};
-			var builder = new StringBuilder();
-			builder.Append("类型: ").Append(typeText).Append('\n');
-			builder.Append("闪避倾向: ").Append(dodgeText).Append('\n');
-			builder.Append("格挡倾向: ").Append(blockText).Append('\n');
+			});
 			builder.Append(Narrative);
 			return builder.ToString();
 		}

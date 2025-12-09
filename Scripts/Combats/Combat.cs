@@ -1,10 +1,76 @@
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Runtime.CompilerServices;
-	using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 public class Combat
 {
+	static void ClearCharacterBuffs(Character character)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			if (bodyPart is IBuffOwner bodyPartBuffOwner) ClearBuffs(bodyPartBuffOwner);
+			foreach (var slot in bodyPart.Slots)
+				if (slot.Item != null)
+					ClearItemBuffs(slot.Item);
+		}
+		foreach (var item in character.inventory.Items) ClearItemBuffs(item);
+	}
+	static void ClearItemBuffs(Item item)
+	{
+		if (item is IBuffOwner buffOwner) ClearBuffs(buffOwner);
+		foreach (var slot in item.Slots)
+			if (slot.Item != null)
+				ClearItemBuffs(slot.Item);
+	}
+	static void ClearBuffs(IBuffOwner buffOwner) => buffOwner.Buffs.Clear();
+	static bool IsContainerOnCharacter(Character character, IItemContainer target)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			if (ReferenceEquals(bodyPart, target)) return true;
+			if (IsContainerOnDescendants(bodyPart, target)) return true;
+		}
+		return false;
+	}
+	static bool IsContainerOnDescendants(IItemContainer container, IItemContainer target)
+	{
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			if (ReferenceEquals(item, target)) return true;
+			if (IsContainerOnDescendants(item, target)) return true;
+		}
+		return false;
+	}
+	static bool TryRemoveItem(Character character, Item item)
+	{
+		foreach (var bodyPart in character.bodyParts)
+			if (TryRemoveItem(bodyPart, item))
+				return true;
+		var inventory = character.inventory.Items;
+		for (var i = 0; i < inventory.Count; i++)
+		{
+			if (!ReferenceEquals(inventory[i], item)) continue;
+			inventory.RemoveAt(i);
+			return true;
+		}
+		return false;
+	}
+	static bool TryRemoveItem(IItemContainer container, Item item)
+	{
+		foreach (var slot in container.Slots)
+		{
+			if (ReferenceEquals(slot.Item, item))
+			{
+				slot.Item = null;
+				return true;
+			}
+			if (slot.Item != null && TryRemoveItem(slot.Item, item)) return true;
+		}
+		return false;
+	}
 	public readonly CombatNode combatNode;
 	public readonly HashSet<Item> droppedItems = [];
 	readonly Dictionary<Item, (Character owner, ItemSlot slot)> originalSlots = new();
@@ -14,16 +80,15 @@ public class Combat
 	bool hasEnded;
 	public double Time { get; private set; }
 	public Character? Considering { get; private set; }
-	IEnumerable<Character> AllFighters => Allies.Union(Enemies);
 	internal Character[] Allies { get; }
 	internal Character[] Enemies { get; }
+	IEnumerable<Character> AllFighters => Allies.Union(Enemies);
 	public Combat(Character[] allies, Character[] enemies, CombatNode combatNode)
 	{
 		Allies = allies;
 		Enemies = enemies;
 		foreach (var character in AllFighters) character.reaction = 0;
-		foreach (var character in AllFighters)
-			Log.Print($"{character.name} 行动点 {character.actionPoint.value}/{character.actionPoint.maxValue}");
+		foreach (var character in AllFighters) Log.Print($"{character.name} 行动点 {character.actionPoint.value}/{character.actionPoint.maxValue}");
 		this.combatNode = combatNode;
 		combatNode.Initialize(this);
 		CaptureOriginalSlots(Allies);
@@ -35,25 +100,23 @@ public class Combat
 	public TaskAwaiter<bool> GetAwaiter() => taskCompletionSource.Task.GetAwaiter();
 	internal async Task<ReactionDecision> HandleIncomingAttack(AttackBase attack)
 	{
-		var defender = attack.targetCharacter;
-		var attacker = attack.Actor;
-		var target = attack.targetObject;
-		CombatInput input = Allies.Contains(defender) ? playerInput : aiInput;
-		var reactionAvailable = defender.reaction > 0;
+		var actor = attack.actor;
+		var target = attack.targetCharacter!;
+		var targetObject = attack.targetObject!;
+		CombatInput input = Allies.Contains(target) ? playerInput : aiInput;
+		var reactionAvailable = target.reaction > 0;
 		if (!reactionAvailable && input is AIInput) return ReactionDecision.CreateEndure();
-		var decision = await input.MakeReactionDecisionTask(defender, attacker, target);
+		var decision = await input.MakeReactionDecisionTask(target, actor, targetObject);
 		switch (decision.Type)
 		{
 			case ReactionType.Block when reactionAvailable && decision.BlockTarget is { Available: true, }:
-				defender.reaction = Math.Max(0, defender.reaction - 1);
-				defender.combatAction = null;
-				return decision;
 			case ReactionType.Dodge when reactionAvailable:
-				defender.reaction = Math.Max(0, defender.reaction - 1);
-				defender.combatAction = null;
+				target.reaction = Math.Max(0, target.reaction - 1);
+				target.combatAction = null;
 				return decision;
+			case ReactionType.None:
 			default:
-				return ReactionDecision.CreateEndure();
+				throw new InvalidOperationException("无效的反应选择");
 		}
 	}
 	async void StartLoop()
@@ -131,63 +194,15 @@ public class Combat
 	}
 	void ClearAllBuffs()
 	{
-		foreach (var character in AllFighters)
-		{
-			ClearCharacterBuffs(character);
-		}
-	}
-	static void ClearCharacterBuffs(Character character)
-	{
-		foreach (var bodyPart in character.bodyParts)
-		{
-			if (bodyPart is IBuffOwner bodyPartBuffOwner)
-			{
-				ClearBuffs(bodyPartBuffOwner);
-			}
-			foreach (var slot in bodyPart.Slots)
-			{
-				if (slot.Item != null)
-				{
-					ClearItemBuffs(slot.Item);
-				}
-			}
-		}
-		foreach (var item in character.inventory.Items)
-		{
-			ClearItemBuffs(item);
-		}
-	}
-	static void ClearItemBuffs(Item item)
-	{
-		if (item is IBuffOwner buffOwner)
-		{
-			ClearBuffs(buffOwner);
-		}
-		foreach (var slot in item.Slots)
-		{
-			if (slot.Item != null)
-			{
-				ClearItemBuffs(slot.Item);
-			}
-		}
-	}
-	static void ClearBuffs(IBuffOwner buffOwner)
-	{
-		buffOwner.Buffs.Clear();
+		foreach (var character in AllFighters) ClearCharacterBuffs(character);
 	}
 	void CaptureOriginalSlots(IEnumerable<Character> characters)
 	{
-		foreach (var character in characters)
-		{
-			CaptureOriginalSlots(character);
-		}
+		foreach (var character in characters) CaptureOriginalSlots(character);
 	}
 	void CaptureOriginalSlots(Character character)
 	{
-		foreach (var bodyPart in character.bodyParts)
-		{
-			CaptureOriginalSlots(character, bodyPart);
-		}
+		foreach (var bodyPart in character.bodyParts) CaptureOriginalSlots(character, bodyPart);
 	}
 	void CaptureOriginalSlots(Character owner, IItemContainer container)
 	{
@@ -219,53 +234,5 @@ public class Combat
 			slot.Item = item;
 			droppedItems.Remove(item);
 		}
-	}
-	static bool IsContainerOnCharacter(Character character, IItemContainer target)
-	{
-		foreach (var bodyPart in character.bodyParts)
-		{
-			if (ReferenceEquals(bodyPart, target)) return true;
-			if (IsContainerOnDescendants(bodyPart, target)) return true;
-		}
-		return false;
-	}
-	static bool IsContainerOnDescendants(IItemContainer container, IItemContainer target)
-	{
-		foreach (var slot in container.Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			if (ReferenceEquals(item, target)) return true;
-			if (IsContainerOnDescendants(item, target)) return true;
-		}
-		return false;
-	}
-	static bool TryRemoveItem(Character character, Item item)
-	{
-		foreach (var bodyPart in character.bodyParts)
-		{
-			if (TryRemoveItem(bodyPart, item)) return true;
-		}
-		var inventory = character.inventory.Items;
-		for (var i = 0; i < inventory.Count; i++)
-		{
-			if (!ReferenceEquals(inventory[i], item)) continue;
-			inventory.RemoveAt(i);
-			return true;
-		}
-		return false;
-	}
-	static bool TryRemoveItem(IItemContainer container, Item item)
-	{
-		foreach (var slot in container.Slots)
-		{
-			if (ReferenceEquals(slot.Item, item))
-			{
-				slot.Item = null;
-				return true;
-			}
-			if (slot.Item != null && TryRemoveItem(slot.Item, item)) return true;
-		}
-		return false;
 	}
 }
