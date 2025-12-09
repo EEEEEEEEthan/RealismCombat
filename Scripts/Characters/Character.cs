@@ -16,11 +16,32 @@ public class Character
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
 	public readonly IReadOnlyList<BodyPart> bodyParts;
-	public ICombatTarget[] AvailableCombatTargets => bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	public readonly Dictionary<CombatActionCode, float> availableCombatActions = new();
 	public int reaction;
 	public CombatAction? combatAction;
+	public ICombatTarget[] AvailableCombatTargets => bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
 	public bool IsAlive => head.Available && torso.Available;
+	/// <summary>
+	///     收集角色所有腰带上的武器槽
+	/// </summary>
+	public List<(Item Belt, ItemSlot Slot)> BeltWeaponCandidates => torso.IterItems(ItemFlagCode.Arm).ToList();
+	/// <summary>
+	///     获取角色可用的空手部槽位
+	/// </summary>
+	public (BodyPart bodyPart, ItemSlot slot)? EmptyHandSlot
+	{
+		get
+		{
+			foreach (var bodyPart in (leftArm, rightArm))
+			{
+				if (!bodyPart.Available) continue;
+				foreach (var slot in bodyPart.Slots)
+					if (slot.Item == null && (slot.Flag & ItemFlagCode.Arm) != 0)
+						return (bodyPart, slot);
+			}
+			return null;
+		}
+	}
 	public Character(string name)
 	{
 		this.name = name;
@@ -42,8 +63,7 @@ public class Character
 		availableCombatActions[CombatActionCode.Grab] = 0f;
 		availableCombatActions[CombatActionCode.PickWeapon] = 0f;
 	}
-	public Character(BinaryReader reader) : this(reader, GameVersion.newest) { }
-	public Character(BinaryReader reader, GameVersion version)
+	public Character(BinaryReader reader)
 	{
 		using (reader.ReadScope())
 		{
@@ -92,43 +112,6 @@ public class Character
 				writer.Write((int)pair.Key);
 				writer.Write(pair.Value);
 			}
-		}
-	}
-	/// <summary>
-	///     收集角色所有腰带上的武器槽
-	/// </summary>
-	public List<(Item Belt, ItemSlot Slot)> GetBeltWeaponCandidates()
-	{
-		var result = new List<(Item, ItemSlot)>();
-		foreach (var bodyPart in bodyParts) CollectBeltWeapons(bodyPart, result);
-		return result;
-	}
-	/// <summary>
-	///     获取角色可用的空手部槽位
-	/// </summary>
-	public (BodyPart bodyPart, ItemSlot slot)? FindEmptyHandSlot()
-	{
-		foreach (var bodyPart in bodyParts)
-		{
-			if (!bodyPart.Available) continue;
-			if (bodyPart.id is not (BodyPartCode.LeftArm or BodyPartCode.RightArm)) continue;
-			foreach (var slot in bodyPart.Slots)
-				if (slot.Item == null && (slot.Flag & ItemFlagCode.Arm) != 0)
-					return (bodyPart, slot);
-		}
-		return null;
-	}
-	void CollectBeltWeapons(IItemContainer container, List<(Item, ItemSlot)> result)
-	{
-		foreach (var slot in container.Slots)
-		{
-			if (slot.Item == null) continue;
-			var item = slot.Item;
-			if ((item.flag & ItemFlagCode.Belt) != 0)
-				foreach (var beltSlot in item.Slots)
-					if (beltSlot.Item is { flag: var flag, } && (flag & ItemFlagCode.Arm) != 0)
-						result.Add((item, beltSlot));
-			CollectBeltWeapons(item, result);
 		}
 	}
 }

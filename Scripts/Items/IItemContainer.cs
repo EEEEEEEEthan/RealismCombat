@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 public interface IItemContainer : IBuffOwner
 {
 	ItemSlot[] Slots { get; }
@@ -47,6 +48,18 @@ public static class ItemContainerExtensions
 				if (occupied != null && occupied.RemoveItem(item)) return true;
 			}
 			return false;
+		}
+		public IEnumerable<(Item, ItemSlot)> IterItems(ItemFlagCode flags)
+		{
+			foreach (var slot in container.Slots)
+			{
+				if (slot.Item == null) continue;
+				var item = slot.Item;
+				foreach (var s in item.Slots)
+					if (s.Item is { flag: var flag, } && (flag & flags) != 0)
+						yield return (item, s);
+				foreach (var pair in item.IterItems(flags)) yield return pair;
+			}
 		}
 	}
 }

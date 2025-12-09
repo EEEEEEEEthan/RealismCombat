@@ -18,7 +18,7 @@ public class Game
 	{
 		var count = reader.ReadInt32();
 		var result = new List<Character>();
-		for (var i = 0; i < count; i++) result.Add(new(reader, version));
+		for (var i = 0; i < count; i++) result.Add(new(reader));
 		return result;
 	}
 	/// <summary>
@@ -230,8 +230,8 @@ public class Game
 					{
 						await dialogue.ShowTextTask("\"停!\"那个男人大喝一声");
 						await dialogue.ShowTextTask("或许还有一个好消息: 附近没有其他人");
-						var beltWeaponCandidates = player.GetBeltWeaponCandidates();
-						var emptyHandSlot = player.FindEmptyHandSlot();
+						var beltWeaponCandidates = player.BeltWeaponCandidates;
+						var emptyHandSlot = player.EmptyHandSlot;
 						var optionList = new List<string> { "上前交涉", };
 						if (emptyHandSlot != null && beltWeaponCandidates.Count > 0)
 							foreach (var candidate in beltWeaponCandidates)
