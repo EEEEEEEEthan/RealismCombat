@@ -171,7 +171,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		{
 			if (target is BodyPart bodyPart)
 			{
-				if (ItemContainerExtensions.TryGetItem(bodyPart, ItemFlagCode.Armor, out var armor))
+				if (bodyPart.TryGetItem(ItemFlagCode.Armor, out var armor))
 				{
 					if (GD.Randf() < armor.Coverage)
 					{
@@ -184,7 +184,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 							if (armor.HitPoint.value <= 0)
 							{
 								await dialogue.ShowTextTask($"{bodyPart.Name}上的{armor.Name}坏了！");
-								ItemContainerExtensions.RemoveItem(bodyPart, armor);
+								bodyPart.RemoveItem(armor);
 							}
 						}
 						// 计算实际对身体部位的伤害
