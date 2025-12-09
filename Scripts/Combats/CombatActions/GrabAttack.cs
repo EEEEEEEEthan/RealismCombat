@@ -8,7 +8,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
 	public override CombatActionCode Code => CombatActionCode.Grab;
-	public override string Description => BuildAttackDescription("徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态");
+	public override string Narrative => "徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态";
 	protected virtual bool ShouldResolveDamage => false;
 	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}抓取{TargetCharacter.name}的{TargetCombatObject.Name}!";

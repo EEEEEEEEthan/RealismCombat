@@ -5,7 +5,7 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
 	public override CombatActionCode Code => CombatActionCode.Stab;
-	public override string Description => BuildAttackDescription("持武器刺击目标，造成刺击伤害，依赖手部武器");
+	public override string Narrative => "持武器刺击目标，造成刺击伤害，依赖手部武器";
 	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}刺击{TargetCharacter.name}的{TargetCombatObject.Name}!";
 	internal override double DodgeImpact => 0.7;

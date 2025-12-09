@@ -5,7 +5,7 @@ public class SlashAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat, 4, 2)
 {
 	public override CombatActionCode Code => CombatActionCode.Slash;
-	public override string Description => BuildAttackDescription("持武器挥砍目标，造成挥砍伤害，依赖手部武器");
+	public override string Narrative => "持武器挥砍目标，造成挥砍伤害，依赖手部武器";
 	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
 	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}斩击{TargetCharacter.name}的{TargetCombatObject.Name}!";
 	internal override double DodgeImpact => 0.45;

@@ -48,7 +48,7 @@
   - 抓取：前摇 2、后摇 4
 - `AttackBase` 构造函数接受攻击者、攻击者身体部位、目标角色、目标身体部位与战斗实例
 - `AttackBase` 包含 `ActorBodyPart` 属性，记录攻击者使用的身体部位
-- `AttackBase.BuildAttackDescription()` 组装行动描述时不再展示伤害倍率，仅包含攻击类型、闪避倾向、格挡倾向与叙述文本
+- `AttackBase.Description` 已内联描述组装逻辑，展示攻击类型、闪避倾向、格挡倾向与子类 `Narrative` 提供的叙述文本；子类仅需实现 `Narrative`
 - `AttackBase` 的执行过程：
   - 创建 `GenericDialogue` 描述攻击动作（通过 `GetStartDialogueText()` 获取文本，通常显示"X抬起Y开始蓄力..."），并等待文字打印完成
   - 创建 `GenericDialogue` 描述攻击命中（通过 `GetExecuteDialogueText()` 获取文本，如"X用Y斩击Z的W!"），并等待文字打印完成

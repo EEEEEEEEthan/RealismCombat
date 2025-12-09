@@ -13,7 +13,35 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	Character? target;
 	ICombatTarget? combatTarget;
 	public abstract override CombatActionCode Code { get; }
-	public abstract override string Description { get; }
+	public override string Description
+	{
+		get
+		{
+			var typeText = AttackType switch
+			{
+				AttackTypeCode.Swing => "挥砍",
+				AttackTypeCode.Thrust => "刺击",
+				AttackTypeCode.Special => "特殊",
+				_ => "未知",
+			};
+			static string DodgeText(double impact) =>
+				impact switch
+				{
+					>= 0.6 => "容易被闪避",
+					>= 0.4 => "中等闪避难度",
+					_ => "不易被闪避",
+				};
+			static string BlockText(double impact) =>
+				impact switch
+				{
+					>= 0.6 => "容易被格挡",
+					>= 0.4 => "中等格挡难度",
+					_ => "不易被格挡",
+				};
+			return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{Narrative}";
+		}
+	}
+	public abstract string Narrative { get; }
 	public override bool Available => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
 	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
 	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
@@ -65,31 +93,6 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	internal abstract AttackTypeCode AttackType { get; }
 	internal virtual double DamageMultiplier => 1.0;
 	internal virtual bool UsesWeapon => false;
-	protected string BuildAttackDescription(string narrative)
-	{
-		var typeText = AttackType switch
-		{
-			AttackTypeCode.Swing => "挥砍",
-			AttackTypeCode.Thrust => "刺击",
-			AttackTypeCode.Special => "特殊",
-			_ => "未知",
-		};
-		static string DodgeText(double impact) =>
-			impact switch
-			{
-				>= 0.6 => "容易被闪避",
-				>= 0.4 => "中等闪避难度",
-				_ => "不易被闪避",
-			};
-		static string BlockText(double impact) =>
-			impact switch
-			{
-				>= 0.6 => "容易被格挡",
-				>= 0.4 => "中等格挡难度",
-				_ => "不易被格挡",
-			};
-		return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{narrative}";
-	}
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
 	protected override async Task OnExecute()

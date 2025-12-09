@@ -1,4 +1,3 @@
-using Godot;
 /// <summary>
 ///     头槌攻击，只允许头使用
 /// </summary>
@@ -6,7 +5,7 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
 	public override CombatActionCode Code => CombatActionCode.Headbutt;
-	public override string Description => BuildAttackDescription("用头部进行头槌攻击，近距离的特殊冲撞");
+	public override string Narrative => "用头部进行头槌攻击，近距离的特殊冲撞";
 	internal override double DodgeImpact => 0.35;
 	internal override double BlockImpact => 0.35;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;

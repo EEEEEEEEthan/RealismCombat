@@ -5,7 +5,7 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 	: AttackBase(actor, actorBodyPart, combat, 4, 2)
 {
 	public override CombatActionCode Code => CombatActionCode.Charge;
-	public override string Description => BuildAttackDescription("用躯干蓄力撞击目标，造成特殊近战攻击");
+	public override string Narrative => "用躯干蓄力撞击目标，造成特殊近战攻击";
 	internal override double DodgeImpact => 0.4;
 	internal override double BlockImpact => 0.45;
 	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
