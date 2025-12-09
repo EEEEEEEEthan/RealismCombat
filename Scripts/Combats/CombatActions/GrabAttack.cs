@@ -6,8 +6,8 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 {
 	public override CombatActionCode Id => CombatActionCode.Grab;
 	public override string Narrative => "徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态";
-	public override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	public override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}抓取{target.name}的{targetObject.Name}!";
+	public override string PreCastText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
+	public override string CastText => $"{actor.name}用{actorBodyPart.Name}抓取{target.name}的{targetObject.Name}!";
 	public override double DodgeImpact => 0.7;
 	public override double BlockImpact => 0.25;
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;

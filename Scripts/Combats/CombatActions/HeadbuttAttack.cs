@@ -6,8 +6,8 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 {
 	public override CombatActionCode Id => CombatActionCode.Headbutt;
 	public override string Narrative => "用头部进行头槌攻击，近距离的特殊冲撞";
-	public override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	public override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}头槌{target.name}的{targetObject.Name}!";
+	public override string PreCastText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
+	public override string CastText => $"{actor.name}用{actorBodyPart.Name}头槌{target.name}的{targetObject.Name}!";
 	public override double DodgeImpact => 0.35;
 	public override double BlockImpact => 0.35;
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;

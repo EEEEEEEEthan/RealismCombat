@@ -79,10 +79,15 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public abstract AttackTypeCode AttackType { get; }
 	public virtual double DamageMultiplier => 1.0;
 	public virtual bool UsesWeapon => false;
-	public abstract string StartDialogueText { get; }
-	public abstract string ExecuteDialogueText { get; }
+	public abstract string? PreCastText { get; }
+	public abstract string CastText { get; }
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
-	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
+	protected override async Task OnStartTask()
+	{
+		var text = PreCastText;
+		if (string.IsNullOrEmpty(text)) return;
+		await DialogueManager.ShowGenericDialogue(text);
+	}
 	protected override async Task OnExecute()
 	{
 		var target = this.target!;
@@ -95,7 +100,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		using var __ = targetNode.MoveScope(targetPosition);
 		using var ___ = actorNode.ExpandScope();
 		using var ____ = targetNode.ExpandScope();
-		await DialogueManager.ShowGenericDialogue(ExecuteDialogueText);
+		await DialogueManager.ShowGenericDialogue(CastText);
 		var reaction = await combat.HandleIncomingAttack(this);
 		var reactionOutcome = ReactionSuccessCalculator.Resolve(reaction, this);
 		var hitPosition = combat.combatNode.GetHitPosition(actor);
