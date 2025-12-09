@@ -15,6 +15,32 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 		}
 		return null;
 	}
+	static IEnumerable<IBuffOwner> EnumerateBuffOwners(IItemContainer container)
+	{
+		yield return container;
+		foreach (var slot in container.Slots)
+		{
+			var item = slot.Item;
+			if (item == null) continue;
+			foreach (var owner in EnumerateBuffOwners(item)) yield return owner;
+		}
+	}
+	static IEnumerable<IBuffOwner> EnumerateBuffOwners(Character character)
+	{
+		foreach (var bodyPart in character.bodyParts)
+			foreach (var owner in EnumerateBuffOwners(bodyPart))
+				yield return owner;
+		foreach (var item in character.inventory.Items)
+			foreach (var owner in EnumerateBuffOwners(item))
+				yield return owner;
+	}
+	static string GetOwnerName(Character character, IBuffOwner owner) =>
+		owner switch
+		{
+			BodyPart bodyPart => $"{character.name}的{bodyPart.NameWithEquipments}",
+			Item item => $"{character.name}的{item.Name}",
+			_ => $"{character.name}的目标",
+		};
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
 	public override bool Visible => true;
 	protected override Task OnStartTask() => Task.CompletedTask;
@@ -28,8 +54,7 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 		if (released)
 		{
 			var message = $"{actor.name}松开了手";
-			if (freedTargetName != null)
-				message += $"，{freedTargetName}恢复行动";
+			if (freedTargetName != null) message += $"，{freedTargetName}恢复行动";
 			if (droppedWeapon != null) message += $"，丢下了{actorBodyPart.Name}的{droppedWeapon.Name}";
 			await DialogueManager.ShowGenericDialogue(message);
 			return;
@@ -65,10 +90,10 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 		{
 			var toRemove = new List<Buff>();
 			foreach (var buff in owner.Buffs)
-				if (buff.code == BuffCode.Restrained
-					&& buff.source is { } buffSource
-					&& ReferenceEquals(buffSource.Character, actor)
-					&& ReferenceEquals(buffSource.Target, actorBodyPart))
+				if (buff.code == BuffCode.Restrained &&
+					buff.source is { } buffSource &&
+					ReferenceEquals(buffSource.Character, actor) &&
+					ReferenceEquals(buffSource.Target, actorBodyPart))
 					toRemove.Add(buff);
 			foreach (var buff in toRemove)
 			{
@@ -91,31 +116,4 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 		combat.droppedItems.Add(weapon);
 		return true;
 	}
-	static IEnumerable<IBuffOwner> EnumerateBuffOwners(IItemContainer container)
-	{
-		yield return container;
-		foreach (var slot in container.Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			foreach (var owner in EnumerateBuffOwners(item)) yield return owner;
-		}
-	}
-	static IEnumerable<IBuffOwner> EnumerateBuffOwners(Character character)
-	{
-		foreach (var bodyPart in character.bodyParts)
-			foreach (var owner in EnumerateBuffOwners(bodyPart))
-				yield return owner;
-		foreach (var item in character.inventory.Items)
-			foreach (var owner in EnumerateBuffOwners(item))
-				yield return owner;
-	}
-	static string GetOwnerName(Character character, IBuffOwner owner) =>
-		owner switch
-		{
-			BodyPart bodyPart => $"{character.name}的{bodyPart.GetNameWithEquipments()}",
-			Item item => $"{character.name}的{item.Name}",
-			_ => $"{character.name}的目标",
-		};
 }
-

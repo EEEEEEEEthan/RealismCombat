@@ -39,7 +39,7 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 	static string GetOwnerName(IBuffOwner owner) =>
 		owner switch
 		{
-			BodyPart bodyPart => bodyPart.GetNameWithEquipments(),
+			BodyPart bodyPart => bodyPart.NameWithEquipments,
 			Item item => item.Name,
 			_ => "目标",
 		};
@@ -47,7 +47,6 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 	IBuffOwner? buffOwner;
 	Buff? restrainedBuff;
 	string? targetName;
-	public virtual CombatActionCode Id => CombatActionCode.BreakFree;
 	public override string Description => "尝试解除自身或装备上的束缚状态，成功时移除束缚";
 	public override bool Visible
 	{
@@ -57,6 +56,7 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 			return actorBodyPart.Available && buffOwner != null && restrainedBuff != null;
 		}
 	}
+	public virtual CombatActionCode Id => CombatActionCode.BreakFree;
 	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue($"{actor.name}的{actorBodyPart.Name}正试摆脱{targetName ?? "目标"}");
 	protected override async Task OnExecute()
 	{

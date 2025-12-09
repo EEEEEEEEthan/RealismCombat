@@ -90,26 +90,29 @@ public class BodyPart : ICombatTarget, IItemContainer
 	///     获取所有Buff列表
 	/// </summary>
 	public List<Buff> Buffs { get; } = [];
+	/// <summary>
+	///     获取包含当前装备的身体部位名称
+	/// </summary>
+	public string NameWithEquipments
+	{
+		get
+		{
+			var parts = new List<string> { Name, };
+			foreach (var slot in Slots)
+			{
+				var item = slot.Item;
+				if (item == null) continue;
+				parts.Add(item.IconTag);
+			}
+			return string.Concat(parts);
+		}
+	}
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
 		var maxHitPoint = GetMaxHitPoint(id);
 		HitPoint = new(maxHitPoint, maxHitPoint);
 		Slots = CreateSlots(id);
-	}
-	/// <summary>
-	///     获取包含当前装备的身体部位名称
-	/// </summary>
-	public string GetNameWithEquipments()
-	{
-		var parts = new List<string> { Name, };
-		foreach (var slot in Slots)
-		{
-			var item = slot.Item;
-			if (item == null) continue;
-			parts.Add(item.IconTag);
-		}
-		return string.Concat(parts);
 	}
 	public void Deserialize(BinaryReader reader)
 	{

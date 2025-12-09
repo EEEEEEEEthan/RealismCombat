@@ -406,7 +406,7 @@ public class Game
 			for (var i = 0; i < equippableParts.Count; i++)
 			{
 				var bp = equippableParts[i];
-				var title = bp.GetNameWithEquipments();
+				var title = bp.NameWithEquipments;
 				options[i] = new() { title = title, description = "查看或更换该部位装备", };
 			}
 			var menu = DialogueManager.CreateMenuDialogue($"{character.name}的装备", true, options);

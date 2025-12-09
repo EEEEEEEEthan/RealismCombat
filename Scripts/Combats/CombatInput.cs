@@ -105,7 +105,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					var bp = pair.bodyPart;
 					return new MenuOption
 					{
-						title = bp.GetNameWithEquipments(),
+						title = bp.NameWithEquipments,
 						description = BuildTargetDescription(bp),
 					};
 				})
@@ -183,7 +183,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				}
 			}
 			var defenderText = target is BodyPart bodyPart
-				? $"{defender.name}{bodyPart.GetNameWithEquipments()}"
+				? $"{defender.name}{bodyPart.Name}"
 				: $"{defender.name}{target.Name}";
 			var attackName = attack?.Id switch
 			{
@@ -233,7 +233,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						{
 							return new MenuOption
 							{
-								title = t is BodyPart bodyPart ? bodyPart.GetNameWithEquipments() : t.Name,
+								title = t is BodyPart bodyPart ? bodyPart.NameWithEquipments : t.Name,
 								description = BuildTargetDescription(t),
 							};
 						})
@@ -370,7 +370,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var options2 = targetObjects
 				.Select(bp => new MenuOption
 				{
-					title = bp.GetNameWithEquipments(),
+					title = bp.NameWithEquipments,
 					description = BuildTargetDescription(bp),
 				})
 				.ToArray();
@@ -409,7 +409,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					description += $"\n格挡成功率 {formatChance(reactionChance.BlockChance)}";
 					return new MenuOption
 					{
-						title = target is BodyPart bodyPart ? bodyPart.GetNameWithEquipments() : target.Name,
+						title = target is BodyPart bodyPart ? bodyPart.NameWithEquipments : target.Name,
 						description = description,
 						disabled = tuple.disabled,
 					};
@@ -471,8 +471,7 @@ public class AIInput(Combat combat) : CombatInput(combat)
 			TakeWeaponAction takeWeaponAction => takeWeaponAction.PrepareByAI(),
 			PickWeaponAction pickWeaponAction => pickWeaponAction.PrepareByAI(),
 			ReleaseAction { actorObject: BodyPart bodyPart, }
-				when !bodyPart.HasBuff(BuffCode.Grappling, true)
-					&& bodyPart.Slots.Any(slot => slot.Item != null && (slot.Flag & ItemFlagCode.Arm) != 0)
+				when !bodyPart.HasBuff(BuffCode.Grappling, true) && bodyPart.Slots.Any(slot => slot.Item != null && (slot.Flag & ItemFlagCode.Arm) != 0)
 				=> false,
 			_ => true,
 		};
