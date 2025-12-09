@@ -171,7 +171,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		{
 			if (target is BodyPart bodyPart)
 			{
-				if (bodyPart.TryGetItem(ItemFlagCode.Armor, out var armor))
+				if (ItemContainerExtensions.TryGetItem(bodyPart, ItemFlagCode.Armor, out var armor))
 				{
 					if (GD.Randf() < armor.Coverage)
 					{
@@ -183,8 +183,8 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 							armor.HitPoint.value -= damageToArmor;
 							if (armor.HitPoint.value <= 0)
 							{
-								await dialogue.ShowTextTask($"{target.Name}上的{armor.Name}坏了！");
-								bodyPart.RemoveItem(armor);
+								await dialogue.ShowTextTask($"{bodyPart.Name}上的{armor.Name}坏了！");
+								ItemContainerExtensions.RemoveItem(bodyPart, armor);
 							}
 						}
 						// 计算实际对身体部位的伤害
@@ -192,7 +192,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 						var totalDamage = (int)damageToBody.Total;
 						if (totalDamage > 0)
 						{
-							await dialogue.ShowTextTask($"{target.Name}受到了{totalDamage}点伤害");
+							await dialogue.ShowTextTask($"{bodyPart.Name}受到了{totalDamage}点伤害");
 							bodyPart.HitPoint.value -= totalDamage;
 						}
 						// todo: 砍伤能造成流血
@@ -203,7 +203,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 						if (damage > 0)
 						{
 							await dialogue.ShowTextTask("击中了护甲的缝隙!");
-							await dialogue.ShowTextTask($"{target.Name}受到了{damage}点伤害");
+							await dialogue.ShowTextTask($"{bodyPart.Name}受到了{damage}点伤害");
 							bodyPart.HitPoint.value -= damage;
 						}
 					}
@@ -213,7 +213,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 					var damage = (int)Damage.Total;
 					if (damage > 0)
 					{
-						await dialogue.ShowTextTask($"{target.Name}受到了{damage}点伤害");
+						await dialogue.ShowTextTask($"{bodyPart.Name}受到了{damage}点伤害");
 						bodyPart.HitPoint.value -= damage;
 					}
 				}
