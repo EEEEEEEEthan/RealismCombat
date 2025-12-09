@@ -7,7 +7,7 @@
 - 主循环每帧执行：
   - 调用 `CheckBattleOutcome()` 判断任一阵营是否失去作战能力，若成立则结束战斗并解除等待
   - 遍历仍存活的角色，若存在 `combatAction` 则执行 `UpdateTask()` 推进后摇；当返回 `false` 时清空该行为
-  - 通过 `TryGetActor()` 查找行动点达到上限的角色，按顺序处理全部可行动者
+  - 通过 `TryGetActor()` 查找行动点达到上限的角色，按顺序处理全部可行动者；正在执行行动的角色会被跳过，避免前摇为 0 的行动在同帧被判定为“满行动点”而重新进入决策菜单
     - 角色行动前会调用 `CombatNode.GetCharacterNode()`，并通过 `MoveScope()`、`ExpandScope()` 播放位移与强调动画
     - 播报“X 的回合”后，根据阵营选择 `PlayerInput` 或 `AIInput` 获取行动，期间 `Combat.Considering` 指向当前角色
     - 等待决策结束后调用 `StartTask()`，立即扣除前摇并触发具体演出

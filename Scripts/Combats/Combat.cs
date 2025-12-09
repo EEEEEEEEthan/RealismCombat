@@ -165,7 +165,9 @@ public class Combat
 	}
 	bool TryGetActor(out Character actor)
 	{
-		var result = AllFighters.Where(c => c.IsAlive).FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
+		var result = AllFighters
+			.Where(c => c.IsAlive && c.combatAction == null)
+			.FirstOrDefault(c => c.actionPoint.value >= c.actionPoint.maxValue);
 		actor = result!;
 		return result != null;
 	}
