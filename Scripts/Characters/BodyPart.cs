@@ -120,6 +120,24 @@ public class BodyPart : ICombatTarget, IItemContainer
 			return string.Concat(parts);
 		}
 	}
+	/// <summary>
+	///     获取身体部位的装备描述，列出已装备物品
+	/// </summary>
+	public string EquipmentDescription
+	{
+		get
+		{
+			var equippedItems = new List<string>();
+			foreach (var slot in Slots)
+			{
+				var item = slot.Item;
+				if (item == null) continue;
+				equippedItems.Add(item.Name);
+			}
+			if (equippedItems.Count == 0) return string.Empty;
+			return $"已装备:\n{string.Join(", ", equippedItems)}";
+		}
+	}
 	public BodyPart(BodyPartCode id)
 	{
 		this.id = id;
