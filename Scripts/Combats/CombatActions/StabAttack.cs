@@ -16,6 +16,8 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 			if (targetObject is BodyPart targetPart)
 			{
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
+				if (TryGetWeaponLength(out var weaponLength))
+					heightGap = Math.Abs(heightGap - weaponLength);
 				if (heightGap >= 0.4) return 0.95;
 			}
 			return 0.7;
@@ -28,6 +30,8 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 			if (targetObject is BodyPart targetPart)
 			{
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
+				if (TryGetWeaponLength(out var weaponLength))
+					heightGap = Math.Abs(heightGap - weaponLength);
 				if (heightGap >= 0.4) return 0.9;
 			}
 			return 0.35;
@@ -36,4 +40,17 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	public override AttackTypeCode AttackType => AttackTypeCode.Thrust;
 	public override bool UsesWeapon => true;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: true, };
+	bool TryGetWeaponLength(out double length)
+	{
+		foreach (var slot in actorBodyPart.Slots)
+		{
+			var weapon = slot.Item;
+			if (weapon == null) continue;
+			if ((weapon.flag & ItemFlagCode.Arm) == 0) continue;
+			length = weapon.Length;
+			return true;
+		}
+		length = 0.0;
+		return false;
+	}
 }
