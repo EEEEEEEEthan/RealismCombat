@@ -262,7 +262,10 @@ public partial class CharacterNode : Control
 		if (!IsNodeReady()) return maxSize;
 		PropertyContainer.QueueSort();
 		var containerSize = PropertyContainer.GetCombinedMinimumSize();
-		return maxSize with { Y = Mathf.Max(minSize.Y, containerSize.Y), };
+		var panelStyle = CardFrame.GetThemeStylebox("panel");
+		var padding = panelStyle?.GetMinimumSize() ?? Vector2.Zero;
+		var targetHeight = Mathf.Max(minSize.Y, containerSize.Y + padding.Y);
+		return maxSize with { Y = targetHeight, };
 	}
 	Vector2 GetTargetSize() => Expanded ? GetExpandedSize() : minSize;
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
