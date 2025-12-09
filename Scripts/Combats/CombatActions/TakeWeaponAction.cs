@@ -12,7 +12,7 @@ public class TakeWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 	ItemSlot? sourceSlot;
 	string? beltName;
 	string? startText;
-	public override CombatActionCode Code => CombatActionCode.TakeWeapon;
+	public override CombatActionCode Id => CombatActionCode.TakeWeapon;
 public override string Description => "从腰带装备中取出武器放到空余的手上，必要时会丢下原有物品";
 	class BeltWeaponCandidate
 	{

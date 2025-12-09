@@ -4,13 +4,13 @@
 public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
-	public override CombatActionCode Code => CombatActionCode.Stab;
+	public override CombatActionCode Id => CombatActionCode.Stab;
 	public override string Narrative => "持武器刺击目标，造成刺击伤害，依赖手部武器";
-	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}刺击{TargetCharacter.name}的{TargetCombatObject.Name}!";
-	internal override double DodgeImpact => 0.7;
-	internal override double BlockImpact => 0.35;
-	internal override AttackTypeCode AttackType => AttackTypeCode.Thrust;
-	internal override bool UsesWeapon => true;
+	public override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
+	public override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}刺击{TargetCharacter.name}的{TargetCombatObject.Name}!";
+	public override double DodgeImpact => 0.7;
+	public override double BlockImpact => 0.35;
+	public override AttackTypeCode AttackType => AttackTypeCode.Thrust;
+	public override bool UsesWeapon => true;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: true, };
 }

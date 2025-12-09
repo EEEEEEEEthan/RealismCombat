@@ -1,40 +1,15 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Godot;
 /// <summary>
 ///     抓取攻击，只允许没有武器的手臂使用
 /// </summary>
 public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	: AttackBase(actor, actorBodyPart, combat, 2, 4)
 {
-	public override CombatActionCode Code => CombatActionCode.Grab;
+	public override CombatActionCode Id => CombatActionCode.Grab;
 	public override string Narrative => "徒手擒拿目标，命中可使目标被束缚并让自身进入擒拿状态";
-	protected virtual bool ShouldResolveDamage => false;
-	protected override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
-	protected override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}抓取{TargetCharacter.name}的{TargetCombatObject.Name}!";
-	internal override double DodgeImpact => 0.7;
-	internal override double BlockImpact => 0.25;
-	internal override AttackTypeCode AttackType => AttackTypeCode.Special;
+	public override string StartDialogueText => $"{actor.name}抬起{actorBodyPart.Name}开始蓄力...";
+	public override string ExecuteDialogueText => $"{actor.name}用{actorBodyPart.Name}抓取{TargetCharacter.name}的{TargetCombatObject.Name}!";
+	public override double DodgeImpact => 0.7;
+	public override double BlockImpact => 0.25;
+	public override AttackTypeCode AttackType => AttackTypeCode.Special;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id.IsArm: true, HasWeapon: false, };
-	protected override async Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages)
-	{
-		var grabSuccessChance = 0.5f;
-		var target = TargetCharacter;
-		if (GD.Randf() < grabSuccessChance)
-		{
-			if (target.torso is IBuffOwner targetTorsoBuffOwner)
-			{
-				var restrainedBuff = new Buff(BuffCode.Restrained, actor);
-				targetTorsoBuffOwner.Buffs.Add(restrainedBuff);
-				resultMessages.Add($"{target.name}的{finalTarget.Name}被{actor.name}抓住了!");
-			}
-			if (actorBodyPart is IBuffOwner actorBuffOwner)
-			{
-				var grapplingBuff = new Buff(BuffCode.Grappling, actor);
-				actorBuffOwner.Buffs.Add(grapplingBuff);
-				resultMessages.Add($"{actor.name}的{actorBodyPart.Name}正在擒拿{target.name}!");
-			}
-		}
-		await Task.CompletedTask;
-	}
 }

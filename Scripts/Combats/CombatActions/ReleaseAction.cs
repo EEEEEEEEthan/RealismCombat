@@ -17,7 +17,7 @@ public class ReleaseAction(Character actor, BodyPart actorBodyPart, Combat comba
 		return null;
 	}
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	public override CombatActionCode Code => CombatActionCode.Release;
+	public override CombatActionCode Id => CombatActionCode.Release;
 	public override string Description => "松开擒拿或丢弃手中武器，解除自身施加的束缚效果";
 	/// <summary>
 	///     判断当前是否只会执行丢弃武器

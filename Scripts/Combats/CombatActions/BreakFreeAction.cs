@@ -47,7 +47,7 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 	IBuffOwner? buffOwner;
 	Buff? restrainedBuff;
 	string? targetName;
-	public override CombatActionCode Code => CombatActionCode.BreakFree;
+	public override CombatActionCode Id => CombatActionCode.BreakFree;
 	public override string Description => "尝试解除自身或装备上的束缚状态，成功时移除束缚";
 	public override bool Available
 	{

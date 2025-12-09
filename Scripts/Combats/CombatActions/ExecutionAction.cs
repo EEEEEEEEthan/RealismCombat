@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat combat)
 	: CombatAction(actor, combat, actorBodyPart, 0, 0)
 {
-	readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;
 	BodyPart? targetBodyPart;
 	bool executed;
-	public override CombatActionCode Code => CombatActionCode.Execution;
+	public override CombatActionCode Id => CombatActionCode.Execution;
 	public override string Description => "测试: 直接让敌方任意部位生命归零";
 	public override bool Available => actorBodyPart is { Available: true, id.IsArm: true, };
 	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
@@ -21,7 +20,7 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 		get
 		{
 			var opponent = target;
-			if (opponent == null) return Array.Empty<(ICombatTarget, bool)>();
+			if (opponent == null) return [];
 			return opponent.bodyParts.Select(bp => ((ICombatTarget)bp, false));
 		}
 	}

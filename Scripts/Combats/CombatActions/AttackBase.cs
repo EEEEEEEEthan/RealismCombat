@@ -12,7 +12,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	protected readonly BodyPart actorBodyPart = actorBodyPart;
 	Character? target;
 	ICombatTarget? combatTarget;
-	public abstract override CombatActionCode Code { get; }
+	public abstract override CombatActionCode Id { get; }
 	public override string Description
 	{
 		get
@@ -41,7 +41,6 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			return $"类型: {typeText}\n闪避倾向: {DodgeText(DodgeImpact)}\n格挡倾向: {BlockText(BlockImpact)}\n{Narrative}";
 		}
 	}
-	public abstract string Narrative { get; }
 	public override bool Available => actorBodyPart.Available && IsBodyPartUsable(actorBodyPart);
 	public override IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
 	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
@@ -49,7 +48,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		get
 		{
 			var target = Target;
-			if (target == null) return Array.Empty<(ICombatTarget, bool)>();
+			if (target == null) return [];
 			return target.AvailableCombatTargets.Select(t => (t, !t.Available));
 		}
 	}
@@ -63,6 +62,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		get => combatTarget;
 		set => combatTarget = value;
 	}
+	public abstract string Narrative { get; }
 	public BodyPart ActorBodyPart => actorBodyPart;
 	public ICombatTarget CombatTarget => TargetCombatObject;
 	public Damage Damage
@@ -84,15 +84,15 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			return baseDamage.Scale(DamageMultiplier);
 		}
 	}
-	protected Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
-	protected ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
-	protected abstract string StartDialogueText { get; }
-	protected abstract string ExecuteDialogueText { get; }
-	internal abstract double DodgeImpact { get; }
-	internal abstract double BlockImpact { get; }
-	internal abstract AttackTypeCode AttackType { get; }
-	internal virtual double DamageMultiplier => 1.0;
-	internal virtual bool UsesWeapon => false;
+	public abstract double DodgeImpact { get; }
+	public abstract double BlockImpact { get; }
+	public abstract AttackTypeCode AttackType { get; }
+	public virtual double DamageMultiplier => 1.0;
+	public virtual bool UsesWeapon => false;
+	public Character TargetCharacter => target ?? throw new InvalidOperationException("攻击未设置目标角色");
+	public ICombatTarget TargetCombatObject => combatTarget ?? throw new InvalidOperationException("攻击未设置目标对象");
+	public abstract string StartDialogueText { get; }
+	public abstract string ExecuteDialogueText { get; }
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
 	protected override async Task OnStartTask() => await DialogueManager.ShowGenericDialogue(StartDialogueText);
 	protected override async Task OnExecute()
@@ -229,6 +229,5 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			}
 		}
 	}
-	protected virtual Task OnAttackHit(ICombatTarget finalTarget, List<string> resultMessages) => Task.CompletedTask;
 	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 }

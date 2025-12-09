@@ -178,7 +178,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			var defenderText = target is BodyPart bodyPart
 				? $"{defender.name}{bodyPart.GetNameWithEquipments()}"
 				: $"{defender.name}{target.Name}";
-			var attackName = attack?.Code switch
+			var attackName = attack?.Id switch
 			{
 				CombatActionCode.Slash => "斩击",
 				CombatActionCode.Stab => "刺击",
