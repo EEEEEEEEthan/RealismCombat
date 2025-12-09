@@ -110,7 +110,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					};
 				})
 				.ToArray();
-			var bodyPartMenu = DialogueManager.CreateMenuDialogue(turnTitle, true, bodyPartOptions);
+			var bodyPartMenu = DialogueManager.CreateMenuDialogue(turnTitle, bodyPartOptions);
 			var bodyPartIndex = await bodyPartMenu;
 			if (bodyPartIndex == bodyPartOptions.Length) continue;
 			var selectedBodyPart = bodyPartActions[bodyPartIndex].bodyPart;
