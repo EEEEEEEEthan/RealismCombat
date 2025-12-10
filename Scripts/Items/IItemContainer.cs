@@ -62,9 +62,8 @@ public static class ItemContainerExtensions
 		}
 		public bool HasBuff(BuffCode buff, bool recursive)
 		{
-			foreach (var owned in container.Buffs)
-				if (owned.code == buff)
-					return true;
+			if (container.Buffs.ContainsKey(buff))
+				return true;
 			if (!recursive) return false;
 			foreach (var slot in container.Slots)
 			{

@@ -35,7 +35,7 @@ public abstract class CombatInput(Combat combat)
 				var targetName = source.Target.Name;
 				return $"{characterName}-{targetName}";
 			}
-			var buffLines = buffOwner.Buffs
+			var buffLines = buffOwner.Buffs.Values
 				.Select(buff => $"[{buff.code.Name}]来自{FormatBuffSource(buff)}");
 			description += "\n" + string.Join("\n", buffLines);
 		}

@@ -60,7 +60,7 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 		{
 			if (!actor.torso.HasBuff(BuffCode.Prone, false))
 			{
-				actor.torso.Buffs.Add(new(BuffCode.Prone, new(actor, targetObject)));
+				actor.torso.Buffs[BuffCode.Prone] = new(BuffCode.Prone, new(actor, targetObject));
 				await DialogueManager.ShowGenericDialogue($"{actor.name}失去平衡倒下了!");
 			}
 		}
@@ -78,7 +78,7 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 			var source = new BuffSource(actor, actorBodyPart);
 			if (!targetCharacter.torso.HasBuff(BuffCode.Prone, false))
 			{
-				targetCharacter.torso.Buffs.Add(new(BuffCode.Prone, source));
+				targetCharacter.torso.Buffs[BuffCode.Prone] = new(BuffCode.Prone, source);
 				await dialogue.ShowTextTask($"{targetCharacter.name}失去平衡倒下了!");
 			}
 		}

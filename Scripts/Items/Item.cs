@@ -65,7 +65,7 @@ public class Item : ICombatTarget, IItemContainer
 	public Protection Protection { get; }
 	public double Coverage { get; }
 	public bool Available => HitPoint.value > 0;
-	public List<Buff> Buffs { get; } = [];
+	public Dictionary<BuffCode, Buff> Buffs { get; } = [];
 	Item(ItemIdCode id, ItemConfig config)
 	{
 		this.id = id;

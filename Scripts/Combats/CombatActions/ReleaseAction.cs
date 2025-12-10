@@ -84,16 +84,10 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 	{
 		var released = false;
 		source = null;
-		var toRemove = new List<Buff>();
-		foreach (var buff in actorBodyPart.Buffs)
-			if (buff.code == BuffCode.Grappling)
-			{
-				toRemove.Add(buff);
-				source ??= buff.source;
-			}
-		foreach (var buff in toRemove)
+		if (actorBodyPart.Buffs.TryGetValue(BuffCode.Grappling, out var buff))
 		{
-			actorBodyPart.Buffs.Remove(buff);
+			source = buff.source;
+			actorBodyPart.Buffs.Remove(BuffCode.Grappling);
 			released = true;
 		}
 		return released;
@@ -102,16 +96,12 @@ public sealed class ReleaseAction(Character actor, BodyPart actorBodyPart, Comba
 	{
 		foreach (var owner in EnumerateBuffOwners(grappleSource.Character))
 		{
-			var toRemove = new List<Buff>();
-			foreach (var buff in owner.Buffs)
-				if (buff.code == BuffCode.Restrained &&
-					buff.source is { } buffSource &&
-					ReferenceEquals(buffSource.Character, actor) &&
-					ReferenceEquals(buffSource.Target, actorBodyPart))
-					toRemove.Add(buff);
-			foreach (var buff in toRemove)
+			if (owner.Buffs.TryGetValue(BuffCode.Restrained, out var buff) &&
+				buff.source is { } buffSource &&
+				ReferenceEquals(buffSource.Character, actor) &&
+				ReferenceEquals(buffSource.Target, actorBodyPart))
 			{
-				owner.Buffs.Remove(buff);
+				owner.Buffs.Remove(BuffCode.Restrained);
 				return GetOwnerName(grappleSource.Character, owner);
 			}
 		}

@@ -22,10 +22,8 @@ public sealed class GetUpAction(Character actor, BodyPart actorBodyPart, Combat 
 		var removedCount = 0;
 		foreach (var bodyPart in actor.bodyParts)
 		{
-			var toRemove = bodyPart.Buffs.Where(buff => buff.code == BuffCode.Prone).ToList();
-			foreach (var buff in toRemove)
+			if (bodyPart.Buffs.Remove(BuffCode.Prone))
 			{
-				bodyPart.Buffs.Remove(buff);
 				removedCount++;
 			}
 		}

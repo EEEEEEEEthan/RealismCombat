@@ -52,7 +52,7 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 	{
 		var source = new BuffSource(targetCharacter, targetObject);
 		if (HasBuff(actorBodyPart, BuffCode.Grappling, source)) return false;
-		actorBodyPart.Buffs.Add(new(BuffCode.Grappling, source));
+		actorBodyPart.Buffs[BuffCode.Grappling] = new(BuffCode.Grappling, source);
 		return true;
 	}
 	bool ApplyRestrainedBuff(ICombatTarget targetObject)
@@ -60,13 +60,13 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 		if (targetObject is not IBuffOwner buffOwner) return false;
 		var source = new BuffSource(actor, actorBodyPart);
 		if (HasBuff(buffOwner, BuffCode.Restrained, source)) return false;
-		buffOwner.Buffs.Add(new(BuffCode.Restrained, source));
+		buffOwner.Buffs[BuffCode.Restrained] = new(BuffCode.Restrained, source);
 		return true;
 	}
 	static bool HasBuff(IBuffOwner owner, BuffCode code, BuffSource source)
 	{
-		foreach (var buff in owner.Buffs)
-			if (buff.code == code && buff.source is { } buffSource && buffSource == source)
+		if (owner.Buffs.TryGetValue(code, out var buff))
+			if (buff.source is { } buffSource && buffSource == source)
 				return true;
 		return false;
 	}

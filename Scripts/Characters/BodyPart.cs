@@ -107,9 +107,9 @@ public class BodyPart : ICombatTarget, IItemContainer
 		}
 	}
 	/// <summary>
-	///     获取所有Buff列表
+	///     获取所有Buff字典
 	/// </summary>
-	public List<Buff> Buffs { get; } = [];
+	public Dictionary<BuffCode, Buff> Buffs { get; } = [];
 	/// <summary>
 	///     获取包含当前装备的身体部位名称
 	/// </summary>

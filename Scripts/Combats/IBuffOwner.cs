@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public interface IBuffOwner
 {
 	/// <summary>
-	///     获取所有Buff列表
+	///     获取所有Buff字典，键为BuffCode
 	/// </summary>
-	List<Buff> Buffs { get; }
+	Dictionary<BuffCode, Buff> Buffs { get; }
 }

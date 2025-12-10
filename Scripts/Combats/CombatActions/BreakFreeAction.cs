@@ -24,16 +24,13 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 	}
 	static Buff? FindBuff(IBuffOwner owner, BuffCode code)
 	{
-		foreach (var buff in owner.Buffs)
-			if (buff.code == code)
-				return buff;
-		return null;
+		owner.Buffs.TryGetValue(code, out var buff);
+		return buff;
 	}
 	static bool ContainsBuff(IBuffOwner owner, Buff target)
 	{
-		foreach (var buff in owner.Buffs)
-			if (ReferenceEquals(buff, target))
-				return true;
+		if (owner.Buffs.TryGetValue(target.code, out var buff))
+			return ReferenceEquals(buff, target);
 		return false;
 	}
 	static string GetOwnerName(IBuffOwner owner) =>
@@ -69,7 +66,7 @@ public class BreakFreeAction(Character actor, BodyPart actorBodyPart, Combat com
 		var success = hasBuff && GD.Randf() < 0.5f;
 		if (success)
 		{
-			buffOwner.Buffs.Remove(restrainedBuff);
+			buffOwner.Buffs.Remove(BuffCode.Restrained);
 			await DialogueManager.ShowGenericDialogue($"{actor.name}成功摆脱了束缚");
 			return;
 		}

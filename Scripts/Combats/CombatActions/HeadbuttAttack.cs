@@ -47,7 +47,7 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 			{
 				if (!actor.torso.HasBuff(BuffCode.Prone, false))
 				{
-					actor.torso.Buffs.Add(new(BuffCode.Prone, source));
+					actor.torso.Buffs[BuffCode.Prone] = new(BuffCode.Prone, source);
 					await dialogue.ShowTextTask($"{actor.name}头槌腿部导致自己失去平衡倒下了!");
 				}
 			}
@@ -62,7 +62,7 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 				{
 					if (!targetCharacter.torso.HasBuff(BuffCode.Prone, false))
 					{
-						targetCharacter.torso.Buffs.Add(new(BuffCode.Prone, source));
+						targetCharacter.torso.Buffs[BuffCode.Prone] = new(BuffCode.Prone, source);
 						await dialogue.ShowTextTask($"{targetCharacter.name}被头槌撞倒了!");
 					}
 				}

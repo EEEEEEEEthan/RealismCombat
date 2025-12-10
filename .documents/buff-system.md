@@ -16,7 +16,7 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
   - `Prone`（倒伏）
   - 扩展属性 `Name` 返回中文显示名称
 - `IBuffOwner`：位于 `Scripts/Combats/IBuffOwner.cs`
-  - `List<Buff> Buffs`：可变 Buff 列表（`BodyPart`、`Item` 等实现均复用）
+  - `Dictionary<BuffCode, Buff> Buffs`：Buff 字典，键为 BuffCode，确保同类型 Buff 不会重复（`BodyPart`、`Item` 等实现均复用）
 
 ## 实现位置
 
@@ -48,13 +48,16 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
 
 ```csharp
 // 施加束缚到目标躯干
-var restrained = new Buff(BuffCode.Restrained, actor);
-((IBuffOwner)target.torso).AddBuff(restrained);
+var source = new BuffSource(actor, actorBodyPart);
+target.torso.Buffs[BuffCode.Restrained] = new Buff(BuffCode.Restrained, source);
 
 // 检查是否被擒拿
-if (bodyPart.HasBuff(BuffCode.Grappling)) {
+if (bodyPart.HasBuff(BuffCode.Grappling, false)) {
     // 调整可用行动或提示
 }
+
+// 移除倒伏状态
+bodyPart.Buffs.Remove(BuffCode.Prone);
 ```
 
 ## Buff 效果
@@ -96,7 +99,7 @@ if (bodyPart.HasBuff(BuffCode.Grappling)) {
 - Buff 应尽量为"数据化"的状态，由具体行动或系统在结算时解释其效果
 - 清理策略应在战斗结束、存档、或场景切换时统一执行，避免状态残留
 - 当 Buff 会影响行动可用性或数值时，优先通过查询接口（如 `HasBuff`）在行为逻辑处做判断，保持模块解耦
-- **防止重复添加**：在添加 Buff 前必须先检查同 id 的 Buff 是否已存在，避免重复施加相同状态。所有添加 Buff 的地方都应调用 `HasBuff(BuffCode, false)` 进行检查
+- **自动防止重复**：使用 `Dictionary<BuffCode, Buff>` 数据结构，同类型 Buff 会自动覆盖，从根本上避免重复添加问题。添加 Buff 时直接使用索引赋值：`Buffs[BuffCode.XXX] = new Buff(...)`
 
 
 ````
