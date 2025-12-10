@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Godot;
 /// <summary>
 ///     撞击攻击，只允许躯干使用
 /// </summary>
@@ -60,6 +61,23 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 			actor.torso.Buffs.Add(new(BuffCode.Prone, new(actor, targetObject)));
 		}
 		await base.OnExecute();
+	}
+	protected override async Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue)
+	{
+		// 撞击命中时，按重量比计算目标获得倒伏buff的概率
+		var targetWeight = targetCharacter.TotalWeight;
+		var actorWeight = actor.TotalWeight;
+		var proneChance = targetWeight / actorWeight;
+		
+		if (GD.Randf() < proneChance)
+		{
+			var source = new BuffSource(actor, actorBodyPart);
+			if (!targetCharacter.torso.HasBuff(BuffCode.Prone, false))
+			{
+				targetCharacter.torso.Buffs.Add(new(BuffCode.Prone, source));
+				await dialogue.ShowTextTask($"{targetCharacter.name}失去平衡倒下了!");
+			}
+		}
 	}
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id: BodyPartCode.Torso, };
 }
