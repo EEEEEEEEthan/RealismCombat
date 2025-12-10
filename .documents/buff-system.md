@@ -25,10 +25,13 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
 
 ## 施加与清理
 
-- 施加：`GrabAttack` 命中后必然施加（`Scripts/Combats/CombatActions/GrabAttack.cs`）
-  - 攻击者手臂添加 `Grappling`，来源为被抓角色与被抓部位/物品
-  - 目标对象添加 `Restrained`，来源为攻击者与抓取使用的手臂
-  - 抓取伤害为 0；在同一 `GenericDialogue` 内提示“擒拿/束缚”获得，避免重复创建对话框
+- 施加：
+  - `GrabAttack` 命中后必然施加（`Scripts/Combats/CombatActions/GrabAttack.cs`）
+    - 攻击者手臂添加 `Grappling`，来源为被抓角色与被抓部位/物品
+    - 目标对象添加 `Restrained`，来源为攻击者与抓取使用的手臂
+    - 抓取伤害为 0；在同一 `GenericDialogue` 内提示“擒拿/束缚”获得，避免重复创建对话框
+  - `ChargeAttack` 目标为腿部时必然施加（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
+    - 攻击者躯干添加 `Prone`，来源为攻击者与目标腿部
 - 展示：在玩家选择目标或反应时，UI 描述中列出 Buff（`Scripts/Combats/CombatInput.cs`）
   - 显示格式：`[中文类型]来自{来源角色}-{来源目标名称}`
 - 清理：

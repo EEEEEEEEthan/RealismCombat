@@ -441,6 +441,7 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 						foreach (var targetObj in target.bodyParts)
 						{
 							action.targetObject = targetObj;
+							if (action is ChargeAttack && targetObj.id.IsLeg) continue;
 							if (!action.CanUse) continue;
 							var expected = AttackBase.CalculateExpectedBodyDamage(action.Damage, targetObj);
 							var chance = action.ReactionChance;
