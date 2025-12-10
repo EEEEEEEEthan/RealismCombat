@@ -17,12 +17,6 @@ public readonly struct Damage(float slash, float pierce, float blunt)
 	public float Blunt { get; } = blunt;
 	public float Total => Slash + Pierce + Blunt;
 	public bool IsZero => Slash <= 0f && Pierce <= 0f && Blunt <= 0f;
-	public Damage ApplyProtection(Protection protection) =>
-		new(
-			Math.Max(0f, Slash - protection.Slash),
-			Math.Max(0f, Pierce - protection.Pierce),
-			Math.Max(0f, Blunt - protection.Blunt)
-		);
 }
 /// <summary>
 ///     防护数值，分为劈砍/穿刺/钝击

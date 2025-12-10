@@ -28,7 +28,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			for (var i = firstHit; i >= 0 && remaining.Total > 0f; i--)
 			{
 				var protection = armors[i].Protection;
-				remaining = remaining.ApplyProtection(protection);
+				remaining -= protection;
 			}
 			return remaining;
 		}
@@ -325,7 +325,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				var item = armors[i];
 				var slashToArmor = Math.Max(0f, damage.Slash - item.Protection.Slash);
 				any = any || await applyDamage(target, item, new(slashToArmor, 0f, 0f), dialogue);
-				damage = damage.ApplyProtection(item.Protection);
+				damage -= item.Protection;
 				if (damage.Total <= 0) break;
 			}
 			any = any || await applyDamage(target, targetObject, damage, dialogue);
