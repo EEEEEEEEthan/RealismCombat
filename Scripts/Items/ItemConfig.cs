@@ -126,6 +126,23 @@ public readonly struct ItemConfig
 				Icon = "res://Textures/Items/Icons7.png",
 			}
 		},
+		{
+			ItemIdCode.PlateChausses,
+			new()
+			{
+				Name = "板甲裤",
+				Story = "将小块钢板铆在皮革上的护腿,覆盖率有限,防护极佳",
+				Flag = ItemFlagCode.LegArmorOuter,
+				SlotFlags = [],
+				Length = 95.0,
+				Weight = 8.5,
+				HitPointMax = 20,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(4f, 4f, 1f),
+				Coverage = 0.6,
+				Icon = "res://Textures/Items/Icons8.png",
+			}
+		},
 	};
 	public string Icon { get; private init; }
 	public string Name { get; private init; }

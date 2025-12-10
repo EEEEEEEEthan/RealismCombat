@@ -31,4 +31,8 @@ public enum ItemIdCode
 	///     链甲护腿
 	/// </summary>
 	ChainChausses,
+	/// <summary>
+	///     板甲护腿
+	/// </summary>
+	PlateChausses,
 }
