@@ -171,6 +171,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		{
 			var attack = attacker.combatAction as AttackBase;
 			var reactionChance = attack?.ReactionChance ?? new(0.0, 0.0);
+			// blockChanceText 会在格挡选项中被重新计算为针对特定部位的成功率
 			var blockChanceText = $"成功率 {FormatChance(reactionChance.BlockChance)}";
 			var dodgeChanceText = $"成功率 {FormatChance(reactionChance.DodgeChance)}";
 			var attackerText = $"{attacker.name}的攻击";
@@ -241,10 +242,16 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						continue;
 					}
 					var options = blockTargets
-						.Select(t => new MenuOption
+						.Select(t =>
 						{
-							title = t is BodyPart bodyPart ? bodyPart.NameWithEquipments : t.Name,
-							description = $"{blockChanceText}\n{BuildTargetDescription(t)}",
+							var modifier = attack?.CalculateBlockChanceModifier(t) ?? 1.0;
+							var adjustedChance = reactionChance.BlockChance * modifier;
+							var adjustedChanceText = $"成功率 {FormatChance(adjustedChance)}";
+							return new MenuOption
+							{
+								title = t is BodyPart bodyPart ? bodyPart.NameWithEquipments : t.Name,
+								description = $"{adjustedChanceText}\n{BuildTargetDescription(t)}",
+							};
 						})
 						.ToArray();
 					var blockMenu = DialogueManager.CreateMenuDialogue("用指定部位进行格挡", true, options);
@@ -542,8 +549,10 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 			if (target is BodyPart { id: BodyPartCode.Head, } &&
 				blockTarget is BodyPart { id: { IsLeg: true, }, })
 				continue;
+			var modifier = attack.CalculateBlockChanceModifier(blockTarget);
+			var adjustedBlockChance = reactionChance.BlockChance * modifier;
 			var blockExpected = AttackBase.CalculateExpectedBodyDamage(attack.Damage, blockTarget);
-			var expectedDamage = reactionChance.BlockChance * blockExpected + (1d - reactionChance.BlockChance) * originalExpected;
+			var expectedDamage = adjustedBlockChance * blockExpected + (1d - adjustedBlockChance) * originalExpected;
 			// 如果格挡会打断自身行动，增加期望伤害作为惩罚
 			if (defender.combatAction?.WillBeInterruptedByBlockingWith(blockTarget) == true)
 				expectedDamage *= 1.5;
