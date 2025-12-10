@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Godot;
 public class Combat
 {
 	static void ClearCharacterBuffs(Character character)
@@ -122,6 +123,7 @@ public class Combat
 	}
 	async void StartLoop()
 	{
+		var nextBleedingTime = 5.0;
 		try
 		{
 			await DialogueManager.ShowGenericDialogue("战斗开始了!");
@@ -158,6 +160,11 @@ public class Combat
 				Time += 0.1;
 				Log.Print($"{nameof(Time)}={Time:F1}");
 				foreach (var character in AllFighters.Where(c => c.IsAlive)) character.actionPoint.value += character.Speed * 0.1;
+				while (Time >= nextBleedingTime)
+				{
+					await ApplyBleedingTick();
+					nextBleedingTime += 5.0;
+				}
 			}
 		}
 		catch (Exception e)
@@ -239,6 +246,29 @@ public class Combat
 			}
 			slot.Item = item;
 			droppedItems.Remove(item);
+		}
+	}
+	async Task ApplyBleedingTick()
+	{
+		var events = new List<(Character character, BodyPart part)>();
+		foreach (var character in AllFighters.Where(c => c.IsAlive))
+		{
+			var bleedingParts = character.bodyParts.Where(part => part.HasBuff(BuffCode.Bleeding, false)).ToArray();
+			if (bleedingParts.Length == 0) continue;
+			var validTargets = character.bodyParts.Where(part => part.HitPoint.value > 0).ToArray();
+			if (validTargets.Length == 0) continue;
+			var index = GD.RandRange(0, validTargets.Length - 1);
+			events.Add((character, validTargets[index]));
+		}
+		if (events.Count == 0) return;
+		using var _ = DialogueManager.CreateGenericDialogue(out var dialogue);
+		foreach (var (character, part) in events)
+		{
+			part.HitPoint.value -= 1;
+			var node = combatNode.GetCharacterNode(character);
+			node.Shake();
+			node.FlashPropertyNode(part);
+			await dialogue.ShowTextTask($"{character.name}的{part.Name}因流血失去1点生命");
 		}
 	}
 }

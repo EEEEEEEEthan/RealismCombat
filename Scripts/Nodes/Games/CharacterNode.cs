@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Godot;
 [Tool]
 public partial class CharacterNode : Control
@@ -210,6 +211,7 @@ public partial class CharacterNode : Control
 		MoveAnchor.Size = CardFrame.Size;
 		UpdateBackground();
 		ReactionCount = character.reaction;
+		CardFrame.Bleeding = character.bodyParts.Any(part => part.HasBuff(BuffCode.Bleeding, true));
 	}
 	/// <summary>
 	///     根据战斗目标找到对应的PropertyNode并闪烁

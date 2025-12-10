@@ -323,38 +323,47 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			for (var i = firstHit; i >= 0; i--)
 			{
 				var item = armors[i];
-				var damageToArmor = (damage.Slash - item.Protection.Slash).RoundToInt();
-				any = any || await applyDamage(target, item, damageToArmor, dialogue);
-				damage -= item.Protection;
+				var slashToArmor = Math.Max(0f, damage.Slash - item.Protection.Slash);
+				any = any || await applyDamage(target, item, new(slashToArmor, 0f, 0f), dialogue);
+				damage = damage.ApplyProtection(item.Protection);
 				if (damage.Total <= 0) break;
 			}
-			any = any || await applyDamage(target, targetObject, damage.Total.RoundToInt(), dialogue);
+			any = any || await applyDamage(target, targetObject, damage, dialogue);
 			// 对武器的伤害
 			if (UsesWeapon && actorBodyPart.WeaponInUse is { } weapon)
 			{
 				var weaponDamage = (damage - weapon.Protection).Total.RoundToInt();
-				any = any || await applyDamage(actor, weapon, weaponDamage, dialogue);
+				any = any || await applyDamage(actor, weapon, new(weaponDamage, 0f, 0f), dialogue);
 			}
 			if (!any) await dialogue.ShowTextTask("什么也没发生");
 		}
-		async Task<bool> applyDamage(Character character, ICombatTarget target, int damage, GenericDialogue dialogue)
+		async Task<bool> applyDamage(Character character, ICombatTarget target, Damage damage, GenericDialogue dialogue)
 		{
 			var any = false;
-			if (damage <= 0) return any;
-			if (target is BodyPart)
+			var damageAmount = damage.Total.RoundToInt();
+			if (damageAmount <= 0) return any;
+			if (target is BodyPart bodyPart)
 			{
 				await Task.Delay(100);
 				var characterNode = combat.combatNode.GetCharacterNode(character);
 				characterNode.Shake();
 				AudioManager.PlaySfx(ResourceTable.retroHurt1);
-				target.HitPoint.value -= damage;
-				await dialogue.ShowTextTask($"{character.name}的{target.Name}受到{damage}点伤害");
+				target.HitPoint.value -= damageAmount;
+				var shouldBleed =
+					(damage.Slash > 0f) ||
+					(damage.Pierce > 0f && GD.Randf() < 0.5f);
+				if (shouldBleed && !bodyPart.HasBuff(BuffCode.Bleeding, false))
+				{
+					var source = new BuffSource(actor, actorBodyPart);
+					bodyPart.Buffs.Add(new(BuffCode.Bleeding, source));
+				}
+				await dialogue.ShowTextTask($"{character.name}的{target.Name}受到{damageAmount}点伤害");
 				any = true;
 			}
 			else
 			{
-				var rate = (float)damage / target.HitPoint.maxValue;
-				target.HitPoint.value -= damage;
+				var rate = damageAmount / (float)target.HitPoint.maxValue;
+				target.HitPoint.value -= damageAmount;
 				switch (rate)
 				{
 					case < 0.2f:
