@@ -142,7 +142,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			const double blockCenterBonus = 0.35;
 			const double unarmedDodgeShift = 0.5;
 			const double unarmedBlockShift = 0.3;
-			const double dodgeBias = -0.15;
+			const double dodgeBias = -0.05;
 			const double blockBias = -0.05;
 			var weapon = UsesWeapon ? ActorBodyPart.WeaponInUse : null;
 			var weaponLengthScore = weapon == null ? 0.0 : GameMath.ScaleToRange(weapon.Length, weaponLengthScale);

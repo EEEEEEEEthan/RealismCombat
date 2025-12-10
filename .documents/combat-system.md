@@ -73,10 +73,10 @@
 - 攻击可用性通过实例方法检查：抓取要求手臂可用且 `!bodyPart.HasWeapon`，斩击/刺击要求手臂可用且 `bodyPart.HasWeapon`，基类不再提供静态 `HasWeapon`
 - 当前实现的攻击类型：
   - `SlashAttack`（Swing 挥砍）：只允许有武器的手臂使用
-  - `StabAttack`（Thrust 捅扎）：只允许有武器的手臂使用，闪避影响 0.7、格挡影响 0.35，相比其他攻击更容易被闪避且更难被格挡
+  - `StabAttack`（Thrust 捅扎）：只允许有武器的手臂使用，闪避影响 0.7、格挡影响 0.25，高差≥0.4 时格挡影响 0.55，整体更难被格挡
   - `KickAttack`（Special 特殊）：只允许腿使用
   - `HeadbuttAttack`（Special 特殊）：只允许头使用
-  - `ChargeAttack`（Special 特殊）：只允许躯干使用
+  - `ChargeAttack`（Special 特殊）：只允许躯干使用，目标限定为对方躯干
 - `GrabAttack`（抓取）：只允许没有武器的手臂使用，不造成伤害，主要用于施加束缚和擒拿 buff，闪避/格挡倾向提高（基础 0.85/0.65，高差≥0.4 时 0.98/0.95）
 - `GetAvailableAttacks()` 方法会根据身体部位返回所有可用的攻击类型列表
 
@@ -115,6 +115,7 @@
   - 由 `AttackBase.ReactionChance` 属性即时计算，使用局部常量结合 `GameMath.ScaleToRange` 与 `GameMath.Sigmoid`
   - `ReactionSuccessCalculator` 仅保留 `ReactionChance` 与 `ReactionOutcome` 数据结构
   - 由 `ReactionSuccessCalculator` 以 sigmoid 公式计算，输入包含武器长度(0~2归一)降低闪避、提高格挡；武器重量(0~2归一)同时提高闪避与格挡；动作自带闪避/格挡影响系数(0~1)；防守方体重70加装备重量越大成功率越低；徒手攻击附加惩罚
+  - 闪避基准偏置从 -0.15 提升到 -0.05，整体抬高闪避成功率
   - 判定结果在 `AttackBase.OnExecute` 中结算，反应提示仅展示成功或失败，不再显示当次成功率
   - 选择攻击目标时，`PlayerInput` 预先展示该次攻击对每个可攻击部位的闪避/格挡成功率，便于战前判断
   - 躯干与裆部格挡判定额外+0.35加成

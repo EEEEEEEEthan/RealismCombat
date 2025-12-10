@@ -32,9 +32,9 @@ public class StabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
 				if (TryGetWeaponLength(out var weaponLength))
 					heightGap = Math.Abs(heightGap - weaponLength);
-				if (heightGap >= 0.4) return 0.9;
+				if (heightGap >= 0.4) return 0.55;
 			}
-			return 0.35;
+			return 0.25;
 		}
 	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Thrust;

@@ -7,6 +7,20 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 {
 	public override CombatActionCode Id => CombatActionCode.Charge;
 	public override string Narrative => "用躯干蓄力撞击目标，造成特殊近战攻击";
+	public override IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
+	{
+		get
+		{
+			var target = this.target;
+			if (target == null) yield break;
+			foreach (var combatTarget in target.AvailableCombatTargets)
+				if (combatTarget is BodyPart { id: BodyPartCode.Torso, } torso)
+				{
+					yield return (torso, !torso.Available);
+					yield break;
+				}
+		}
+	}
 	public override double DodgeImpact
 	{
 		get
