@@ -363,7 +363,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 					await dialogue.ShowTextTask($"{target.name}反应+1");
 				}
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
-				await performHit(reactionOutcome.BlockTarget, dialogue);
+				await performHit(reactionOutcome.BlockTarget, dialogue, target);
 				// 如果用武器格挡，攻击方的部位需要承受武器基础伤害的一半
 				if (reactionOutcome.BlockTarget is Item item && (item.flag & ItemFlagCode.Arm) != 0)
 				{
@@ -396,13 +396,13 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				throw new ArgumentOutOfRangeException();
 		}
 	FALLBACK:
-		await performHit(targetObject, dialogue);
+		await performHit(targetObject, dialogue, target);
 		await OnAttackLanded(target, targetObject, dialogue);
 	END:
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - postCastActionPointCost);
 		actorNode.MoveTo(actorPosition);
 		return;
-		async Task performHit(ICombatTarget targetObject, GenericDialogue dialogue)
+		async Task performHit(ICombatTarget targetObject, GenericDialogue dialogue, Character? defender)
 		{
 			if (Damage.Total.RoundToInt() <= 0) return;
 			if (targetObject is not IItemContainer targetContainer) throw new InvalidOperationException("目标不支持受击处理");
@@ -410,10 +410,18 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			if (armors.Count <= 0)
 				switch (targetObject)
 				{
-					case BodyPart:
+					case BodyPart part:
 					{
 						await dialogue.ShowTextTask($"{targetObject.Name}没有任何防护，攻击硬生生打在了身上!");
-						await applyDamage(this.target!, targetObject, Damage, dialogue);
+						var bodyDamage = await applyDamage(this.target!, targetObject, Damage, dialogue);
+						if (defender != null && bodyDamage >= part.HitPoint.maxValue * 0.3)
+						{
+							if (defender.combatAction != null)
+							{
+								defender.combatAction = null;
+								await dialogue.ShowTextTask($"{defender.name}的行动被打断!");
+							}
+						}
 						return;
 					}
 					case Item item:
@@ -462,28 +470,44 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			await dialogue.ShowTextTask(string.Join("；", textBuilder));
 			// 计算伤害
 			var damage = Damage;
+			var totalBodyDamage = 0f;
 			var any = false;
 			for (var i = firstHit; i >= 0; i--)
 			{
 				var item = armors[i];
 				var slashToArmor = Math.Max(0f, damage.Slash - item.Protection.Slash);
-				any = any || await applyDamage(target, item, new(slashToArmor, 0f, 0f), dialogue);
+				var armorDamage = await applyDamage(target, item, new(slashToArmor, 0f, 0f), dialogue);
+				any = any || armorDamage > 0;
 				damage -= item.Protection;
 				if (damage.Total <= 0) break;
 			}
-			any = any || await applyDamage(target, targetObject, damage, dialogue);
+			var finalDamage = await applyDamage(target, targetObject, damage, dialogue);
+			any = any || finalDamage > 0;
+			if (targetObject is BodyPart bodyPart)
+			{
+				totalBodyDamage = finalDamage;
+				// 检查是否需要打断行动
+				if (defender != null && totalBodyDamage >= bodyPart.HitPoint.maxValue * 0.3)
+				{
+					if (defender.combatAction != null)
+					{
+						defender.combatAction = null;
+						await dialogue.ShowTextTask($"{defender.name}的行动被打断!");
+					}
+				}
+			}
 			// 对武器的伤害
 			if (actorWeapon != null)
 			{
-				any = any || await applyDamage(actor, actorWeapon, Damage - actorWeapon.Protection, dialogue);
+				var weaponDamage = await applyDamage(actor, actorWeapon, Damage - actorWeapon.Protection, dialogue);
+				any = any || weaponDamage > 0;
 			}
 			if (!any) await dialogue.ShowTextTask("没有造成伤害");
 		}
-		async Task<bool> applyDamage(Character character, ICombatTarget target, Damage damage, GenericDialogue dialogue)
+		async Task<float> applyDamage(Character character, ICombatTarget target, Damage damage, GenericDialogue dialogue)
 		{
-			var any = false;
 			var damageAmount = damage.Total.RoundToInt();
-			if (damageAmount <= 0) return any;
+			if (damageAmount <= 0) return 0f;
 			if (target is BodyPart bodyPart)
 			{
 				await Task.Delay(100);
@@ -501,7 +525,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 					bodyPart.Buffs[BuffCode.Bleeding] = new(BuffCode.Bleeding, source);
 					await dialogue.ShowTextTask($"{character.name}的{target.Name}开始流血!");
 				}
-				any = true;
+				return damageAmount;
 			}
 			else
 			{
@@ -510,7 +534,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				switch (rate)
 				{
 					case < 0.2f:
-						return any;
+						break;
 					case < 0.3f:
 						await dialogue.ShowTextTask($"{character.name}的{target.Name}受到了一些损伤");
 						break;
@@ -522,9 +546,8 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			if (target.HitPoint.value < 0)
 			{
 				await dialogue.ShowTextTask($"{target.Name}被击毁了!");
-				any = true;
 			}
-			return any;
+			return damageAmount;
 		}
 	}
 }
