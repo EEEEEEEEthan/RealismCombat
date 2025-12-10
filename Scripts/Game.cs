@@ -111,7 +111,7 @@ public class Game
 	{
 		this.saveFilePath = saveFilePath;
 		this.gameNode = gameNode ?? throw new ArgumentNullException(nameof(gameNode));
-		var snapshot = new Snapshot(reader);
+		_ = new Snapshot(reader);
 		players = ReadPlayers(reader);
 		ScriptIndex = (ScriptCode)reader.ReadInt32();
 #if DEBUG

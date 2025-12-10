@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 public class Character
 {
-	public const double BaseBodyWeight = 75.0;
-	public const double SpeedMinRatio = 1.0 / 3.0;
-	public const double SpeedLoadScale = 60.0;
+	public const double baseBodyWeight = 75.0;
+	public const double speedMinRatio = 1.0 / 3.0;
+	public const double speedLoadScale = 60.0;
 	public readonly PropertyInt speed;
 	public readonly PropertyDouble actionPoint;
 	public readonly string name;
@@ -28,10 +28,10 @@ public class Character
 	{
 		get
 		{
-			var totalWeight = Math.Max(TotalWeight, BaseBodyWeight);
-			var overload = totalWeight - BaseBodyWeight;
-			var decay = 1.0 / (1.0 + overload / SpeedLoadScale);
-			var ratio = SpeedMinRatio + (1.0 - SpeedMinRatio) * decay;
+			var totalWeight = Math.Max(TotalWeight, baseBodyWeight);
+			var overload = totalWeight - baseBodyWeight;
+			var decay = 1.0 / (1.0 + overload / speedLoadScale);
+			var ratio = speedMinRatio + (1.0 - speedMinRatio) * decay;
 			return speed.value * ratio;
 		}
 	}
@@ -39,7 +39,7 @@ public class Character
 	{
 		get
 		{
-			var total = BaseBodyWeight;
+			var total = baseBodyWeight;
 			foreach (var bodyPart in bodyParts) total += bodyPart.WeightRecursive;
 			return total;
 		}

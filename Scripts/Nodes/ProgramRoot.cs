@@ -8,7 +8,7 @@ using FileAccess = System.IO.FileAccess;
 /// </summary>
 public partial class ProgramRoot : Node
 {
-	const int SaveSlotCount = 7;
+	const int saveSlotCount = 7;
 	static string GetSaveFilePath(int slotIndex)
 	{
 		EnsureSaveDirectoryExists();
@@ -54,9 +54,9 @@ public partial class ProgramRoot : Node
 	{
 		while (true)
 		{
-			var options = new MenuOption[SaveSlotCount];
+			var options = new MenuOption[saveSlotCount];
 			var hasExisting = false;
-			for (var i = 0; i < SaveSlotCount; i++)
+			for (var i = 0; i < saveSlotCount; i++)
 			{
 				options[i] = CreateSaveSlotOption(i);
 				if (File.Exists(GetSaveFilePath(i))) hasExisting = true;
