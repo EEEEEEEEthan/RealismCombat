@@ -17,8 +17,9 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 		{
 			if (targetObject is BodyPart targetPart)
 			{
-				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
-				if (heightGap >= 0.4) return 0.95;
+				// 头槌攻击腿部或手臂时，目标闪避率大幅提高
+				if (targetPart.id.IsLeg) return 0.98;
+				if (targetPart.id.IsArm) return 0.95;
 			}
 			return 0.35;
 		}
@@ -29,8 +30,9 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 		{
 			if (targetObject is BodyPart targetPart)
 			{
-				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
-				if (heightGap >= 0.4) return 0.9;
+				// 头槌攻击腿部或手臂时，目标格挡率大幅提高
+				if (targetPart.id.IsLeg) return 0.95;
+				if (targetPart.id.IsArm) return 0.92;
 			}
 			return 0.35;
 		}
