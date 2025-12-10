@@ -170,6 +170,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			var blockChance = GameMath.Sigmoid(blockScore);
 			if (target is { } defender)
 			{
+				// 若角色任意部位有倒伏buff，则闪避成功率为0
+				var hasProneBuff = defender.bodyParts.Any(bp => bp.HasBuff(BuffCode.Prone, false));
+				if (hasProneBuff) dodgeChance = 0.0;
 				var legRestrained = defender.bodyParts.Any(bp => bp.id.IsLeg && !bp.Free);
 				if (legRestrained) dodgeChance /= 5.0;
 				var anyPartNotFree = defender.bodyParts.Any(bp => !bp.Free);
