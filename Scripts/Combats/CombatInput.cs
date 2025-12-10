@@ -128,13 +128,18 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 					break;
 				}
 				var actionOptions = actions
-					.Select(a => new MenuOption
+					.Select(a =>
 					{
-						title = a.name,
-						description = a.action is AttackBase attack
-							? $"{FormatDamage(attack.Damage)}\n{a.action.Description}"
-							: a.action.Description,
-						disabled = a.action.Disabled || a.action.DisabledByBuff,
+						var costText = $"行动力 前摇{a.action.preCastActionPointCost} 后摇{a.action.postCastActionPointCost}";
+						var description = a.action is AttackBase attack
+							? $"{FormatDamage(attack.Damage)}\n{costText}\n{a.action.Description}"
+							: $"{costText}\n{a.action.Description}";
+						return new MenuOption
+						{
+							title = a.name,
+							description = description,
+							disabled = a.action.Disabled || a.action.DisabledByBuff,
+						};
 					})
 					.ToArray();
 				var actionMenu = DialogueManager.CreateMenuDialogue(bodyPartTitle, true, actionOptions);
