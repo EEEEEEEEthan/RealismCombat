@@ -208,15 +208,12 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				_ => "攻击",
 			};
 			var menuTitle = $"{attackerText}对{defenderText}的{attackName}";
-			var blockDescription = "消耗1点反应, 选择身体或武器承受伤害";
-			if (defender.combatAction != null)
-				blockDescription += "\n使用当前行动部位格挡会打断自身行动";
 			var menu = DialogueManager.CreateMenuDialogue(
 				menuTitle,
 				new MenuOption
 				{
 					title = "格挡",
-					description = blockDescription,
+					description = defender.combatAction is null? "消耗1点反应, 选择身体或武器承受伤害": "消耗1点反应, 选择身体或武器承受伤害\n使用当前行动部位格挡会打断自身行动",
 					disabled = !reactionAvailable,
 				},
 				new MenuOption
@@ -228,7 +225,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				new MenuOption
 				{
 					title = "承受",
-					description = "不进行额外反应",
+					description = defender.combatAction is null? "不消耗反应, 直接承受伤害": "不消耗反应, 直接承受伤害\n高额伤害会打断当前行动",
 				}
 			);
 			var selected = await menu;
