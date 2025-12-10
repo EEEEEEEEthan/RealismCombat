@@ -83,12 +83,12 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		var cottonPants = Item.Create(ItemIdCode.CottonPants);
 		var chainChausses = Item.Create(ItemIdCode.ChainChausses);
 		hero.inventory.Items.Add(longSword);
-		hero.inventory.Items.Add(chainMail);
-		hero.inventory.Items.Add(chainChausses);
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
+		if (cottonLiner.Slots.Length > 0) cottonLiner.Slots[0].Item = chainMail;
 		if (belt.Slots.Length > 0) belt.Slots[0].Item = dagger;
 		if (hero.groin.Slots.Length > 0) hero.groin.Slots[0].Item = cottonPants;
+		if (cottonPants.Slots.Length > 0) cottonPants.Slots[0].Item = chainChausses;
 		hero.availableCombatActions.Clear();
 		hero.availableCombatActions[CombatActionCode.Slash] = 0f;
 		hero.availableCombatActions[CombatActionCode.Stab] = 0f;
@@ -170,16 +170,14 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 				while (true)
 				{
 					var readyForDeparture = players.Count > 0 &&
-						HasEquippedItem(players[0], ItemIdCode.LongSword) &&
-						HasEquippedItem(players[0], ItemIdCode.ChainMail) &&
-						HasEquippedItem(players[0], ItemIdCode.ChainChausses);
+						HasEquippedItem(players[0], ItemIdCode.LongSword);
 					var proceed = false;
 					var choice = await DialogueManager.CreateMenuDialogue(
 						"第一章 流浪",
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好长剑、链甲、链甲腿甲",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要把长剑装备在皮带上",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },

@@ -159,7 +159,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 		while (true)
 		{
 			var attack = attacker.combatAction as AttackBase;
-			var reactionChance = attack != null ? attack.ReactionChance : new(0.0, 0.0);
+			var reactionChance = attack?.ReactionChance ?? new(0.0, 0.0);
 			var blockChanceText = $"成功率 {FormatChance(reactionChance.BlockChance)}";
 			var dodgeChanceText = $"成功率 {FormatChance(reactionChance.DodgeChance)}";
 			var attackerText = $"{attacker.name}的攻击";
@@ -172,10 +172,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						.Select(slot => slot.Item)
 						.FirstOrDefault(item => item != null && (item.flag & ItemFlagCode.Arm) != 0)
 						?.Name;
-					if (!string.IsNullOrEmpty(weaponName))
-						attackerText = $"{attacker.name}{weaponName}";
-					else
-						attackerText = $"{attacker.name}{attack.ActorBodyPart.Name}";
+					attackerText = !string.IsNullOrEmpty(weaponName) ? $"{attacker.name}{weaponName}" : $"{attacker.name}{attack.ActorBodyPart.Name}";
 				}
 				else
 				{
@@ -229,13 +226,10 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						continue;
 					}
 					var options = blockTargets
-						.Select(t =>
+						.Select(t => new MenuOption
 						{
-							return new MenuOption
-							{
-								title = t is BodyPart bodyPart ? bodyPart.NameWithEquipments : t.Name,
-								description = BuildTargetDescription(t),
-							};
+							title = t is BodyPart bodyPart ? bodyPart.NameWithEquipments : t.Name,
+							description = BuildTargetDescription(t),
 						})
 						.ToArray();
 					var blockMenu = DialogueManager.CreateMenuDialogue("选择格挡目标", true, options);
@@ -496,15 +490,42 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 		ICombatTarget target
 	)
 	{
-		if (defender.reaction <= 0) return Task.FromResult(ReactionDecision.CreateEndure());
-		if (GD.Randf() < reactionEndureChance) return Task.FromResult(ReactionDecision.CreateEndure());
+		if (defender.reaction <= 0 || GD.Randf() < reactionEndureChance || attacker.combatAction is not AttackBase attack)
+			return Task.FromResult(ReactionDecision.CreateEndure());
+		var reactionChance = attack.ReactionChance;
+		var originalExpected = AttackBase.CalculateExpectedBodyDamage(attack.Damage, target);
+		var options = new List<(ReactionDecision decision, double expectedDamage)>
+		{
+			(ReactionDecision.CreateDodge(), (1d - reactionChance.DodgeChance) * originalExpected),
+		};
 		var blockTargets = GetBlockTargets(defender);
-		if (blockTargets.Length == 0) return Task.FromResult(ReactionDecision.CreateEndure());
-		var itemTargets = blockTargets.Where(t => t is Item).ToArray();
-		var candidateTargets = itemTargets.Length > 0 ? itemTargets : blockTargets;
-		var randomValue = GD.Randi();
-		var index = (int)(randomValue % (uint)candidateTargets.Length);
-		return Task.FromResult(ReactionDecision.CreateBlock(candidateTargets[index]));
+		foreach (var blockTarget in blockTargets)
+		{
+			if (target is BodyPart { id: BodyPartCode.Head, } &&
+				blockTarget is BodyPart { id: { IsLeg: true, }, })
+				continue;
+			var blockExpected = AttackBase.CalculateExpectedBodyDamage(attack.Damage, blockTarget);
+			var expectedDamage = reactionChance.BlockChance * blockExpected + (1d - reactionChance.BlockChance) * originalExpected;
+			options.Add((ReactionDecision.CreateBlock(blockTarget), expectedDamage));
+		}
+		if (options.Count == 0) return Task.FromResult(ReactionDecision.CreateEndure());
+		var zeroExpected = options.Where(pair => pair.expectedDamage <= 0d).ToArray();
+		if (zeroExpected.Length > 0)
+		{
+			var zeroIndex = (int)(GD.Randi() % (uint)zeroExpected.Length);
+			return Task.FromResult(zeroExpected[zeroIndex].decision);
+		}
+		var totalWeight = options.Sum(pair => getWeight(pair.expectedDamage));
+		if (totalWeight <= 0d || double.IsInfinity(totalWeight) || double.IsNaN(totalWeight)) return Task.FromResult(ReactionDecision.CreateEndure());
+		var randomValue = GD.Randf() * totalWeight;
+		foreach (var option in options)
+		{
+			var weight = getWeight(option.expectedDamage);
+			if (randomValue <= weight) return Task.FromResult(option.decision);
+			randomValue -= weight;
+		}
+		return Task.FromResult(options.First().decision);
+		double getWeight(double expectedDamage) => expectedDamage <= 0d ? 1 : 1d / Mathf.Pow(expectedDamage, 3);
 	}
 	bool TryPrepareAIAction(CombatAction action) =>
 		action switch
