@@ -120,7 +120,7 @@ public class BodyPart : ICombatTarget, IItemContainer
 			var parts = new List<string> { Name, };
 			var equippedItems = new List<Item>();
 			CollectItemsRecursive(this, equippedItems);
-			foreach (var item in equippedItems) parts.Add(item.IconTag);
+			foreach (var item in equippedItems) parts.Add(item.BbCodeIcon);
 			return string.Concat(parts);
 		}
 	}

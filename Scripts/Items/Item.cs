@@ -56,7 +56,7 @@ public class Item : ICombatTarget, IItemContainer
 	/// </summary>
 	public string Description { get; }
 	public string Icon { get; }
-	public string IconTag => $"[img=8x8]{Icon}[/img]";
+	public string BbCodeIcon => $"[img=8x8]{Icon}[/img]";
 	public ItemSlot[] Slots { get; }
 	public PropertyInt HitPoint { get; }
 	public double Length { get; }

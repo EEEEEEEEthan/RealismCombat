@@ -37,7 +37,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		{
 			var childItem = childSlot.Item;
 			if (childItem == null) continue;
-			parts.Add(childItem.IconTag);
+			parts.Add(childItem.BbCodeIcon);
 		}
 		return string.Concat(parts);
 	}
@@ -54,7 +54,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 			var item = inventoryItems[i];
 			if (!CanEquip(item, slot)) continue;
 			indices.Add(i);
-			optionList.Add(new() { title = $"{item.IconTag}{item.Name}", description = FormatItemDescription(item), });
+			optionList.Add(new() { title = $"{item.BbCodeIcon}{item.Name}", description = FormatItemDescription(item), });
 		}
 		options = optionList.ToArray();
 		return options.Length > 0;
