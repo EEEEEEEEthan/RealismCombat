@@ -27,7 +27,7 @@ public static class BodyPartExtensions
 		public string Name =>
 			@this switch
 			{
-				BodyPartCode.Head => "头部",
+				BodyPartCode.Head => "头颈",
 				BodyPartCode.LeftArm => "左臂",
 				BodyPartCode.RightArm => "右臂",
 				BodyPartCode.Torso => "躯干",

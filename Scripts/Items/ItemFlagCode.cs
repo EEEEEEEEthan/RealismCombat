@@ -31,15 +31,15 @@ public enum ItemFlagCode
 	/// </summary>
 	TorsoArmorOuter = 1 << 6,
 	/// <summary>
-	///     头部内层护甲
+	///     头颈内层护甲
 	/// </summary>
 	HeadArmor = 1 << 9,
 	/// <summary>
-	///     头部中层护甲
+	///     头颈中层护甲
 	/// </summary>
 	HeadArmorMiddle = 1 << 10,
 	/// <summary>
-	///     头部外层护甲
+	///     头颈外层护甲
 	/// </summary>
 	HeadArmorOuter = 1 << 11,
 	/// <summary>

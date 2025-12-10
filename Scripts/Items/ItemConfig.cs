@@ -216,7 +216,7 @@ public readonly struct ItemConfig
 			new()
 			{
 				Name = "链甲头套",
-				Story = "细密铁环编织的头套,覆盖头部与颈部",
+				Story = "细密铁环编织的头套,覆盖头颈部",
 				Flag = ItemFlagCode.HeadArmorMiddle,
 				SlotFlags = [ItemFlagCode.HeadArmorOuter,],
 				Length = 28.0,

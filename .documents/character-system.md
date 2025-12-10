@@ -21,7 +21,7 @@
 #### 身体部位
 
 角色包含六个 `BodyPart` 实例：
-- `head`：头部（`BodyPartCode.Head`），拥有 `HeadArmor` 槽
+- `head`：头颈（`BodyPartCode.Head`），拥有 `HeadArmor` 槽
 - `leftArm`：左臂（`BodyPartCode.LeftArm`），拥有 `HandArmor` 与 `Arm` 槽
 - `rightArm`：右臂（`BodyPartCode.RightArm`），拥有 `HandArmor` 与 `Arm` 槽
 - `torso`：躯干（`BodyPartCode.Torso`），拥有 `TorsoArmor` 与 `Belt` 槽
@@ -32,7 +32,7 @@
 
 #### 存活判断
 
-- `bool IsAlive`：角色被视为存活的条件是头部与躯干仍可用
+- `bool IsAlive`：角色被视为存活的条件是头颈与躯干仍可用
 - 当 `head.Available && torso.Available` 为 `true` 时角色存活
 
 #### 构造与序列化
@@ -51,7 +51,7 @@
 
 - `BodyPartCode id`：身体部位的标识
 - `PropertyInt HitPoint`：生命值属性，不同部位的最大值不同：
-  - 头部（`Head`）：最大值为 5
+  - 头颈（`Head`）：最大值为 5
   - 左臂、右臂（`LeftArm`、`RightArm`）：最大值为 8
   - 左腿、右腿（`LeftLeg`、`RightLeg`）：最大值为 8
   - 躯干（`Torso`）：最大值为 10
@@ -68,7 +68,7 @@
 #### 扩展方法
 
 `BodyPartExtensions.GetName(this BodyPart bodyPart)` 提供中文显示名称：
-- `Head` → "头部"
+- `Head` → "头颈"
 - `LeftArm` → "左臂"
 - `RightArm` → "右臂"
 - `Torso` → "躯干"
@@ -79,7 +79,7 @@
 
 `BodyPartCode` 定义身体部位的标识，位于 `Scripts/Characters/BodyPart.cs`：
 
-- `Head`：头部
+- `Head`：头颈
 - `LeftArm`：左臂
 - `RightArm`：右臂
 - `Torso`：躯干
@@ -104,7 +104,7 @@
 - 每个身体部位拥有独立的生命值 `HitPoint`
 - 当部位受到伤害时，生命值会减少
 - 当生命值为 0 时，部位的 `Available` 属性返回 `false`
-- 头部或躯干不可用时，角色被视为死亡
+- 头颈或躯干不可用时，角色被视为死亡
 
 ### 行动点系统
 
@@ -123,7 +123,7 @@
 ### 装备挂载
 
 - 身体部位通过 `Slots` 管理装备：
-  - 头部：`HeadArmor`
+  - 头颈：`HeadArmor`
   - 躯干：`TorsoArmor`、`Belt`
   - 左/右臂：`HandArmor`、`Arm`
   - 左/右腿：`FootArmor`
@@ -183,7 +183,7 @@
 
 ### 修改存活条件
 
-- 当前存活条件为头部与躯干必须可用
+- 当前存活条件为头颈与躯干必须可用
 - 如需修改，调整 `Character.IsAlive` 属性的实现逻辑
 
 ### 自定义身体部位装备槽

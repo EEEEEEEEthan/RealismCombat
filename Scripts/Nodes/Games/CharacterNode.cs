@@ -140,7 +140,7 @@ public partial class CharacterNode : Control
 		base._Ready();
 		actionPointNode = GetOrCreatePropertyNode("ActionPoint", "行动");
 		hitPointNode = GetOrCreatePropertyNode("HitPointOverview", "生命");
-		headHitPointNode = GetOrCreatePropertyNode("HeadHitPoint", "头部");
+		headHitPointNode = GetOrCreatePropertyNode("HeadHitPoint", "头颈");
 		leftArmHitPointNode = GetOrCreatePropertyNode("LeftArmHitPoint", "左臂");
 		rightArmHitPointNode = GetOrCreatePropertyNode("RightArmHitPoint", "右臂");
 		torsoHitPointNode = GetOrCreatePropertyNode("TorsoHitPoint", "躯干");
