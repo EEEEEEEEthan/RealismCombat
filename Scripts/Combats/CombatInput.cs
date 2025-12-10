@@ -438,6 +438,19 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 	{
 		var actions = new Dictionary<CombatAction, double>();
 		{
+			// 检查是否处于倒伏状态，如果是则优先尝试爬起
+			var hasProneBuff = character.bodyParts.Any(part => part.HasBuff(BuffCode.Prone, false));
+			if (hasProneBuff)
+			{
+				foreach (var arm in character.bodyParts.Where(bp => bp.id.IsArm))
+				{
+					var getUpAction = new GetUpAction(character, arm, combat);
+					if (getUpAction.CanUse)
+					{
+						actions[getUpAction] = 100d; // 倒伏时爬起的优先级最高
+					}
+				}
+			}
 			void AddAttackOptions(Func<BodyPart, AttackBase> factory)
 			{
 				foreach (var bodyPart in character.bodyParts)
