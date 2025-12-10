@@ -82,6 +82,10 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 				await dialogue.ShowTextTask($"{targetCharacter.name}失去平衡倒下了!");
 			}
 		}
+		else
+		{
+			await dialogue.ShowTextTask($"{targetCharacter.name}岿然不动!");
+		}
 	}
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id: BodyPartCode.Torso, };
 }
