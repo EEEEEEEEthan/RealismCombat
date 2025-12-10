@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 public abstract class CombatAction(Character actor, Combat combat, ICombatTarget actorObject, double preCastActionPointCost, double postCastActionPointCost)
 {
@@ -18,10 +19,19 @@ public abstract class CombatAction(Character actor, Combat combat, ICombatTarget
 	/// <summary>
 	///     由Buff导致的禁用
 	/// </summary>
-	public virtual bool DisabledByBuff =>
-		actorObject is BodyPart bodyPart &&
-		((bodyPart.HasBuff(BuffCode.Restrained, true) && this is not BreakFreeAction) ||
-		(bodyPart.HasBuff(BuffCode.Grappling, true) && this is not ReleaseAction));
+	public virtual bool DisabledByBuff
+	{
+		get
+		{
+			// 倒伏状态下，只能使用爬起动作
+			if (this is not GetUpAction && actor.bodyParts.Any(part => part.HasBuff(BuffCode.Prone, false)))
+				return true;
+			if (actorObject is not BodyPart bodyPart) return false;
+			if (bodyPart.HasBuff(BuffCode.Restrained, true) && this is not BreakFreeAction) return true;
+			if (bodyPart.HasBuff(BuffCode.Grappling, true) && this is not ReleaseAction) return true;
+			return false;
+		}
+	}
 	public bool CanUse => Visible && !Disabled && !DisabledByBuff;
 	/// <summary>
 	///     检查使用指定目标格挡是否会打断此行动
