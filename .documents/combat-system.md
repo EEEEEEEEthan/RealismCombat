@@ -77,7 +77,7 @@
   - `KickAttack`（Special 特殊）：只允许腿使用
   - `HeadbuttAttack`（Special 特殊）：只允许头使用
   - `ChargeAttack`（Special 特殊）：只允许躯干使用
-  - `GrabAttack`（抓取）：只允许没有武器的手臂使用，不造成伤害，主要用于施加束缚和擒拿 buff
+- `GrabAttack`（抓取）：只允许没有武器的手臂使用，不造成伤害，主要用于施加束缚和擒拿 buff，闪避/格挡倾向提高（基础 0.85/0.65，高差≥0.4 时 0.98/0.95）
 - `GetAvailableAttacks()` 方法会根据身体部位返回所有可用的攻击类型列表
 
 ## 其他行动

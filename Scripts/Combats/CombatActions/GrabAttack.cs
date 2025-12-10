@@ -18,9 +18,9 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 			if (targetObject is BodyPart targetPart)
 			{
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
-				if (heightGap >= 0.4) return 0.95;
+				if (heightGap >= 0.4) return 0.98;
 			}
-			return 0.7;
+			return 0.85;
 		}
 	}
 	public override double BlockImpact
@@ -30,9 +30,9 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 			if (targetObject is BodyPart targetPart)
 			{
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
-				if (heightGap >= 0.4) return 0.9;
+				if (heightGap >= 0.4) return 0.95;
 			}
-			return 0.25;
+			return 0.65;
 		}
 	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
