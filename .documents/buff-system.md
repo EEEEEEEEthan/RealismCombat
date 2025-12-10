@@ -65,6 +65,11 @@ if (bodyPart.HasBuff(BuffCode.Grappling)) {
 - 实现位置：`Scripts/Combats/CombatActions/CombatAction.cs` 中的 `DisabledByBuff` 属性
 - 检查逻辑：遍历角色所有身体部位，只要有任意部位存在倒伏 Buff，且当前行动不是 `GetUpAction`，则禁用该行动
 - 倒伏状态通过 `GetUpAction` 解除，该行动会清除角色所有身体部位上的倒伏 Buff
+- 倒伏状态的文字提示：
+  - 躯干撞击腿部时：攻击者必定获得倒伏，显示"[角色名]撞击腿部导致自己失去平衡倒下了!"（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
+  - 躯干撞击命中时：目标角色按重量比概率倒伏，显示"[角色名]失去平衡倒下了!"（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
+  - 头槌腿部时：攻击者必定倒伏，显示"[角色名]头槌腿部导致自己失去平衡倒下了!"（`Scripts/Combats/CombatActions/HeadbuttAttack.cs`）
+  - 头槌手臂或躯干时：目标按重量比概率倒伏，显示"[角色名]被头槌撞倒了!"（`Scripts/Combats/CombatActions/HeadbuttAttack.cs`）
 
 ### 束缚 (Restrained)
 
@@ -83,6 +88,8 @@ if (bodyPart.HasBuff(BuffCode.Grappling)) {
 - 每 5 个 tick，对存在流血 Buff 的角色随机选择一个身体部位，令其生命值 -1
 - 角色任意部位有流血 Buff 时，角色节点会播放流血动画
 - 身体部位受到砍伤时必定造成流血，受到刺伤时 50% 概率造成流血
+- 当身体部位首次获得流血 Buff 时，会显示文字提示："[角色名]的[部位名]开始流血!"
+  - 实现位置：`Scripts/Combats/CombatActions/AttackBase.cs` 中的伤害处理逻辑
 
 ## 设计注意
 
