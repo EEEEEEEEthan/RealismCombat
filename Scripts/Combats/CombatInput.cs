@@ -498,12 +498,12 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 				if (!releaseAction.CanUse) continue;
 				actions[releaseAction] = 50d;
 			}
-			// 招架动作，AI使用较低权重，只能用腿
+			// 招架动作，AI使用极低权重，只能用腿
 			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsLeg))
 			{
 				var parryAction = new ParryAction(character, bodyPart, combat);
 				if (!parryAction.CanUse) continue;
-				actions[parryAction] = 5d; // 较低权重
+				actions[parryAction] = 0.5d; // 极低权重
 			}
 		}
 		// actions里选取权重最高的

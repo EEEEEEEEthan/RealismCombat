@@ -396,13 +396,13 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				var shouldBleed =
 					(damage.Slash > 0f) ||
 					(damage.Pierce > 0f && GD.Randf() < 0.5f);
+				await dialogue.ShowTextTask($"{character.name}的{target.Name}受到{damageAmount}点伤害");
 				if (shouldBleed && !bodyPart.HasBuff(BuffCode.Bleeding, false))
 				{
 					var source = new BuffSource(actor, actorBodyPart);
 					bodyPart.Buffs[BuffCode.Bleeding] = new(BuffCode.Bleeding, source);
 					await dialogue.ShowTextTask($"{character.name}的{target.Name}开始流血!");
 				}
-				await dialogue.ShowTextTask($"{character.name}的{target.Name}受到{damageAmount}点伤害");
 				any = true;
 			}
 			else
