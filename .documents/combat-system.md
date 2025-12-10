@@ -113,7 +113,7 @@
 - 角色每回合开始时会将 `reaction` 重置为 1
 - 闪避与格挡成功率：
   - 由 `AttackBase.ReactionChance` 属性即时计算，使用局部常量结合 `GameMath.ScaleToRange` 与 `GameMath.Sigmoid`
-  - `ReactionSuccessCalculator` 仅保留 `ReactionChance` 与 `ReactionOutcome` 数据结构
+  - `ReactionSuccessCalculator` 仅保留 `ReactionChance` 与 `ReactionOutcome` 数据结构，`ReactionOutcome.BlockTarget` 始终有值；非格挡时回退为原受击目标，格挡时为所选格挡目标
   - 由 `ReactionSuccessCalculator` 以 sigmoid 公式计算，输入包含武器长度(0~2归一)降低闪避、提高格挡；武器重量(0~2归一)同时提高闪避与格挡；动作自带闪避/格挡影响系数(0~1)；防守方体重70加装备重量越大成功率越低；徒手攻击附加惩罚
   - 闪避基准偏置从 -0.15 提升到 -0.05，整体抬高闪避成功率
   - 判定结果在 `AttackBase.OnExecute` 中结算，反应提示仅展示成功或失败，不再显示当次成功率

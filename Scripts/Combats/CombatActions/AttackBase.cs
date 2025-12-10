@@ -207,7 +207,12 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			ReactionTypeCode.Dodge or ReactionTypeCode.Block => GD.Randf() < selectedChance,
 			_ => false,
 		};
-		var reactionOutcome = new ReactionOutcome(reaction.type, reaction.blockTarget, success, selectedChance);
+		var blockTarget = reaction.type switch
+		{
+			ReactionTypeCode.Block => reaction.blockTarget ?? throw new InvalidOperationException("格挡结果缺少目标"),
+			_ => targetObject,
+		};
+		var reactionOutcome = new ReactionOutcome(reaction.type, blockTarget, success, selectedChance);
 		var hitPosition = combat.combatNode.GetHitPosition(actor);
 		actorNode.MoveTo(hitPosition);
 		using var _____ = DialogueManager.CreateGenericDialogue(out var dialogue);
@@ -234,9 +239,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				await Task.Delay(100);
 				targetNode.MoveTo(targetPosition);
 				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
-				await dialogue.ShowTextTask($"{target.name}使用{reaction.blockTarget!.Name}挡住了攻击");
+				await dialogue.ShowTextTask($"{target.name}使用{reactionOutcome.BlockTarget.Name}挡住了攻击");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
-				await performHit(reactionOutcome.BlockTarget!, dialogue);
+				await performHit(reactionOutcome.BlockTarget, dialogue);
 				goto END;
 			}
 			case ReactionTypeCode.Block:

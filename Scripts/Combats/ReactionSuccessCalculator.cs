@@ -17,20 +17,20 @@ public readonly struct ReactionChance(double dodgeChance, double blockChance)
 /// <summary>
 ///     反应结算结果
 /// </summary>
-public readonly struct ReactionOutcome(ReactionTypeCode type, ICombatTarget? blockTarget, bool succeeded, double successChance)
+public readonly struct ReactionOutcome(ReactionTypeCode type, ICombatTarget blockTarget, bool succeeded, double successChance)
 {
 	/// <summary>
 	///     反应类型
 	/// </summary>
 	public ReactionTypeCode Type { get; } = type;
 	/// <summary>
-	///     成功格挡时使用的目标
+	///     成功格挡时使用的目标，其他反应类型时回退为原受击目标
 	/// </summary>
-	public ICombatTarget? BlockTarget { get; } = blockTarget;
+	public ICombatTarget BlockTarget { get; } = blockTarget ?? throw new ArgumentNullException(nameof(blockTarget));
 	/// <summary>
 	///     是否成功
 	/// </summary>
-	public bool Succeeded { get; } = succeeded; // todo: 删掉。BlockTarget != null 就表示成功格挡了
+	public bool Succeeded { get; } = succeeded;
 	/// <summary>
 	///     本次判定的成功率
 	/// </summary>
