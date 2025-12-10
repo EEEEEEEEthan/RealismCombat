@@ -167,14 +167,22 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				(isUnarmedAttack ? unarmedBlockShift : 0.0) +
 				blockTargetBonus;
 			var dodgeChance = GameMath.Sigmoid(dodgeScore);
+			var blockChance = GameMath.Sigmoid(blockScore);
 			if (target is { } defender)
 			{
 				var legRestrained = defender.bodyParts.Any(bp => bp.id.IsLeg && !bp.Free);
 				if (legRestrained) dodgeChance /= 5.0;
+				var anyPartNotFree = defender.bodyParts.Any(bp => !bp.Free);
+				if (anyPartNotFree)
+				{
+					// 若角色任意部位被束缚/非 Free，则闪避与格挡成功率下降到原来的1/3
+					dodgeChance /= 3.0;
+					blockChance /= 3.0;
+				}
 			}
 			return new(
 				dodgeChance,
-				GameMath.Sigmoid(blockScore)
+				blockChance
 			);
 		}
 	}
