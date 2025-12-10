@@ -269,16 +269,22 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 					player.actionPoint.value = weapon == null
 						? player.actionPoint.maxValue / 2
 						: player.actionPoint.maxValue;
-					var enemy = new Character("贵族兵");
-					var enemyCottonLiner = Item.Create(ItemIdCode.CottonLiner);
-					var enemyChainMail = Item.Create(ItemIdCode.ChainMail);
-					if (enemy.torso.Slots.Length > 0)
-					{
-						enemy.torso.Slots[0].Item = enemyCottonLiner;
-						if (enemyCottonLiner.Slots.Length > 0) enemyCottonLiner.Slots[0].Item = enemyChainMail;
-					}
-					if (enemy.rightArm.Slots.Length > 1) enemy.rightArm.Slots[1].Item = Item.Create(ItemIdCode.LongSword);
-					enemy.actionPoint.value = 7;
+				var enemy = new Character("贵族兵");
+				var enemyCottonLiner = Item.Create(ItemIdCode.CottonLiner);
+				var enemyChainMail = Item.Create(ItemIdCode.ChainMail);
+				var enemyBelt = Item.Create(ItemIdCode.Belt);
+				var enemyLongSword = Item.Create(ItemIdCode.LongSword);
+				if (enemy.torso.Slots.Length > 0)
+				{
+					enemy.torso.Slots[0].Item = enemyCottonLiner;
+					if (enemyCottonLiner.Slots.Length > 0) enemyCottonLiner.Slots[0].Item = enemyChainMail;
+				}
+				if (enemy.torso.Slots.Length > 1)
+				{
+					enemy.torso.Slots[1].Item = enemyBelt;
+					if (enemyBelt.Slots.Length > 0) enemyBelt.Slots[0].Item = enemyLongSword;
+				}
+				enemy.actionPoint.value = 7;
 					enemy.availableCombatActions.Clear();
 					enemy.availableCombatActions[CombatActionCode.Slash] = 0f;
 					enemy.availableCombatActions[CombatActionCode.Headbutt] = 0f;
