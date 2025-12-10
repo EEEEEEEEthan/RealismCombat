@@ -258,6 +258,12 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				targetNode.MoveTo(targetPosition);
 				AudioManager.PlaySfx(ResourceTable.blockSound, 6f);
 				await dialogue.ShowTextTask($"{target.name}使用{reactionOutcome.BlockTarget.Name}挡住了攻击");
+				// 如果防御者正在执行招架动作，格挡成功时+1反应
+				if (target.combatAction is ParryAction)
+				{
+					target.reaction += 1;
+					await dialogue.ShowTextTask($"{target.name}反应+1");
+				}
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				await performHit(reactionOutcome.BlockTarget, dialogue);
 				// 如果用武器格挡，攻击方的部位需要承受武器基础伤害的一半

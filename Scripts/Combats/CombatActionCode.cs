@@ -14,5 +14,6 @@ public enum CombatActionCode
 	TakeWeapon,
 	PickWeapon,
 	GetUp,
+	Parry,
 	Execution,
 }

@@ -71,6 +71,7 @@ public abstract class CombatInput(Combat combat)
 		TryAdd(CombatActionCode.TakeWeapon, "拿", () => new TakeWeaponAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.PickWeapon, "捡", () => new PickWeaponAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.GetUp, "爬起", () => new GetUpAction(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.Parry, "招架", () => new ParryAction(actor, bodyPart, combat));
 #if DEBUG
 		TryAdd(CombatActionCode.Execution, "(测试)处决", () => new ExecutionAction(actor, bodyPart, combat));
 #endif
@@ -496,6 +497,13 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 				var releaseAction = new ReleaseAction(character, bodyPart, combat);
 				if (!releaseAction.CanUse) continue;
 				actions[releaseAction] = 50d;
+			}
+			// 招架动作，AI使用较低权重，只能用腿
+			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsLeg))
+			{
+				var parryAction = new ParryAction(character, bodyPart, combat);
+				if (!parryAction.CanUse) continue;
+				actions[parryAction] = 5d; // 较低权重
 			}
 		}
 		// actions里选取权重最高的
