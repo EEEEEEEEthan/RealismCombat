@@ -202,7 +202,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				_ => "攻击",
 			};
 			var menuTitle = $"{attackerText}对{defenderText}的{attackName}";
-			var blockDescription = $"{blockChanceText}\n消耗1点反应, 选择身体或武器承受伤害";
+			var blockDescription = "消耗1点反应, 选择身体或武器承受伤害";
 			if (defender.combatAction != null)
 				blockDescription += "\n使用当前行动部位格挡会打断自身行动";
 			var menu = DialogueManager.CreateMenuDialogue(
@@ -241,10 +241,10 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 						.Select(t => new MenuOption
 						{
 							title = t is BodyPart bodyPart ? bodyPart.NameWithEquipments : t.Name,
-							description = BuildTargetDescription(t),
+							description = $"{blockChanceText}\n{BuildTargetDescription(t)}",
 						})
 						.ToArray();
-					var blockMenu = DialogueManager.CreateMenuDialogue("选择格挡目标", true, options);
+					var blockMenu = DialogueManager.CreateMenuDialogue("用指定部位进行格挡", true, options);
 					var blockIndex = await blockMenu;
 					if (blockIndex == options.Length) continue;
 					return ReactionDecision.CreateBlock(blockTargets[blockIndex]);
