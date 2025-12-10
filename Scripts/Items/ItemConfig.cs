@@ -106,7 +106,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
 				Coverage = 0.9,
-				Icon = ResourceTable.itemIcon2Path,
+				Icon = ResourceTable.itemIcon9Path,
 			}
 		},
 		{
@@ -123,7 +123,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(3f, 1f, 0f),
 				Coverage = 0.85,
-				Icon = ResourceTable.itemIcon3Path,
+				Icon = ResourceTable.itemIcon9Path,
 			}
 		},
 		{
@@ -263,7 +263,7 @@ public readonly struct ItemConfig
 				),
 				Protection = new(2f, 2f, 1f),
 				Coverage = 0.0,
-				Icon = ResourceTable.itemIcon1Path,
+				Icon = ResourceTable.itemIcon10Path,
 			}
 		},
 		{

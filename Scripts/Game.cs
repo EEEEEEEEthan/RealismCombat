@@ -81,10 +81,12 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		var chainMail = Item.Create(ItemIdCode.ChainMail);
 		var belt = Item.Create(ItemIdCode.Belt);
 		var leatherGloves = Item.Create(ItemIdCode.LeatherGloves);
+		var leatherGloves2 = Item.Create(ItemIdCode.LeatherGloves);
 		hero.inventory.Items.Add(longSword);
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
 		if (hero.leftArm.Slots.Length > 0) hero.leftArm.Slots[0].Item = leatherGloves;
+		if (hero.rightArm.Slots.Length > 0) hero.rightArm.Slots[0].Item = leatherGloves2;
 		if (cottonLiner.Slots.Length > 0) cottonLiner.Slots[0].Item = chainMail;
 		if (belt.Slots.Length > 0) belt.Slots[0].Item = dagger;
 		hero.availableCombatActions.Clear();
@@ -251,7 +253,11 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 							weapon = selected.Slot.Item;
 							if (weapon != null)
 							{
-								emptyHandSlot.Value.slot.Item = weapon;
+								// 优先装备在右手
+								var targetSlot = player.rightArm.Slots.Length > 1 && player.rightArm.Slots[1].Item == null 
+									? player.rightArm.Slots[1] 
+									: emptyHandSlot.Value.slot;
+								targetSlot.Item = weapon;
 								selected.Slot.Item = null;
 							}
 						}

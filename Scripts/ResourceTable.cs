@@ -19,6 +19,8 @@ public static class ResourceTable
 	public const string itemIcon6Path = "res://Textures/Items/Icons6.png";
 	public const string itemIcon7Path = "res://Textures/Items/Icons7.png";
 	public const string itemIcon8Path = "res://Textures/Items/Icons8.png";
+	public const string itemIcon9Path = "res://Textures/Items/Icons9.png";
+	public const string itemIcon10Path = "res://Textures/Items/Icons10.png";
 	public static readonly Loader<Texture2D> icon8 = new("res://Textures/Icon8.png");
 	public static readonly Loader<Texture2D> bleeding = new("res://Textures/AnimationBleeding.png");
 	public static readonly Loader<AudioStream> typingSound = new("res://Audios/gameboy-pluck-41265.mp3");
