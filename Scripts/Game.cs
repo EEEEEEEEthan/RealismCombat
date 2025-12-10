@@ -80,15 +80,18 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		var cottonLiner = Item.Create(ItemIdCode.CottonLiner);
 		var chainMail = Item.Create(ItemIdCode.ChainMail);
 		var belt = Item.Create(ItemIdCode.Belt);
+		var leatherGloves = Item.Create(ItemIdCode.LeatherGloves);
 		hero.inventory.Items.Add(longSword);
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
+		if (hero.leftArm.Slots.Length > 0) hero.leftArm.Slots[0].Item = leatherGloves;
 		if (cottonLiner.Slots.Length > 0) cottonLiner.Slots[0].Item = chainMail;
 		if (belt.Slots.Length > 0) belt.Slots[0].Item = dagger;
 		hero.availableCombatActions.Clear();
 		hero.availableCombatActions[CombatActionCode.Slash] = 0f;
 		hero.availableCombatActions[CombatActionCode.Headbutt] = 0f;
 		hero.availableCombatActions[CombatActionCode.Stab] = 0f;
+		hero.availableCombatActions[CombatActionCode.HalfSword] = 0f;
 		hero.availableCombatActions[CombatActionCode.Grab] = 0f;
 		hero.availableCombatActions[CombatActionCode.BreakFree] = 0f;
 		hero.availableCombatActions[CombatActionCode.Release] = 0f;

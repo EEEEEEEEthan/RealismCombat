@@ -62,6 +62,7 @@ public abstract class CombatInput(Combat combat)
 		}
 		TryAdd(CombatActionCode.Slash, "斩击", () => new SlashAttack(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.Stab, "刺击", () => new StabAttack(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.HalfSword, "半剑式", () => new HalfSwordAttack(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.Kick, "踢", () => new KickAttack(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.Headbutt, "头槌", () => new HeadbuttAttack(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.Charge, "撞击", () => new ChargeAttack(actor, bodyPart, combat));
@@ -196,6 +197,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 			{
 				CombatActionCode.Slash => "斩击",
 				CombatActionCode.Stab => "刺击",
+				CombatActionCode.HalfSword => "半剑式",
 				CombatActionCode.Kick => "踢",
 				CombatActionCode.Headbutt => "头槌",
 				CombatActionCode.Charge => "撞击",
@@ -479,6 +481,7 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 			}
 			AddAttackOptions(bodyPart => new SlashAttack(character, bodyPart, combat));
 			AddAttackOptions(bodyPart => new StabAttack(character, bodyPart, combat));
+			AddAttackOptions(bodyPart => new HalfSwordAttack(character, bodyPart, combat));
 			AddAttackOptions(bodyPart => new KickAttack(character, bodyPart, combat));
 			AddAttackOptions(bodyPart => new HeadbuttAttack(character, bodyPart, combat));
 			AddAttackOptions(bodyPart => new ChargeAttack(character, bodyPart, combat));

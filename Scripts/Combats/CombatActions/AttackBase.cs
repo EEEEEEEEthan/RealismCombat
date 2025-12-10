@@ -118,6 +118,10 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public abstract double BlockImpact { get; }
 	public abstract AttackTypeCode AttackType { get; }
 	public virtual bool UsesWeapon => false;
+	/// <summary>
+	///     盔甲缝隙系数，Coverage会被power处理。默认1.0，半剑式为2.0
+	/// </summary>
+	public virtual double ArmorGapPower => 1.0;
 	public abstract string? PreCastText { get; }
 	public abstract string CastText { get; }
 	/// <summary>
@@ -334,7 +338,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				}
 			var hits = new bool[armors.Count];
 			for (var i = 0; i < hits.Length; i++)
-				if (GD.Randf() < armors[i].Coverage)
+				if (GD.Randf() < Math.Pow(armors[i].Coverage, ArmorGapPower))
 					hits[i] = true;
 				else
 					break;

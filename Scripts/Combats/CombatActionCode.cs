@@ -5,6 +5,7 @@ public enum CombatActionCode
 {
 	Slash,
 	Stab,
+	HalfSword,
 	Kick,
 	Headbutt,
 	Charge,
