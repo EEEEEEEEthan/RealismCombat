@@ -24,7 +24,7 @@ public class Game
 	/// <summary>
 	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
 	/// </summary>
-	static string FormatItemDescription(Item item) => $"{item.flag.DisplayName}\n{item.Description}";
+static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{item.Description}";
 	/// <summary>
 	///     获取槽位标题: 空为#空, 有装备时附带其子装备
 	/// </summary>
@@ -177,7 +177,7 @@ public class Game
 						new MenuOption
 						{
 							title = "走吧...",
-							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好长剑、链甲、链甲裤",
+							description = readyForDeparture ? "离开这个鬼地方" : "你需要先装备好长剑、链甲、链甲腿甲",
 							disabled = !readyForDeparture,
 						},
 						new MenuOption { title = "装备", description = "管理角色装备与物品栏", },
@@ -216,7 +216,7 @@ public class Game
 			{
 				using (DialogueManager.CreateGenericDialogue(out var dialogue))
 				{
-					await dialogue.ShowTextTask("Ethan穿好了链甲和链甲裤,拿上了父亲的长剑");
+					await dialogue.ShowTextTask("Ethan穿好了链甲和链甲腿甲,拿上了父亲的长剑");
 					await dialogue.ShowTextTask("或许他的心里还存有一点家族荣誉的念想");
 					await dialogue.ShowTextTask("走吧...");
 				}
@@ -455,7 +455,7 @@ public class Game
 			{
 				var slot = visibleSlot;
 				var title = FormatSlotTitle(slot);
-				var allowedDesc = $"可放入: {slot.Flag.DisplayName}";
+				var allowedDesc = $"可放入: {slot.Flag.DisplayName()}";
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
 			}
@@ -473,7 +473,7 @@ public class Game
 				return;
 			}
 			if (choice >= visibleSlots.Count) return;
-			var slotNavigationTitle = $"{navigationTitle}>{visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.DisplayName}";
+			var slotNavigationTitle = $"{navigationTitle}>{visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.DisplayName()}";
 			await ExpandItemSlot(owner, visibleSlots[choice], slotNavigationTitle);
 		}
 	}

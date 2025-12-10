@@ -96,8 +96,8 @@ public readonly struct ItemConfig
 			ItemIdCode.CottonPants,
 			new()
 			{
-				Name = "武装裤",
-				Story = "填充棉絮的护腿,保暖又廉价",
+				Name = "武装腿甲",
+				Story = "填充棉絮的腿甲,覆盖髋部到膝盖,兼顾护档与保暖",
 				Flag = ItemFlagCode.LegArmor,
 				SlotFlags = [ItemFlagCode.LegArmorMiddle,],
 				Length = 90.0,
@@ -113,8 +113,8 @@ public readonly struct ItemConfig
 			ItemIdCode.ChainChausses,
 			new()
 			{
-				Name = "链甲裤",
-				Story = "由细密铁环编织的护腿,沉重但可靠",
+				Name = "链甲腿甲",
+				Story = "由细密铁环编织的腿甲,覆盖髋至膝盖,沉重但可靠",
 				Flag = ItemFlagCode.LegArmorMiddle,
 				SlotFlags = [ItemFlagCode.LegArmorOuter,],
 				Length = 95.0,
@@ -130,8 +130,8 @@ public readonly struct ItemConfig
 			ItemIdCode.PlateChausses,
 			new()
 			{
-				Name = "板甲裤",
-				Story = "将小块钢板铆在皮革上的护腿,覆盖率有限,防护极佳",
+				Name = "板甲腿甲",
+				Story = "将小块钢板铆在皮革上的腿甲,覆盖髋部到膝盖,覆盖率有限,防护极佳",
 				Flag = ItemFlagCode.LegArmorOuter,
 				SlotFlags = [],
 				Length = 95.0,

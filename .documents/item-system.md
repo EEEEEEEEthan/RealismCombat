@@ -39,9 +39,9 @@
 - `TorsoArmorMiddle`：中层上衣
 - `TorsoArmorOuter`：外层上衣
 - `HandArmor`：护手
-- `LegArmor`：内层裤
-- `LegArmorMiddle`：中层裤
-- `LegArmorOuter`：外层裤
+- `LegArmor`：内层腿甲
+- `LegArmorMiddle`：中层腿甲
+- `LegArmorOuter`：外层腿甲
 - `HeadArmor`：内层头盔
 - `HeadArmorMiddle`：中层头盔
 - `HeadArmorOuter`：外层头盔
@@ -51,7 +51,7 @@
 
 #### 显示名称
 
-`ItemFlagCodeExtensions.GetDisplayName` 将标志组合转换为中文名称（以`、`分隔），用于菜单提示等 UI 场景。
+`ItemFlagCodeExtensions.DisplayName()` 将标志组合转换为中文名称（以`、`分隔），用于菜单提示等 UI 场景。
 
 ### ItemIdCode 枚举与内置配置
 
@@ -62,9 +62,9 @@
 - `ChainMail`：链甲，标志 `TorsoArmorMiddle`，槽位 `TorsoArmorOuter`
 - `PlateArmor`：板甲，标志 `TorsoArmorOuter`，无槽位
 - `Belt`：皮带，标志 `Belt`，4 个 `Arm` 槽位
-- `CottonPants`：武装裤，标志 `LegArmor`，槽位 `LegArmorMiddle`
-- `ChainChausses`：链甲护腿，标志 `LegArmorMiddle`，槽位 `LegArmorOuter`
-- `PlateGreaves`：板甲护腿，标志 `LegArmorOuter`，无槽位
+- `CottonPants`：武装腿甲，标志 `LegArmor`，槽位 `LegArmorMiddle`，覆盖髋至膝，缓冲与保暖为主
+- `ChainChausses`：链甲腿甲，标志 `LegArmorMiddle`，槽位 `LegArmorOuter`，覆盖髋至膝，链环防护为主
+- `PlateChausses`：板甲腿甲，标志 `LegArmorOuter`，无槽位，小块钢板铆接覆盖髋至膝
 
 ### IItemContainer 接口
 
@@ -115,4 +115,4 @@
 
 - 新增物品：在 `ItemIdCode` 与 `Item.Configs` 中添加条目，配置名称、标志、槽位、长度、重量、耐久
 - 新增装备类型：在 `ItemFlagCode` 增加标志，并在需要承载该类型的部位或物品上添加对应槽位
-- 嵌套示例：躯干(`TorsoArmor`槽) → 武装衣(`TorsoArmorMiddle`) → 链甲(`TorsoArmorOuter`) → 板甲 → 皮带(4×`Arm`)；裆部(`LegArmor`槽) → 武装裤(`LegArmorMiddle`) → 链甲护腿(`LegArmorOuter`) → 板甲护腿
+- 嵌套示例：躯干(`TorsoArmor`槽) → 武装衣(`TorsoArmorMiddle`) → 链甲(`TorsoArmorOuter`) → 板甲 → 皮带(4×`Arm`)；裆部(`LegArmor`槽) → 武装腿甲(`LegArmorMiddle`) → 链甲腿甲(`LegArmorOuter`) → 板甲腿甲

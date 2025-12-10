@@ -61,40 +61,34 @@ public enum ItemFlagCode
 /// </summary>
 public static class ItemFlagCodeExtensions
 {
-	extension(ItemFlagCode flag)
+	/// <summary>
+	///     获取装备类型的显示名称
+	/// </summary>
+	public static string DisplayName(this ItemFlagCode flag)
 	{
-		/// <summary>
-		///     获取装备类型的显示名称
-		/// </summary>
-		public string DisplayName
+		if (flag == 0) return "未定义";
+		var names = new List<string>();
+		foreach (ItemFlagCode code in Enum.GetValues(typeof(ItemFlagCode)))
 		{
-			get
-			{
-				if (flag == 0) return "未定义";
-				var names = new List<string>();
-				foreach (ItemFlagCode code in Enum.GetValues(typeof(ItemFlagCode)))
+			if (code == 0 || code == ItemFlagCode.Armor) continue;
+			if (flag.HasFlag(code))
+				names.Add(code switch
 				{
-					if (code == 0 || code == ItemFlagCode.Armor) continue;
-					if (flag.HasFlag(code))
-						names.Add(code switch
-						{
-							ItemFlagCode.Arm => "武器",
-							ItemFlagCode.TorsoArmor => "内层上衣",
-							ItemFlagCode.TorsoArmorMiddle => "中层上衣",
-							ItemFlagCode.TorsoArmorOuter => "外层上衣",
-							ItemFlagCode.HandArmor => "护手",
-							ItemFlagCode.LegArmor => "内层裤",
-							ItemFlagCode.LegArmorMiddle => "中层裤",
-							ItemFlagCode.LegArmorOuter => "外层裤",
-							ItemFlagCode.HeadArmor => "内层头盔",
-							ItemFlagCode.HeadArmorMiddle => "中层头盔",
-							ItemFlagCode.HeadArmorOuter => "外层头盔",
-							ItemFlagCode.Belt => "皮带",
-							_ => code.ToString(),
-						});
-				}
-				return string.Join("、", names);
-			}
+					ItemFlagCode.Arm => "武器",
+					ItemFlagCode.TorsoArmor => "内层上衣",
+					ItemFlagCode.TorsoArmorMiddle => "中层上衣",
+					ItemFlagCode.TorsoArmorOuter => "外层上衣",
+					ItemFlagCode.HandArmor => "护手",
+					ItemFlagCode.LegArmor => "内层腿甲",
+					ItemFlagCode.LegArmorMiddle => "中层腿甲",
+					ItemFlagCode.LegArmorOuter => "外层腿甲",
+					ItemFlagCode.HeadArmor => "内层头盔",
+					ItemFlagCode.HeadArmorMiddle => "中层头盔",
+					ItemFlagCode.HeadArmorOuter => "外层头盔",
+					ItemFlagCode.Belt => "皮带",
+					_ => code.ToString(),
+				});
 		}
+		return string.Join("、", names);
 	}
 }

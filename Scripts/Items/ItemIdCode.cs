@@ -24,15 +24,15 @@ public enum ItemIdCode
 	/// </summary>
 	Belt,
 	/// <summary>
-	///     棉质护腿
+	///     棉质腿甲
 	/// </summary>
 	CottonPants,
 	/// <summary>
-	///     链甲护腿
+	///     链甲腿甲
 	/// </summary>
 	ChainChausses,
 	/// <summary>
-	///     板甲护腿
+	///     板甲腿甲
 	/// </summary>
 	PlateChausses,
 }
