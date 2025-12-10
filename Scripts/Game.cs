@@ -93,6 +93,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		hero.availableCombatActions[CombatActionCode.Release] = 0f;
 		hero.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
 		hero.availableCombatActions[CombatActionCode.PickWeapon] = 0f;
+		hero.availableCombatActions[CombatActionCode.GetUp] = 0f;
 #if DEBUG
 		hero.availableCombatActions[CombatActionCode.Execution] = 0f;
 #endif
@@ -283,6 +284,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 					enemy.availableCombatActions[CombatActionCode.Release] = 0f;
 					enemy.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;
 					enemy.availableCombatActions[CombatActionCode.Charge] = 0f;
+					enemy.availableCombatActions[CombatActionCode.GetUp] = 0f;
 					player.availableCombatActions[CombatActionCode.Charge] = 0f;
 					var enemies = new[]
 					{

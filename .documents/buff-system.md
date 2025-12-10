@@ -12,6 +12,8 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
 - `BuffCode`：位于 `Scripts/Combats/Buff.cs`
   - `Restrained`（束缚）
   - `Grappling`（擒拿）
+  - `Bleeding`（流血）
+  - `Prone`（倒伏）
   - 扩展属性 `Name` 返回中文显示名称
 - `IBuffOwner`：位于 `Scripts/Combats/IBuffOwner.cs`
   - `List<Buff> Buffs`：可变 Buff 列表（`BodyPart`、`Item` 等实现均复用）

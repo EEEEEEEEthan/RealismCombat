@@ -15,6 +15,10 @@ public enum BuffCode
 	///     流血
 	/// </summary>
 	Bleeding,
+	/// <summary>
+	///     倒伏
+	/// </summary>
+	Prone,
 }
 /// <summary>
 ///     Buff类型扩展工具
@@ -29,6 +33,7 @@ public static class BuffCodeExtensions
 				BuffCode.Restrained => "束缚",
 				BuffCode.Grappling => "擒拿",
 				BuffCode.Bleeding => "流血",
+				BuffCode.Prone => "倒伏",
 				_ => @this.ToString(),
 			};
 	}

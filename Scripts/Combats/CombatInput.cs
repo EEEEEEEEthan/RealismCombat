@@ -70,6 +70,7 @@ public abstract class CombatInput(Combat combat)
 		TryAdd(CombatActionCode.Release, "放手", () => new ReleaseAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.TakeWeapon, "拿", () => new TakeWeaponAction(actor, bodyPart, combat));
 		TryAdd(CombatActionCode.PickWeapon, "捡", () => new PickWeaponAction(actor, bodyPart, combat));
+		TryAdd(CombatActionCode.GetUp, "爬起", () => new GetUpAction(actor, bodyPart, combat));
 #if DEBUG
 		TryAdd(CombatActionCode.Execution, "(测试)处决", () => new ExecutionAction(actor, bodyPart, combat));
 #endif
