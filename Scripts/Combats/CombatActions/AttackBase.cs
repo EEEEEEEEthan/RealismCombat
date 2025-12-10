@@ -199,6 +199,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	{
 		var target = this.target!;
 		var targetObject = this.targetObject!;
+		var actorWeapon = UsesWeapon ? actorBodyPart.WeaponInUse : null;
 		var actorNode = combat.combatNode.GetCharacterNode(actor);
 		var targetNode = combat.combatNode.GetCharacterNode(target);
 		var actorPosition = combat.combatNode.GetPKPosition(actor);
@@ -256,6 +257,21 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				await dialogue.ShowTextTask($"{target.name}使用{reactionOutcome.BlockTarget.Name}挡住了攻击");
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
 				await performHit(reactionOutcome.BlockTarget, dialogue);
+				// 如果用武器格挡，攻击方的部位需要承受武器基础伤害的一半
+				if (reactionOutcome.BlockTarget is Item item && (item.flag & ItemFlagCode.Arm) != 0)
+				{
+					var damage = item.DamageProfile.Swing * 0.5f;
+					if (actorWeapon != null)
+					{
+						await applyDamage(actor, actorWeapon, damage - actorWeapon.Protection, dialogue);
+					}
+					else
+					{
+						var protection = Protection.Zero;
+						foreach (var armor in actorBodyPart.IterItems(ItemFlagCode.Armor)) protection += armor.Protection;
+						await applyDamage(actor, actorBodyPart, damage - protection, dialogue);
+					}
+				}
 				goto END;
 			}
 			case ReactionTypeCode.Block:
@@ -295,7 +311,13 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 					}
 					case Item item:
 					{
+						// 对目标物体的伤害
 						await applyDamage(this.target!, targetObject, Damage - item.Protection, dialogue);
+						// 对武器的伤害
+						if (actorWeapon != null)
+						{
+							await applyDamage(actor, actorWeapon, Damage - actorWeapon.Protection, dialogue);
+						}
 						return;
 					}
 					default:
@@ -344,10 +366,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			}
 			any = any || await applyDamage(target, targetObject, damage, dialogue);
 			// 对武器的伤害
-			if (UsesWeapon && actorBodyPart.WeaponInUse is { } weapon)
+			if (actorWeapon != null)
 			{
-				var weaponDamage = (damage - weapon.Protection).Total.RoundToInt();
-				any = any || await applyDamage(actor, weapon, new(weaponDamage, 0f, 0f), dialogue);
+				any = any || await applyDamage(actor, actorWeapon, Damage - actorWeapon.Protection, dialogue);
 			}
 			if (!any) await dialogue.ShowTextTask("什么也没发生");
 		}

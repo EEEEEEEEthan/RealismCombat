@@ -12,6 +12,8 @@ public readonly struct Damage(float slash, float pierce, float blunt)
 			Math.Max(0f, left.Pierce - protection.Pierce),
 			Math.Max(0f, left.Blunt - protection.Blunt)
 		);
+	public static Damage operator *(Damage damage, float multiplier) => new(damage.Slash * multiplier, damage.Pierce * multiplier, damage.Blunt * multiplier);
+	public static Damage operator *(float multiplier, Damage damage) => new(damage.Slash * multiplier, damage.Pierce * multiplier, damage.Blunt * multiplier);
 	public float Slash { get; } = slash;
 	public float Pierce { get; } = pierce;
 	public float Blunt { get; } = blunt;
@@ -23,6 +25,8 @@ public readonly struct Damage(float slash, float pierce, float blunt)
 /// </summary>
 public readonly struct Protection(float slash, float pierce, float blunt)
 {
+	public static Protection operator +(Protection left, Protection right) =>
+		new(left.Slash + right.Slash, left.Pierce + right.Pierce, left.Blunt + right.Blunt);
 	public static Protection Zero => new(0f, 0f, 0f);
 	public float Slash { get; } = slash;
 	public float Pierce { get; } = pierce;
