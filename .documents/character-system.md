@@ -17,6 +17,7 @@
 - `PropertyDouble actionPoint`：行动点属性，记录当前与最大行动点，默认上限为 10
 - `int reaction`：反应点数，用于格挡或闪避，默认值为 1，每回合开始时重置
 - `CombatAction? combatAction`：当前执行中的战斗行为，为 `null` 时表示无行动中
+- `Dictionary<CombatActionCode, float> availableCombatActions`：角色可用的战斗行动及其熟练度（目前仅作为开关使用），默认包含斩击、抓取、捡起武器、挣脱、爬起与头槌
 
 #### 身体部位
 

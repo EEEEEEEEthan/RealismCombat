@@ -87,6 +87,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		if (belt.Slots.Length > 0) belt.Slots[0].Item = dagger;
 		hero.availableCombatActions.Clear();
 		hero.availableCombatActions[CombatActionCode.Slash] = 0f;
+		hero.availableCombatActions[CombatActionCode.Headbutt] = 0f;
 		hero.availableCombatActions[CombatActionCode.Stab] = 0f;
 		hero.availableCombatActions[CombatActionCode.Grab] = 0f;
 		hero.availableCombatActions[CombatActionCode.BreakFree] = 0f;
@@ -280,6 +281,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 					enemy.actionPoint.value = 7;
 					enemy.availableCombatActions.Clear();
 					enemy.availableCombatActions[CombatActionCode.Slash] = 0f;
+					enemy.availableCombatActions[CombatActionCode.Headbutt] = 0f;
 					enemy.availableCombatActions[CombatActionCode.BreakFree] = 0f;
 					enemy.availableCombatActions[CombatActionCode.Release] = 0f;
 					enemy.availableCombatActions[CombatActionCode.TakeWeapon] = 0f;

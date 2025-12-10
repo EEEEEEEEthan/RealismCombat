@@ -93,6 +93,7 @@ public class Character
 			rightLeg = new(BodyPartCode.RightLeg),
 		];
 		availableCombatActions[CombatActionCode.Slash] = 0f;
+		availableCombatActions[CombatActionCode.Headbutt] = 0f;
 		availableCombatActions[CombatActionCode.Grab] = 0f;
 		availableCombatActions[CombatActionCode.PickWeapon] = 0f;
 		availableCombatActions[CombatActionCode.BreakFree] = 0f;
