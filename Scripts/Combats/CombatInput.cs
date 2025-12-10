@@ -197,12 +197,15 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				_ => "攻击",
 			};
 			var menuTitle = $"{attackerText}对{defenderText}的{attackName}";
+			var blockDescription = $"{blockChanceText}\n消耗1点反应, 选择身体或武器承受伤害";
+			if (defender.combatAction != null)
+				blockDescription += "\n使用当前行动部位格挡会打断自身行动";
 			var menu = DialogueManager.CreateMenuDialogue(
 				menuTitle,
 				new MenuOption
 				{
 					title = "格挡",
-					description = $"{blockChanceText}\n消耗1点反应, 选择身体或武器承受伤害",
+					description = blockDescription,
 					disabled = !reactionAvailable,
 				},
 				new MenuOption
@@ -512,6 +515,9 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 				continue;
 			var blockExpected = AttackBase.CalculateExpectedBodyDamage(attack.Damage, blockTarget);
 			var expectedDamage = reactionChance.BlockChance * blockExpected + (1d - reactionChance.BlockChance) * originalExpected;
+			// 如果格挡会打断自身行动，增加期望伤害作为惩罚
+			if (defender.combatAction?.WillBeInterruptedByBlockingWith(blockTarget) == true)
+				expectedDamage *= 1.5;
 			options.Add((ReactionDecision.CreateBlock(blockTarget), expectedDamage));
 		}
 		if (options.Count == 0) return Task.FromResult(ReactionDecision.CreateEndure());

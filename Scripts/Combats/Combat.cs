@@ -111,6 +111,11 @@ public class Combat
 		switch (decision.type)
 		{
 			case ReactionTypeCode.Block when reactionAvailable && decision.blockTarget is { Available: true, }:
+				target.reaction = Math.Max(0, target.reaction - 1);
+				// 格挡仅使用当前动作的部位或其装备时会打断自身行动
+				if (target.combatAction?.WillBeInterruptedByBlockingWith(decision.blockTarget) == true)
+					target.combatAction = null;
+				return decision;
 			case ReactionTypeCode.Dodge when reactionAvailable:
 				target.reaction = Math.Max(0, target.reaction - 1);
 				target.combatAction = null;
