@@ -7,7 +7,7 @@ public abstract class CombatInput(Combat combat)
 {
 	protected static ICombatTarget[] GetAvailableTargets(Character character) =>
 		character.bodyParts.Where(part => part.Available).Cast<ICombatTarget>().ToArray();
-	protected static ICombatTarget[] GetBlockTargets(Character character)
+	protected static ICombatTarget[] GetBlockTargets(Character character, ICombatTarget? excludeTarget = null)
 	{
 		var targets = new List<ICombatTarget>();
 		foreach (var bodyPart in character.bodyParts)
@@ -21,6 +21,8 @@ public abstract class CombatInput(Combat combat)
 						targets.Add(target);
 			}
 		}
+		if (excludeTarget != null)
+			targets.RemoveAll(t => ReferenceEquals(t, excludeTarget));
 		return targets.ToArray();
 	}
 	protected static string BuildTargetDescription(ICombatTarget target)
@@ -235,7 +237,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				case 0:
 				{
 					if (!reactionAvailable) continue;
-					var blockTargets = GetBlockTargets(defender);
+					var blockTargets = GetBlockTargets(defender, target);
 					if (blockTargets.Length == 0)
 					{
 						await DialogueManager.ShowGenericDialogue($"{defender.name}没有可用的格挡目标");

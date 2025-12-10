@@ -115,10 +115,20 @@ public class Combat
 				// 格挡仅使用当前动作的部位或其装备时会打断自身行动
 				if (target.combatAction?.WillBeInterruptedByBlockingWith(decision.blockTarget) == true)
 					target.combatAction = null;
+				// 反应后移除所有招架buff
+				foreach (var bodyPart in target.bodyParts)
+				{
+					bodyPart.Buffs.Remove(BuffCode.Parrying);
+				}
 				return decision;
 			case ReactionTypeCode.Dodge when reactionAvailable:
 				target.reaction = Math.Max(0, target.reaction - 1);
 				target.combatAction = null;
+				// 反应后移除所有招架buff
+				foreach (var bodyPart in target.bodyParts)
+				{
+					bodyPart.Buffs.Remove(BuffCode.Parrying);
+				}
 				return decision;
 			case ReactionTypeCode.None:
 				return ReactionDecision.CreateEndure();
@@ -148,6 +158,21 @@ public class Combat
 				while (TryGetActor(out var actor))
 				{
 					actor.reaction = 1;
+					// 移除该角色所有身体部位的招架buff
+					foreach (var bodyPart in actor.bodyParts)
+					{
+						bodyPart.Buffs.Remove(BuffCode.Parrying);
+					}
+					// 检查所有对手，如果有招架buff则补满其行动力
+					var opponents = Allies.Contains(actor) ? Enemies : Allies;
+					foreach (var opponent in opponents.Where(c => c.IsAlive))
+					{
+						var hasParryingBuff = opponent.bodyParts.Any(part => part.Buffs.ContainsKey(BuffCode.Parrying));
+						if (hasParryingBuff)
+						{
+							opponent.actionPoint.value = opponent.actionPoint.maxValue;
+						}
+					}
 					var actorNode = combatNode.GetCharacterNode(actor);
 					using var _ = actorNode.MoveScope(combatNode.GetReadyPosition(actor));
 					using var __ = actorNode.ExpandScope();
