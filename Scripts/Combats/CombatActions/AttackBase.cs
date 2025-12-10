@@ -370,7 +370,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			{
 				any = any || await applyDamage(actor, actorWeapon, Damage - actorWeapon.Protection, dialogue);
 			}
-			if (!any) await dialogue.ShowTextTask("什么也没发生");
+			if (!any) await dialogue.ShowTextTask("没有造成伤害");
 		}
 		async Task<bool> applyDamage(Character character, ICombatTarget target, Damage damage, GenericDialogue dialogue)
 		{
