@@ -41,6 +41,25 @@ public static class ItemContainerExtensions
 				return total;
 			}
 		}
+		/// <summary>
+		///     检查容器是否自由（无束缚、无擒拿、血量未归零）
+		/// </summary>
+		public bool Free
+		{
+			get
+			{
+				if (container is ICombatTarget target && !target.Available) return false;
+				if (container.HasBuff(BuffCode.Restrained, false)) return false;
+				if (container.HasBuff(BuffCode.Grappling, false)) return false;
+				foreach (var slot in container.Slots)
+				{
+					var item = slot.Item;
+					if (item == null) continue;
+					if (!item.Free) return false;
+				}
+				return true;
+			}
+		}
 		public bool HasBuff(BuffCode buff, bool recursive)
 		{
 			foreach (var owned in container.Buffs)

@@ -77,6 +77,14 @@
 `IItemContainer` 定义 `ItemSlot[] Slots`，由 `Item` 与 `BodyPart` 实现，用于统一处理嵌套与部位装备。
 接口不再提供附加装备名称的帮助方法，需要展示时在调用侧直接遍历槽位拼接 `IconTag`。
 
+#### Free 扩展属性
+
+`ItemContainerExtensions.Free` 属性用于检查容器是否自由（可用于格挡等操作）：
+- 若容器实现了 `ICombatTarget`，检查其 `Available` 属性（血量未归零）
+- 检查容器自身是否有 `Restrained`（束缚）或 `Grappling`（擒拿）Buff
+- 递归检查所有槽位中的 Item 是否 `Free`
+- 只有当自身和所有嵌套 Item 都自由时，`Free` 才返回 `true`
+
 ### Inventory 类
 
 `Inventory` 位于 `Scripts/Items/Inventory.cs`，仅持有 `List<Item> Items`，并提供序列化与反序列化。

@@ -166,8 +166,14 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				blockLoadWeight * defenderLoadScore +
 				(isUnarmedAttack ? unarmedBlockShift : 0.0) +
 				blockTargetBonus;
+			var dodgeChance = GameMath.Sigmoid(dodgeScore);
+			if (target is { } defender)
+			{
+				var legRestrained = defender.bodyParts.Any(bp => bp.id.IsLeg && !bp.Free);
+				if (legRestrained) dodgeChance /= 5.0;
+			}
 			return new(
-				GameMath.Sigmoid(dodgeScore),
+				dodgeChance,
 				GameMath.Sigmoid(blockScore)
 			);
 		}

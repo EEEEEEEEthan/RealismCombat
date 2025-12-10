@@ -12,11 +12,14 @@ public abstract class CombatInput(Combat combat)
 		var targets = new List<ICombatTarget>();
 		foreach (var bodyPart in character.bodyParts)
 		{
-			if (bodyPart.Available) targets.Add(bodyPart);
+			if (bodyPart.Free) targets.Add(bodyPart);
 			if (bodyPart.id is BodyPartCode.LeftArm or BodyPartCode.RightArm)
+			{
+				if (!bodyPart.Free) continue;
 				foreach (var slot in bodyPart.Slots)
-					if (slot.Item is { Available: true, } target)
+					if (slot.Item is { } target && target.Free)
 						targets.Add(target);
+			}
 		}
 		return targets.ToArray();
 	}
