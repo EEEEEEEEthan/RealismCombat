@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 public sealed class ParryAction(Character actor, BodyPart actorBodyPart, Combat combat) : CombatAction(actor, combat, actorBodyPart, 1, 3)
 {
 	readonly BodyPart actorBodyPart = actorBodyPart;
-	public CombatActionCode Id => CombatActionCode.Parry;
 	public override string Description => "摆出招架姿态，招架触发时+1反应";
 	public override bool Visible
 	{
@@ -20,9 +19,11 @@ public sealed class ParryAction(Character actor, BodyPart actorBodyPart, Combat 
 			return true;
 		}
 	}
-	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue($"{actor.name}用{actorBodyPart.Name}摆出招架姿态");
+	public CombatActionCode Id => CombatActionCode.Parry;
+	protected override Task OnStartTask() => DialogueManager.ShowGenericDialogue($"{actor.name}摆出招架姿态");
 	protected override async Task OnExecute()
 	{
+		actor.reaction += 1;
 		await DialogueManager.ShowGenericDialogue($"{actor.name}摆出架势");
 	}
 }
