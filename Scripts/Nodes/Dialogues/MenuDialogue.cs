@@ -53,7 +53,17 @@ public partial class MenuDialogue : BaseDialogue
 	public void SelectAndConfirm(int index)
 	{
 		Select(index);
-		Confirm();
+		if (currentIndex < 0 || currentIndex >= options.Count) return;
+		Log.Print($"选择了选项{currentIndex} - {options[currentIndex].title}");
+		if (options[currentIndex].disabled)
+		{
+			Log.Print("选项不可用。");
+			GameServer.McpCheckpoint();
+			return;
+		}
+		GetViewport().SetInputAsHandled();
+		Close();
+		taskCompletionSource.TrySetResult(currentIndex);
 	}
 	protected override void HandleInput(InputEvent @event)
 	{
@@ -88,7 +98,6 @@ public partial class MenuDialogue : BaseDialogue
 			taskCompletionSource.TrySetResult(index);
 		}
 	}
-	void UpdateTitle() { }
 	void BuildOptions()
 	{
 		var optionResources = new List<MenuOptionResource>();
@@ -99,8 +108,8 @@ public partial class MenuDialogue : BaseDialogue
 			options[i] = option;
 			optionResources.Add(new()
 			{
-				text = option.title,
-				disabled = option.disabled,
+				Text = option.title,
+				Disabled = option.disabled,
 			});
 			Log.Print($"{i} - {option.title} {option.description}");
 		}
@@ -116,8 +125,8 @@ public partial class MenuDialogue : BaseDialogue
 			options.Add(returnOption);
 			optionResources.Add(new()
 			{
-				text = returnOption.title,
-				disabled = returnOption.disabled,
+				Text = returnOption.title,
+				Disabled = returnOption.disabled,
 			});
 			Log.Print($"{returnOptionIndex} - {returnOption.title} {returnOption.description}");
 		}
@@ -131,19 +140,5 @@ public partial class MenuDialogue : BaseDialogue
 		Printer.Text = options[currentIndex].description;
 		Printer.VisibleCharacters = Printer.GetTotalCharacterCount();
 		OptionContainer.Index = currentIndex;
-	}
-	void Confirm()
-	{
-		if (currentIndex < 0 || currentIndex >= options.Count) return;
-		Log.Print($"选择了选项{currentIndex} - {options[currentIndex].title}");
-		if (options[currentIndex].disabled)
-		{
-			Log.Print("选项不可用。");
-			GameServer.McpCheckpoint();
-			return;
-		}
-		GetViewport().SetInputAsHandled();
-		Close();
-		taskCompletionSource.TrySetResult(currentIndex);
 	}
 }

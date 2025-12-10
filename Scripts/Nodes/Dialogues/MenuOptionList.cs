@@ -123,8 +123,8 @@ public partial class MenuOptionList : MarginContainer
 						continue;
 					}
 					var option = options[optionIndex];
-					optionLabels[i].Text = option?.text ?? "";
-					optionLabels[i].Modulate = option?.disabled == true ? disabledColor : Colors.White;
+					optionLabels[i].Text = option?.Text ?? "";
+					optionLabels[i].Modulate = option?.Disabled == true ? disabledColor : Colors.White;
 					break;
 				}
 			}

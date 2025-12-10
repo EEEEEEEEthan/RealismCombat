@@ -5,13 +5,13 @@ using Godot;
 public partial class MenuOptionResource : Resource
 {
 	[Export]
-	public string text
+	public string Text
 	{
 		get;
 		set;
 	} = string.Empty;
 	[Export]
-	public bool disabled
+	public bool Disabled
 	{
 		get;
 		set;
