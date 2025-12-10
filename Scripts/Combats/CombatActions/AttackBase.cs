@@ -305,7 +305,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				{
 					case BodyPart:
 					{
-						await dialogue.ShowTextTask($"{targetObject}没有任何防护，攻击硬生生打在了身上!");
+						await dialogue.ShowTextTask($"{targetObject.Name}没有任何防护，攻击硬生生打在了身上!");
 						await applyDamage(this.target!, targetObject, Damage, dialogue);
 						return;
 					}
