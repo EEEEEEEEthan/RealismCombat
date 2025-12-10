@@ -185,6 +185,7 @@ public class BodyPart : ICombatTarget, IItemContainer
 		id switch
 		{
 			BodyPartCode.LeftArm or BodyPartCode.RightArm => [new(ItemFlagCode.HandArmor, this), new(ItemFlagCode.Arm, this, false),],
+			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => [new(ItemFlagCode.FootArmor, this),],
 			BodyPartCode.Groin => [new(ItemFlagCode.LegArmor, this),],
 			BodyPartCode.Head => [new(ItemFlagCode.HeadArmor, this),],
 			BodyPartCode.Torso => [new(ItemFlagCode.TorsoArmor, this), new(ItemFlagCode.Belt, this),],
