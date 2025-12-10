@@ -363,7 +363,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 					await dialogue.ShowTextTask($"{target.name}反应+1");
 				}
 				await Task.Delay((int)(ResourceTable.blockSound.Value.GetLength() * 1000));
-				await performHit(reactionOutcome.BlockTarget, dialogue, target);
+				await performHit(reactionOutcome.BlockTarget, dialogue);
 				// 如果用武器格挡，攻击方的部位需要承受武器基础伤害的一半
 				if (reactionOutcome.BlockTarget is Item item && (item.flag & ItemFlagCode.Arm) != 0)
 				{
@@ -396,33 +396,33 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				throw new ArgumentOutOfRangeException();
 		}
 	FALLBACK:
-		await performHit(targetObject, dialogue, target);
+		var bodyDamage = await performHit(targetObject, dialogue);
+		// 格挡失败或承受时，如果肉体伤害>=部位血量30%，打断行动
+		if (bodyDamage > 0 && targetObject is BodyPart hitPart)
+		{
+			if (target.combatAction != null && bodyDamage >= hitPart.HitPoint.maxValue * 0.3)
+			{
+				target.combatAction = null;
+				await dialogue.ShowTextTask($"{target.name}的行动被打断!");
+			}
+		}
 		await OnAttackLanded(target, targetObject, dialogue);
 	END:
 		actor.actionPoint.value = Math.Max(0, actor.actionPoint.value - postCastActionPointCost);
 		actorNode.MoveTo(actorPosition);
 		return;
-		async Task performHit(ICombatTarget targetObject, GenericDialogue dialogue, Character? defender)
+		async Task<float> performHit(ICombatTarget targetObject, GenericDialogue dialogue)
 		{
-			if (Damage.Total.RoundToInt() <= 0) return;
+			if (Damage.Total.RoundToInt() <= 0) return 0f;
 			if (targetObject is not IItemContainer targetContainer) throw new InvalidOperationException("目标不支持受击处理");
 			var armors = targetContainer.IterItems(ItemFlagCode.Armor).ToList();
 			if (armors.Count <= 0)
 				switch (targetObject)
 				{
-					case BodyPart part:
+					case BodyPart:
 					{
 						await dialogue.ShowTextTask($"{targetObject.Name}没有任何防护，攻击硬生生打在了身上!");
-						var bodyDamage = await applyDamage(this.target!, targetObject, Damage, dialogue);
-						if (defender != null && bodyDamage >= part.HitPoint.maxValue * 0.3)
-						{
-							if (defender.combatAction != null)
-							{
-								defender.combatAction = null;
-								await dialogue.ShowTextTask($"{defender.name}的行动被打断!");
-							}
-						}
-						return;
+						return await applyDamage(this.target!, targetObject, Damage, dialogue);
 					}
 					case Item item:
 					{
@@ -433,7 +433,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 						{
 							await applyDamage(actor, actorWeapon, Damage - actorWeapon.Protection, dialogue);
 						}
-						return;
+						return 0f;
 					}
 					default:
 						throw new InvalidOperationException("未知的目标类型");
@@ -483,18 +483,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			}
 			var finalDamage = await applyDamage(target, targetObject, damage, dialogue);
 			any = any || finalDamage > 0;
-			if (targetObject is BodyPart bodyPart)
+			if (targetObject is BodyPart)
 			{
 				totalBodyDamage = finalDamage;
-				// 检查是否需要打断行动
-				if (defender != null && totalBodyDamage >= bodyPart.HitPoint.maxValue * 0.3)
-				{
-					if (defender.combatAction != null)
-					{
-						defender.combatAction = null;
-						await dialogue.ShowTextTask($"{defender.name}的行动被打断!");
-					}
-				}
 			}
 			// 对武器的伤害
 			if (actorWeapon != null)
@@ -503,6 +494,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				any = any || weaponDamage > 0;
 			}
 			if (!any) await dialogue.ShowTextTask("没有造成伤害");
+			return totalBodyDamage;
 		}
 		async Task<float> applyDamage(Character character, ICombatTarget target, Damage damage, GenericDialogue dialogue)
 		{
