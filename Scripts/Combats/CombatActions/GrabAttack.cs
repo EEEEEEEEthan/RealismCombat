@@ -45,7 +45,16 @@ public class GrabAttack(Character actor, BodyPart actorBodyPart, Combat combat)
 		if (!addedGrappling && !addedRestrained) return;
 		var messages = new List<string>();
 		if (addedGrappling) messages.Add($"{actor.name}擒拿住了{targetCharacter.name}的{targetObject.Name}");
-		if (addedRestrained) messages.Add($"{targetCharacter.name}的{targetObject.Name}被束缚");
+		if (addedRestrained)
+		{
+			messages.Add($"{targetCharacter.name}的{targetObject.Name}被束缚");
+			// 如果部位正在行动，中断行动
+			if (targetObject is BodyPart bodyPart && targetCharacter.combatAction?.actorObject == bodyPart)
+			{
+				targetCharacter.combatAction = null;
+				messages.Add($"{targetCharacter.name}的行动被打断");
+			}
+		}
 		if (messages.Count > 0) await dialogue.ShowTextTask(string.Join("；", messages));
 	}
 	bool ApplyGrapplingBuff(Character targetCharacter, ICombatTarget targetObject)

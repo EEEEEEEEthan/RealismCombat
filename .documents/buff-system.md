@@ -29,7 +29,8 @@ Buff 系统用于在战斗过程中为目标（身体部位或装备）附加临
   - `GrabAttack` 命中后必然施加（`Scripts/Combats/CombatActions/GrabAttack.cs`）
     - 攻击者手臂添加 `Grappling`，来源为被抓角色与被抓部位/物品
     - 目标对象添加 `Restrained`，来源为攻击者与抓取使用的手臂
-    - 抓取伤害为 0；在同一 `GenericDialogue` 内提示“擒拿/束缚”获得，避免重复创建对话框
+    - 若目标部位正在行动（`combatAction.actorObject` 匹配被抓部位），则中断该行动（`combatAction` 置空），并显示"行动被打断"提示
+    - 抓取伤害为 0；在同一 `GenericDialogue` 内提示"擒拿/束缚"获得，避免重复创建对话框
   - `ChargeAttack` 施加倒伏有两种情况（`Scripts/Combats/CombatActions/ChargeAttack.cs`）：
     - 攻击目标为腿部时，无论是否命中，攻击者躯干必然添加 `Prone`，来源为攻击者与目标腿部
     - 攻击命中时，按重量比概率给目标躯干添加 `Prone`，概率为 targetWeight / actorWeight，来源为攻击者与攻击者躯干；攻击者越重、目标越轻时倒伏概率越低
