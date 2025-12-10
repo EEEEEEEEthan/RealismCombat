@@ -24,6 +24,23 @@ public static class ItemContainerExtensions
 				return total;
 			}
 		}
+		/// <summary>
+		///     递归计算容器内装备重量
+		/// </summary>
+		public double ContainerWeight
+		{
+			get
+			{
+				var total = 0.0;
+				foreach (var slot in container.Slots)
+				{
+					if (slot.Item == null) continue;
+					total += slot.Item.Weight;
+					if (slot.Item.Slots.Length > 0) total += slot.Item.ContainerWeight;
+				}
+				return total;
+			}
+		}
 		public bool HasBuff(BuffCode buff, bool recursive)
 		{
 			foreach (var owned in container.Buffs)
@@ -48,16 +65,6 @@ public static class ItemContainerExtensions
 				foreach (var nested in occupied.IterItems(flags)) yield return nested;
 			}
 		}
-		public bool TryGetItem(ItemFlagCode flag, out Item item)
-		{
-			foreach (var found in container.IterItems(flag))
-			{
-				item = found;
-				return true;
-			}
-			item = null!;
-			return false;
-		}
 		public bool RemoveItem(Item item)
 		{
 			foreach (var slot in container.Slots)
@@ -71,20 +78,6 @@ public static class ItemContainerExtensions
 				if (occupied != null && occupied.RemoveItem(item)) return true;
 			}
 			return false;
-		}
-		/// <summary>
-		///     递归计算容器内装备重量
-		/// </summary>
-		public double GetContainerWeight()
-		{
-			var total = 0.0;
-			foreach (var slot in container.Slots)
-			{
-				if (slot.Item == null) continue;
-				total += slot.Item.Weight;
-				if (slot.Item.Slots.Length > 0) total += slot.Item.GetContainerWeight();
-			}
-			return total;
 		}
 		public IEnumerable<(Item item, ItemSlot slot)> IterItemAndSlots(ItemFlagCode flags)
 		{

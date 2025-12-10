@@ -8,6 +8,15 @@ using Godot;
 public partial class CommandHandler(ProgramRoot programRoot) : Node
 {
 	readonly ConcurrentQueue<McpCommand> commandQueue = new();
+	string SceneTreeJson
+	{
+		get
+		{
+			var root = GetTree().Root;
+			var treeDict = BuildNodeTree(root);
+			return JsonSerializer.Serialize(treeDict, new JsonSerializerOptions { WriteIndented = true, });
+		}
+	}
 	public override void _EnterTree()
 	{
 		base._EnterTree();
@@ -48,7 +57,7 @@ public partial class CommandHandler(ProgramRoot programRoot) : Node
 					programRoot.StartGameLoop();
 					break;
 				case "debug_get_scene_tree":
-					var treeJson = GetSceneTreeJson();
+					var treeJson = SceneTreeJson;
 					Log.Print(treeJson);
 					GameServer.McpCheckpoint();
 					break;
@@ -61,7 +70,7 @@ public partial class CommandHandler(ProgramRoot programRoot) : Node
 				case "game_select_option":
 				{
 					var index = int.Parse(cmd.Args["id"]);
-					var dialogue = DialogueManager.GetTopDialogue();
+					var dialogue = DialogueManager.TopDialogue;
 					switch (dialogue)
 					{
 						case MenuDialogue menuDialogue:
@@ -88,12 +97,6 @@ public partial class CommandHandler(ProgramRoot programRoot) : Node
 			Log.PrintException(ex);
 			GameServer.McpCheckpoint();
 		}
-	}
-	string GetSceneTreeJson()
-	{
-		var root = GetTree().Root;
-		var treeDict = BuildNodeTree(root);
-		return JsonSerializer.Serialize(treeDict, new JsonSerializerOptions { WriteIndented = true, });
 	}
 	object BuildNodeTree(Node node)
 	{

@@ -73,7 +73,7 @@ public class Character
 		get
 		{
 			var total = 0.0;
-			foreach (var bodyPart in bodyParts) total += bodyPart.GetContainerWeight();
+			foreach (var bodyPart in bodyParts) total += bodyPart.ContainerWeight;
 			return total;
 		}
 	}

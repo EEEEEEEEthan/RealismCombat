@@ -42,7 +42,6 @@ public enum ItemFlagCode
 	///     裆部外层护甲
 	/// </summary>
 	LegArmorOuter = 1 << 8,
-	
 	Armor = TorsoArmor | TorsoArmorMiddle | TorsoArmorOuter | HandArmor | LegArmor | LegArmorMiddle | LegArmorOuter,
 }
 /// <summary>
@@ -50,31 +49,37 @@ public enum ItemFlagCode
 /// </summary>
 public static class ItemFlagCodeExtensions
 {
-	/// <summary>
-	///     获取装备类型的显示名称
-	/// </summary>
-	public static string GetDisplayName(this ItemFlagCode flag)
+	extension(ItemFlagCode flag)
 	{
-		if (flag == 0) return "未定义";
-		var names = new List<string>();
-		foreach (ItemFlagCode code in Enum.GetValues(typeof(ItemFlagCode)))
+		/// <summary>
+		///     获取装备类型的显示名称
+		/// </summary>
+		public string DisplayName
 		{
-			if (code == 0 || code == ItemFlagCode.Armor) continue;
-			if (flag.HasFlag(code))
-				names.Add(code switch
+			get
+			{
+				if (flag == 0) return "未定义";
+				var names = new List<string>();
+				foreach (ItemFlagCode code in Enum.GetValues(typeof(ItemFlagCode)))
 				{
-					ItemFlagCode.Arm => "武器",
-					ItemFlagCode.TorsoArmor => "内层上衣",
-					ItemFlagCode.TorsoArmorMiddle => "中层上衣",
-					ItemFlagCode.TorsoArmorOuter => "外层上衣",
-					ItemFlagCode.HandArmor => "护手",
-					ItemFlagCode.LegArmor => "内层裤",
-					ItemFlagCode.LegArmorMiddle => "中层裤",
-					ItemFlagCode.LegArmorOuter => "外层裤",
-					ItemFlagCode.Belt => "皮带",
-					_ => code.ToString(),
-				});
+					if (code == 0 || code == ItemFlagCode.Armor) continue;
+					if (flag.HasFlag(code))
+						names.Add(code switch
+						{
+							ItemFlagCode.Arm => "武器",
+							ItemFlagCode.TorsoArmor => "内层上衣",
+							ItemFlagCode.TorsoArmorMiddle => "中层上衣",
+							ItemFlagCode.TorsoArmorOuter => "外层上衣",
+							ItemFlagCode.HandArmor => "护手",
+							ItemFlagCode.LegArmor => "内层裤",
+							ItemFlagCode.LegArmorMiddle => "中层裤",
+							ItemFlagCode.LegArmorOuter => "外层裤",
+							ItemFlagCode.Belt => "皮带",
+							_ => code.ToString(),
+						});
+				}
+				return string.Join("、", names);
+			}
 		}
-		return string.Join("、", names);
 	}
 }

@@ -68,6 +68,31 @@ public partial class CharacterNode : Control
 	[field: AllowNull, MaybeNull,] Control MoveAnchor => field ??= GetNode<Control>("%MoveAnchor");
 	[field: AllowNull, MaybeNull,] Container ReactionContainer => field ??= PropertyContainer.GetNode<Container>("%ReactionContainer");
 	/// <summary>
+	///     计算展开状态下的目标尺寸，避免由于子节点显隐导致留白。
+	/// </summary>
+	Vector2 ExpandedSize
+	{
+		get
+		{
+			if (!IsNodeReady()) return maxSize;
+			PropertyContainer.QueueSort();
+			var containerSize = PropertyContainer.GetCombinedMinimumSize();
+			var panelStyle = CardFrame.GetThemeStylebox("panel");
+			var padding = panelStyle?.GetMinimumSize() ?? Vector2.Zero;
+			var targetHeight = Mathf.Max(minSize.Y, containerSize.Y + padding.Y);
+			return maxSize with { Y = targetHeight, };
+		}
+	}
+	Vector2 TargetSize => Expanded ? ExpandedSize : minSize;
+	Vector2 RootContainerBasePosition
+	{
+		get
+		{
+			if (!rootContainerBasePositionInitialized) UpdateRootContainerBasePosition();
+			return rootContainerBasePosition;
+		}
+	}
+	/// <summary>
 	///     获取或设置当前节点是否处于展开状态。
 	/// </summary>
 	[Export]
@@ -145,7 +170,7 @@ public partial class CharacterNode : Control
 	public void Shake()
 	{
 		shakeTween?.Kill();
-		var basePosition = GetRootContainerBasePosition();
+		var basePosition = RootContainerBasePosition;
 		CardFrame.Position = basePosition;
 		shakeTween = CardFrame.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
@@ -232,7 +257,7 @@ public partial class CharacterNode : Control
 	{
 		UpdateOverviewVisibility();
 		var container = CardFrame;
-		var targetSize = GetTargetSize();
+		var targetSize = TargetSize;
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
@@ -244,7 +269,7 @@ public partial class CharacterNode : Control
 		if (!IsNodeReady()) return;
 		UpdateOverviewVisibility();
 		var container = CardFrame;
-		var targetSize = GetTargetSize();
+		var targetSize = TargetSize;
 		resizeTween?.Kill();
 		container.Size = targetSize;
 		UpdateRootContainerBasePosition();
@@ -254,20 +279,6 @@ public partial class CharacterNode : Control
 		rootContainerBasePosition = CardFrame.Position;
 		rootContainerBasePositionInitialized = true;
 	}
-	/// <summary>
-	///     计算展开状态下的目标尺寸，避免由于子节点显隐导致留白。
-	/// </summary>
-	Vector2 GetExpandedSize()
-	{
-		if (!IsNodeReady()) return maxSize;
-		PropertyContainer.QueueSort();
-		var containerSize = PropertyContainer.GetCombinedMinimumSize();
-		var panelStyle = CardFrame.GetThemeStylebox("panel");
-		var padding = panelStyle?.GetMinimumSize() ?? Vector2.Zero;
-		var targetHeight = Mathf.Max(minSize.Y, containerSize.Y + padding.Y);
-		return maxSize with { Y = targetHeight, };
-	}
-	Vector2 GetTargetSize() => Expanded ? GetExpandedSize() : minSize;
 	PropertyNode GetOrCreatePropertyNode(string nodeName, string title)
 	{
 		var node = PropertyContainer.GetNodeOrNull<PropertyNode>(nodeName);
@@ -278,11 +289,6 @@ public partial class CharacterNode : Control
 		node.Title = title;
 		PropertyContainer.AddChild(node);
 		return node;
-	}
-	Vector2 GetRootContainerBasePosition()
-	{
-		if (!rootContainerBasePositionInitialized) UpdateRootContainerBasePosition();
-		return rootContainerBasePosition;
 	}
 	/// <summary>
 	///     根据展开状态更新Overview（总生命值）的可见性。

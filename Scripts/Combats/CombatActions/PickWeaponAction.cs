@@ -38,7 +38,7 @@ public class PickWeaponAction(Character actor, BodyPart actorBodyPart, Combat co
 			options[i] = new()
 			{
 				title = item.Name,
-				description = item.flag.GetDisplayName(),
+				description = item.flag.DisplayName,
 			};
 		}
 		var menu = DialogueManager.CreateMenuDialogue("捡起地上武器", true, options);

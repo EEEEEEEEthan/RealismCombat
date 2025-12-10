@@ -10,10 +10,10 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 	Character? target;
 	BodyPart? targetBodyPart;
 	bool executed;
-	public virtual CombatActionCode Id => CombatActionCode.Execution;
 	public override string Description => "测试: 直接让敌方任意部位生命归零";
 	public override bool Visible => actorBodyPart is { Available: true, id.IsArm: true, };
-	public virtual IEnumerable<Character> AvailableTargets => GetOpponents().Where(c => c.IsAlive);
+	public virtual CombatActionCode Id => CombatActionCode.Execution;
+	public virtual IEnumerable<Character> AvailableTargets => Opponents.Where(c => c.IsAlive);
 	public virtual IEnumerable<(ICombatTarget target, bool disabled)> AvailableTargetObjects
 	{
 		get
@@ -33,6 +33,7 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 		get => targetBodyPart;
 		set => targetBodyPart = value as BodyPart;
 	}
+	IEnumerable<Character> Opponents => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 	protected override async Task OnStartTask()
 	{
 		await DialogueManager.ShowGenericDialogue($"{actor.name}举起{actorBodyPart.Name}准备处决");
@@ -47,7 +48,7 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 	{
 		if (target == null || targetBodyPart == null)
 		{
-			target = GetOpponents().FirstOrDefault(c => c.IsAlive);
+			target = Opponents.FirstOrDefault(c => c.IsAlive);
 			targetBodyPart = target?.bodyParts.FirstOrDefault();
 			if (target == null || targetBodyPart == null)
 			{
@@ -67,5 +68,4 @@ public class ExecutionAction(Character actor, BodyPart actorBodyPart, Combat com
 		await DialogueManager.ShowGenericDialogue(message);
 		actor.combatAction = null;
 	}
-	IEnumerable<Character> GetOpponents() => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 }

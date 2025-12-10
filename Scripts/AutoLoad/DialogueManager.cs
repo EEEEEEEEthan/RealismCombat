@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 public partial class DialogueManager : Node
@@ -8,17 +7,30 @@ public partial class DialogueManager : Node
 	{
 		void HandleInput(InputEvent @event);
 	}
+	sealed class DialogueScope(GenericDialogue dialogue) : IDisposable
+	{
+		bool disposed;
+		public void Dispose()
+		{
+			if (disposed) return;
+			disposed = true;
+			DestroyDialogue(dialogue);
+		}
+	}
 	static DialogueManager instance = null!;
+	public static BaseDialogue? TopDialogue => instance.currentDialogue;
 	public static IDisposable CreateGenericDialogue(out GenericDialogue dialogue)
 	{
-		if (instance.currentDialogue is { } existing && !existing.IsQueuedForDeletion())
-			throw new InvalidOperationException("不允许创建多个对话框");
-		if (instance.currentDialogue is { } queued && queued.IsQueuedForDeletion())
+		switch (instance.currentDialogue)
 		{
-			queued.OnClosed -= instance.DialogueClosed;
-			instance.currentDialogue = null;
+			case { } existing when !existing.IsQueuedForDeletion():
+				throw new InvalidOperationException("不允许创建多个对话框");
+			case { } queued when queued.IsQueuedForDeletion():
+				queued.OnClosed -= instance.DialogueClosed;
+				instance.currentDialogue = null;
+				break;
 		}
-		dialogue = new GenericDialogue();
+		dialogue = new();
 		AddDialogue(dialogue);
 		return new DialogueScope(dialogue);
 	}
@@ -26,11 +38,6 @@ public partial class DialogueManager : Node
 	{
 		using var scope = CreateGenericDialogue(out var dialogue);
 		return await dialogue.ShowTextTask(text, options);
-	}
-	public static async Task ShowGenericDialogue(IEnumerable<string> texts)
-	{
-		using var scope = CreateGenericDialogue(out var dialogue);
-		foreach (var text in texts) await dialogue.ShowTextTask(text);
 	}
 	public static void DestroyDialogue(BaseDialogue dialogue)
 	{
@@ -40,8 +47,7 @@ public partial class DialogueManager : Node
 	}
 	public static MenuDialogue CreateMenuDialogue(string title, bool allowEscapeReturn, params MenuOption[] options)
 	{
-		if (instance.currentDialogue is not null && !instance.currentDialogue.IsQueuedForDeletion())
-			throw new InvalidOperationException("不允许创建多个对话框");
+		if (instance.currentDialogue is not null && !instance.currentDialogue.IsQueuedForDeletion()) throw new InvalidOperationException("不允许创建多个对话框");
 		if (instance.currentDialogue is { } queued && queued.IsQueuedForDeletion())
 		{
 			queued.OnClosed -= instance.DialogueClosed;
@@ -52,8 +58,6 @@ public partial class DialogueManager : Node
 		return dialogue;
 	}
 	public static MenuDialogue CreateMenuDialogue(string title, params MenuOption[] options) => CreateMenuDialogue(title, false, options);
-	public static BaseDialogue? GetTopDialogue() => instance.currentDialogue;
-	public static int GetDialogueCount() => instance.currentDialogue is null ? 0 : 1;
 	static void AddDialogue(BaseDialogue dialogue)
 	{
 		instance.currentDialogue = dialogue;
@@ -68,7 +72,7 @@ public partial class DialogueManager : Node
 	}
 	public override void _Input(InputEvent @event)
 	{
-		var topDialogue = GetTopDialogue();
+		var topDialogue = TopDialogue;
 		if (topDialogue is IDialogue dialogue) dialogue.HandleInput(@event);
 	}
 	void DialogueClosed(BaseDialogue dialogue)
@@ -76,20 +80,5 @@ public partial class DialogueManager : Node
 		if (currentDialogue != dialogue) return;
 		currentDialogue.OnClosed -= DialogueClosed;
 		currentDialogue = null;
-	}
-	sealed class DialogueScope : IDisposable
-	{
-		readonly GenericDialogue dialogue;
-		bool disposed;
-		public DialogueScope(GenericDialogue dialogue)
-		{
-			this.dialogue = dialogue;
-		}
-		public void Dispose()
-		{
-			if (disposed) return;
-			disposed = true;
-			DestroyDialogue(dialogue);
-		}
 	}
 }
