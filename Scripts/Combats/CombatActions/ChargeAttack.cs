@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 /// <summary>
 ///     撞击攻击，只允许躯干使用
 /// </summary>

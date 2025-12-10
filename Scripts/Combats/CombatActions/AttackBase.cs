@@ -276,12 +276,12 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 					case BodyPart:
 					{
 						await dialogue.ShowTextTask($"{targetObject}没有任何防护，攻击硬生生打在了身上!");
-						await applyDamage(this.target!, targetObject, Damage.Total.RoundToInt(), dialogue);
+						await applyDamage(this.target!, targetObject, Damage, dialogue);
 						return;
 					}
 					case Item item:
 					{
-						await applyDamage(this.target!, targetObject, (Damage - item.Protection).Total.RoundToInt(), dialogue);
+						await applyDamage(this.target!, targetObject, Damage - item.Protection, dialogue);
 						return;
 					}
 					default:
