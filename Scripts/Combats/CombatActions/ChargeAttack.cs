@@ -58,8 +58,11 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 	{
 		if (targetObject is BodyPart { id: BodyPartCode.LeftLeg or BodyPartCode.RightLeg })
 		{
-			actor.torso.Buffs.Add(new(BuffCode.Prone, new(actor, targetObject)));
-			await DialogueManager.ShowGenericDialogue($"{actor.name}失去平衡倒下了!");
+			if (!actor.torso.HasBuff(BuffCode.Prone, false))
+			{
+				actor.torso.Buffs.Add(new(BuffCode.Prone, new(actor, targetObject)));
+				await DialogueManager.ShowGenericDialogue($"{actor.name}失去平衡倒下了!");
+			}
 		}
 		await base.OnExecute();
 	}
