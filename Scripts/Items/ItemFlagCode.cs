@@ -42,7 +42,19 @@ public enum ItemFlagCode
 	///     裆部外层护甲
 	/// </summary>
 	LegArmorOuter = 1 << 8,
-	Armor = TorsoArmor | TorsoArmorMiddle | TorsoArmorOuter | HandArmor | LegArmor | LegArmorMiddle | LegArmorOuter,
+	/// <summary>
+	///     头部内层护甲
+	/// </summary>
+	HeadArmor = 1 << 9,
+	/// <summary>
+	///     头部中层护甲
+	/// </summary>
+	HeadArmorMiddle = 1 << 10,
+	/// <summary>
+	///     头部外层护甲
+	/// </summary>
+	HeadArmorOuter = 1 << 11,
+	Armor = TorsoArmor | TorsoArmorMiddle | TorsoArmorOuter | HandArmor | LegArmor | LegArmorMiddle | LegArmorOuter | HeadArmor | HeadArmorMiddle | HeadArmorOuter,
 }
 /// <summary>
 ///     装备类型显示名称工具
@@ -74,6 +86,9 @@ public static class ItemFlagCodeExtensions
 							ItemFlagCode.LegArmor => "内层裤",
 							ItemFlagCode.LegArmorMiddle => "中层裤",
 							ItemFlagCode.LegArmorOuter => "外层裤",
+							ItemFlagCode.HeadArmor => "内层头盔",
+							ItemFlagCode.HeadArmorMiddle => "中层头盔",
+							ItemFlagCode.HeadArmorOuter => "外层头盔",
 							ItemFlagCode.Belt => "皮带",
 							_ => code.ToString(),
 						});
