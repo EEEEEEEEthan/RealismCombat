@@ -24,7 +24,7 @@ public class Game
 	/// <summary>
 	///     返回装备的展示描述: 首行显示flag, 次行显示原描述
 	/// </summary>
-	static string FormatItemDescription(Item item) => $"{item.flag.GetDisplayName()}\n{item.Description}";
+	static string FormatItemDescription(Item item) => $"{item.flag.DisplayName}\n{item.Description}";
 	/// <summary>
 	///     获取槽位标题: 空为#空, 有装备时附带其子装备
 	/// </summary>
@@ -455,7 +455,7 @@ public class Game
 			{
 				var slot = visibleSlot;
 				var title = FormatSlotTitle(slot);
-				var allowedDesc = $"可放入: {slot.Flag.GetDisplayName()}";
+				var allowedDesc = $"可放入: {slot.Flag.DisplayName}";
 				var desc = slot.Item is null ? allowedDesc : FormatItemDescription(slot.Item);
 				dynamicOptions.Add(new() { title = title, description = desc, });
 			}
@@ -473,7 +473,7 @@ public class Game
 				return;
 			}
 			if (choice >= visibleSlots.Count) return;
-			var slotNavigationTitle = $"{navigationTitle}>{visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.GetDisplayName()}";
+			var slotNavigationTitle = $"{navigationTitle}>{visibleSlots[choice].Item?.Name ?? visibleSlots[choice].Flag.DisplayName}";
 			await ExpandItemSlot(owner, visibleSlots[choice], slotNavigationTitle);
 		}
 	}

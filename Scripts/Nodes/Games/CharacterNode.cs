@@ -24,12 +24,12 @@ public partial class CharacterNode : Control
 		}
 		public void Dispose() => node.MoveTo(node.GlobalPosition);
 	}
-	const float MoveDuration = 0.2f;
-	const float ResizeDuration = 0.2f;
-	const float ShakeDistance = 8f;
-	const float ShakeStepDuration = 0.02f;
-	static readonly Vector2 shakeLeftOffset = new(-ShakeDistance, 0f);
-	static readonly Vector2 shakeRightOffset = new(ShakeDistance, 0f);
+	const float moveDuration = 0.2f;
+	const float resizeDuration = 0.2f;
+	const float shakeDistance = 8f;
+	const float shakeStepDuration = 0.02f;
+	static readonly Vector2 shakeLeftOffset = new(-shakeDistance, 0f);
+	static readonly Vector2 shakeRightOffset = new(shakeDistance, 0f);
 	static readonly Color deadBackgroundColor = GameColors.grayGradient[^2];
 	static void ConfigureTween(Tween tween, Tween.TransitionType transition, Tween.EaseType ease) => tween.SetTrans(transition).SetEase(ease);
 	[Export] Vector2 minSize = new(55f, 39f);
@@ -162,7 +162,7 @@ public partial class CharacterNode : Control
 		if (MoveAnchor.GlobalPosition == globalPosition) return;
 		moveTween = MoveAnchor.CreateTween();
 		ConfigureTween(moveTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
-		moveTween.TweenProperty(MoveAnchor, "global_position", globalPosition, MoveDuration);
+		moveTween.TweenProperty(MoveAnchor, "global_position", globalPosition, moveDuration);
 	}
 	/// <summary>
 	///     让RootContainer产生一次横向晃动并回到原位。
@@ -174,11 +174,11 @@ public partial class CharacterNode : Control
 		CardFrame.Position = basePosition;
 		shakeTween = CardFrame.CreateTween();
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(CardFrame, "position", basePosition + shakeLeftOffset, ShakeStepDuration);
+		shakeTween.TweenProperty(CardFrame, "position", basePosition + shakeLeftOffset, shakeStepDuration);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.InOut);
-		shakeTween.TweenProperty(CardFrame, "position", basePosition + shakeRightOffset, ShakeStepDuration * 2f);
+		shakeTween.TweenProperty(CardFrame, "position", basePosition + shakeRightOffset, shakeStepDuration * 2f);
 		ConfigureTween(shakeTween, Tween.TransitionType.Sine, Tween.EaseType.Out);
-		shakeTween.TweenProperty(CardFrame, "position", basePosition, ShakeStepDuration);
+		shakeTween.TweenProperty(CardFrame, "position", basePosition, shakeStepDuration);
 	}
 	public override void _Process(double delta)
 	{
@@ -261,7 +261,7 @@ public partial class CharacterNode : Control
 		resizeTween?.Kill();
 		resizeTween = container.CreateTween();
 		ConfigureTween(resizeTween, Tween.TransitionType.Cubic, Tween.EaseType.Out);
-		resizeTween.TweenProperty(container, "size", targetSize, ResizeDuration);
+		resizeTween.TweenProperty(container, "size", targetSize, resizeDuration);
 		resizeTween.Finished += UpdateRootContainerBasePosition;
 	}
 	void ApplyExpandedSizeImmediate()
@@ -294,7 +294,7 @@ public partial class CharacterNode : Control
 	///     根据展开状态更新Overview（总生命值）的可见性。
 	///     展开时隐藏Overview，折叠时显示Overview。
 	/// </summary>
-	void UpdateOverviewVisibility() => hitPointNode?.Visible = !Expanded;
+	void UpdateOverviewVisibility() => hitPointNode.Visible = !Expanded;
 	/// <summary>
 	///     更新反应点数显示，确保TextureRect数量与ReactionCount同步。
 	/// </summary>

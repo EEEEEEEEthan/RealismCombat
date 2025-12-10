@@ -3,7 +3,7 @@ using Godot;
 [Tool]
 public partial class PropertyNode : Control
 {
-	const string JumpShaderSource = """
+	const string jumpShaderSource = """
 		shader_type canvas_item;
 		#include "res://Shaders/random.gdshaderinc"
 		#include "res://Shaders/utilities.gdshaderinc"
@@ -18,20 +18,18 @@ public partial class PropertyNode : Control
 		    COLOR = texture(TEXTURE, uv);
 		}
 		""";
-	const float FlashDuration = 0.2f;
+	const float flashDuration = 0.2f;
 	static Shader? jumpShader;
 	[field: AllowNull, MaybeNull,] static ShaderMaterial JumpMaterial => field ??= CreateJumpMaterial();
 	static ShaderMaterial CreateJumpMaterial()
 	{
-		var shader = jumpShader ??= new() { Code = JumpShaderSource, };
+		var shader = jumpShader ??= new() { Code = jumpShaderSource, };
 		var material = new ShaderMaterial();
 		material.Shader = shader;
 		material.SetShaderParameter("interval", 0.15);
 		return material;
 	}
 	SceneTreeTimer? flashTimer;
-	[field: AllowNull, MaybeNull,] public Label Label => field ??= GetNodeOrNull<Label>("Label");
-	[field: AllowNull, MaybeNull,] public ProgressBar ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	public double Progress => Max == 0 ? 0 : Current / Max;
 	[Export]
 	public string? Title
@@ -45,11 +43,10 @@ public partial class PropertyNode : Control
 	}
 	public (double current, double max) Value
 	{
-		get => (Current, Max);
 		set
 		{
-			Max = value.max;
 			Current = value.current;
+			Max = value.max;
 		}
 	}
 	[Export]
@@ -72,6 +69,8 @@ public partial class PropertyNode : Control
 			UpdateJump();
 		}
 	}
+	Label? Label => field ??= GetNodeOrNull<Label>("Label");
+	ProgressBar? ProgressBar => field ??= GetNodeOrNull<ProgressBar>("ProgressBar");
 	[Export]
 	double Current
 	{
@@ -108,7 +107,7 @@ public partial class PropertyNode : Control
 		var originalModulate = Modulate;
 		var flashColor = GameColors.pinkGradient[^1];
 		Modulate = flashColor;
-		flashTimer = GetTree().CreateTimer(FlashDuration);
+		flashTimer = GetTree().CreateTimer(flashDuration);
 		flashTimer.Timeout += () =>
 		{
 			Modulate = originalModulate;
@@ -118,7 +117,7 @@ public partial class PropertyNode : Control
 	void UpdateProgressBarWidth()
 	{
 		if (!IsNodeReady()) return;
-		ProgressBar.CustomMinimumSize = ProgressBar.CustomMinimumSize with { X = BarWidth, };
+		ProgressBar?.CustomMinimumSize = ProgressBar.CustomMinimumSize with { X = BarWidth, };
 	}
 	void UpdateTitle() => Label?.Text = Title;
 	void UpdateValue()

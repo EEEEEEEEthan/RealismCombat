@@ -2,7 +2,7 @@ using Godot;
 [Tool]
 public partial class CardFrame : Control
 {
-	const float FlashDuration = 0.2f;
+	const float flashDuration = 0.2f;
 	Tween? flashTween;
 	[Export]
 	public Color Color
@@ -44,6 +44,6 @@ public partial class CardFrame : Control
 		var endX = parentWidth + flashContentWidth;
 		FlashContent.Position = new(startX, FlashContent.Position.Y);
 		flashTween = FlashContent.CreateTween();
-		flashTween.TweenProperty(FlashContent, "position:x", endX, FlashDuration);
+		flashTween.TweenProperty(FlashContent, "position:x", endX, flashDuration);
 	}
 }

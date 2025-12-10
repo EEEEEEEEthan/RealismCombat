@@ -4,7 +4,7 @@ using Godot;
 [GlobalClass]
 public partial class MenuOptionList : MarginContainer
 {
-	const int VisibleLines = 8;
+	const int visibleLines = 8;
 	static readonly Color disabledColor = new(178f / 255f, 178f / 255f, 178f / 255f);
 	readonly List<RichTextLabel> optionLabels = [];
 	readonly Control indicatorHost;
@@ -31,7 +31,7 @@ public partial class MenuOptionList : MarginContainer
 			var next = options.Length == 0 ? -1 : Mathf.Clamp(value, 0, options.Length - 1);
 			field = next;
 			if (TopVisibleIndex >= next) TopVisibleIndex = Mathf.Max(next - 1, 0);
-			if (TopVisibleIndex + VisibleLines - 1 <= next) TopVisibleIndex = Mathf.Min(next - VisibleLines + 2, Mathf.Max(options.Length - VisibleLines, 0));
+			if (TopVisibleIndex + visibleLines - 1 <= next) TopVisibleIndex = Mathf.Min(next - visibleLines + 2, Mathf.Max(options.Length - visibleLines, 0));
 			Rebuild();
 		}
 	} = -1;
@@ -83,7 +83,7 @@ public partial class MenuOptionList : MarginContainer
 		optionContainer.OffsetBottom = 0;
 		optionContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 		optionContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
-		for (var i = 0; i < VisibleLines; i++)
+		for (var i = 0; i < visibleLines; i++)
 		{
 			var label = new RichTextLabel
 			{
@@ -103,7 +103,7 @@ public partial class MenuOptionList : MarginContainer
 	void Rebuild()
 	{
 		var options = Options ?? [];
-		for (var i = 0; i < VisibleLines; i++)
+		for (var i = 0; i < visibleLines; i++)
 		{
 			optionLabels[i].Modulate = Colors.White;
 			switch (i)
@@ -111,8 +111,8 @@ public partial class MenuOptionList : MarginContainer
 				case 0 when TopVisibleIndex > 0:
 					optionLabels[i].Text = $"...(+{TopVisibleIndex + 1})";
 					break;
-				case VisibleLines - 1 when TopVisibleIndex + VisibleLines < options.Length:
-					optionLabels[i].Text = $"...(+{options.Length - (TopVisibleIndex + VisibleLines - 1)})";
+				case visibleLines - 1 when TopVisibleIndex + visibleLines < options.Length:
+					optionLabels[i].Text = $"...(+{options.Length - (TopVisibleIndex + visibleLines - 1)})";
 					break;
 				default:
 				{
