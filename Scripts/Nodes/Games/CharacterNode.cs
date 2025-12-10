@@ -47,7 +47,6 @@ public partial class CharacterNode : Control
 	PropertyNode leftArmHitPointNode = null!;
 	PropertyNode rightArmHitPointNode = null!;
 	PropertyNode torsoHitPointNode = null!;
-	PropertyNode groinHitPointNode = null!;
 	PropertyNode leftLegHitPointNode = null!;
 	PropertyNode rightLegHitPointNode = null!;
 	/// <summary>
@@ -144,7 +143,6 @@ public partial class CharacterNode : Control
 		leftArmHitPointNode = GetOrCreatePropertyNode("LeftArmHitPoint", "左臂");
 		rightArmHitPointNode = GetOrCreatePropertyNode("RightArmHitPoint", "右臂");
 		torsoHitPointNode = GetOrCreatePropertyNode("TorsoHitPoint", "躯干");
-		groinHitPointNode = GetOrCreatePropertyNode("GroinHitPoint", "裆部");
 		leftLegHitPointNode = GetOrCreatePropertyNode("LeftLegHitPoint", "左腿");
 		rightLegHitPointNode = GetOrCreatePropertyNode("RightLegHitPoint", "右腿");
 		CallDeferred(nameof(ApplyExpandedSizeImmediate));
@@ -205,8 +203,6 @@ public partial class CharacterNode : Control
 		rightArmHitPointNode.BarWidth = character.rightArm.HitPoint.maxValue * 2 - 1;
 		torsoHitPointNode.Value = (torsoHitPoint.value, torsoHitPoint.maxValue);
 		torsoHitPointNode.BarWidth = torsoHitPoint.maxValue * 2 - 1;
-		groinHitPointNode.Value = (character.groin.HitPoint.value, character.groin.HitPoint.maxValue);
-		groinHitPointNode.BarWidth = character.groin.HitPoint.maxValue * 2 - 1;
 		leftLegHitPointNode.Value = (character.leftLeg.HitPoint.value, character.leftLeg.HitPoint.maxValue);
 		leftLegHitPointNode.BarWidth = character.leftLeg.HitPoint.maxValue * 2 - 1;
 		rightLegHitPointNode.Value = (character.rightLeg.HitPoint.value, character.rightLeg.HitPoint.maxValue);
@@ -229,7 +225,6 @@ public partial class CharacterNode : Control
 				BodyPartCode.LeftArm => leftArmHitPointNode,
 				BodyPartCode.RightArm => rightArmHitPointNode,
 				BodyPartCode.Torso => torsoHitPointNode,
-				BodyPartCode.Groin => groinHitPointNode,
 				BodyPartCode.LeftLeg => leftLegHitPointNode,
 				BodyPartCode.RightLeg => rightLegHitPointNode,
 				_ => null,

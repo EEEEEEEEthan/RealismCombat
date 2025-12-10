@@ -11,7 +11,6 @@ public enum BodyPartCode
 	LeftArm,
 	RightArm,
 	Torso,
-	Groin,
 	LeftLeg,
 	RightLeg,
 }
@@ -32,7 +31,6 @@ public static class BodyPartExtensions
 				BodyPartCode.LeftArm => "左臂",
 				BodyPartCode.RightArm => "右臂",
 				BodyPartCode.Torso => "躯干",
-				BodyPartCode.Groin => "裆部",
 				BodyPartCode.LeftLeg => "左腿",
 				BodyPartCode.RightLeg => "右腿",
 				_ => @this.ToString(),
@@ -53,7 +51,6 @@ public static class BodyPartExtensions
 			{
 				BodyPartCode.Head => 1.0,
 				BodyPartCode.Torso => 0.85,
-				BodyPartCode.Groin => 0.7,
 				BodyPartCode.LeftArm or BodyPartCode.RightArm => 0.75,
 				BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 0.35,
 				_ => 0.6,
@@ -67,7 +64,6 @@ public class BodyPart : ICombatTarget, IItemContainer
 		{
 			BodyPartCode.Head => 5,
 			BodyPartCode.LeftArm or BodyPartCode.RightArm => 8,
-			BodyPartCode.Groin => 6,
 			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => 8,
 			_ => 10,
 		};
@@ -186,7 +182,6 @@ public class BodyPart : ICombatTarget, IItemContainer
 		{
 			BodyPartCode.LeftArm or BodyPartCode.RightArm => [new(ItemFlagCode.HandArmor, this), new(ItemFlagCode.Arm, this, false),],
 			BodyPartCode.LeftLeg or BodyPartCode.RightLeg => [new(ItemFlagCode.FootArmor, this),],
-			BodyPartCode.Groin => [new(ItemFlagCode.LegArmor, this),],
 			BodyPartCode.Head => [new(ItemFlagCode.HeadArmor, this),],
 			BodyPartCode.Torso => [new(ItemFlagCode.TorsoArmor, this), new(ItemFlagCode.Belt, this),],
 			_ => [],

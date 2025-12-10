@@ -157,7 +157,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				dodgeLoadWeight * defenderLoadScore +
 				(isUnarmedAttack ? unarmedDodgeShift : 0.0);
 			var blockTargetBonus = 0.0;
-			if (targetObject is BodyPart { id: BodyPartCode.Torso or BodyPartCode.Groin, }) blockTargetBonus = blockCenterBonus;
+			if (targetObject is BodyPart { id: BodyPartCode.Torso, }) blockTargetBonus = blockCenterBonus;
 			var blockScore =
 				blockBias +
 				blockLengthWeight * weaponLengthScore +

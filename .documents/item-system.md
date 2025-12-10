@@ -39,16 +39,13 @@
 - `TorsoArmorMiddle`：中层上衣
 - `TorsoArmorOuter`：外层上衣
 - `HandArmor`：护手
-- `LegArmor`：内层腿甲
-- `LegArmorMiddle`：中层腿甲
-- `LegArmorOuter`：外层腿甲
 - `HeadArmor`：内层头盔
 - `HeadArmorMiddle`：中层头盔
 - `HeadArmorOuter`：外层头盔
 - `FootArmor`：鞋子
 - `Belt`：皮带
 
-护甲聚合标志 `Armor` 覆盖头盔三层、上衣三层、裤子三层、护手与鞋子。
+护甲聚合标志 `Armor` 覆盖头盔三层、上衣三层、护手与鞋子。
 
 #### 显示名称
 
@@ -63,9 +60,6 @@
 - `ChainMail`：链甲，标志 `TorsoArmorMiddle`，槽位 `TorsoArmorOuter`
 - `PlateArmor`：板甲，标志 `TorsoArmorOuter`，无槽位
 - `Belt`：皮带，标志 `Belt`，4 个 `Arm` 槽位
-- `CottonPants`：武装腿甲，标志 `LegArmor`，槽位 `LegArmorMiddle`，覆盖髋至膝，缓冲与保暖为主
-- `ChainChausses`：链甲腿甲，标志 `LegArmorMiddle`，槽位 `LegArmorOuter`，覆盖髋至膝，链环防护为主
-- `PlateChausses`：板甲腿甲，标志 `LegArmorOuter`，无槽位，小块钢板铆接覆盖髋至膝
 - `LeatherGloves`：皮手套，标志 `HandArmor`，无槽位，轻量基础防护
 - `ChainGloves`：链甲手套，标志 `HandArmor`，无槽位，链环防割
 - `PlateGauntlets`：板甲手套，标志 `HandArmor`，无槽位，重型高防护
@@ -91,9 +85,9 @@
 
 ### 装备挂载
 
-- `BodyPart` 通过 `Slots` 管理装备槽位；默认双臂有 `Arm` 槽，躯干有 `TorsoArmor` 与 `Belt` 槽，裆部有 `LegArmor` 槽
+- `BodyPart` 通过 `Slots` 管理装备槽位；默认双臂有 `Arm` 与 `HandArmor` 槽，躯干有 `TorsoArmor` 与 `Belt` 槽
 - 双腿各有一个 `FootArmor` 槽用于鞋子
-- 头部新增 `HeadArmor` 槽，用于承载头盔内层；中层、外层需由内层头盔继续提供子槽（同上衣/裤子层级思路）
+- 头部有 `HeadArmor` 槽，用于承载头盔内层；中层、外层需由内层头盔继续提供子槽（同上衣层级思路）
 - 装备通过 `slot.Item = Item.Create(...)` 挂载，标志不匹配会抛出异常
 - 装备菜单仅展示存在装备槽的身体部位；无槽部位不会出现在选择列表中。角色若没有可装备的部位，会提示“没有可装备的部位”并返回上级菜单
 - 选择物品栏中的装备成功换装后不再弹出成功提示，直接返回
@@ -129,4 +123,4 @@
 
 - 新增物品：在 `ItemIdCode` 与 `Item.Configs` 中添加条目，配置名称、标志、槽位、长度、重量、耐久
 - 新增装备类型：在 `ItemFlagCode` 增加标志，并在需要承载该类型的部位或物品上添加对应槽位
-- 嵌套示例：躯干(`TorsoArmor`槽) → 武装衣(`TorsoArmorMiddle`) → 链甲(`TorsoArmorOuter`) → 板甲 → 皮带(4×`Arm`)；裆部(`LegArmor`槽) → 武装腿甲(`LegArmorMiddle`) → 链甲腿甲(`LegArmorOuter`) → 板甲腿甲
+- 嵌套示例：躯干(`TorsoArmor`槽) → 武装衣(`TorsoArmorMiddle`) → 链甲(`TorsoArmorOuter`) → 板甲 → 皮带(4×`Arm`)

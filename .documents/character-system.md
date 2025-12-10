@@ -21,12 +21,12 @@
 #### 身体部位
 
 角色包含六个 `BodyPart` 实例：
-- `head`：头部（`BodyPartCode.Head`），无装备槽位
-- `leftArm`：左臂（`BodyPartCode.LeftArm`），拥有 `ItemFlagCode.Arm` 类型装备槽位
-- `rightArm`：右臂（`BodyPartCode.RightArm`），拥有 `ItemFlagCode.Arm` 类型装备槽位
-- `torso`：躯干（`BodyPartCode.Torso`），无装备槽位
-- `leftLeg`：左腿（`BodyPartCode.LeftLeg`），无装备槽位
-- `rightLeg`：右腿（`BodyPartCode.RightLeg`），无装备槽位
+- `head`：头部（`BodyPartCode.Head`），拥有 `HeadArmor` 槽
+- `leftArm`：左臂（`BodyPartCode.LeftArm`），拥有 `HandArmor` 与 `Arm` 槽
+- `rightArm`：右臂（`BodyPartCode.RightArm`），拥有 `HandArmor` 与 `Arm` 槽
+- `torso`：躯干（`BodyPartCode.Torso`），拥有 `TorsoArmor` 与 `Belt` 槽
+- `leftLeg`：左腿（`BodyPartCode.LeftLeg`），拥有 `FootArmor` 槽
+- `rightLeg`：右腿（`BodyPartCode.RightLeg`），拥有 `FootArmor` 槽
 
 所有身体部位统一暴露在 `IReadOnlyList<BodyPart> bodyParts` 列表中。
 
@@ -122,9 +122,11 @@
 
 ### 装备挂载
 
-- 身体部位通过 `Slots` 数组管理装备
-- 默认情况下，双臂部位拥有 `ItemFlagCode.Arm` 类型的装备槽位
-- 装备通过 `bodyPart.Slots[0].Item = item` 进行挂载
+- 身体部位通过 `Slots` 管理装备：
+  - 头部：`HeadArmor`
+  - 躯干：`TorsoArmor`、`Belt`
+  - 左/右臂：`HandArmor`、`Arm`
+  - 左/右腿：`FootArmor`
 - 装备必须与槽位标志匹配才能挂载
 
 ### 装备作为格挡目标

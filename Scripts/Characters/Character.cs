@@ -15,7 +15,6 @@ public class Character
 	public readonly BodyPart leftArm;
 	public readonly BodyPart rightArm;
 	public readonly BodyPart torso;
-	public readonly BodyPart groin;
 	public readonly BodyPart leftLeg;
 	public readonly BodyPart rightLeg;
 	public readonly IReadOnlyList<BodyPart> bodyParts;
@@ -90,7 +89,6 @@ public class Character
 			leftArm = new(BodyPartCode.LeftArm),
 			rightArm = new(BodyPartCode.RightArm),
 			torso = new(BodyPartCode.Torso),
-			groin = new(BodyPartCode.Groin),
 			leftLeg = new(BodyPartCode.LeftLeg),
 			rightLeg = new(BodyPartCode.RightLeg),
 		];
@@ -113,7 +111,6 @@ public class Character
 				leftArm = new(BodyPartCode.LeftArm),
 				rightArm = new(BodyPartCode.RightArm),
 				torso = new(BodyPartCode.Torso),
-				groin = new(BodyPartCode.Groin),
 				leftLeg = new(BodyPartCode.LeftLeg),
 				rightLeg = new(BodyPartCode.RightLeg),
 			];
