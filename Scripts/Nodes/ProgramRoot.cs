@@ -66,7 +66,7 @@ public partial class ProgramRoot : Node
 				await DialogueManager.ShowGenericDialogue("当前没有可读取的存档");
 				return null;
 			}
-			var menu = DialogueManager.CreateMenuDialogue("选择存档槽", !requireExisting, options);
+			var menu = DialogueManager.CreateMenuDialogue("选择存档槽", true, options);
 			var choice = await menu;
 			if (choice == options.Length) return null;
 			var saveFilePath = GetSaveFilePath(choice);

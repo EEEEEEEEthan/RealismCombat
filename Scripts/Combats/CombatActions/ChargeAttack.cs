@@ -71,7 +71,7 @@ public class ChargeAttack(Character actor, BodyPart actorBodyPart, Combat combat
 		// 撞击命中时，按重量比计算目标获得倒伏buff的概率
 		var targetWeight = targetCharacter.TotalWeight;
 		var actorWeight = actor.TotalWeight;
-		var proneChance = targetWeight / actorWeight;
+		var proneChance = targetWeight / (actorWeight + targetWeight);
 		
 		if (GD.Randf() < proneChance)
 		{
