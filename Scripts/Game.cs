@@ -76,6 +76,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		this.gameNode = gameNode;
 		var hero = new Character("Ethan");
 		var longSword = Item.Create(ItemIdCode.LongSword);
+		var dagger = Item.Create(ItemIdCode.Dagger);
 		var cottonLiner = Item.Create(ItemIdCode.CottonLiner);
 		var chainMail = Item.Create(ItemIdCode.ChainMail);
 		var belt = Item.Create(ItemIdCode.Belt);
@@ -86,6 +87,7 @@ static string FormatItemDescription(Item item) => $"{item.flag.DisplayName()}\n{
 		hero.inventory.Items.Add(chainChausses);
 		if (hero.torso.Slots.Length > 0) hero.torso.Slots[0].Item = cottonLiner;
 		if (hero.torso.Slots.Length > 1) hero.torso.Slots[1].Item = belt;
+		if (belt.Slots.Length > 0) belt.Slots[0].Item = dagger;
 		if (hero.groin.Slots.Length > 0) hero.groin.Slots[0].Item = cottonPants;
 		hero.availableCombatActions.Clear();
 		hero.availableCombatActions[CombatActionCode.Slash] = 0f;

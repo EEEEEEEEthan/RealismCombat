@@ -143,6 +143,201 @@ public readonly struct ItemConfig
 				Icon = "res://Textures/Items/Icons8.png",
 			}
 		},
+		{
+			ItemIdCode.LeatherGloves,
+			new()
+			{
+				Name = "皮手套",
+				Story = "柔软的皮手套,能提供基础防护与握持摩擦",
+				Flag = ItemFlagCode.HandArmor,
+				SlotFlags = [],
+				Length = 22.0,
+				Weight = 0.25,
+				HitPointMax = 8,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(1f, 1f, 1f),
+				Coverage = 0.9,
+				Icon = "res://Textures/Items/Icons2.png",
+			}
+		},
+		{
+			ItemIdCode.ChainGloves,
+			new()
+			{
+				Name = "链甲手套",
+				Story = "由细密铁环编织而成的手套,可以防割挡刃",
+				Flag = ItemFlagCode.HandArmor,
+				SlotFlags = [],
+				Length = 24.0,
+				Weight = 0.9,
+				HitPointMax = 12,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(3f, 1f, 0f),
+				Coverage = 0.85,
+				Icon = "res://Textures/Items/Icons3.png",
+			}
+		},
+		{
+			ItemIdCode.PlateGauntlets,
+			new()
+			{
+				Name = "板甲手套",
+				Story = "包覆指节的金属手套,笨重但可靠",
+				Flag = ItemFlagCode.HandArmor,
+				SlotFlags = [],
+				Length = 25.0,
+				Weight = 2.0,
+				HitPointMax = 16,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(4f, 4f, 2f),
+				Coverage = 0.6,
+				Icon = "res://Textures/Items/Icons4.png",
+			}
+		},
+		{
+			ItemIdCode.LeatherBoots,
+			new()
+			{
+				Name = "皮鞋",
+				Story = "厚底皮鞋,适合长途行军",
+				Flag = ItemFlagCode.FootArmor,
+				SlotFlags = [],
+				Length = 28.0,
+				Weight = 0.7,
+				HitPointMax = 10,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(1f, 1f, 1f),
+				Coverage = 0.9,
+				Icon = "res://Textures/Items/Icons6.png",
+			}
+		},
+		{
+			ItemIdCode.ChainBoots,
+			new()
+			{
+				Name = "链甲鞋",
+				Story = "在皮鞋外罩上铁环,提升防护但更沉重",
+				Flag = ItemFlagCode.FootArmor,
+				SlotFlags = [],
+				Length = 30.0,
+				Weight = 2.8,
+				HitPointMax = 14,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(3f, 1f, 0f),
+				Coverage = 0.85,
+				Icon = "res://Textures/Items/Icons7.png",
+			}
+		},
+		{
+			ItemIdCode.PlateBoots,
+			new()
+			{
+				Name = "板甲鞋",
+				Story = "包覆脚背和小腿下端的板甲鞋,防护极佳",
+				Flag = ItemFlagCode.FootArmor,
+				SlotFlags = [],
+				Length = 32.0,
+				Weight = 4.5,
+				HitPointMax = 20,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(4f, 4f, 2f),
+				Coverage = 0.65,
+				Icon = "res://Textures/Items/Icons8.png",
+			}
+		},
+		{
+			ItemIdCode.Headscarf,
+			new()
+			{
+				Name = "头巾",
+				Story = "亚麻头巾,防汗也能垫在头盔下",
+				Flag = ItemFlagCode.HeadArmor,
+				SlotFlags = [ItemFlagCode.HeadArmorMiddle,],
+				Length = 25.0,
+				Weight = 0.2,
+				HitPointMax = 6,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(1f, 1f, 1f),
+				Coverage = 0.95,
+				Icon = "res://Textures/Items/Icons2.png",
+			}
+		},
+		{
+			ItemIdCode.ChainCoif,
+			new()
+			{
+				Name = "链甲头套",
+				Story = "细密铁环编织的头套,覆盖头部与颈部",
+				Flag = ItemFlagCode.HeadArmorMiddle,
+				SlotFlags = [ItemFlagCode.HeadArmorOuter,],
+				Length = 28.0,
+				Weight = 2.2,
+				HitPointMax = 12,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(3f, 1f, 0f),
+				Coverage = 0.9,
+				Icon = "res://Textures/Items/Icons3.png",
+			}
+		},
+		{
+			ItemIdCode.PotHelm,
+			new()
+			{
+				Name = "罐头盔",
+				Story = "简单的圆顶盔,像罐头一样把头罩住",
+				Flag = ItemFlagCode.HeadArmorOuter,
+				SlotFlags = [],
+				Length = 30.0,
+				Weight = 4.0,
+				HitPointMax = 16,
+				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
+				Protection = new(4f, 4f, 2f),
+				Coverage = 0.65,
+				Icon = "res://Textures/Items/Icons4.png",
+			}
+		},
+		{
+			ItemIdCode.Dagger,
+			new()
+			{
+				Name = "匕首",
+				Story = "短而轻便的匕首,容易隐藏,近身时致命",
+				Flag = ItemFlagCode.Arm,
+				SlotFlags = [],
+				Length = 40.0,
+				Weight = 0.5,
+				HitPointMax = 4,
+				DamageProfile = new(
+					new(2f, 1f, 1f),
+					new(1f, 3f, 0f),
+					Damage.Zero
+				),
+				Protection = new(2f, 2f, 1f),
+				Coverage = 0.0,
+				Icon = "res://Textures/Items/Icons1.png",
+			}
+		},
+		{
+			ItemIdCode.Mace,
+			new()
+			{
+				Name = "钉头锤",
+				Story = "沉重的钉头锤,用来砸碎盔甲",
+				Flag = ItemFlagCode.Arm,
+				SlotFlags = [],
+				Length = 70.0,
+				Weight = 1.6,
+				HitPointMax = 6,
+				DamageProfile = new(
+					new(0f, 0f, 5f),
+					new(0f, 1f, 4f),
+					Damage.Zero
+				),
+				Protection = new(3f, 2f, 3f),
+				Coverage = 0.0,
+				Icon = "res://Textures/Items/Icons1.png",
+			}
+		},
 	};
 	public string Icon { get; private init; }
 	public string Name { get; private init; }

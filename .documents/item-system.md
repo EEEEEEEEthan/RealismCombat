@@ -66,6 +66,17 @@
 - `CottonPants`：武装腿甲，标志 `LegArmor`，槽位 `LegArmorMiddle`，覆盖髋至膝，缓冲与保暖为主
 - `ChainChausses`：链甲腿甲，标志 `LegArmorMiddle`，槽位 `LegArmorOuter`，覆盖髋至膝，链环防护为主
 - `PlateChausses`：板甲腿甲，标志 `LegArmorOuter`，无槽位，小块钢板铆接覆盖髋至膝
+- `LeatherGloves`：皮手套，标志 `HandArmor`，无槽位，轻量基础防护
+- `ChainGloves`：链甲手套，标志 `HandArmor`，无槽位，链环防割
+- `PlateGauntlets`：板甲手套，标志 `HandArmor`，无槽位，重型高防护
+- `LeatherBoots`：皮鞋，标志 `FootArmor`，无槽位，轻量行军
+- `ChainBoots`：链甲鞋，标志 `FootArmor`，无槽位，外覆铁环的中量防护
+- `PlateBoots`：板甲鞋，标志 `FootArmor`，无槽位，重型高防护
+- `Headscarf`：头巾，标志 `HeadArmor`，槽位 `HeadArmorMiddle`，内衬缓冲
+- `ChainCoif`：链甲头套，标志 `HeadArmorMiddle`，槽位 `HeadArmorOuter`，覆盖头颈
+- `PotHelm`：罐头盔，标志 `HeadArmorOuter`，无槽位，圆顶金属盔
+- `Dagger`：匕首，标志 `Arm`，无槽位，挥砍 2/1/1，刺击 1/3/0
+- `Mace`：钉头锤，标志 `Arm`，无槽位，挥砍 0/0/5，刺击 0/1/4，主打钝击
 
 ### IItemContainer 接口
 
@@ -87,6 +98,7 @@
 - 装备菜单仅展示存在装备槽的身体部位；无槽部位不会出现在选择列表中。角色若没有可装备的部位，会提示“没有可装备的部位”并返回上级菜单
 - 选择物品栏中的装备成功换装后不再弹出成功提示，直接返回
 - 装备菜单与物品栏列表的描述统一通过 `Game.FormatItemDescription` 生成：首行显示装备 `flag` 的中文名称，次行显示原始物品描述，便于区分类型与详情
+- 开局默认：主角腰带挂载一把匕首，便于直接抽取；其余初始装备同任务需求
 
 ### 战斗中的暂存与归还
 
