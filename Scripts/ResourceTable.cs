@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
@@ -11,6 +11,14 @@ public class Cache<T>(Func<T> factory)
 public class Loader<T>(string path) : Cache<T>(() => GD.Load<T>(path)) where T : class { }
 public static class ResourceTable
 {
+	public const string itemIcon1Path = "res://Textures/Items/Icons1.png";
+	public const string itemIcon2Path = "res://Textures/Items/Icons2.png";
+	public const string itemIcon3Path = "res://Textures/Items/Icons3.png";
+	public const string itemIcon4Path = "res://Textures/Items/Icons4.png";
+	public const string itemIcon5Path = "res://Textures/Items/Icons5.png";
+	public const string itemIcon6Path = "res://Textures/Items/Icons6.png";
+	public const string itemIcon7Path = "res://Textures/Items/Icons7.png";
+	public const string itemIcon8Path = "res://Textures/Items/Icons8.png";
 	public static readonly Loader<Texture2D> icon8 = new("res://Textures/Icon8.png");
 	public static readonly Loader<Texture2D> bleeding = new("res://Textures/AnimationBleeding.png");
 	public static readonly Loader<AudioStream> typingSound = new("res://Audios/gameboy-pluck-41265.mp3");

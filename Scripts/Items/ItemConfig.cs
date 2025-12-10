@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 public readonly struct ItemConfig
 {
 	public static readonly IReadOnlyDictionary<ItemIdCode, ItemConfig> configs = new Dictionary<ItemIdCode, ItemConfig>
@@ -21,7 +21,7 @@ public readonly struct ItemConfig
 				),
 				Protection = new(4, 4, 1),
 				Coverage = 0.0,
-				Icon = "res://Textures/Items/Icons1.png",
+				Icon = ResourceTable.itemIcon1Path,
 			}
 		},
 		{
@@ -38,7 +38,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 2f),
 				Coverage = 0.99,
-				Icon = "res://Textures/Items/Icons2.png",
+				Icon = ResourceTable.itemIcon2Path,
 			}
 		},
 		{
@@ -55,7 +55,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(3f, 1f, 0f),
 				Coverage = 0.95,
-				Icon = "res://Textures/Items/Icons3.png",
+				Icon = ResourceTable.itemIcon3Path,
 			}
 		},
 		{
@@ -72,7 +72,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 1f),
 				Coverage = 0.6,
-				Icon = "res://Textures/Items/Icons4.png",
+				Icon = ResourceTable.itemIcon4Path,
 			}
 		},
 		{
@@ -89,7 +89,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = Protection.Zero,
 				Coverage = 0.0,
-				Icon = "res://Textures/Items/Icons5.png",
+				Icon = ResourceTable.itemIcon5Path,
 			}
 		},
 		{
@@ -106,7 +106,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
 				Coverage = 0.9,
-				Icon = "res://Textures/Items/Icons2.png",
+				Icon = ResourceTable.itemIcon2Path,
 			}
 		},
 		{
@@ -123,7 +123,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(3f, 1f, 0f),
 				Coverage = 0.85,
-				Icon = "res://Textures/Items/Icons3.png",
+				Icon = ResourceTable.itemIcon3Path,
 			}
 		},
 		{
@@ -140,7 +140,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
 				Coverage = 0.6,
-				Icon = "res://Textures/Items/Icons4.png",
+				Icon = ResourceTable.itemIcon4Path,
 			}
 		},
 		{
@@ -157,7 +157,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
 				Coverage = 0.9,
-				Icon = "res://Textures/Items/Icons6.png",
+				Icon = ResourceTable.itemIcon6Path,
 			}
 		},
 		{
@@ -174,7 +174,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(3f, 1f, 0f),
 				Coverage = 0.85,
-				Icon = "res://Textures/Items/Icons7.png",
+				Icon = ResourceTable.itemIcon7Path,
 			}
 		},
 		{
@@ -191,7 +191,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
 				Coverage = 0.65,
-				Icon = "res://Textures/Items/Icons8.png",
+				Icon = ResourceTable.itemIcon8Path,
 			}
 		},
 		{
@@ -208,7 +208,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(1f, 1f, 1f),
 				Coverage = 0.95,
-				Icon = "res://Textures/Items/Icons2.png",
+				Icon = ResourceTable.itemIcon2Path,
 			}
 		},
 		{
@@ -225,7 +225,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(3f, 1f, 0f),
 				Coverage = 0.9,
-				Icon = "res://Textures/Items/Icons3.png",
+				Icon = ResourceTable.itemIcon3Path,
 			}
 		},
 		{
@@ -242,7 +242,7 @@ public readonly struct ItemConfig
 				DamageProfile = new(Damage.Zero, Damage.Zero, Damage.Zero),
 				Protection = new(4f, 4f, 2f),
 				Coverage = 0.65,
-				Icon = "res://Textures/Items/Icons4.png",
+				Icon = ResourceTable.itemIcon4Path,
 			}
 		},
 		{
@@ -263,7 +263,7 @@ public readonly struct ItemConfig
 				),
 				Protection = new(2f, 2f, 1f),
 				Coverage = 0.0,
-				Icon = "res://Textures/Items/Icons1.png",
+				Icon = ResourceTable.itemIcon1Path,
 			}
 		},
 		{
@@ -284,7 +284,7 @@ public readonly struct ItemConfig
 				),
 				Protection = new(3f, 2f, 3f),
 				Coverage = 0.0,
-				Icon = "res://Textures/Items/Icons1.png",
+				Icon = ResourceTable.itemIcon1Path,
 			}
 		},
 	};

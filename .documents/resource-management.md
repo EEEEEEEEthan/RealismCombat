@@ -14,7 +14,7 @@
 
 - 集中声明所有外部资源路径，便于后续统一重构或替换
 - 当前表项按类型归档：
-  - 纹理：`icon8`、`bleeding`（流血动画图集）
+  - 纹理：`icon8`、`bleeding`（流血动画图集）、`itemIcon1Path`~`itemIcon8Path`（物品图标路径常量，供物品配置复用）
   - 音频：`typingSound`、`arpegio01Loop`、`battleMusic1`、`oneBeep`、`retroClick`、`retroHurt1`、`selection3`、`blockSound`
   - 场景：`gameNodeScene`、`combatNodeScene`、`characterNodeScene`、`propertyNodeScene`、`menuDialogueScene`
 - 访问方式示例：
@@ -27,7 +27,7 @@ PackedScene combatScene = ResourceTable.combatNodeScene;
 - 新增资源步骤：
   - 将资源文件放入对应目录（如 `res://Textures/`）
   - 在 `ResourceTable` 添加 `Loader<T>` 字段，命名遵循驼峰式含义明确的规则
-  - 在代码中引用字段，不直接写入字符串路径
+  - 在代码中引用字段，不直接写入字符串路径；若仅需共享路径（如物品图标），可添加 `const string` 路径常量后由配置引用
 
 ## SpriteTable
 - `SpriteTable` 基于 `Cache<AtlasTexture>` 将图集中子区域切割成可直接使用的精灵

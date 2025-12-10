@@ -14,7 +14,7 @@
 - 字段：`ItemIdCode id`、`ItemFlagCode flag`、`PropertyInt HitPoint`、`ItemSlot[] Slots`、`string Name`、`double Length`、`double Weight`、`string Icon`、`string IconTag`
 - 通过 `Item.Create(ItemIdCode id)` 工厂方法创建，底层使用 `ItemConfig` 定义名称、标志、槽位、长度、重量、耐久
 - 槽位由配置的 `SlotFlags` 生成，用于继续承载下一层装备
-- `Icon` 存放资源路径；`IconTag` 为富文本标签，菜单展示时与装备名拼接，例如 `#皮带[img=8x8]res://...[/img]`
+- `Icon` 存放资源路径；物品配置统一从 `ResourceTable.itemIcon1Path`~`itemIcon8Path` 获取路径，避免散落硬编码；`IconTag` 为富文本标签，菜单展示时与装备名拼接，例如 `#皮带[img=8x8]res://...[/img]`
 
 #### 序列化
 
