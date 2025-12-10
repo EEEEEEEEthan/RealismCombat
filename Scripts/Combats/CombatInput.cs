@@ -503,7 +503,7 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 			{
 				var parryAction = new ParryAction(character, bodyPart, combat);
 				if (!parryAction.CanUse) continue;
-				actions[parryAction] = 0.5d; // 极低权重
+				actions[parryAction] = 0.01d; // 极低权重
 			}
 		}
 		// actions里选取权重最高的
