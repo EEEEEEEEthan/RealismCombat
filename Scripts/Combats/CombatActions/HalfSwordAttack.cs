@@ -7,9 +7,26 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 	: AttackBase(actor, actorBodyPart, combat, 3, 4)
 {
 	public override CombatActionCode Id => CombatActionCode.HalfSword;
-	public override string Narrative => "双手握持武器刃部精准刺击目标，造成刺击伤害，更容易击中盔甲缝隙，依赖手部武器";
+	public override string Narrative => "双手握持武器刃部精准刺击目标，造成刺击伤害，更容易击中盔甲缝隙。需要一只手持有长剑，另一只手空闲且有护甲。";
 	public override string PreCastText => $"{actor.name}双手握持{actorBodyPart.Name}的武器刃部开始蓄力...";
 	public override string CastText => $"{actor.name}用半剑式刺击{target!.name}的{targetObject!.Name}!";
+	public override bool Visible => actorBodyPart is { Available: true, id.IsArm: true, };
+	public override bool Disabled
+	{
+		get
+		{
+			if (actorBodyPart is not { Available: true, id.IsArm: true, }) return true;
+			// 必须持有长剑
+			if (!HasLongSword(actorBodyPart)) return true;
+			// 另一只手必须为空且有护甲
+			var otherArm = actorBodyPart.id == BodyPartCode.LeftArm ? actor.rightArm : actor.leftArm;
+			if (otherArm.HasWeapon) return true;
+			// 检查另一只手是否有护甲
+			foreach (var item in otherArm.IterItems(ItemFlagCode.Armor))
+				return false;
+			return true;
+		}
+	}
 	public override double DodgeImpact
 	{
 		get
@@ -52,13 +69,18 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 	}
 	protected override bool IsBodyPartUsable(BodyPart bodyPart)
 	{
-		if (bodyPart is not { Available: true, id.IsArm: true, HasWeapon: true, }) return false;
-		// 半剑式需要另一只手有护甲保护（用于握持剑刃）
-		var otherArm = bodyPart.id == BodyPartCode.LeftArm ? actor.rightArm : actor.leftArm;
-		if (otherArm.HasWeapon) return false;
-		// 检查另一只手是否有护甲
-		foreach (var item in otherArm.IterItems(ItemFlagCode.Armor))
-			return true;
+		// 不再使用此方法，使用Visible和Disabled属性代替
+		return true;
+	}
+	bool HasLongSword(BodyPart bodyPart)
+	{
+		foreach (var slot in bodyPart.Slots)
+		{
+			var weapon = slot.Item;
+			if (weapon == null) continue;
+			if ((weapon.flag & ItemFlagCode.Arm) == 0) continue;
+			if (weapon.id == ItemIdCode.LongSword) return true;
+		}
 		return false;
 	}
 	bool TryGetWeaponLength(out double length)
