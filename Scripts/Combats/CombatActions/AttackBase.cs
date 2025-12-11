@@ -244,9 +244,9 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		
 		if (blockingPart == null) return 1.0;
 		
-		// 使用武器格挡时有额外加成
+		// 使用武器格挡时有额外加成（大幅提升成功率）
 		var isUsingWeapon = blockTarget is Item;
-		var weaponBonus = isUsingWeapon ? 0.15 : 0.0;
+		var weaponBonus = isUsingWeapon ? 0.5 : 0.0;
 		
 		// 计算高度差
 		var attackHeight = attackedPart.id.NormalizedHeight;
