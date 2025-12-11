@@ -7,7 +7,7 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 	: AttackBase(actor, actorBodyPart, combat, 3, 4)
 {
 	public override CombatActionCode Id => CombatActionCode.HalfSword;
-	public override string Narrative => "双手握持武器刃部精准刺击目标，造成刺击伤害，更容易击中盔甲缝隙。需要一只手持有长剑，另一只手空闲且有护甲。";
+	public override string Narrative => "握持武器刃部精准刺击目标，更容易击中盔甲缝隙。需要一只手持有长剑，另一只手空闲且有护甲。";
 	public override string PreCastText => $"{actor.name}双手握持{actorBodyPart.Name}的武器刃部开始蓄力...";
 	public override string CastText => $"{actor.name}用半剑式刺击{target!.name}的{targetObject!.Name}!";
 	public override bool Visible => actorBodyPart is { Available: true, id.IsArm: true, };
