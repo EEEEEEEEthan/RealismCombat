@@ -16,8 +16,8 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 		get
 		{
 			if (actorBodyPart is not { Available: true, id.IsArm: true, }) return true;
-			// 必须持有长剑
-			if (!HasLongSword(actorBodyPart)) return true;
+			// 必须持有长剑且武器可用
+			if (!HasAvailableLongSword(actorBodyPart)) return true;
 			// 另一只手必须为空且有护甲
 			var otherArm = actorBodyPart.id == BodyPartCode.LeftArm ? actor.rightArm : actor.leftArm;
 			if (otherArm.HasWeapon) return true;
@@ -72,12 +72,13 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 		// 不再使用此方法，使用Visible和Disabled属性代替
 		return true;
 	}
-	bool HasLongSword(BodyPart bodyPart)
+	bool HasAvailableLongSword(BodyPart bodyPart)
 	{
 		foreach (var slot in bodyPart.Slots)
 		{
 			var weapon = slot.Item;
 			if (weapon == null) continue;
+			if (!weapon.Available) continue;
 			if ((weapon.flag & ItemFlagCode.Arm) == 0) continue;
 			if (weapon.id == ItemIdCode.LongSword) return true;
 		}

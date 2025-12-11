@@ -72,6 +72,7 @@
   - `GetExecuteDialogueText()`：返回攻击执行时的对话文本
   - `CalculateDamage()`：计算并返回伤害值（返回 `Damage`，包含劈砍/穿刺/钝击三项）
 - 攻击可用性通过实例方法检查：抓取要求手臂可用且 `!bodyPart.HasWeapon`，斩击/刺击要求手臂可用且 `bodyPart.HasWeapon`，基类不再提供静态 `HasWeapon`
+- 需要武器的攻击类型（斩击、刺击、半剑式）会在武器损坏时（`HitPoint <= 0`）被禁用；通过 `Disabled` 属性检查 `actorBodyPart.WeaponInUse.Available`
 - 当前实现的攻击类型：
   - `SlashAttack`（Swing 挥砍）：只允许有武器的手臂使用
   - `StabAttack`（Thrust 捅扎）：只允许有武器的手臂使用，闪避影响 0.7、格挡影响 0.25，高差≥0.4 时格挡影响 0.55，整体更难被格挡
