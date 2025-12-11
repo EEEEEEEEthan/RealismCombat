@@ -32,3 +32,4 @@
 - [调试指南](debugging.md) - 调试工具和常见问题解决方法
 - [MCP 服务器](mcp-server.md) - 用于测试和调试的 MCP 服务器
 - [编辑器工具](editor-tools.md) - RebuildWithTabs 插件与重编译时的标签页保持
+- [打包脚本](build-script.md) - Python 打包脚本，导出与归档
