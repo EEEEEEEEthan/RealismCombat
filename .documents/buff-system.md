@@ -70,10 +70,8 @@ bodyPart.Buffs.Remove(BuffCode.Prone);
 - 检查逻辑：遍历角色所有身体部位，只要有任意部位存在倒伏 Buff，且当前行动不是 `GetUpAction`，则禁用该行动
 - 倒伏状态通过 `GetUpAction` 解除，该行动会清除角色所有身体部位上的倒伏 Buff
 - 倒伏状态的文字提示：
-  - 躯干撞击腿部时：攻击者必定获得倒伏，显示"[角色名]撞击腿部导致自己失去平衡倒下了!"（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
-  - 躯干撞击命中时：目标角色按重量比概率倒伏，显示"[角色名]失去平衡倒下了!"（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
-  - 头槌腿部时：攻击者必定倒伏，显示"[角色名]头槌腿部导致自己失去平衡倒下了!"（`Scripts/Combats/CombatActions/HeadbuttAttack.cs`）
-  - 头槌手臂或躯干时：目标按重量比概率倒伏，显示"[角色名]被头槌撞倒了!"（`Scripts/Combats/CombatActions/HeadbuttAttack.cs`）
+  - 躯干撞击腿部时：攻击者必定获得倒伏，显示“[角色名]撞击腿部导致自己失去平衡倒下了!”（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
+  - 躯干撞击命中时：目标角色按重量比概率倒伏，显示“[角色名]失去平衡倒下了!”（`Scripts/Combats/CombatActions/ChargeAttack.cs`）
 
 ### 束缚 (Restrained)
 

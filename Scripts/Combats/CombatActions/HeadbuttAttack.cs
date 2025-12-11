@@ -39,37 +39,6 @@ public class HeadbuttAttack(Character actor, BodyPart actorBodyPart, Combat comb
 	}
 	public override AttackTypeCode AttackType => AttackTypeCode.Special;
 	public override Damage Damage => new(0f, 0f, 1f);
-	protected override async Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue)
-	{
-		if (targetObject is BodyPart targetPart)
-		{
-			var source = new BuffSource(actor, actorBodyPart);
-			// 目标是腿时，发起方必定获得倒伏
-			if (targetPart.id.IsLeg)
-			{
-				if (!actor.torso.HasBuff(BuffCode.Prone, false))
-				{
-					actor.torso.Buffs[BuffCode.Prone] = new(BuffCode.Prone, source);
-					await dialogue.ShowTextTask($"{actor.name}头槌腿部导致自己失去平衡倒下了!");
-				}
-			}
-			// 目标是手臂或躯干时，有概率令目标获得倒伏
-			else if (targetPart.id.IsArm || targetPart.id == BodyPartCode.Torso)
-			{
-				var targetWeight = targetCharacter.TotalWeight;
-				var actorWeight = actor.TotalWeight;
-				var proneChance = targetWeight / actorWeight;
-				
-				if (GD.Randf() < proneChance)
-				{
-					if (!targetCharacter.torso.HasBuff(BuffCode.Prone, false))
-					{
-						targetCharacter.torso.Buffs[BuffCode.Prone] = new(BuffCode.Prone, source);
-						await dialogue.ShowTextTask($"{targetCharacter.name}被头槌撞倒了!");
-					}
-				}
-			}
-		}
-	}
+	protected override Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue) => Task.CompletedTask;
 	protected override bool IsBodyPartUsable(BodyPart bodyPart) => bodyPart is { Available: true, id: BodyPartCode.Head, };
 }

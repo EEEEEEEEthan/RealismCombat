@@ -6,7 +6,9 @@
 /.McpServer/.idea/
 /.local.settings
 /.logs/
+/.release/
 /.testreports/
 /.vs/
 /.vscode/settings.json
 /save.dat
+/.release.7z

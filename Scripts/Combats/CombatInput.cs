@@ -214,8 +214,8 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				{
 					title = "格挡",
 					description = defender.combatAction is null
-						? "消耗1点反应, 选择身体或武器承受伤害\n格挡失败且身体部位受伤≥30%血量会打断行动"
-						: "消耗1点反应, 选择身体或武器承受伤害\n使用当前行动部位格挡会打断自身行动\n格挡失败且身体部位受伤≥30%血量会打断行动",
+						? "消耗1点反应, 选择身体或武器承受伤害\n格挡失败时有概率打断行动"
+						: "消耗1点反应, 选择身体或武器承受伤害\n使用当前行动部位格挡会打断自身行动\n格挡失败时有概率打断行动",
 					disabled = !reactionAvailable,
 				},
 				new MenuOption
@@ -228,8 +228,8 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				{
 					title = "承受",
 					description = defender.combatAction is null
-						? "不消耗反应, 直接承受伤害\n身体部位受伤≥30%血量会打断行动"
-						: "不消耗反应, 直接承受伤害\n身体部位受伤≥30%血量会打断行动",
+						? "不消耗反应, 直接承受伤害\n有概率打断行动"
+						: "不消耗反应, 直接承受伤害\n有概率打断行动",
 				}
 			);
 			var selected = await menu;

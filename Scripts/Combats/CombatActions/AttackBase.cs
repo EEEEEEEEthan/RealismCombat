@@ -396,11 +396,13 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				throw new ArgumentOutOfRangeException();
 		}
 	FALLBACK:
+		var hitPointBeforeDamage = targetObject.HitPoint.value;
 		var bodyDamage = await performHit(targetObject, dialogue);
-		// 格挡失败或承受时，如果肉体伤害>=部位血量30%，打断行动
-		if (bodyDamage > 0 && targetObject is BodyPart hitPart)
+		// 格挡失败或承受时，有概率打断行动，概率为伤害值/伤害前的部位hp
+		if (bodyDamage > 0 && targetObject is BodyPart && target.combatAction != null && hitPointBeforeDamage > 0)
 		{
-			if (target.combatAction != null && bodyDamage >= hitPart.HitPoint.maxValue * 0.3)
+			var interruptChance = bodyDamage / hitPointBeforeDamage;
+			if (GD.Randf() < interruptChance)
 			{
 				target.combatAction = null;
 				await dialogue.ShowTextTask($"{target.name}的行动被打断!");
