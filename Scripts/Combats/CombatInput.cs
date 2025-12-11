@@ -17,7 +17,7 @@ public abstract class CombatInput(Combat combat)
 			{
 				if (!bodyPart.Free) continue;
 				foreach (var slot in bodyPart.Slots)
-					if (slot.Item is { } target && target.Free)
+					if (slot.Item is { } target && target.Free && (target.flag & ItemFlagCode.Arm) != 0)
 						targets.Add(target);
 			}
 		}
