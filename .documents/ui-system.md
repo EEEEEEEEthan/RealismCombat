@@ -57,6 +57,7 @@
   - 选项在文本全部打印完成后才显示，确保用户先看到完整文本
 - 支持在同一对话框实例中多次调用 `ShowTextTask()` 追加多段文本
 - 长按按键时会将 `Printer.interval` 设为 `0`，实现快速跳过
+- 交互音效：选项移动播放 `selection3`，确认播放 `oneBeep`
 - 对话框不会自动销毁，需要外部调用 `DialogueManager.DestroyDialogue()` 或使用便捷方法 `ShowGenericDialogue()`
 - 当 `LaunchArgs.port` 存在时：
   - 文本无选项会自动完成等待，便于自动化推进

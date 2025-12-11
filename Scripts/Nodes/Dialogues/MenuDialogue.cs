@@ -37,6 +37,7 @@ public partial class MenuDialogue : BaseDialogue
 	bool allowEscapeReturn;
 	int returnOptionIndex = -1;
 	int currentIndex = -1;
+	bool selectionSoundInitialized;
 	[field: MaybeNull] MenuOptionList OptionContainer => field ??= GetNode<MenuOptionList>("%OptionContainer");
 	[field: MaybeNull] Printer Printer => field ??= GetNode<Printer>("%Printer");
 	[field: MaybeNull] Label TitleLabel => field ??= GetNode<Label>("%TitleLabel");
@@ -61,6 +62,7 @@ public partial class MenuDialogue : BaseDialogue
 			GameServer.McpCheckpoint();
 			return;
 		}
+		AudioManager.PlaySfx(ResourceTable.oneBeep);
 		GetViewport().SetInputAsHandled();
 		Close();
 		taskCompletionSource.TrySetResult(currentIndex);
@@ -84,6 +86,7 @@ public partial class MenuDialogue : BaseDialogue
 		{
 			if (currentIndex >= 0 && currentIndex < options.Count && !options[currentIndex].disabled)
 			{
+				AudioManager.PlaySfx(ResourceTable.oneBeep);
 				GetViewport().SetInputAsHandled();
 				var index = currentIndex;
 				Close();
@@ -100,6 +103,7 @@ public partial class MenuDialogue : BaseDialogue
 	}
 	void BuildOptions()
 	{
+		selectionSoundInitialized = false;
 		var optionResources = new List<MenuOptionResource>();
 		for (var i = 0; i < options.Count; i++)
 		{
@@ -140,5 +144,13 @@ public partial class MenuDialogue : BaseDialogue
 		Printer.Text = options[currentIndex].description;
 		Printer.VisibleCharacters = Printer.GetTotalCharacterCount();
 		OptionContainer.Index = currentIndex;
+		if (selectionSoundInitialized)
+		{
+			AudioManager.PlaySfx(ResourceTable.selection3);
+		}
+		else
+		{
+			selectionSoundInitialized = true;
+		}
 	}
 }

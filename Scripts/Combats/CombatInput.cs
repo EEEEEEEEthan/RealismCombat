@@ -21,8 +21,7 @@ public abstract class CombatInput(Combat combat)
 						targets.Add(target);
 			}
 		}
-		if (excludeTarget != null)
-			targets.RemoveAll(t => ReferenceEquals(t, excludeTarget));
+		if (excludeTarget != null) targets.RemoveAll(t => ReferenceEquals(t, excludeTarget));
 		return targets.ToArray();
 	}
 	protected static string BuildTargetDescription(ICombatTarget target)
@@ -169,13 +168,11 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	{
 		var reactionAvailable = defender.reaction > 0;
 		string FormatChance(double value) => $"{Math.Round(value * 100)}%";
-			var dodgeActionPointCostText = Combat.DodgeActionPointCost.ToString("0.##");
+		var dodgeActionPointCostText = Combat.dodgeActionPointCost.ToString("0.##");
 		while (true)
 		{
 			var attack = attacker.combatAction as AttackBase;
 			var reactionChance = attack?.ReactionChance ?? new(0.0, 0.0);
-			// blockChanceText 会在格挡选项中被重新计算为针对特定部位的成功率
-			var blockChanceText = $"成功率 {FormatChance(reactionChance.BlockChance)}";
 			var dodgeChanceText = $"成功率 {FormatChance(reactionChance.DodgeChance)}";
 			var attackerText = $"{attacker.name}的攻击";
 			if (attack != null)
@@ -228,9 +225,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				new MenuOption
 				{
 					title = "承受",
-					description = defender.combatAction is null
-						? "不消耗反应, 直接承受伤害\n有概率打断行动"
-						: "不消耗反应, 直接承受伤害\n有概率打断行动",
+					description = "不消耗反应, 直接承受伤害\n有概率打断行动",
 				}
 			);
 			var selected = await menu;
@@ -472,13 +467,13 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 					var action = factory(bodyPart);
 					foreach (var target in combat.Allies)
 					{
-					action.target = target;
-					foreach (var targetObj in target.bodyParts)
-					{
-						action.targetObject = targetObj;
-						if (action is ChargeAttack && targetObj.id.IsLeg) continue;
-						if (action is HeadbuttAttack && targetObj.id != BodyPartCode.Head) continue;
-						if (!action.CanUse) continue;
+						action.target = target;
+						foreach (var targetObj in target.bodyParts)
+						{
+							action.targetObject = targetObj;
+							if (action is ChargeAttack && targetObj.id.IsLeg) continue;
+							if (action is HeadbuttAttack && targetObj.id != BodyPartCode.Head) continue;
+							if (!action.CanUse) continue;
 							var expected = AttackBase.CalculateExpectedBodyDamage(action.Damage, targetObj);
 							var chance = action.ReactionChance;
 							var weight = expected * (1 - chance.HighestChance);
@@ -509,8 +504,7 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 				bp.id.IsArm && (bp.HasBuff(BuffCode.Restrained, true) || bp.HasBuff(BuffCode.Grappling, true))))
 			{
 				var breakFreeAction = new BreakFreeAction(character, bodyPart, combat);
-				if (breakFreeAction.CanUse)
-					actions[breakFreeAction] = 100d; // 被抓住时优先挣脱
+				if (breakFreeAction.CanUse) actions[breakFreeAction] = 100d; // 被抓住时优先挣脱
 			}
 			// 武器损坏时丢弃武器
 			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsArm))
@@ -567,8 +561,7 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 			var blockExpected = AttackBase.CalculateExpectedBodyDamage(attack.Damage, blockTarget);
 			var expectedDamage = adjustedBlockChance * blockExpected + (1d - adjustedBlockChance) * originalExpected;
 			// 如果格挡会打断自身行动，增加期望伤害作为惩罚
-			if (defender.combatAction?.WillBeInterruptedByBlockingWith(blockTarget) == true)
-				expectedDamage *= 1.5;
+			if (defender.combatAction?.WillBeInterruptedByBlockingWith(blockTarget) == true) expectedDamage *= 1.5;
 			options.Add((ReactionDecision.CreateBlock(blockTarget), expectedDamage));
 		}
 		if (options.Count == 0) return Task.FromResult(ReactionDecision.CreateEndure());

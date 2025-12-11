@@ -16,6 +16,7 @@ public partial class GenericDialogue : BaseDialogue
 	double time;
 	bool keyDown;
 	bool mcpAutomationProcessed;
+	bool selectionSoundInitialized;
 	public GenericDialogue()
 	{
 		container = new();
@@ -90,6 +91,7 @@ public partial class GenericDialogue : BaseDialogue
 		task = new();
 		time = 0;
 		keyDown = false;
+		selectionSoundInitialized = false;
 		ClearOptions();
 		var content = string.IsNullOrEmpty(text) ? string.Empty : text;
 		var prefix = string.IsNullOrEmpty(printer.Text) ? string.Empty : "\n";
@@ -186,6 +188,7 @@ public partial class GenericDialogue : BaseDialogue
 		optionEntries.Clear();
 		optionsContainer.Visible = false;
 		selectedOptionIndex = -1;
+		selectionSoundInitialized = false;
 	}
 	void SelectOption(int index)
 	{
@@ -193,6 +196,14 @@ public partial class GenericDialogue : BaseDialogue
 		if (selectedOptionIndex == index && optionEntries[index].pointer.Visible) return;
 		for (var i = 0; i < optionEntries.Count; i++) optionEntries[i].pointer.Visible = i == index;
 		selectedOptionIndex = index;
+		if (selectionSoundInitialized)
+		{
+			AudioManager.PlaySfx(ResourceTable.selection3);
+		}
+		else
+		{
+			selectionSoundInitialized = true;
+		}
 	}
 	void MoveSelection(int delta)
 	{
@@ -203,6 +214,7 @@ public partial class GenericDialogue : BaseDialogue
 	}
 	void ConfirmSelection()
 	{
+		AudioManager.PlaySfx(ResourceTable.oneBeep);
 		Log.Print($"选择了选项{selectedOptionIndex} - {optionEntries[selectedOptionIndex].label}");
 		CompleteActiveTask(selectedOptionIndex < 0 ? -1 : selectedOptionIndex);
 	}

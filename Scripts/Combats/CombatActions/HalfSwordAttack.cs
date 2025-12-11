@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 /// <summary>
 ///     半剑式攻击，只允许持武器的手臂使用。
 ///     伤害低于刺击，前摇更长，但更容易击中盔甲缝隙。
@@ -22,8 +23,7 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 			var otherArm = actorBodyPart.id == BodyPartCode.LeftArm ? actor.rightArm : actor.leftArm;
 			if (otherArm.HasWeapon) return true;
 			// 检查另一只手是否有护甲
-			foreach (var item in otherArm.IterItems(ItemFlagCode.Armor))
-				return false;
+			if (otherArm.IterItems(ItemFlagCode.Armor).Any()) return false;
 			return true;
 		}
 	}
@@ -34,8 +34,7 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 			if (targetObject is BodyPart targetPart)
 			{
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
-				if (TryGetWeaponLength(out var weaponLength))
-					heightGap = Math.Abs(heightGap - weaponLength);
+				if (TryGetWeaponLength(out var weaponLength)) heightGap = Math.Abs(heightGap - weaponLength);
 				if (heightGap >= 0.4) return 0.95;
 			}
 			return 0.75;
@@ -48,8 +47,7 @@ public class HalfSwordAttack(Character actor, BodyPart actorBodyPart, Combat com
 			if (targetObject is BodyPart targetPart)
 			{
 				var heightGap = Math.Abs(actorBodyPart.id.NormalizedHeight - targetPart.id.NormalizedHeight);
-				if (TryGetWeaponLength(out var weaponLength))
-					heightGap = Math.Abs(heightGap - weaponLength);
+				if (TryGetWeaponLength(out var weaponLength)) heightGap = Math.Abs(heightGap - weaponLength);
 				if (heightGap >= 0.4) return 0.60;
 			}
 			return 0.30;

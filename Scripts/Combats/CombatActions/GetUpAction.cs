@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 /// <summary>
@@ -6,7 +5,6 @@ using System.Threading.Tasks;
 /// </summary>
 public sealed class GetUpAction(Character actor, BodyPart actorBodyPart, Combat combat) : CombatAction(actor, combat, actorBodyPart, 5, 5)
 {
-	readonly BodyPart actorBodyPart = actorBodyPart;
 	public override string Description => "尝试从倒伏状态中爬起，解除倒伏效果";
 	public override bool Visible
 	{
@@ -37,4 +35,3 @@ public sealed class GetUpAction(Character actor, BodyPart actorBodyPart, Combat 
 		}
 	}
 }
-

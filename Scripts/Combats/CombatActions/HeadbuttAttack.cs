@@ -1,6 +1,4 @@
-using System;
 using System.Threading.Tasks;
-using Godot;
 /// <summary>
 ///     头槌攻击，只允许头使用
 /// </summary>

@@ -55,6 +55,34 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 		}
 		return expected;
 	}
+	/// <summary>
+	///     在角色的身体部位中查找物品所属的部位
+	/// </summary>
+	static BodyPart? FindItemOwner(Item item, Character character)
+	{
+		foreach (var bodyPart in character.bodyParts)
+		{
+			foreach (var slot in bodyPart.Slots)
+			{
+				if (ReferenceEquals(slot.Item, item)) return bodyPart;
+				// 递归检查嵌套物品
+				if (slot.Item != null && ContainsItemRecursive(slot.Item, item)) return bodyPart;
+			}
+		}
+		return null;
+	}
+	/// <summary>
+	///     递归检查容器是否包含指定物品
+	/// </summary>
+	static bool ContainsItemRecursive(IItemContainer container, Item target)
+	{
+		foreach (var slot in container.Slots)
+		{
+			if (ReferenceEquals(slot.Item, target)) return true;
+			if (slot.Item != null && ContainsItemRecursive(slot.Item, target)) return true;
+		}
+		return false;
+	}
 	public readonly BodyPart actorBodyPart = actorBodyPart;
 	public Character? target;
 	public ICombatTarget? targetObject;
@@ -193,38 +221,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			);
 		}
 	}
-	/// <summary>
-	///     在角色的身体部位中查找物品所属的部位
-	/// </summary>
-	static BodyPart? FindItemOwner(Item item, Character character)
-	{
-		foreach (var bodyPart in character.bodyParts)
-		{
-			foreach (var slot in bodyPart.Slots)
-			{
-				if (ReferenceEquals(slot.Item, item))
-					return bodyPart;
-				// 递归检查嵌套物品
-				if (slot.Item != null && ContainsItemRecursive(slot.Item, item))
-					return bodyPart;
-			}
-		}
-		return null;
-	}
-	/// <summary>
-	///     递归检查容器是否包含指定物品
-	/// </summary>
-	static bool ContainsItemRecursive(IItemContainer container, Item target)
-	{
-		foreach (var slot in container.Slots)
-		{
-			if (ReferenceEquals(slot.Item, target))
-				return true;
-			if (slot.Item != null && ContainsItemRecursive(slot.Item, target))
-				return true;
-		}
-		return false;
-	}
+	IEnumerable<Character> Opponents => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 	/// <summary>
 	///     计算使用特定部位格挡时的成功率修正系数
 	/// </summary>
@@ -233,7 +230,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 	public double CalculateBlockChanceModifier(ICombatTarget blockTarget)
 	{
 		if (targetObject is not BodyPart attackedPart) return 1.0; // 攻击目标不是身体部位时无惩罚
-		
+
 		// 获取格挡部位
 		BodyPart? blockingPart = blockTarget switch
 		{
@@ -241,53 +238,50 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			Item item => FindItemOwner(item, target!), // 武器所在的身体部位
 			_ => null,
 		};
-		
 		if (blockingPart == null) return 1.0;
-		
+
 		// 使用武器格挡时有额外加成（大幅提升成功率）
 		var isUsingWeapon = blockTarget is Item;
 		var weaponBonus = isUsingWeapon ? 0.5 : 0.0;
-		
+
 		// 计算高度差
 		var attackHeight = attackedPart.id.NormalizedHeight;
 		var blockHeight = blockingPart.id.NormalizedHeight;
-		var heightDiff = System.Math.Abs(attackHeight - blockHeight);
-		
+		var heightDiff = Math.Abs(attackHeight - blockHeight);
+
 		// 特殊规则：用头格挡任何部位都很困难
 		if (blockingPart.id == BodyPartCode.Head)
 		{
 			// 用头格挡头部攻击稍微好一点，但仍然很困难
 			return attackedPart.id == BodyPartCode.Head ? 0.3 : 0.05;
 		}
-		
+
 		// 特殊规则：用腿格挡上半身攻击很困难
 		if (blockingPart.id.IsLeg && attackedPart.id == BodyPartCode.Head)
 		{
 			return 0.08;
 		}
-		
+
 		// 基于高度差的惩罚
 		// 高度差越大，格挡越困难
 		// 0.0 差距 -> 无惩罚
 		// 0.5 差距 -> 约50%成功率
 		// 1.0 差距 -> 约15%成功率
-		var heightPenalty = System.Math.Exp(-heightDiff * 3.0);
-		
+		var heightPenalty = Math.Exp(-heightDiff * 3.0);
+
 		// 同类型部位格挡有加成
 		var sameTypeBonus = 0.0;
-		if (blockingPart.id.IsArm && attackedPart.id.IsArm) sameTypeBonus = 0.1;
-		else if (blockingPart.id.IsLeg && attackedPart.id.IsLeg) sameTypeBonus = 0.1;
-		
+		if (blockingPart.id.IsArm && attackedPart.id.IsArm || blockingPart.id.IsLeg && attackedPart.id.IsLeg) sameTypeBonus = 0.1;
+
 		// 用躯干格挡有额外加成（身体最大部位）
 		var torsoBonus = blockingPart.id == BodyPartCode.Torso ? 0.1 : 0.0;
-		
+
 		// 综合计算
 		var modifier = heightPenalty + weaponBonus + sameTypeBonus + torsoBonus;
-		
+
 		// 限制在合理范围内
-		return System.Math.Clamp(modifier, 0.05, 1.0);
+		return Math.Clamp(modifier, 0.05, 1.0);
 	}
-	IEnumerable<Character> Opponents => combat.Allies.Contains(actor) ? combat.Enemies : combat.Allies;
 	protected abstract bool IsBodyPartUsable(BodyPart bodyPart);
 	protected virtual Task OnAttackLanded(Character targetCharacter, ICombatTarget targetObject, GenericDialogue dialogue) => Task.CompletedTask;
 	protected override async Task OnStartTask()
@@ -338,6 +332,7 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 			{
 				await Task.Delay(10);
 				targetNode.MoveTo(combat.combatNode.GetDogePosition(target));
+				AudioManager.PlaySfx(ResourceTable.retroClick);
 				await dialogue.ShowTextTask($"{target.name}闪避成功");
 				goto END;
 			}
@@ -521,21 +516,18 @@ public abstract class AttackBase(Character actor, BodyPart actorBodyPart, Combat
 				}
 				return damageAmount;
 			}
-			else
+			var rate = damageAmount / (float)target.HitPoint.maxValue;
+			target.HitPoint.value -= damageAmount;
+			switch (rate)
 			{
-				var rate = damageAmount / (float)target.HitPoint.maxValue;
-				target.HitPoint.value -= damageAmount;
-				switch (rate)
-				{
-					case < 0.2f:
-						break;
-					case < 0.3f:
-						await dialogue.ShowTextTask($"{character.name}的{target.Name}受到了一些损伤");
-						break;
-					default:
-						await dialogue.ShowTextTask($"{character.name}的{target.Name}受到了严重损伤");
-						break;
-				}
+				case < 0.2f:
+					break;
+				case < 0.3f:
+					await dialogue.ShowTextTask($"{character.name}的{target.Name}受到了一些损伤");
+					break;
+				default:
+					await dialogue.ShowTextTask($"{character.name}的{target.Name}受到了严重损伤");
+					break;
 			}
 			if (target.HitPoint.value < 0)
 			{
