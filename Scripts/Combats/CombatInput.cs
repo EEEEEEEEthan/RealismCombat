@@ -507,9 +507,18 @@ public class GenericAIInput(Combat combat) : CombatInput(combat)
 			foreach (var bodyPart in character.bodyParts.Where(bp =>
 				bp.id.IsArm && (bp.HasBuff(BuffCode.Restrained, true) || bp.HasBuff(BuffCode.Grappling, true))))
 			{
+				var breakFreeAction = new BreakFreeAction(character, bodyPart, combat);
+				if (breakFreeAction.CanUse)
+					actions[breakFreeAction] = 100d; // 被抓住时优先挣脱
+			}
+			// 武器损坏时丢弃武器
+			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsArm))
+			{
+				var weapon = bodyPart.WeaponInUse;
+				if (weapon == null || weapon.Available) continue;
 				var releaseAction = new ReleaseAction(character, bodyPart, combat);
 				if (!releaseAction.CanUse) continue;
-				actions[releaseAction] = 50d;
+				actions[releaseAction] = 60d; // 比拿武器优先级稍高
 			}
 			// 招架动作，AI使用极低权重，只能用腿
 			foreach (var bodyPart in character.bodyParts.Where(bp => bp.id.IsLeg))
