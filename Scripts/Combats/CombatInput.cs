@@ -169,6 +169,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 	{
 		var reactionAvailable = defender.reaction > 0;
 		string FormatChance(double value) => $"{Math.Round(value * 100)}%";
+			var dodgeActionPointCostText = Combat.DodgeActionPointCost.ToString("0.##");
 		while (true)
 		{
 			var attack = attacker.combatAction as AttackBase;
@@ -221,7 +222,7 @@ public class PlayerInput(Combat combat) : CombatInput(combat)
 				new MenuOption
 				{
 					title = "闪避",
-					description = $"{dodgeChanceText}\n消耗1点反应, 打断自身行动并躲开伤害",
+					description = $"{dodgeChanceText}\n消耗1点反应并额外消耗{dodgeActionPointCostText}点行动力, 打断自身行动并躲开伤害",
 					disabled = !reactionAvailable,
 				},
 				new MenuOption

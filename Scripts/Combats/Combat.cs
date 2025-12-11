@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 public class Combat
 {
+	public const double DodgeActionPointCost = 3.0;
 	static void ClearCharacterBuffs(Character character)
 	{
 		foreach (var bodyPart in character.bodyParts)
@@ -126,6 +127,7 @@ public class Combat
 				return decision;
 			case ReactionTypeCode.Dodge when reactionAvailable:
 				target.reaction = Math.Max(0, target.reaction - 1);
+				target.actionPoint.value = Math.Max(0, target.actionPoint.value - DodgeActionPointCost);
 				target.combatAction = null;
                 await DialogueManager.ShowGenericDialogue($"{target.name}的行动被打断!");
 				// 反应后移除所有招架buff
