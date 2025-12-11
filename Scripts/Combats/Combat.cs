@@ -114,7 +114,10 @@ public class Combat
 				target.reaction = Math.Max(0, target.reaction - 1);
 				// 格挡仅使用当前动作的部位或其装备时会打断自身行动
 				if (target.combatAction?.WillBeInterruptedByBlockingWith(decision.blockTarget) == true)
+				{
 					target.combatAction = null;
+                    await DialogueManager.ShowGenericDialogue($"{target.name}的行动被打断!");
+				}
 				// 反应后移除所有招架buff
 				foreach (var bodyPart in target.bodyParts)
 				{
@@ -124,6 +127,7 @@ public class Combat
 			case ReactionTypeCode.Dodge when reactionAvailable:
 				target.reaction = Math.Max(0, target.reaction - 1);
 				target.combatAction = null;
+                await DialogueManager.ShowGenericDialogue($"{target.name}的行动被打断!");
 				// 反应后移除所有招架buff
 				foreach (var bodyPart in target.bodyParts)
 				{
