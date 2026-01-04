@@ -1,3 +1,0 @@
-# build
-
-按照此[文档](../../.workflows/build.md)执行
