@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://d0s0aws01q13e"]
+
+[ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://option_list.gd" id="1_37kl0"]
+
+[node name="Test" type="Control" unique_id=1993894909]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OptionList" type="VBoxContainer" parent="." unique_id=232747901]
+layout_mode = 0
+offset_right = 25.0
+offset_bottom = 30.0
+script = ExtResource("1_37kl0")
+viewport_count = 5
+options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "item7")
+metadata/_custom_type_script = "uid://0buptekbe3qk"
