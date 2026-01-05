@@ -10,11 +10,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="OptionList" type="VBoxContainer" parent="." unique_id=232747901]
-layout_mode = 0
-offset_right = 25.0
-offset_bottom = 30.0
+[node name="OptionList" type="Control" parent="." unique_id=1440112402]
+anchors_preset = 0
+offset_right = 112.0
+offset_bottom = 195.0
 script = ExtResource("1_37kl0")
-viewport_count = 5
-options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "item7")
+"视区数量" = 4
+"选项" = PackedStringArray("Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8")
 metadata/_custom_type_script = "uid://0buptekbe3qk"

@@ -11,13 +11,8 @@ config_version=5
 [application]
 
 config/name="超写实战斗"
+run/main_scene="uid://d0s0aws01q13e"
 config/features=PackedStringArray("4.6", "Forward Plus")
-
-[autoload]
-
-AudioManager="*res://Scripts/AutoLoad/AudioManager.cs"
-DialogueManager="*res://Scripts/AutoLoad/DialogueManager.cs"
-GameServer="*res://Scripts/AutoLoad/GameServer.cs"
 
 [display]
 
@@ -39,7 +34,7 @@ external_editor/exec_flags="{project}"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/RebuildWithTabs/plugin.cfg", "res://addons/editable_texture/plugin.cfg")
+enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
 
 [rendering]
 
