@@ -2,6 +2,8 @@
 extends MarginContainer
 class_name 选项列表
 
+static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
+
 @export_range(3, 16) var 视区数量: int = 8:
 	set(v):
 		视区数量 = v
@@ -25,6 +27,19 @@ class_name 选项列表
 		指示器偏移 = v;
 		if is_node_ready():
 			_更新视区()
+
+@export var theme_override_icon: Texture2D = _默认指示器图标:
+	get:
+		if has_theme_icon_override("指示器"):
+			return get_theme_icon("指示器", "选项列表")
+		return _默认指示器图标
+	set(v):
+		if v:
+			add_theme_icon_override("指示器", v)
+		else:
+			remove_theme_icon_override("指示器")
+		if is_node_ready():
+			_更新主题()
 
 var _选项容器: VBoxContainer
 var _指示器: TextureRect
@@ -64,11 +79,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_更新视区()
 
 func _更新主题() -> void:
-	var texture = get_theme_icon("指示器", "选项列表");
-	if texture:
-		_指示器.texture = texture
-	else:
-		_指示器.texture = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
+	_指示器.texture = _默认指示器图标
+	_更新指示器坐标()
 
 func _更新视区() -> void:
 	var 节点数量 = _选项容器.get_child_count()
