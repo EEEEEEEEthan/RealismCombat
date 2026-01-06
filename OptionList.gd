@@ -80,8 +80,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _更新主题() -> void:
 	if indexer_icon:
 		_指示器.texture = indexer_icon
-	elif has_theme_icon_override("indexer_icon") or has_theme_icon("indexer_icon"):
-		_指示器.texture = get_theme_icon("indexer_icon")
+	elif has_theme_icon("indexer_icon", "OptionList"):
+		_指示器.texture = get_theme_icon("indexer_icon", "OptionList")
 	else:
 		_指示器.texture = _默认指示器图标
 	_更新指示器坐标()

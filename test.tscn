@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
-[ext_resource type="Theme" uid="uid://nedlt21e76s8" path="res://theme.tres" id="1_8uh7m"]
 [ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://OptionList.gd" id="1_37kl0"]
 
 [node name="Test" type="Control" unique_id=1993894909]
@@ -16,10 +15,9 @@ layout_mode = 0
 offset_right = 8.0
 offset_bottom = 8.0
 
-[node name="OptionList" type="MarginContainer" parent="." unique_id=1954145115]
+[node name="OptionList" type="MarginContainer" parent="." unique_id=1580032097]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-theme = ExtResource("1_8uh7m")
 script = ExtResource("1_37kl0")
 metadata/_custom_type_script = "uid://0buptekbe3qk"
