@@ -79,7 +79,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_更新视区()
 
 func _更新主题() -> void:
-	_指示器.texture = _默认指示器图标
+	if has_theme_icon_override("指示器"):
+		_指示器.texture = get_theme_icon("指示器", "选项列表")
+	else:
+		_指示器.texture = _默认指示器图标
 	_更新指示器坐标()
 
 func _更新视区() -> void:
