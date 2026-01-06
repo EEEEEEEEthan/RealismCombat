@@ -10,10 +10,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="选项列表" type="MarginContainer" parent="." unique_id=1485553123]
+[node name="选项列表" type="MarginContainer" parent="." unique_id=1206753775]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_37kl0")
-"选项" = PackedStringArray("asdf", "ffff", "ss", "", "", "", "", "")
 metadata/_custom_type_script = "uid://0buptekbe3qk"

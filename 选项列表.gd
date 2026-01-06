@@ -64,8 +64,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_更新视区()
 
 func _更新主题() -> void:
-	var texture = get_theme_icon("GuiTreeArrowRight", "Tree")
-	_指示器.texture = texture
+	var texture = get_theme_icon("指示器", "选项列表");
+	if texture:
+		_指示器.texture = texture
+	else:
+		_指示器.texture = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
 
 func _更新视区() -> void:
 	var 节点数量 = _选项容器.get_child_count()
