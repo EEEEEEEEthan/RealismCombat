@@ -36,6 +36,11 @@ external_editor/exec_flags="{project}"
 
 enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
 
+[gui]
+
+theme/custom="uid://nedlt21e76s8"
+theme/custom_font="uid://coprcrk20pwv2"
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0

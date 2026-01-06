@@ -1,6 +1,6 @@
 @tool
 extends MarginContainer
-class_name 选项列表
+class_name OptionList
 
 static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
 
@@ -28,16 +28,11 @@ static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_i
 		if is_node_ready():
 			_更新视区()
 
-@export var theme_override_icon: Texture2D = _默认指示器图标:
-	get:
-		if has_theme_icon_override("指示器"):
-			return get_theme_icon("指示器", "选项列表")
-		return _默认指示器图标
-	set(v):
-		if v:
-			add_theme_icon_override("指示器", v)
-		else:
-			remove_theme_icon_override("指示器")
+@export_group("Theme Overrides")
+@export_subgroup("icons")
+@export var indexer_icon: Texture2D = null:
+	set(value):
+		indexer_icon = value
 		if is_node_ready():
 			_更新主题()
 
@@ -45,6 +40,10 @@ var _选项容器: VBoxContainer
 var _指示器: TextureRect
 var _视区第一个编号: int
 var _指示器序号: int
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_THEME_CHANGED and is_node_ready():
+		_更新主题()
 
 func _ready() -> void:
 	_选项容器 = VBoxContainer.new()
@@ -79,8 +78,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_更新视区()
 
 func _更新主题() -> void:
-	if has_theme_icon_override("指示器"):
-		_指示器.texture = get_theme_icon("指示器", "选项列表")
+	if indexer_icon:
+		_指示器.texture = indexer_icon
+	elif has_theme_icon_override("indexer_icon") or has_theme_icon("indexer_icon"):
+		_指示器.texture = get_theme_icon("indexer_icon")
 	else:
 		_指示器.texture = _默认指示器图标
 	_更新指示器坐标()
@@ -108,7 +109,7 @@ func _更新指示器坐标() -> void:
 	var 节点数量 = _选项容器.get_child_count()
 	if 节点数量 > 0:
 		_指示器.visible = true
-		var 节点 = _选项容器.get_child(clamp(_指示器序号, 0, 节点数量)) as Control
+		var 节点 = _选项容器.get_child(clamp(_指示器序号, 0, 节点数量 - 1)) as Control
 		var 坐标 = 节点.global_position;
 		坐标 += Vector2(-_指示器.size.x, (节点.size.y - _指示器.size.y) / 2)
 		_指示器.global_position = 坐标

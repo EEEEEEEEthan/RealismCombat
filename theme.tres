@@ -1,3 +1,6 @@
 [gd_resource type="Theme" format=3 uid="uid://nedlt21e76s8"]
 
+[ext_resource type="Texture2D" uid="uid://dmixf57mxocuk" path="res://图集.png" id="1_e1x85"]
+
 [resource]
+OptionList/icons/indexer_icon = ExtResource("1_e1x85")

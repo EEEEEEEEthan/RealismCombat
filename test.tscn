@@ -1,10 +1,7 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
-[ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://选项列表.gd" id="1_37kl0"]
-
-[sub_resource type="DPITexture" id="DPITexture_37kl0"]
-_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
-"
+[ext_resource type="Theme" uid="uid://nedlt21e76s8" path="res://theme.tres" id="1_8uh7m"]
+[ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://OptionList.gd" id="1_37kl0"]
 
 [node name="Test" type="Control" unique_id=1993894909]
 layout_mode = 3
@@ -14,10 +11,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="选项列表" type="MarginContainer" parent="." unique_id=160148210]
+[node name="Button" type="Button" parent="." unique_id=666251503]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="OptionList" type="MarginContainer" parent="." unique_id=1954145115]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+theme = ExtResource("1_8uh7m")
 script = ExtResource("1_37kl0")
-theme_override_icon = SubResource("DPITexture_37kl0")
 metadata/_custom_type_script = "uid://0buptekbe3qk"
