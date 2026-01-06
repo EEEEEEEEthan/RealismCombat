@@ -17,7 +17,23 @@ offset_bottom = 8.0
 
 [node name="OptionList" type="MarginContainer" parent="." unique_id=1580032097]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 114.0
+offset_top = 30.0
+offset_right = 154.0
+offset_bottom = 194.0
 script = ExtResource("1_37kl0")
+"视区数量" = 6
+"选项" = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8")
+"空余数量" = 2
+metadata/_custom_type_script = "uid://0buptekbe3qk"
+
+[node name="OptionList2" type="MarginContainer" parent="." unique_id=222343439]
+layout_mode = 0
+offset_left = 38.0
+offset_top = 90.0
+offset_right = 78.0
+offset_bottom = 128.0
+script = ExtResource("1_37kl0")
+"视区数量" = 3
+"选项" = PackedStringArray("asdfasdf", "fdfdf", "dfdf", "s", "asd", "zxcv", "xzcv", "")
 metadata/_custom_type_script = "uid://0buptekbe3qk"

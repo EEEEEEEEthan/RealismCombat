@@ -1,6 +1,13 @@
 [gd_resource type="Theme" format=3 uid="uid://nedlt21e76s8"]
 
 [ext_resource type="Texture2D" uid="uid://dmixf57mxocuk" path="res://图集.png" id="1_e1x85"]
+[ext_resource type="FontFile" uid="uid://coprcrk20pwv2" path="res://字体/fusion-pixel-10px-monospaced-zh_hant.otf" id="2_cjfk0"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cjfk0"]
+atlas = ExtResource("1_e1x85")
+region = Rect2(0, 0, 8, 8)
 
 [resource]
-OptionList/icons/indexer_icon = ExtResource("1_e1x85")
+default_font = ExtResource("2_cjfk0")
+default_font_size = 10
+OptionList/icons/indexer_icon = SubResource("AtlasTexture_cjfk0")
