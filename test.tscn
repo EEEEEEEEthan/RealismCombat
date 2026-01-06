@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
-[ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://option_list.gd" id="1_37kl0"]
+[ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://选项列表.gd" id="1_37kl0"]
 
 [node name="Test" type="Control" unique_id=1993894909]
 layout_mode = 3
@@ -10,11 +10,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="OptionList" type="Control" parent="." unique_id=1440112402]
-anchors_preset = 0
-offset_right = 112.0
-offset_bottom = 195.0
+[node name="选项列表" type="MarginContainer" parent="." unique_id=59062269]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 49.0
+offset_right = 135.0
+offset_bottom = 125.0
 script = ExtResource("1_37kl0")
-"视区数量" = 4
-"选项" = PackedStringArray("Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8")
+"视区数量" = 5
+"选项" = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8")
+"空余数量" = 0
 metadata/_custom_type_script = "uid://0buptekbe3qk"
