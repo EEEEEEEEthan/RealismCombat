@@ -2,12 +2,6 @@
 extends Texture2D
 class_name EditableTexture
 
-@export var _raw_texture: ImageTexture:
-	set (value):
-		_raw_texture = value
-		emit_changed()
-		notify_property_list_changed()
-
 @export var _hex_data: String:
 	set (value):
 		_hex_data = value
@@ -34,9 +28,6 @@ var _texture: ImageTexture:
 					_texture = ImageTexture.new()
 					_texture.set_image(image)
 		if not _texture:
-			if _raw_texture:
-				_texture = _raw_texture
-		if not _texture:
 			var image := Image.create(16, 16, false, Image.FORMAT_RGBA8);
 			image.fill(Color.WHITE)
 			_texture = ImageTexture.create_from_image(image);
@@ -49,7 +40,6 @@ var _texture: ImageTexture:
 				_bytes = image.save_png_to_buffer()
 		else:
 			_bytes = PackedByteArray()
-			_raw_texture = null
 
 func _get_width() -> int:
 	return _texture.get_width()
