@@ -64,7 +64,7 @@ func _process_texture_async(editable_texture: EditableTexture) -> void:
 	var tree: SceneTree = texture_rect.get_tree()
 	var guid: String = str(Time.get_ticks_msec()) + "_" + str(randi())
 	var temp_path: String = OS.get_cache_dir().path_join("editable_texture_temp_" + guid + ".png")
-	var image: Image = editable_texture._raw_texture.get_image()
+	var image: Image = editable_texture._texture.get_image()
 	var save_result: Error = image.save_png(temp_path)
 	if save_result != OK:
 		return
@@ -96,12 +96,12 @@ func _process_texture_async(editable_texture: EditableTexture) -> void:
 				var modified_image: Image = Image.load_from_file(temp_path)
 				modified_image.fix_alpha_edges()
 				if modified_image:
-					var old_texture: ImageTexture = editable_texture._raw_texture
+					var old_texture: ImageTexture = editable_texture._texture
 					var new_texture: ImageTexture = ImageTexture.create_from_image(modified_image)
 					var undo_redo: EditorUndoRedoManager = EditorInterface.get_editor_undo_redo()
 					undo_redo.create_action("修改纹理")
-					undo_redo.add_do_property(editable_texture, "_raw_texture", new_texture)
-					undo_redo.add_undo_property(editable_texture, "_raw_texture", old_texture)
+					undo_redo.add_do_property(editable_texture, "_texture", new_texture)
+					undo_redo.add_undo_property(editable_texture, "_texture", old_texture)
 					undo_redo.commit_action()
 					original_md5 = current_md5
 			var is_running: bool = false
