@@ -33,6 +33,9 @@ static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
 		指示器图标 = 值
 		_延迟更新主题()
 
+signal 当聚焦于选项(选项索引: int)
+signal 当选择选项(选项索引: int)
+
 var _选项容器: VBoxContainer
 
 var _视区第一个编号: int
@@ -83,6 +86,7 @@ func _更新视区() -> void:
 		按钮.focus_entered.connect(_on_button_focus_entered.bind(按钮))
 		按钮.focus_exited.connect(_on_button_focus_exited.bind(按钮))
 		按钮.mouse_entered.connect(_on_button_mouse_entered.bind(按钮))
+		按钮.pressed.connect(_on_button_pressed.bind(按钮))
 		按钮.add_theme_stylebox_override("normal", _空样式)
 		按钮.add_theme_stylebox_override("hover", _空样式)
 		按钮.add_theme_stylebox_override("pressed", _空样式)
@@ -119,12 +123,22 @@ func _on_button_focus_entered(按钮: Button) -> void:
 		_视区第一个编号 += 1
 		按钮.get_parent().get_child(按钮下标 - 1).grab_focus()
 		call_deferred("_更新视区")
+	else:
+		var 选项索引 = 按钮下标 + _视区第一个编号
+		if 选项索引 >= 0 and 选项索引 < len(_选项) and 按钮.text != "...":
+			当聚焦于选项.emit(选项索引)
 
 func _on_button_focus_exited(按钮: Button) -> void:
 	按钮.icon = _透明图标
 
 func _on_button_mouse_entered(按钮: Button) -> void:
 	按钮.grab_focus()
+
+func _on_button_pressed(按钮: Button) -> void:
+	var 按钮下标 = 按钮.get_index()
+	var 选项索引 = 按钮下标 + _视区第一个编号
+	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and 按钮.text != "...":
+		当选择选项.emit(选项索引)
 
 func _更新所有按钮图标() -> void:
 	var 节点数量 = _选项容器.get_child_count()
