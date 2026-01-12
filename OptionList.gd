@@ -4,6 +4,7 @@ class_name OptionList
 
 static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
 static var _透明图标: ImageTexture = null
+static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export_range(3, 16) var 视区数量: int = 8:
 	set(值):
@@ -80,7 +81,12 @@ func _更新视区() -> void:
 		按钮.focus_entered.connect(_on_button_focus_entered.bind(按钮))
 		按钮.focus_exited.connect(_on_button_focus_exited.bind(按钮))
 		按钮.mouse_entered.connect(_on_button_mouse_entered.bind(按钮))
-		# 默认设置为透明图标
+		按钮.add_theme_stylebox_override("normal", _空样式)
+		按钮.add_theme_stylebox_override("hover", _空样式)
+		按钮.add_theme_stylebox_override("pressed", _空样式)
+		按钮.add_theme_stylebox_override("disabled", _空样式)
+		按钮.add_theme_stylebox_override("focus", _空样式)
+		按钮.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		if _透明图标:
 			按钮.icon = _透明图标
 		_选项容器.add_child(按钮)
