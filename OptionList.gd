@@ -3,6 +3,7 @@ extends MarginContainer
 class_name OptionList
 
 static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
+static var _透明图标: ImageTexture = null
 
 @export_range(3, 16) var 视区数量: int = 8:
 	set(值):
@@ -19,11 +20,6 @@ static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_i
 		空余数量 = 值
 		_延迟更新视区()
 
-@export var 指示器偏移: Vector2i:
-	set(值):
-		指示器偏移 = 值
-		_延迟更新视区()
-
 @export_group("Theme Overrides")
 @export_subgroup("icons")
 @export var 指示器图标: Texture2D = null:
@@ -32,15 +28,8 @@ static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_i
 		_延迟更新主题()
 
 var _选项容器: VBoxContainer
-var _指示器: TextureRect
 var _视区第一个编号: int
-var _指示器序号: int:
-	get:
-		var 子节点数量 = _选项容器.get_child_count()
-		for i in range(子节点数量):
-			if _选项容器.get_child(i).has_focus():
-				return i;
-		return -1;
+var _当前图标: Texture2D
 
 func _notification(通知类型: int) -> void:
 	if 通知类型 == NOTIFICATION_THEME_CHANGED and is_node_ready():
@@ -50,11 +39,7 @@ func _ready() -> void:
 	_选项容器 = VBoxContainer.new()
 	_选项容器.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_选项容器)
-	var 控件 = Control.new()
-	控件.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_指示器 = TextureRect.new()
-	控件.add_child(_指示器)
-	add_child(控件)
+	_创建透明图标()
 	call_deferred("_更新主题")
 	call_deferred("_更新视区")
 
@@ -66,14 +51,41 @@ func _延迟更新主题() -> void:
 	if is_node_ready():
 		_更新主题()
 
+func _创建透明图标() -> void:
+	if _透明图标 == null:
+		# 获取图标尺寸，如果还没有图标则使用默认尺寸
+		var 图标尺寸 = 16
+		if 指示器图标:
+			图标尺寸 = max(指示器图标.get_width(), 指示器图标.get_height())
+		elif has_theme_icon("indexer_icon", "OptionList"):
+			var 主题图标 = get_theme_icon("indexer_icon", "OptionList")
+			图标尺寸 = max(主题图标.get_width(), 主题图标.get_height())
+		else:
+			图标尺寸 = max(_默认指示器图标.get_width(), _默认指示器图标.get_height())
+		
+		# 创建透明图片
+		var 图片 = Image.create(图标尺寸, 图标尺寸, false, Image.FORMAT_RGBA8)
+		图片.fill(Color.TRANSPARENT)
+		_透明图标 = ImageTexture.create_from_image(图片)
+
 func _更新主题() -> void:
 	if 指示器图标:
-		_指示器.texture = 指示器图标
+		_当前图标 = 指示器图标
 	elif has_theme_icon("indexer_icon", "OptionList"):
-		_指示器.texture = get_theme_icon("indexer_icon", "OptionList")
+		_当前图标 = get_theme_icon("indexer_icon", "OptionList")
 	else:
-		_指示器.texture = _默认指示器图标
-	_更新指示器坐标()
+		_当前图标 = _默认指示器图标
+	
+	# 更新透明图标尺寸以匹配当前图标
+	if _当前图标:
+		var 图标尺寸 = max(_当前图标.get_width(), _当前图标.get_height())
+		if _透明图标 == null or _透明图标.get_width() != 图标尺寸:
+			var 图片 = Image.create(图标尺寸, 图标尺寸, false, Image.FORMAT_RGBA8)
+			图片.fill(Color.TRANSPARENT)
+			_透明图标 = ImageTexture.create_from_image(图片)
+	
+	# 更新所有按钮的图标状态
+	_更新所有按钮图标()
 
 func _更新视区() -> void:
 	var 节点数量 = _选项容器.get_child_count()
@@ -81,8 +93,11 @@ func _更新视区() -> void:
 		_选项容器.get_child(节点数量 - 索引 - 1).queue_free()
 	for 索引 in range(视区数量 - 节点数量):
 		var 按钮 = Button.new()
-		按钮.focus_entered.connect(Callable(self, "_更新指示器坐标"))
-		按钮.focus_exited.connect(Callable(self, "_更新指示器坐标"))
+		按钮.focus_entered.connect(_on_button_focus_entered.bind(按钮))
+		按钮.focus_exited.connect(_on_button_focus_exited.bind(按钮))
+		# 默认设置为透明图标
+		if _透明图标:
+			按钮.icon = _透明图标
 		_选项容器.add_child(按钮)
 	var 可见数量 = min(视区数量, len(选项))
 	for 索引 in range(可见数量):
@@ -96,16 +111,24 @@ func _更新视区() -> void:
 			_选项容器.get_child(索引).text = ""
 	for 索引 in range(可见数量, 视区数量 - 可见数量):
 		(_选项容器.get_child(索引) as Button).text = ""
-	_更新指示器坐标()
+	_更新所有按钮图标()
 
-func _更新指示器坐标() -> void:
+func _on_button_focus_entered(按钮: Button) -> void:
+	if _当前图标:
+		按钮.icon = _当前图标
+
+func _on_button_focus_exited(按钮: Button) -> void:
+	if _透明图标:
+		按钮.icon = _透明图标
+
+func _更新所有按钮图标() -> void:
 	var 节点数量 = _选项容器.get_child_count()
-	if 节点数量 > 0:
-		_指示器.visible = true
-		var 节点 = _选项容器.get_child(clamp(_指示器序号, 0, 节点数量 - 1)) as Control
-		var 坐标 = 节点.global_position
-		坐标 += Vector2(-_指示器.size.x, (节点.size.y - _指示器.size.y) / 2)
-		坐标 += Vector2(指示器偏移)
-		_指示器.global_position = 坐标
-	else:
-		_指示器.visible = false
+	for i in range(节点数量):
+		var 按钮 = _选项容器.get_child(i) as Button
+		if 按钮:
+			if 按钮.has_focus():
+				if _当前图标:
+					按钮.icon = _当前图标
+			else:
+				if _透明图标:
+					按钮.icon = _透明图标

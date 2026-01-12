@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
 [ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://OptionList.gd" id="1_37kl0"]
+[ext_resource type="Texture2D" uid="uid://c5k4yesssmw0o" path="res://Textures/Items/Icons3.png" id="2_8uh7m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8uh7m"]
 
@@ -35,4 +36,21 @@ focus_mode = 2
 focus_behavior_recursive = 2
 mouse_filter = 0
 theme_override_styles/focus = SubResource("StyleBoxFlat_8uh7m")
+text = "asdf"
+
+[node name="Button" type="Button" parent="." unique_id=1412984130]
+layout_mode = 0
+offset_left = 27.0
+offset_top = -60.0
+offset_right = 133.0
+offset_bottom = -29.0
+text = "asdf"
+icon = ExtResource("2_8uh7m")
+
+[node name="Button2" type="Button" parent="." unique_id=1651162087]
+layout_mode = 0
+offset_left = 27.0
+offset_top = -25.0
+offset_right = 133.0
+offset_bottom = 6.0
 text = "asdf"
