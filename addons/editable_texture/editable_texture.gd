@@ -23,7 +23,7 @@ var _texture: ImageTexture:
 		if not _texture:
 			if _hex_data:
 				var image = Image.new()
-				var error = image.load_from_buffer(_bytes)
+				var error = image.load_png_from_buffer(_bytes)
 				if error == OK:
 					_texture = ImageTexture.new()
 					_texture.set_image(image)

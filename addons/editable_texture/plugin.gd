@@ -4,7 +4,7 @@ extends EditorPlugin
 var inspector_plugin: EditorInspectorPlugin
 
 func _enter_tree() -> void:
-	inspector_plugin = preload("res://addons/editable_texture/inspector_plugin.gd").new()
+	inspector_plugin = preload("res://Addons/editable_texture/inspector_plugin.gd").new()
 	add_inspector_plugin(inspector_plugin)
 
 func _exit_tree() -> void:
