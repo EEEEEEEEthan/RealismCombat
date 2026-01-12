@@ -34,7 +34,13 @@ static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_i
 var _选项容器: VBoxContainer
 var _指示器: TextureRect
 var _视区第一个编号: int
-var _指示器序号: int
+var _指示器序号: int:
+	get:
+		var 子节点数量 = _选项容器.get_child_count()
+		for i in range(子节点数量):
+			if _选项容器.get_child(i).has_focus():
+				return i;
+		return -1;
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_THEME_CHANGED and is_node_ready():
@@ -50,27 +56,6 @@ func _ready() -> void:
 	add_child(control)
 	call_deferred("_更新主题")
 	call_deferred("_更新视区")
-
-func _unhandled_key_input(event: InputEvent) -> void:
-	var margin = min(int((视区数量 - 1) / 2.0), 空余数量)
-	if event.is_action_pressed("ui_up"):
-		_指示器序号 -= 1
-		if _指示器序号 <= margin - 1:
-			if _视区第一个编号 > 0:
-				_视区第一个编号 -= 1
-				_指示器序号 += 1
-			elif _指示器序号 < 0:
-				_指示器序号 = 0
-		_更新视区()
-	elif event.is_action_pressed("ui_down"):
-		_指示器序号 += 1
-		if _指示器序号 >= 视区数量 - margin:
-			if _视区第一个编号 + 视区数量 < len(选项):
-				_视区第一个编号 += 1
-				_指示器序号 -= 1
-			elif _指示器序号 >= 视区数量:
-				_指示器序号 = 视区数量 - 1
-		_更新视区()
 
 func _延迟更新视区() -> void:
 	if is_node_ready():
@@ -94,7 +79,11 @@ func _更新视区() -> void:
 	for i in range(节点数量 - 视区数量):
 		_选项容器.get_child(节点数量 - i - 1).queue_free()
 	for i in range(视区数量 - 节点数量):
-		_选项容器.add_child(Label.new())
+		var label = Label.new()
+		label.focus_mode = Control.FOCUS_ALL
+		label.focus_entered.connect(Callable(self, "_更新指示器坐标"))
+		label.focus_exited.connect(Callable(self, "_更新指示器坐标"))
+		_选项容器.add_child(label)
 	var 可见数量 = min(视区数量, len(选项))
 	for i in range(可见数量):
 		if i == 0 and _视区第一个编号 > 0:
