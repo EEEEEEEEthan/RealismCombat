@@ -100,9 +100,9 @@ func _更新视区() -> void:
 	for 索引 in range(可见数量):
 		var 按钮 = _选项容器.get_child(索引) as Button
 		if 索引 == 0 and _视区第一个编号 > 0:
-			按钮.text = "..."
+			按钮.text = "...+" + str(_视区第一个编号 + 1)
 		elif 视区数量 - 1 == 索引 and _视区第一个编号 + 视区数量 < len(_选项):
-			按钮.text = "..."
+			按钮.text = "...+" + str(len(_选项) - (_视区第一个编号 + 视区数量) + 1)
 		elif 索引 + _视区第一个编号 < len(_选项):
 			按钮.text = _选项[索引 + _视区第一个编号]
 		else:
@@ -125,7 +125,8 @@ func _on_button_focus_entered(按钮: Button) -> void:
 		call_deferred("_更新视区")
 	else:
 		var 选项索引 = 按钮下标 + _视区第一个编号
-		if 选项索引 >= 0 and 选项索引 < len(_选项) and 按钮.text != "...":
+		if 选项索引 >= 0 and 选项索引 < len(_选项):
+			print("当聚焦于选项: ", _选项[选项索引])
 			当聚焦于选项.emit(选项索引)
 
 func _on_button_focus_exited(按钮: Button) -> void:
@@ -137,7 +138,8 @@ func _on_button_mouse_entered(按钮: Button) -> void:
 func _on_button_pressed(按钮: Button) -> void:
 	var 按钮下标 = 按钮.get_index()
 	var 选项索引 = 按钮下标 + _视区第一个编号
-	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and 按钮.text != "...":
+	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and not 按钮.text.begins_with("..."):
+		print("选择选项: ", _选项[选项索引])
 		当选择选项.emit(选项索引)
 
 func _更新所有按钮图标() -> void:
