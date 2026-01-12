@@ -90,7 +90,7 @@ func _更新视区() -> void:
 		(_选项容器.get_child(索引) as Button).text = ""
 	_更新所有按钮图标()
 
-func _on_button_focus_entered(按钮: Button) -> void:
+func 当按钮聚焦(按钮: Button) -> void:
 	按钮.icon = _当前图标
 	var 按钮下标 = 按钮.get_index()
 	if 按钮下标 == 0 and _视区第一个编号 > 0:
@@ -107,13 +107,13 @@ func _on_button_focus_entered(按钮: Button) -> void:
 			print("当聚焦于选项: ", _选项[选项索引])
 			当聚焦于选项.emit(选项索引)
 
-func _on_button_focus_exited(按钮: Button) -> void:
+func 当按钮失焦(按钮: Button) -> void:
 	按钮.icon = _透明图标
 
-func _on_button_mouse_entered(按钮: Button) -> void:
+func 当鼠标进入按钮(按钮: Button) -> void:
 	按钮.grab_focus()
 
-func _on_button_pressed(按钮: Button) -> void:
+func 当按钮按下(按钮: Button) -> void:
 	var 按钮下标 = 按钮.get_index()
 	var 选项索引 = _计算选项索引(按钮下标)
 	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and not 按钮.text.begins_with("..."):
@@ -122,10 +122,10 @@ func _on_button_pressed(按钮: Button) -> void:
 
 func _创建按钮() -> Button:
 	var 按钮 = Button.new()
-	按钮.focus_entered.connect(_on_button_focus_entered.bind(按钮))
-	按钮.focus_exited.connect(_on_button_focus_exited.bind(按钮))
-	按钮.mouse_entered.connect(_on_button_mouse_entered.bind(按钮))
-	按钮.pressed.connect(_on_button_pressed.bind(按钮))
+	按钮.focus_entered.connect(当按钮聚焦.bind(按钮))
+	按钮.focus_exited.connect(当按钮失焦.bind(按钮))
+	按钮.mouse_entered.connect(当鼠标进入按钮.bind(按钮))
+	按钮.pressed.connect(当按钮按下.bind(按钮))
 	按钮.add_theme_stylebox_override("normal", _空样式)
 	按钮.add_theme_stylebox_override("hover", _空样式)
 	按钮.add_theme_stylebox_override("pressed", _空样式)
