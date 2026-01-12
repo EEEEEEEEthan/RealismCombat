@@ -79,6 +79,7 @@ func _更新视区() -> void:
 		var 按钮 = Button.new()
 		按钮.focus_entered.connect(_on_button_focus_entered.bind(按钮))
 		按钮.focus_exited.connect(_on_button_focus_exited.bind(按钮))
+		按钮.mouse_entered.connect(_on_button_mouse_entered.bind(按钮))
 		# 默认设置为透明图标
 		if _透明图标:
 			按钮.icon = _透明图标
@@ -104,6 +105,9 @@ func _on_button_focus_entered(按钮: Button) -> void:
 func _on_button_focus_exited(按钮: Button) -> void:
 	if _透明图标:
 		按钮.icon = _透明图标
+
+func _on_button_mouse_entered(按钮: Button) -> void:
+	按钮.grab_focus()
 
 func _更新所有按钮图标() -> void:
 	var 节点数量 = _选项容器.get_child_count()
