@@ -28,8 +28,17 @@ static var _透明图标: ImageTexture = null
 		_延迟更新主题()
 
 var _选项容器: VBoxContainer
+
 var _视区第一个编号: int
-var _当前图标: Texture2D
+
+var _当前图标: Texture2D:
+	get:
+		if 指示器图标:
+			return 指示器图标
+		elif has_theme_icon("indexer_icon", "OptionList"):
+			return get_theme_icon("indexer_icon", "OptionList")
+		else:
+			return _默认指示器图标
 
 func _notification(通知类型: int) -> void:
 	if 通知类型 == NOTIFICATION_THEME_CHANGED and is_node_ready():
@@ -39,9 +48,8 @@ func _ready() -> void:
 	_选项容器 = VBoxContainer.new()
 	_选项容器.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_选项容器)
-	_创建透明图标()
-	call_deferred("_更新主题")
-	call_deferred("_更新视区")
+	_延迟更新主题()
+	_延迟更新视区()
 
 func _延迟更新视区() -> void:
 	if is_node_ready():
@@ -51,31 +59,7 @@ func _延迟更新主题() -> void:
 	if is_node_ready():
 		_更新主题()
 
-func _创建透明图标() -> void:
-	if _透明图标 == null:
-		# 获取图标尺寸，如果还没有图标则使用默认尺寸
-		var 图标尺寸 = 16
-		if 指示器图标:
-			图标尺寸 = max(指示器图标.get_width(), 指示器图标.get_height())
-		elif has_theme_icon("indexer_icon", "OptionList"):
-			var 主题图标 = get_theme_icon("indexer_icon", "OptionList")
-			图标尺寸 = max(主题图标.get_width(), 主题图标.get_height())
-		else:
-			图标尺寸 = max(_默认指示器图标.get_width(), _默认指示器图标.get_height())
-		
-		# 创建透明图片
-		var 图片 = Image.create(图标尺寸, 图标尺寸, false, Image.FORMAT_RGBA8)
-		图片.fill(Color.TRANSPARENT)
-		_透明图标 = ImageTexture.create_from_image(图片)
-
 func _更新主题() -> void:
-	if 指示器图标:
-		_当前图标 = 指示器图标
-	elif has_theme_icon("indexer_icon", "OptionList"):
-		_当前图标 = get_theme_icon("indexer_icon", "OptionList")
-	else:
-		_当前图标 = _默认指示器图标
-	
 	# 更新透明图标尺寸以匹配当前图标
 	if _当前图标:
 		var 图标尺寸 = max(_当前图标.get_width(), _当前图标.get_height())
