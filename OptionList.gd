@@ -5,30 +5,30 @@ class_name OptionList
 static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
 
 @export_range(3, 16) var 视区数量: int = 8:
-	set(v):
-		视区数量 = v
+	set(值):
+		视区数量 = 值
 		_延迟更新视区()
 
 @export var 选项: PackedStringArray:
-	set(v):
-		选项 = v
+	set(值):
+		选项 = 值
 		_延迟更新视区()
 
 @export_range(1, 7) var 空余数量: int = 1:
-	set(v):
-		空余数量 = v
+	set(值):
+		空余数量 = 值
 		_延迟更新视区()
 
 @export var 指示器偏移: Vector2i:
-	set(v):
-		指示器偏移 = v
+	set(值):
+		指示器偏移 = 值
 		_延迟更新视区()
 
 @export_group("Theme Overrides")
 @export_subgroup("icons")
-@export var indexer_icon: Texture2D = null:
-	set(value):
-		indexer_icon = value
+@export var 指示器图标: Texture2D = null:
+	set(值):
+		指示器图标 = 值
 		_延迟更新主题()
 
 var _选项容器: VBoxContainer
@@ -42,18 +42,19 @@ var _指示器序号: int:
 				return i;
 		return -1;
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_THEME_CHANGED and is_node_ready():
+func _notification(通知类型: int) -> void:
+	if 通知类型 == NOTIFICATION_THEME_CHANGED and is_node_ready():
 		_更新主题()
 
 func _ready() -> void:
 	_选项容器 = VBoxContainer.new()
 	_选项容器.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_选项容器)
-	var control = Control.new()
+	var 控件 = Control.new()
+	控件.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_指示器 = TextureRect.new()
-	control.add_child(_指示器)
-	add_child(control)
+	控件.add_child(_指示器)
+	add_child(控件)
 	call_deferred("_更新主题")
 	call_deferred("_更新视区")
 
@@ -66,8 +67,8 @@ func _延迟更新主题() -> void:
 		_更新主题()
 
 func _更新主题() -> void:
-	if indexer_icon:
-		_指示器.texture = indexer_icon
+	if 指示器图标:
+		_指示器.texture = 指示器图标
 	elif has_theme_icon("indexer_icon", "OptionList"):
 		_指示器.texture = get_theme_icon("indexer_icon", "OptionList")
 	else:
@@ -76,26 +77,25 @@ func _更新主题() -> void:
 
 func _更新视区() -> void:
 	var 节点数量 = _选项容器.get_child_count()
-	for i in range(节点数量 - 视区数量):
-		_选项容器.get_child(节点数量 - i - 1).queue_free()
-	for i in range(视区数量 - 节点数量):
-		var label = Label.new()
-		label.focus_mode = Control.FOCUS_ALL
-		label.focus_entered.connect(Callable(self, "_更新指示器坐标"))
-		label.focus_exited.connect(Callable(self, "_更新指示器坐标"))
-		_选项容器.add_child(label)
+	for 索引 in range(节点数量 - 视区数量):
+		_选项容器.get_child(节点数量 - 索引 - 1).queue_free()
+	for 索引 in range(视区数量 - 节点数量):
+		var 按钮 = Button.new()
+		按钮.focus_entered.connect(Callable(self, "_更新指示器坐标"))
+		按钮.focus_exited.connect(Callable(self, "_更新指示器坐标"))
+		_选项容器.add_child(按钮)
 	var 可见数量 = min(视区数量, len(选项))
-	for i in range(可见数量):
-		if i == 0 and _视区第一个编号 > 0:
-			_选项容器.get_child(i).text = "..."
-		elif 视区数量 - 1 == i and _视区第一个编号 + 视区数量 < len(选项):
-			_选项容器.get_child(i).text = "..."
-		elif i + _视区第一个编号 < len(选项):
-			_选项容器.get_child(i).text = 选项[i + _视区第一个编号]
+	for 索引 in range(可见数量):
+		if 索引 == 0 and _视区第一个编号 > 0:
+			_选项容器.get_child(索引).text = "..."
+		elif 视区数量 - 1 == 索引 and _视区第一个编号 + 视区数量 < len(选项):
+			_选项容器.get_child(索引).text = "..."
+		elif 索引 + _视区第一个编号 < len(选项):
+			_选项容器.get_child(索引).text = 选项[索引 + _视区第一个编号]
 		else:
-			_选项容器.get_child(i).text = ""
-	for i in range(可见数量, 视区数量 - 可见数量):
-		(_选项容器.get_child(i) as Label).text = ""
+			_选项容器.get_child(索引).text = ""
+	for 索引 in range(可见数量, 视区数量 - 可见数量):
+		(_选项容器.get_child(索引) as Button).text = ""
 	_更新指示器坐标()
 
 func _更新指示器坐标() -> void:
