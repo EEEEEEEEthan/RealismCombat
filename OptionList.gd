@@ -13,8 +13,8 @@ static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export var _选项: PackedStringArray:
 	set(值):
-        if len(值) > 64:
-            值 = 值.slice(0, 64)
+		if len(值) > 64:
+			值 = 值.slice(0, 64)
 		_选项 = 值
 		_尝试更新(_更新视区)
 
@@ -106,7 +106,6 @@ func _当按钮聚焦(按钮: Button) -> void:
 	else:
 		var 选项索引 = _计算选项索引(按钮下标)
 		if 选项索引 >= 0 and 选项索引 < len(_选项):
-			print("当聚焦于选项: ", _选项[选项索引])
 			当聚焦于选项.emit(选项索引)
 
 func 按钮失焦时(按钮: Button) -> void:
@@ -119,7 +118,6 @@ func 按钮按下时(按钮: Button) -> void:
 	var 按钮下标 = 按钮.get_index()
 	var 选项索引 = _计算选项索引(按钮下标)
 	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and not 按钮.text.begins_with("..."):
-		print("当选择选项: ", _选项[选项索引])
 		当选择选项.emit(选项索引)
 
 func _创建按钮() -> Button:
