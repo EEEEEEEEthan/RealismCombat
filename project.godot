@@ -14,6 +14,10 @@ config/name="超写实战斗"
 run/main_scene="uid://d0s0aws01q13e"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
+[autoload]
+
+FocusDebugger="*res://FocusDebugger.gd"
+
 [display]
 
 window/size/viewport_width=256
@@ -40,10 +44,6 @@ enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
 
 theme/custom="uid://nedlt21e76s8"
 theme/custom_font="uid://coprcrk20pwv2"
-
-[autoload]
-
-FocusDebugger="*res://FocusDebugger.gd"
 
 [rendering]
 

@@ -6,13 +6,15 @@ static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_i
 static var _透明图标: ImageTexture = null
 static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
 
-@export_range(3, 16) var 视区数量: int = 8:
+@export_range(3, 64) var 视区数量: int = 8:
 	set(值):
 		视区数量 = 值
 		_尝试更新(_更新视区)
 
 @export var _选项: PackedStringArray:
 	set(值):
+        if len(值) > 64:
+            值 = 值.slice(0, 64)
 		_选项 = 值
 		_尝试更新(_更新视区)
 
@@ -23,9 +25,9 @@ static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export_group("Theme Overrides")
 @export_subgroup("icons")
-@export var 指示器图标: Texture2D = null:
+@export var indexer_icon: Texture2D = null:
 	set(值):
-		指示器图标 = 值
+		indexer_icon = 值
 		_尝试更新(_更新主题)
 
 signal 当聚焦于选项(选项索引: int)
@@ -37,8 +39,8 @@ var _视区第一个编号: int
 
 var _当前图标: Texture2D:
 	get:
-		if 指示器图标:
-			return 指示器图标
+		if indexer_icon:
+			return indexer_icon
 		elif has_theme_icon("indexer_icon", "OptionList"):
 			return get_theme_icon("indexer_icon", "OptionList")
 		else:
@@ -90,7 +92,7 @@ func _更新视区() -> void:
 		(_选项容器.get_child(索引) as Button).text = ""
 	_更新所有按钮图标()
 
-func 当按钮聚焦(按钮: Button) -> void:
+func _当按钮聚焦(按钮: Button) -> void:
 	按钮.icon = _当前图标
 	var 按钮下标 = 按钮.get_index()
 	if 按钮下标 == 0 and _视区第一个编号 > 0:
@@ -107,13 +109,13 @@ func 当按钮聚焦(按钮: Button) -> void:
 			print("当聚焦于选项: ", _选项[选项索引])
 			当聚焦于选项.emit(选项索引)
 
-func 当按钮失焦(按钮: Button) -> void:
+func 按钮失焦时(按钮: Button) -> void:
 	按钮.icon = _透明图标
 
-func 当鼠标进入按钮(按钮: Button) -> void:
+func 鼠标进入按钮时(按钮: Button) -> void:
 	按钮.grab_focus()
 
-func 当按钮按下(按钮: Button) -> void:
+func 按钮按下时(按钮: Button) -> void:
 	var 按钮下标 = 按钮.get_index()
 	var 选项索引 = _计算选项索引(按钮下标)
 	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and not 按钮.text.begins_with("..."):
@@ -122,10 +124,10 @@ func 当按钮按下(按钮: Button) -> void:
 
 func _创建按钮() -> Button:
 	var 按钮 = Button.new()
-	按钮.focus_entered.connect(当按钮聚焦.bind(按钮))
-	按钮.focus_exited.connect(当按钮失焦.bind(按钮))
-	按钮.mouse_entered.connect(当鼠标进入按钮.bind(按钮))
-	按钮.pressed.connect(当按钮按下.bind(按钮))
+	按钮.focus_entered.connect(_当按钮聚焦.bind(按钮))
+	按钮.focus_exited.connect(按钮失焦时.bind(按钮))
+	按钮.mouse_entered.connect(鼠标进入按钮时.bind(按钮))
+	按钮.pressed.connect(按钮按下时.bind(按钮))
 	按钮.add_theme_stylebox_override("normal", _空样式)
 	按钮.add_theme_stylebox_override("hover", _空样式)
 	按钮.add_theme_stylebox_override("pressed", _空样式)
