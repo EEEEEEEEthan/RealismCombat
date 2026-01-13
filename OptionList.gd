@@ -24,7 +24,28 @@ static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
 		_尝试更新(_更新视区)
 
 @export_group("Theme Overrides")
+
+@export_subgroup("colors")
+
+@export var font_color: Color = Color.WHITE:
+	set(值):
+		font_color = 值
+		_尝试更新(_更新所有按钮主题)
+
+@export var font_disabled_color: Color = Color(0.5, 0.5, 0.5, 1.0):
+	set(值):
+		font_disabled_color = 值
+		_尝试更新(_更新所有按钮主题)
+
+@export_subgroup("fonts")
+
+@export var font: Font = null:
+	set(值):
+		font = 值
+		_尝试更新(_更新所有按钮主题)
+
 @export_subgroup("icons")
+
 @export var indexer_icon: Texture2D = null:
 	set(值):
 		indexer_icon = 值
@@ -69,6 +90,7 @@ func _更新主题() -> void:
 			图片.fill(Color.TRANSPARENT)
 			_透明图标 = ImageTexture.create_from_image(图片)
 	_更新所有按钮图标()
+	_更新所有按钮主题()
 
 func _更新视区() -> void:
 	var 节点数量 = _选项容器.get_child_count()
@@ -134,6 +156,11 @@ func _创建按钮() -> Button:
 	按钮.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	if _透明图标:
 		按钮.icon = _透明图标
+	# 应用主题设置
+	if font:
+		按钮.add_theme_font_override("font", font)
+	按钮.add_theme_color_override("font_color", font_color)
+	按钮.add_theme_color_override("font_disabled_color", font_disabled_color)
 	return 按钮
 
 func _计算选项索引(按钮下标: int) -> int:
@@ -148,3 +175,15 @@ func _更新所有按钮图标() -> void:
 				按钮.icon = _当前图标
 			else:
 				按钮.icon = _透明图标
+
+func _更新所有按钮主题() -> void:
+	var 节点数量 = _选项容器.get_child_count()
+	for i in range(节点数量):
+		var 按钮 = _选项容器.get_child(i) as Button
+		if 按钮:
+			if font:
+				按钮.add_theme_font_override("font", font)
+			else:
+				按钮.remove_theme_font_override("font")
+			按钮.add_theme_color_override("font_color", font_color)
+			按钮.add_theme_color_override("font_disabled_color", font_disabled_color)
