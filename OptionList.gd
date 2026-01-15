@@ -31,7 +31,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export_subgroup("icons")
 
-@export var _override_indexer_icon: bool = false:
+var _override_indexer_icon: bool = false:
 	get:
 		return has_theme_icon_override("indexer_icon")
 	set(value):
@@ -41,7 +41,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 			remove_theme_icon_override("indexer_icon")
 		notify_property_list_changed()
 
-@export var _indexer_icon: Texture2D = null:
+var _indexer_icon: Texture2D = null:
 	get:
 		var icon = get("theme_override_icons/indexer_icon")
 		if icon:
@@ -60,9 +60,15 @@ var _options_container: VBoxContainer
 var _viewport_start_index: int
 
 func _validate_property(property: Dictionary) -> void:
-	# 只有当 _override_indexer_icon 为 true 时才显示 _indexer_icon
-	if property.name == "_indexer_icon" and not _override_indexer_icon:
-		property.usage = PROPERTY_USAGE_NO_EDITOR
+	# 在编辑器中显示但不序列化
+	if property.name == "_override_indexer_icon":
+		property.usage = PROPERTY_USAGE_EDITOR
+	# 只有当 _override_indexer_icon 为 true 时才显示 _indexer_icon，且不序列化
+	elif property.name == "_indexer_icon":
+		if _override_indexer_icon:
+			property.usage = PROPERTY_USAGE_EDITOR
+		else:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
 
 func _notification(notification_type: int) -> void:
 	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
