@@ -1,13 +1,60 @@
-[gd_resource type="Theme" format=3 uid="uid://nedlt21e76s8"]
+[gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
-[ext_resource type="Texture2D" uid="uid://dmixf57mxocuk" path="res://图集.png" id="1_e1x85"]
-[ext_resource type="FontFile" uid="uid://coprcrk20pwv2" path="res://字体/fusion-pixel-10px-monospaced-zh_hant.otf" id="2_cjfk0"]
+[ext_resource type="FontFile" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
+[ext_resource type="FontFile" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
+[ext_resource type="FontFile" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
+[ext_resource type="Texture2D" uid="uid://bon3i1ll2wesm" path="res://Textures/Icon16.png" id="3_c6xh3"]
+[ext_resource type="Texture2D" uid="uid://deua00u1q163h" path="res://Textures/ProgressBar.png" id="4_c6xh3"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_cjfk0"]
-atlas = ExtResource("1_e1x85")
-region = Rect2(0, 0, 8, 8)
+[sub_resource type="AtlasTexture" id="AtlasTexture_j4jqe"]
+atlas = ExtResource("3_c6xh3")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_c6xh3"]
+texture = SubResource("AtlasTexture_j4jqe")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c6xh3"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7m1lf"]
+texture = ExtResource("4_c6xh3")
+axis_stretch_horizontal = 1
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t6dyh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t6dyh"]
+bg_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 
 [resource]
-default_font = ExtResource("2_cjfk0")
+default_font = ExtResource("1_k1aya")
 default_font_size = 10
-OptionList/icons/indexer_icon = SubResource("AtlasTexture_cjfk0")
+HBoxContainer/constants/separation = 0
+Label_Large/base_type = &"Label"
+Label_Large/font_sizes/font_size = 12
+Label_Large/fonts/font = ExtResource("1_j4jqe")
+Label_LargeWithShadow/base_type = &"Label"
+Label_LargeWithShadow/colors/font_shadow_color = Color(0, 0, 0, 1)
+Label_LargeWithShadow/constants/shadow_offset_x = 1
+Label_LargeWithShadow/constants/shadow_offset_y = 1
+Label_LargeWithShadow/constants/shadow_outline_size = 0
+Label_LargeWithShadow/font_sizes/font_size = 12
+Label_LargeWithShadow/fonts/font = ExtResource("1_j4jqe")
+Label_Small/base_type = &"Label"
+Label_Small/font_sizes/font_size = 8
+Label_Small/fonts/font = ExtResource("2_23v3e")
+Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
+ProgressBar/font_sizes/font_size = 8
+ProgressBar/fonts/font = ExtResource("2_23v3e")
+ProgressBar/styles/background = SubResource("StyleBoxEmpty_c6xh3")
+ProgressBar/styles/fill = SubResource("StyleBoxTexture_7m1lf")
+ProgressBar_Flat/base_type = &"ProgressBar"
+ProgressBar_Flat/styles/background = SubResource("StyleBoxEmpty_t6dyh")
+ProgressBar_Flat/styles/fill = SubResource("StyleBoxFlat_t6dyh")
+RichTextLabel_Small/base_type = &"RichTextLabel"
+RichTextLabel_Small/font_sizes/normal_font_size = 8
+RichTextLabel_Small/fonts/normal_font = ExtResource("2_23v3e")
+VBoxContainer/constants/separation = 0

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://d0s0aws01q13e"]
+[gd_scene format=3 uid="uid://pxjbq4vxq6df"]
 
 [ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://OptionList.gd" id="1_37kl0"]
 [ext_resource type="Texture2D" uid="uid://c5k4yesssmw0o" path="res://Textures/Items/Icons3.png" id="2_8uh7m"]
@@ -15,16 +15,14 @@ grow_vertical = 2
 
 [node name="OptionList" type="MarginContainer" parent="." unique_id=1580032097]
 layout_mode = 0
-offset_left = 22.0
-offset_top = 57.0
-offset_right = 59.0
-offset_bottom = 137.0
+offset_left = 63.0
+offset_top = 12.0
+offset_right = 131.0
+offset_bottom = 238.0
 focus_behavior_recursive = 2
 script = ExtResource("1_37kl0")
-"视区数量" = 6
-"_选项" = PackedStringArray("Item0", "Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7")
-"_禁用选项" = 2
-metadata/_custom_type_script = "uid://0buptekbe3qk"
+_options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "", "")
+_disabled_mask = 2
 
 [node name="Label" type="Label" parent="." unique_id=1427771887]
 layout_mode = 0
@@ -57,7 +55,7 @@ text = "asdf"
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1730946589]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 152.0
-offset_right = 229.0
-offset_bottom = 220.0
+offset_left = 31.0
+offset_top = 210.0
+offset_right = 240.0
+offset_bottom = 278.0

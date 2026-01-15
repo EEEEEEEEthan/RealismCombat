@@ -2,188 +2,155 @@
 extends MarginContainer
 class_name OptionList
 
-static var _默认指示器图标: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
-static var _透明图标: ImageTexture = null
-static var _空样式: StyleBoxEmpty = StyleBoxEmpty.new()
+static var _default_indicator_icon: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
+static var _transparent_icon: ImageTexture = null
+static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
-@export_range(3, 64) var 视区数量: int = 8:
-	set(值):
-		视区数量 = 值
-		_尝试更新(_更新视区)
+@export_range(3, 64) var viewport_count: int = 8:
+	set(value):
+		viewport_count = value
+		_try_update(_update_viewport)
 
-@export var _选项: PackedStringArray:
-	set(值):
-		if len(值) > 64:
-			值 = 值.slice(0, 64)
-		_选项 = 值
-		_尝试更新(_更新视区)
+@export var _options: PackedStringArray:
+	set(value):
+		if len(value) > 64:
+			value = value.slice(0, 64)
+		_options = value
+		_try_update(_update_viewport)
 
-@export var _禁用选项: int:
-	set(值):
-		_禁用选项 = 值
-		_尝试更新(_更新视区)
+@export var _disabled_mask: int:
+	set(value):
+		_disabled_mask = value
+		_try_update(_update_viewport)
 
 @export_group("Theme Overrides")
 
 @export_subgroup("colors")
 
-@export var font_color: Color = Color.WHITE:
-	set(值):
-		font_color = 值
-		_尝试更新(_更新所有按钮主题)
-
-@export var font_disabled_color: Color = Color(0.5, 0.5, 0.5, 1.0):
-	set(值):
-		font_disabled_color = 值
-		_尝试更新(_更新所有按钮主题)
-
 @export_subgroup("fonts")
-
-@export var font: Font = null:
-	set(值):
-		font = 值
-		_尝试更新(_更新所有按钮主题)
 
 @export_subgroup("icons")
 
 @export var indexer_icon: Texture2D = null:
-	set(值):
-		indexer_icon = 值
-		_尝试更新(_更新主题)
+	set(value):
+		indexer_icon = value
+		_try_update(_update_theme)
 
-signal 当聚焦于选项(选项索引: int)
-signal 当选择选项(选项索引: int)
+signal option_focused(option_index: int)
+signal option_selected(option_index: int)
 
-var _选项容器: VBoxContainer
+var _options_container: VBoxContainer
 
-var _视区第一个编号: int
+var _viewport_start_index: int
 
-var _当前图标: Texture2D:
+var _current_icon: Texture2D:
 	get:
 		if indexer_icon:
 			return indexer_icon
 		elif has_theme_icon("indexer_icon", "OptionList"):
 			return get_theme_icon("indexer_icon", "OptionList")
 		else:
-			return _默认指示器图标
+			return _default_indicator_icon
 
-func _notification(通知类型: int) -> void:
-	if 通知类型 == NOTIFICATION_THEME_CHANGED and is_node_ready():
-		_更新主题()
+func _notification(notification_type: int) -> void:
+	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
+		_update_theme()
 
 func _ready() -> void:
-	_选项容器 = VBoxContainer.new()
-	_选项容器.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_选项容器)
-	_尝试更新(_更新主题)
-	_尝试更新(_更新视区)
+	_options_container = VBoxContainer.new()
+	_options_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_options_container)
+	_try_update(_update_theme)
+	_try_update(_update_viewport)
 
-func _尝试更新(更新函数: Callable) -> void:
+func _try_update(update_function: Callable) -> void:
 	if is_node_ready():
-		更新函数.call()
+		update_function.call()
 
-func _更新主题() -> void:
-	if _当前图标:
-		var 图标尺寸 = max(_当前图标.get_width(), _当前图标.get_height())
-		if _透明图标 == null or _透明图标.get_width() != 图标尺寸:
-			var 图片 = Image.create(图标尺寸, 图标尺寸, false, Image.FORMAT_RGBA8)
-			图片.fill(Color.TRANSPARENT)
-			_透明图标 = ImageTexture.create_from_image(图片)
-	_更新所有按钮图标()
-	_更新所有按钮主题()
+func _update_theme() -> void:
+	if _current_icon:
+		var icon_size = max(_current_icon.get_width(), _current_icon.get_height())
+		if _transparent_icon == null or _transparent_icon.get_width() != icon_size:
+			var image = Image.create(icon_size, icon_size, false, Image.FORMAT_RGBA8)
+			image.fill(Color.TRANSPARENT)
+			_transparent_icon = ImageTexture.create_from_image(image)
+	_update_all_button_icons()
+	_update_all_button_themes()
 
-func _更新视区() -> void:
-	var 节点数量 = _选项容器.get_child_count()
-	for 索引 in range(节点数量 - 视区数量):
-		_选项容器.get_child(节点数量 - 索引 - 1).queue_free()
-	for 索引 in range(视区数量 - 节点数量):
-		_选项容器.add_child(_创建按钮())
-	var 可见数量 = min(视区数量, len(_选项))
-	for 索引 in range(可见数量):
-		var 按钮 = _选项容器.get_child(索引) as Button
-		if 索引 == 0 and _视区第一个编号 > 0:
-			按钮.text = "...+" + str(_视区第一个编号 + 1)
-		elif 视区数量 - 1 == 索引 and _视区第一个编号 + 视区数量 < len(_选项):
-			按钮.text = "...+" + str(len(_选项) - (_视区第一个编号 + 视区数量) + 1)
-		elif 索引 + _视区第一个编号 < len(_选项):
-			按钮.text = _选项[索引 + _视区第一个编号]
+func _update_viewport() -> void:
+	var node_count = _options_container.get_child_count()
+	for index in range(node_count - viewport_count):
+		_options_container.get_child(node_count - index - 1).queue_free()
+	for index in range(viewport_count - node_count):
+		_options_container.add_child(_create_button())
+	var visible_count = min(viewport_count, len(_options))
+	for index in range(visible_count):
+		var button = _options_container.get_child(index) as Button
+		if index == 0 and _viewport_start_index > 0:
+			button.text = "...+" + str(_viewport_start_index + 1)
+		elif viewport_count - 1 == index and _viewport_start_index + viewport_count < len(_options):
+			button.text = "...+" + str(len(_options) - (_viewport_start_index + viewport_count) + 1)
+		elif index + _viewport_start_index < len(_options):
+			button.text = _options[index + _viewport_start_index]
 		else:
-			按钮.text = ""
-		按钮.disabled = ((索引 & _禁用选项) != 0)
-	for 索引 in range(可见数量, 视区数量):
-		(_选项容器.get_child(索引) as Button).text = ""
-	_更新所有按钮图标()
+			button.text = ""
+		button.disabled = (((1 << index) & _disabled_mask) != 0)
+	for index in range(visible_count, viewport_count):
+		(_options_container.get_child(index) as Button).text = ""
+	_update_all_button_icons()
 
-func _当按钮聚焦(按钮: Button) -> void:
-	按钮.icon = _当前图标
-	var 按钮下标 = 按钮.get_index()
-	if 按钮下标 == 0 and _视区第一个编号 > 0:
-		_视区第一个编号 -= 1
-		按钮.get_parent().get_child(1).grab_focus()
-		call_deferred("_更新视区")
-	elif 按钮下标 == 视区数量 - 1 and _视区第一个编号 + 视区数量 < len(_选项):
-		_视区第一个编号 += 1
-		按钮.get_parent().get_child(按钮下标 - 1).grab_focus()
-		call_deferred("_更新视区")
+func _on_button_focused(button: Button) -> void:
+	button.icon = _current_icon
+	var button_index = button.get_index()
+	if button_index == 0 and _viewport_start_index > 0:
+		_viewport_start_index -= 1
+		button.get_parent().get_child(1).grab_focus()
+		call_deferred("_update_viewport")
+	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
+		_viewport_start_index += 1
+		button.get_parent().get_child(button_index - 1).grab_focus()
+		call_deferred("_update_viewport")
 	else:
-		var 选项索引 = _计算选项索引(按钮下标)
-		if 选项索引 >= 0 and 选项索引 < len(_选项):
-			当聚焦于选项.emit(选项索引)
+		var option_index = _calculate_option_index(button_index)
+		if option_index >= 0 and option_index < len(_options):
+			option_focused.emit(option_index)
 
-func 按钮失焦时(按钮: Button) -> void:
-	按钮.icon = _透明图标
+func _on_button_focus_lost(button: Button) -> void:
+	button.icon = _transparent_icon
 
-func 鼠标进入按钮时(按钮: Button) -> void:
-	按钮.grab_focus()
+func _on_button_mouse_entered(button: Button) -> void:
+	button.grab_focus()
 
-func 按钮按下时(按钮: Button) -> void:
-	var 按钮下标 = 按钮.get_index()
-	var 选项索引 = _计算选项索引(按钮下标)
-	if not 按钮.disabled and 选项索引 >= 0 and 选项索引 < len(_选项) and not 按钮.text.begins_with("..."):
-		当选择选项.emit(选项索引)
+func _on_button_pressed(button: Button) -> void:
+	var button_index = button.get_index()
+	var option_index = _calculate_option_index(button_index)
+	if not button.disabled and option_index >= 0 and option_index < len(_options) and not button.text.begins_with("..."):
+		option_selected.emit(option_index)
 
-func _创建按钮() -> Button:
-	var 按钮 = Button.new()
-	按钮.focus_entered.connect(_当按钮聚焦.bind(按钮))
-	按钮.focus_exited.connect(按钮失焦时.bind(按钮))
-	按钮.mouse_entered.connect(鼠标进入按钮时.bind(按钮))
-	按钮.pressed.connect(按钮按下时.bind(按钮))
-	按钮.add_theme_stylebox_override("normal", _空样式)
-	按钮.add_theme_stylebox_override("hover", _空样式)
-	按钮.add_theme_stylebox_override("pressed", _空样式)
-	按钮.add_theme_stylebox_override("disabled", _空样式)
-	按钮.add_theme_stylebox_override("focus", _空样式)
-	按钮.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	if _透明图标:
-		按钮.icon = _透明图标
-	# 应用主题设置
-	if font:
-		按钮.add_theme_font_override("font", font)
-	按钮.add_theme_color_override("font_color", font_color)
-	按钮.add_theme_color_override("font_disabled_color", font_disabled_color)
-	return 按钮
+func _create_button() -> Button:
+	var button = Button.new()
+	button.focus_entered.connect(_on_button_focused.bind(button))
+	button.focus_exited.connect(_on_button_focus_lost.bind(button))
+	button.mouse_entered.connect(_on_button_mouse_entered.bind(button))
+	button.pressed.connect(_on_button_pressed.bind(button))
+	button.flat = true
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	if _transparent_icon:
+		button.icon = _transparent_icon
+	return button
 
-func _计算选项索引(按钮下标: int) -> int:
-	return 按钮下标 + _视区第一个编号
+func _calculate_option_index(button_index: int) -> int:
+	return button_index + _viewport_start_index
 
-func _更新所有按钮图标() -> void:
-	var 节点数量 = _选项容器.get_child_count()
-	for i in range(节点数量):
-		var 按钮 = _选项容器.get_child(i) as Button
-		if 按钮:
-			if 按钮.has_focus():
-				按钮.icon = _当前图标
+func _update_all_button_icons() -> void:
+	var node_count = _options_container.get_child_count()
+	for i in range(node_count):
+		var button = _options_container.get_child(i) as Button
+		if button:
+			if button.has_focus():
+				button.icon = _current_icon
 			else:
-				按钮.icon = _透明图标
+				button.icon = _transparent_icon
 
-func _更新所有按钮主题() -> void:
-	var 节点数量 = _选项容器.get_child_count()
-	for i in range(节点数量):
-		var 按钮 = _选项容器.get_child(i) as Button
-		if 按钮:
-			if font:
-				按钮.add_theme_font_override("font", font)
-			else:
-				按钮.remove_theme_font_override("font")
-			按钮.add_theme_color_override("font_color", font_color)
-			按钮.add_theme_color_override("font_disabled_color", font_disabled_color)
+func _update_all_button_themes() -> void:
+	pass

@@ -11,11 +11,15 @@ config_version=5
 [application]
 
 config/name="超写实战斗"
-run/main_scene="uid://d0s0aws01q13e"
+run/main_scene="uid://pxjbq4vxq6df"
 config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://icon.svg"
 
 [autoload]
 
+AudioManager="*res://Scripts/AutoLoad/AudioManager.cs"
+DialogueManager="*res://Scripts/AutoLoad/DialogueManager.cs"
+GameServer="*res://Scripts/AutoLoad/GameServer.cs"
 FocusDebugger="*res://FocusDebugger.gd"
 
 [display]
