@@ -35,7 +35,11 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	get:
 		return has_theme_icon_override("indexer_icon")
 	set(value):
-		add_theme_icon_override("indexer_icon", _indexer_icon)
+		if value:
+			add_theme_icon_override("indexer_icon", _indexer_icon if _indexer_icon else _default_indicator_icon)
+		else:
+			remove_theme_icon_override("indexer_icon")
+		notify_property_list_changed()
 
 @export var _indexer_icon: Texture2D = null:
 	get:
@@ -44,7 +48,9 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 			return icon
 		return _default_indicator_icon
 	set(value):
-		add_theme_icon_override("indexer_icon", value)
+		if _override_indexer_icon:
+			add_theme_icon_override("indexer_icon", value if value else _default_indicator_icon)
+		notify_property_list_changed()
 
 signal option_focused(option_index: int)
 signal option_selected(option_index: int)
@@ -52,6 +58,11 @@ signal option_selected(option_index: int)
 var _options_container: VBoxContainer
 
 var _viewport_start_index: int
+
+func _validate_property(property: Dictionary) -> void:
+	# 只有当 _override_indexer_icon 为 true 时才显示 _indexer_icon
+	if property.name == "_indexer_icon" and not _override_indexer_icon:
+		property.usage = PROPERTY_USAGE_NO_EDITOR
 
 func _notification(notification_type: int) -> void:
 	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
