@@ -60,10 +60,8 @@ var _options_container: VBoxContainer
 var _viewport_start_index: int
 
 func _validate_property(property: Dictionary) -> void:
-	# 在编辑器中显示但不序列化
 	if property.name == "_override_indexer_icon":
 		property.usage = PROPERTY_USAGE_EDITOR
-	# 只有当 _override_indexer_icon 为 true 时才显示 _indexer_icon，且不序列化
 	elif property.name == "_indexer_icon":
 		if _override_indexer_icon:
 			property.usage = PROPERTY_USAGE_EDITOR
