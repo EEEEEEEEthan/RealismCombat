@@ -11,7 +11,8 @@ script/source = "extends Control
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$OptionList.add_theme_icon_override(\"indexer_icon\", icon)
+	#$OptionList.add_theme_icon_override(\"indexer_icon\", icon)
+	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -44,6 +45,7 @@ focus_behavior_recursive = 2
 script = ExtResource("1_37kl0")
 _options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "", "")
 _disabled_mask = 2
+_indexer_icon = null
 
 [node name="Label" type="Label" parent="." unique_id=1427771887]
 layout_mode = 0

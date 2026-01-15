@@ -32,9 +32,13 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 @export_subgroup("icons")
 
 @export var indexer_icon: Texture2D = null:
+	get:
+		var icon = get("theme_override_icons/indexer_icon")
+		if icon:
+			return icon
+		return _default_indicator_icon
 	set(value):
-		indexer_icon = value
-		_try_update(_update_theme)
+		add_theme_icon_override("OptionList", value)
 
 signal option_focused(option_index: int)
 signal option_selected(option_index: int)
@@ -42,10 +46,6 @@ signal option_selected(option_index: int)
 var _options_container: VBoxContainer
 
 var _viewport_start_index: int
-
-var _current_icon: Texture2D:
-	get:
-		return get("theme_override_icons/indexer_icon")
 
 func _notification(notification_type: int) -> void:
 	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
@@ -63,8 +63,8 @@ func _try_update(update_function: Callable) -> void:
 		update_function.call()
 
 func _update_theme() -> void:
-	if _current_icon:
-		var icon_size = max(_current_icon.get_width(), _current_icon.get_height())
+	if indexer_icon:
+		var icon_size = max(indexer_icon.get_width(), indexer_icon.get_height())
 		if _transparent_icon == null or _transparent_icon.get_width() != icon_size:
 			var image = Image.create(icon_size, icon_size, false, Image.FORMAT_RGBA8)
 			image.fill(Color.TRANSPARENT)
@@ -95,7 +95,7 @@ func _update_viewport() -> void:
 	_update_all_button_icons()
 
 func _on_button_focused(button: Button) -> void:
-	button.icon = _current_icon
+	button.icon = indexer_icon
 	var button_index = button.get_index()
 	if button_index == 0 and _viewport_start_index > 0:
 		_viewport_start_index -= 1
@@ -144,7 +144,7 @@ func _update_all_button_icons() -> void:
 		var button = _options_container.get_child(i) as Button
 		if button:
 			if button.has_focus():
-				button.icon = _current_icon
+				button.icon = indexer_icon
 			else:
 				button.icon = _transparent_icon
 
