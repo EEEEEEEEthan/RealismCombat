@@ -45,12 +45,7 @@ var _viewport_start_index: int
 
 var _current_icon: Texture2D:
 	get:
-		if indexer_icon:
-			return indexer_icon
-		elif has_theme_icon("indexer_icon", "OptionList"):
-			return get_theme_icon("indexer_icon", "OptionList")
-		else:
-			return _default_indicator_icon
+		return get("theme_override_icons/indexer_icon")
 
 func _notification(notification_type: int) -> void:
 	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
