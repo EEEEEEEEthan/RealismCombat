@@ -40,10 +40,11 @@ layout_mode = 0
 offset_left = 63.0
 offset_top = 12.0
 offset_right = 131.0
-offset_bottom = 238.0
+offset_bottom = 153.0
 focus_behavior_recursive = 2
 script = ExtResource("1_37kl0")
-_options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "", "")
+viewport_count = 5
+_options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8")
 _disabled_mask = 2
 
 [node name="Label" type="Label" parent="." unique_id=1427771887]
