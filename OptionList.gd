@@ -133,6 +133,7 @@ func _create_button() -> Button:
 	button.focus_exited.connect(_on_button_focus_lost.bind(button))
 	button.mouse_entered.connect(_on_button_mouse_entered.bind(button))
 	button.pressed.connect(_on_button_pressed.bind(button))
+	button["theme_override_styles/focus"] = _empty_style
 	button.flat = true
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	if _transparent_icon:
