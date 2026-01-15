@@ -67,6 +67,8 @@ func _validate_property(property: Dictionary) -> void:
 	elif property.name == "_indexer_icon":
 		if _override_indexer_icon:
 			property.usage = PROPERTY_USAGE_EDITOR
+			property.hint = PROPERTY_HINT_RESOURCE_TYPE
+			property.hint_string = "Texture2D"
 		else:
 			property.usage = PROPERTY_USAGE_NO_EDITOR
 
