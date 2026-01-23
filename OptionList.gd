@@ -128,6 +128,10 @@ var _options_container: VBoxContainer
 
 var _viewport_start_index: int
 
+var _hover_timer: Timer
+var _hovered_button: Button = null
+var _is_scrolling_up: bool = false  # true表示向上滚动，false表示向下滚动
+
 func _validate_property(property: Dictionary) -> void:
 	# 在编辑器中显示但不序列化
 	if property.name == "_override_indexer_icon":
@@ -164,6 +168,11 @@ func _ready() -> void:
 	_options_container = VBoxContainer.new()
 	_options_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_options_container)
+	_hover_timer = Timer.new()
+	_hover_timer.wait_time = 0.2
+	_hover_timer.one_shot = false
+	_hover_timer.timeout.connect(_on_hover_timer_timeout)
+	add_child(_hover_timer)
 	_try_update(_update_theme)
 	_try_update(_update_viewport)
 
@@ -225,6 +234,108 @@ func _on_button_focus_lost(button: Button) -> void:
 
 func _on_button_mouse_entered(button: Button) -> void:
 	button.grab_focus()
+	var button_index = button.get_index()
+	# 如果是第一个按钮且还有更多选项（向上...+x）
+	if button_index == 0 and _viewport_start_index > 0:
+		_hovered_button = button
+		_is_scrolling_up = true
+		_hover_timer.start()
+	# 如果是最后一个按钮且还有更多选项（向下...+4）
+	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
+		_hovered_button = button
+		_is_scrolling_up = false
+		_hover_timer.start()
+	else:
+		_hovered_button = null
+		_hover_timer.stop()
+
+func _on_button_mouse_exited(button: Button) -> void:
+	if _hovered_button == button:
+		_hovered_button = null
+		_hover_timer.stop()
+
+func _on_hover_timer_timeout() -> void:
+	if _hovered_button and is_instance_valid(_hovered_button):
+		var button_index = _hovered_button.get_index()
+		
+		if _is_scrolling_up:
+			# 向上滚动
+			if button_index == 0 and _viewport_start_index > 0:
+				_viewport_start_index -= 1
+				call_deferred("_update_viewport")
+				# 更新后重新设置hovered_button和焦点
+				call_deferred("_update_hovered_button_after_scroll_up")
+			else:
+				# 滚动到顶了，让第一个实际选项获得焦点
+				_hovered_button = null
+				_hover_timer.stop()
+				if _options_container.get_child_count() > 0:
+					var first_button = _options_container.get_child(0) as Button
+					if first_button and not first_button.text.begins_with("..."):
+						first_button.grab_focus()
+		else:
+			# 向下滚动
+			if button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
+				_viewport_start_index += 1
+				call_deferred("_update_viewport")
+				# 更新后重新设置hovered_button和焦点
+				call_deferred("_update_hovered_button_after_scroll_down")
+			else:
+				# 滚动到底了，让最后一个实际选项获得焦点
+				_hovered_button = null
+				_hover_timer.stop()
+				if _options_container.get_child_count() > 0:
+					var last_button = _options_container.get_child(viewport_count - 1) as Button
+					if last_button and not last_button.text.begins_with("..."):
+						last_button.grab_focus()
+					else:
+						# 如果最后一个还是...+x，找最后一个实际选项
+						for i in range(viewport_count - 1, -1, -1):
+							var btn = _options_container.get_child(i) as Button
+							if btn and not btn.text.begins_with("...") and btn.text != "":
+								btn.grab_focus()
+								break
+	else:
+		_hovered_button = null
+		_hover_timer.stop()
+
+func _update_hovered_button_after_scroll_up() -> void:
+	if _options_container.get_child_count() > 0:
+		var first_button = _options_container.get_child(0) as Button
+		if first_button and first_button.text.begins_with("..."):
+			_hovered_button = first_button
+		else:
+			# 滚动到顶了，让第一个实际选项获得焦点
+			_hovered_button = null
+			_hover_timer.stop()
+			if first_button and not first_button.text.begins_with("...") and first_button.text != "":
+				first_button.grab_focus()
+			else:
+				# 如果第一个还是...+x，找第一个实际选项
+				for i in range(viewport_count):
+					var btn = _options_container.get_child(i) as Button
+					if btn and not btn.text.begins_with("...") and btn.text != "":
+						btn.grab_focus()
+						break
+
+func _update_hovered_button_after_scroll_down() -> void:
+	if _options_container.get_child_count() > 0:
+		var last_button = _options_container.get_child(viewport_count - 1) as Button
+		if last_button and last_button.text.begins_with("..."):
+			_hovered_button = last_button
+		else:
+			# 滚动到底了，让最后一个实际选项获得焦点
+			_hovered_button = null
+			_hover_timer.stop()
+			if last_button and not last_button.text.begins_with("...") and last_button.text != "":
+				last_button.grab_focus()
+			else:
+				# 如果最后一个还是...+x，找最后一个实际选项
+				for i in range(viewport_count - 1, -1, -1):
+					var btn = _options_container.get_child(i) as Button
+					if btn and not btn.text.begins_with("...") and btn.text != "":
+						btn.grab_focus()
+						break
 
 func _on_button_pressed(button: Button) -> void:
 	var button_index = button.get_index()
@@ -237,6 +348,7 @@ func _create_button() -> Button:
 	button.focus_entered.connect(_on_button_focused.bind(button))
 	button.focus_exited.connect(_on_button_focus_lost.bind(button))
 	button.mouse_entered.connect(_on_button_mouse_entered.bind(button))
+	button.mouse_exited.connect(_on_button_mouse_exited.bind(button))
 	button.pressed.connect(_on_button_pressed.bind(button))
 	button["theme_override_styles/focus"] = _empty_style
 	button.flat = true
