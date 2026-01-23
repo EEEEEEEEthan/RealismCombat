@@ -27,18 +27,31 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export_subgroup("colors")
 
-@export var override_font_colors: bool = false:
+@export var override_font_color: bool = false:
 	set(value):
-		override_font_colors = value
-		if override_font_colors:
+		override_font_color = value
+		if override_font_color and font_color == Color(0, 0, 0, 0):
 			var t := ThemeDB.get_default_theme()
-			# 如果颜色还是“未设置”(alpha==0)，则用默认 Button 主题颜色初始化，避免开启 override 后变成不可见
-			if font_color.a == 0.0:
-				font_color = t.get_color("font_color", "Button")
-			if font_focus_color.a == 0.0:
-				font_focus_color = t.get_color("font_focus_color", "Button")
-			if font_disabled_color.a == 0.0:
-				font_disabled_color = t.get_color("font_disabled_color", "Button")
+			# 如果颜色还没设过（默认透明），用默认 Button 主题颜色初始化，避免开启 override 后变成不可见
+			font_color = t.get_color("font_color", "Button")
+		notify_property_list_changed()
+		_try_update(_update_all_button_themes)
+
+@export var override_focus_color: bool = false:
+	set(value):
+		override_focus_color = value
+		if override_focus_color and font_focus_color == Color(0, 0, 0, 0):
+			var t := ThemeDB.get_default_theme()
+			font_focus_color = t.get_color("font_focus_color", "Button")
+		notify_property_list_changed()
+		_try_update(_update_all_button_themes)
+
+@export var override_disabled_color: bool = false:
+	set(value):
+		override_disabled_color = value
+		if override_disabled_color and font_disabled_color == Color(0, 0, 0, 0):
+			var t := ThemeDB.get_default_theme()
+			font_disabled_color = t.get_color("font_disabled_color", "Button")
 		notify_property_list_changed()
 		_try_update(_update_all_button_themes)
 
@@ -127,8 +140,14 @@ func _validate_property(property: Dictionary) -> void:
 			property.hint_string = "Texture2D"
 		else:
 			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "font_color" or property.name == "font_focus_color" or property.name == "font_disabled_color":
-		if not override_font_colors:
+	elif property.name == "font_color":
+		if not override_font_color:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
+	elif property.name == "font_focus_color":
+		if not override_focus_color:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
+	elif property.name == "font_disabled_color":
+		if not override_disabled_color:
 			property.usage = PROPERTY_USAGE_NO_EDITOR
 	elif property.name == "font":
 		if not override_font:
@@ -258,11 +277,17 @@ func _update_all_button_themes() -> void:
 			button.remove_theme_font_size_override("font_size")
 
 		# colors（通过 toggle 控制是否覆盖；alpha==0 允许作为有效值，比如全透明字体）
-		if override_font_colors:
+		if override_font_color:
 			button.add_theme_color_override("font_color", font_color)
-			button.add_theme_color_override("font_focus_color", font_focus_color)
-			button.add_theme_color_override("font_disabled_color", font_disabled_color)
 		else:
 			button.remove_theme_color_override("font_color")
+
+		if override_focus_color:
+			button.add_theme_color_override("font_focus_color", font_focus_color)
+		else:
 			button.remove_theme_color_override("font_focus_color")
+
+		if override_disabled_color:
+			button.add_theme_color_override("font_disabled_color", font_disabled_color)
+		else:
 			button.remove_theme_color_override("font_disabled_color")
