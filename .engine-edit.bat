@@ -1,1 +1,1 @@
-.engine.exe --editor
+.engine-prepare.bat && start .\.engine\.engine.exe --editor
