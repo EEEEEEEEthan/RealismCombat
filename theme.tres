@@ -1,8 +1,5 @@
 [gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
-[ext_resource type="FontFile" path="res://Fonts/fusion-pixel-12px-monospaced-zh_hant.otf" id="1_j4jqe"]
-[ext_resource type="FontFile" path="res://Fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="1_k1aya"]
-[ext_resource type="FontFile" path="res://Fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_23v3e"]
 [ext_resource type="Texture2D" uid="uid://bon3i1ll2wesm" path="res://Textures/Icon16.png" id="3_c6xh3"]
 [ext_resource type="Texture2D" uid="uid://deua00u1q163h" path="res://Textures/ProgressBar.png" id="4_c6xh3"]
 
@@ -29,26 +26,25 @@ axis_stretch_horizontal = 1
 bg_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 
 [resource]
-default_font = ExtResource("1_k1aya")
 default_font_size = 10
 HBoxContainer/constants/separation = 0
 Label_Large/base_type = &"Label"
 Label_Large/font_sizes/font_size = 12
-Label_Large/fonts/font = ExtResource("1_j4jqe")
+Label_Large/fonts/font = null
 Label_LargeWithShadow/base_type = &"Label"
 Label_LargeWithShadow/colors/font_shadow_color = Color(0, 0, 0, 1)
 Label_LargeWithShadow/constants/shadow_offset_x = 1
 Label_LargeWithShadow/constants/shadow_offset_y = 1
 Label_LargeWithShadow/constants/shadow_outline_size = 0
 Label_LargeWithShadow/font_sizes/font_size = 12
-Label_LargeWithShadow/fonts/font = ExtResource("1_j4jqe")
+Label_LargeWithShadow/fonts/font = null
 Label_Small/base_type = &"Label"
 Label_Small/font_sizes/font_size = 8
-Label_Small/fonts/font = ExtResource("2_23v3e")
+Label_Small/fonts/font = null
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 ProgressBar/font_sizes/font_size = 8
-ProgressBar/fonts/font = ExtResource("2_23v3e")
+ProgressBar/fonts/font = null
 ProgressBar/styles/background = SubResource("StyleBoxEmpty_c6xh3")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_7m1lf")
 ProgressBar_Flat/base_type = &"ProgressBar"
@@ -56,5 +52,5 @@ ProgressBar_Flat/styles/background = SubResource("StyleBoxEmpty_t6dyh")
 ProgressBar_Flat/styles/fill = SubResource("StyleBoxFlat_t6dyh")
 RichTextLabel_Small/base_type = &"RichTextLabel"
 RichTextLabel_Small/font_sizes/normal_font_size = 8
-RichTextLabel_Small/fonts/normal_font = ExtResource("2_23v3e")
+RichTextLabel_Small/fonts/normal_font = null
 VBoxContainer/constants/separation = 0
