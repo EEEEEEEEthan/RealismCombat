@@ -2,7 +2,7 @@
 extends Texture2D
 class_name EditableTexture
 
-@export var _base64_data: String:
+@export_storage var _base64_data: String:
 	set (value):
 		_base64_data = value
 		emit_changed()
