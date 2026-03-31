@@ -28,46 +28,72 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 @export_subgroup("colors")
 
 @export var override_font_color: bool = false:
-	set(value):
-		override_font_color = value
-		if override_font_color and font_color == Color(0, 0, 0, 0):
-			var t := ThemeDB.get_default_theme()
-			# 如果颜色还没设过（默认透明），用默认 Button 主题颜色初始化，避免开启 override 后变成不可见
-			font_color = t.get_color("font_color", "Button")
+	get:
+		return has_theme_color("font_color")
+	set(v):
+		if v:
+			add_theme_color_override("font_color", font_color)
+		else:
+			remove_theme_color_override("font_color")
 		notify_property_list_changed()
+		_try_update(_update_all_button_themes)
+
+@export var font_color: Color = Color(1, 1, 1, 1):
+	get:
+		if not has_theme_color("font_color"):
+			return get_theme_color("font_color", "Button")
+		if has_theme_color_override("font_color"):
+			return get_theme_color("font_color")
+		return get_theme_color("font_color", "OptionList")
+	set(v):
+		if override_font_color:
+			add_theme_color_override("font_color", v)
 		_try_update(_update_all_button_themes)
 
 @export var override_focus_color: bool = false:
-	set(value):
-		override_focus_color = value
-		if override_focus_color and font_focus_color == Color(0, 0, 0, 0):
-			var t := ThemeDB.get_default_theme()
-			font_focus_color = t.get_color("font_focus_color", "Button")
+	get:
+		return has_theme_color("font_focus_color")
+	set(v):
+		if v:
+			add_theme_color_override("font_focus_color", font_focus_color)
+		else:
+			remove_theme_color_override("font_focus_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
-
-@export var override_disabled_color: bool = false:
-	set(value):
-		override_disabled_color = value
-		if override_disabled_color and font_disabled_color == Color(0, 0, 0, 0):
-			var t := ThemeDB.get_default_theme()
-			font_disabled_color = t.get_color("font_disabled_color", "Button")
-		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
-
-@export var font_color: Color = Color(0, 0, 0, 0):
-	set(value):
-		font_color = value
 		_try_update(_update_all_button_themes)
 
 @export var font_focus_color: Color = Color(0, 0, 0, 0):
-	set(value):
-		font_focus_color = value
+	get:
+		if not has_theme_color("font_focus_color"):
+			return get_theme_color("font_focus_color", "Button")
+		if has_theme_color_override("font_focus_color"):
+			return get_theme_color("font_focus_color")
+		return get_theme_color("font_focus_color", "OptionList")
+	set(v):
+		if override_focus_color:
+			add_theme_color_override("font_focus_color", v)
+		_try_update(_update_all_button_themes)
+
+@export var override_disabled_color: bool = false:
+	get:
+		return has_theme_color("font_disabled_color")
+	set(v):
+		if v:
+			add_theme_color_override("font_disabled_color", font_disabled_color)
+		else:
+			remove_theme_color_override("font_disabled_color")
+		notify_property_list_changed()
 		_try_update(_update_all_button_themes)
 
 @export var font_disabled_color: Color = Color(0, 0, 0, 0):
-	set(value):
-		font_disabled_color = value
+	get:
+		if not has_theme_color("font_disabled_color"):
+			return get_theme_color("font_disabled_color", "Button")
+		if has_theme_color_override("font_disabled_color"):
+			return get_theme_color("font_disabled_color")
+		return get_theme_color("font_disabled_color", "OptionList")
+	set(v):
+		if override_disabled_color:
+			add_theme_color_override("font_disabled_color", v)
 		_try_update(_update_all_button_themes)
 
 @export_subgroup("fonts")
@@ -274,18 +300,6 @@ func _update_all_button_themes() -> void:
 		else:
 			button.remove_theme_font_size_override("font_size")
 
-		# colors（通过 toggle 控制是否覆盖；alpha==0 允许作为有效值，比如全透明字体）
-		if override_font_color:
-			button.add_theme_color_override("font_color", font_color)
-		else:
-			button.remove_theme_color_override("font_color")
-
-		if override_focus_color:
-			button.add_theme_color_override("font_focus_color", font_focus_color)
-		else:
-			button.remove_theme_color_override("font_focus_color")
-
-		if override_disabled_color:
-			button.add_theme_color_override("font_disabled_color", font_disabled_color)
-		else:
-			button.remove_theme_color_override("font_disabled_color")
+		button.add_theme_color_override("font_color", font_color)
+		button.add_theme_color_override("font_focus_color", font_focus_color)
+		button.add_theme_color_override("font_disabled_color", font_disabled_color)
