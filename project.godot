@@ -39,7 +39,7 @@ enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
 
 [gui]
 
-theme/custom="uid://nedlt21e76s8"
+theme/custom="uid://deojm8fpmsach"
 theme/custom_font="uid://coprcrk20pwv2"
 
 [rendering]

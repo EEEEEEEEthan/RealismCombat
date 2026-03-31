@@ -24,7 +24,7 @@ func _process(delta: float) -> void:
 [sub_resource type="AtlasTexture" id="AtlasTexture_6uqi0"]
 atlas = ExtResource("1_6uqi0")
 
-[sub_resource type="DPITexture" id="DPITexture_ykrsh"]
+[sub_resource type="DPITexture" id="DPITexture_ppyta"]
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"none\" stroke=\"#b2b2b2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-opacity=\".45\" stroke-width=\"2\" d=\"m6 11 3-3-3-3\"/></svg>
 "
 
@@ -56,7 +56,7 @@ font_focus_color = Color(0.95, 0.95, 0.95, 1)
 font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
 font = ExtResource("3_ppyta")
 font_size = 16
-_indexer_icon = SubResource("DPITexture_ykrsh")
+_indexer_icon = SubResource("DPITexture_ppyta")
 
 [node name="Label" type="Label" parent="." unique_id=1427771887]
 layout_mode = 0
