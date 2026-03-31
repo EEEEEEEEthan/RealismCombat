@@ -29,7 +29,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export var override_font_color: bool = false:
 	get:
-		return has_theme_color("font_color")
+		return has_theme_color_override("font_color")
 	set(v):
 		if v:
 			add_theme_color_override("font_color", font_color)
@@ -40,7 +40,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export var font_color: Color = Color(1, 1, 1, 1):
 	get:
-		if not has_theme_color("font_color"):
+		if not has_theme_color_override("font_color"):
 			return get_theme_color("font_color", "Button")
 		if has_theme_color_override("font_color"):
 			return get_theme_color("font_color")
@@ -52,7 +52,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export var override_focus_color: bool = false:
 	get:
-		return has_theme_color("font_focus_color")
+		return has_theme_color_override("font_focus_color")
 	set(v):
 		if v:
 			add_theme_color_override("font_focus_color", font_focus_color)
@@ -75,7 +75,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export var override_disabled_color: bool = false:
 	get:
-		return has_theme_color("font_disabled_color")
+		return has_theme_color_override("font_disabled_color")
 	set(v):
 		if v:
 			add_theme_color_override("font_disabled_color", font_disabled_color)
@@ -99,53 +99,84 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 @export_subgroup("fonts")
 
 @export var override_font: bool = false:
-	set(value):
-		override_font = value
-		if override_font and font == null:
-			font = ThemeDB.get_default_theme().get_font("font", "Button")
-		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
-
-@export var override_font_size: bool = false:
-	set(value):
-		override_font_size = value
-		if override_font_size and font_size <= 0:
-			font_size = ThemeDB.get_default_theme().get_font_size("font_size", "Button")
+	get:
+		return has_theme_font_override("font")
+	set(v):
+		if v:
+			var resolved_font := font
+			if resolved_font:
+				add_theme_font_override("font", resolved_font)
+			else:
+				remove_theme_font_override("font")
+		else:
+			remove_theme_font_override("font")
 		notify_property_list_changed()
 		_try_update(_update_all_button_themes)
 
 @export var font: Font = null:
-	set(value):
-		font = value
+	get:
+		if not has_theme_font("font"):
+			return get_theme_font("font", "Button")
+		if has_theme_font_override("font"):
+			return get_theme_font("font")
+		return get_theme_font("font", "OptionList")
+	set(v):
+		if override_font:
+			if v:
+				add_theme_font_override("font", v)
+			else:
+				remove_theme_font_override("font")
 		_try_update(_update_all_button_themes)
 
-@export_range(0, 128) var font_size: int = 0:
-	set(value):
-		font_size = value
+@export var override_font_size: bool = false:
+	get:
+		return has_theme_font_size_override("font_size")
+	set(v):
+		if v:
+			add_theme_font_size_override("font_size", font_size)
+		else:
+			remove_theme_font_size_override("font_size")
+		notify_property_list_changed()
+		_try_update(_update_all_button_themes)
+
+@export_range(0, 128) var font_size: int = 12:
+	get:
+		if not has_theme_font_size("font_size"):
+			return get_theme_font_size("font_size", "Button")
+		if has_theme_font_size_override("font_size"):
+			return get_theme_font_size("font_size")
+		return get_theme_font_size("font_size", "OptionList")
+	set(v):
+		if override_font_size:
+			add_theme_font_size_override("font_size", v)
 		_try_update(_update_all_button_themes)
 
 @export_subgroup("icons")
 
-var _override_indexer_icon: bool = false:
+@export var _override_indexer_icon: bool = false:
 	get:
 		return has_theme_icon_override("indexer_icon")
-	set(value):
-		if value:
+	set(v):
+		if v:
 			add_theme_icon_override("indexer_icon", _indexer_icon if _indexer_icon else _default_indicator_icon)
 		else:
 			remove_theme_icon_override("indexer_icon")
 		notify_property_list_changed()
+		_try_update(_update_theme)
 
-var _indexer_icon: Texture2D = null:
+@export var _indexer_icon: Texture2D = null:
 	get:
-		var icon = get("theme_override_icons/indexer_icon")
-		if icon:
-			return icon
-		return _default_indicator_icon
-	set(value):
+		if not has_theme_icon("indexer_icon"):
+			return _default_indicator_icon
+		if has_theme_icon_override("indexer_icon"):
+			return get_theme_icon("indexer_icon")
+		var from_option_list := get_theme_icon("indexer_icon", "OptionList")
+		return from_option_list if from_option_list else _default_indicator_icon
+	set(v):
 		if _override_indexer_icon:
-			add_theme_icon_override("indexer_icon", value if value else _default_indicator_icon)
+			add_theme_icon_override("indexer_icon", v if v else _default_indicator_icon)
 		notify_property_list_changed()
+		_try_update(_update_theme)
 
 signal option_focused(option_index: int)
 signal option_selected(option_index: int)
@@ -289,16 +320,12 @@ func _update_all_button_themes() -> void:
 		if not button:
 			continue
 
-		# fonts
-		if override_font and font:
+		if font:
 			button.add_theme_font_override("font", font)
 		else:
 			button.remove_theme_font_override("font")
 
-		if override_font_size and font_size > 0:
-			button.add_theme_font_size_override("font_size", font_size)
-		else:
-			button.remove_theme_font_size_override("font_size")
+		button.add_theme_font_size_override("font_size", font_size)
 
 		button.add_theme_color_override("font_color", font_color)
 		button.add_theme_color_override("font_focus_color", font_focus_color)
