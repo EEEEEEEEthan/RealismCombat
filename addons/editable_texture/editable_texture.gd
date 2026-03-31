@@ -2,26 +2,26 @@
 extends Texture2D
 class_name EditableTexture
 
-@export var _hex_data: String:
+@export var _base64_data: String:
 	set (value):
-		_hex_data = value
+		_base64_data = value
 		emit_changed()
 		notify_property_list_changed()
 
 var _bytes: PackedByteArray:
 	get:
 		if not _bytes:
-			if _hex_data:
-				_bytes = _hex_data.hex_decode()
+			if _base64_data:
+				_bytes = Marshalls.base64_to_raw(_base64_data)
 		return _bytes
 	set(value):
 		_bytes = value
-		_hex_data = _bytes.hex_encode()
+		_base64_data = Marshalls.raw_to_base64(_bytes)
 
 var _texture: ImageTexture:
 	get:
 		if not _texture:
-			if _hex_data:
+			if _base64_data:
 				var image = Image.new()
 				var error = image.load_png_from_buffer(_bytes)
 				if error == OK:

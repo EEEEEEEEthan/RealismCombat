@@ -13,7 +13,7 @@ func _parse_property(
 	_hint_string: String,
 	_usage_flags: PropertyUsageFlags,
 	_wide: bool) -> bool:
-	return name == "_hex_data"
+	return name == "_base64_data"
 func _parse_begin(object: Object) -> void:
 	if object is not EditableTexture:
 		return
