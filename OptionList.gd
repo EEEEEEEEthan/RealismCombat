@@ -2,7 +2,6 @@
 extends MarginContainer
 class_name OptionList
 
-static var _default_indicator_icon: Texture2D = ThemeDB.get_default_theme().get_icon("arrow_collapsed", "Tree")
 static var _transparent_icon: ImageTexture = null
 static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
@@ -158,24 +157,22 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		return has_theme_icon_override("indexer_icon")
 	set(v):
 		if v:
-			add_theme_icon_override("indexer_icon", _indexer_icon if _indexer_icon else _default_indicator_icon)
+			add_theme_icon_override("indexer_icon", _indexer_icon)
 		else:
 			remove_theme_icon_override("indexer_icon")
 		notify_property_list_changed()
 		_try_update(_update_theme)
 
-@export var _indexer_icon: Texture2D = null:
+@export var _indexer_icon: Texture2D:
 	get:
 		if not has_theme_icon("indexer_icon"):
-			return _default_indicator_icon
+			return get_theme_icon("arrow_collapsed", "Tree")
 		if has_theme_icon_override("indexer_icon"):
 			return get_theme_icon("indexer_icon")
-		var from_option_list := get_theme_icon("indexer_icon", "OptionList")
-		return from_option_list if from_option_list else _default_indicator_icon
+		return get_theme_icon("indexer_icon", "OptionList")
 	set(v):
 		if _override_indexer_icon:
-			add_theme_icon_override("indexer_icon", v if v else _default_indicator_icon)
-		notify_property_list_changed()
+			add_theme_icon_override("indexer_icon", v if v else get_theme_icon("arrow_collapsed", "Tree"))
 		_try_update(_update_theme)
 
 signal option_focused(option_index: int)
@@ -319,14 +316,8 @@ func _update_all_button_themes() -> void:
 		var button := _options_container.get_child(i) as Button
 		if not button:
 			continue
-
-		if font:
-			button.add_theme_font_override("font", font)
-		else:
-			button.remove_theme_font_override("font")
-
+		button.add_theme_font_override("font", font)
 		button.add_theme_font_size_override("font_size", font_size)
-
 		button.add_theme_color_override("font_color", font_color)
 		button.add_theme_color_override("font_focus_color", font_focus_color)
 		button.add_theme_color_override("font_disabled_color", font_disabled_color)
