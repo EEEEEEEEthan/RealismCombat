@@ -41,7 +41,6 @@ Label_LargeWithShadow/fonts/font = null
 Label_Small/base_type = &"Label"
 Label_Small/font_sizes/font_size = 8
 Label_Small/fonts/font = null
-OptionList/colors/font_color = Color(1, 0, 0, 1)
 Panel/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_c6xh3")
 ProgressBar/font_sizes/font_size = 8
