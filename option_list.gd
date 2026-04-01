@@ -89,7 +89,6 @@ func _on_button_focused(button: Button) -> void:
 			option_focused.emit(option_index)
 
 func _on_button_mouse_entered(button: Button) -> void:
-	button.grab_focus()
 	var button_index = button.get_index()
 	var option_count = _options.size()
 	var can_scroll_up = button_index == 0 and _viewport_start_index > 0
@@ -99,6 +98,7 @@ func _on_button_mouse_entered(button: Button) -> void:
 		_is_scrolling_up = can_scroll_up
 		_hover_timer.start()
 		return
+	button.grab_focus()
 	_hovered_button = null
 	_hover_timer.stop()
 
