@@ -15,13 +15,6 @@ run/main_scene="uid://pxjbq4vxq6df"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
-[autoload]
-
-AudioManager="*res://Scripts/AutoLoad/AudioManager.cs"
-DialogueManager="*res://Scripts/AutoLoad/DialogueManager.cs"
-GameServer="*res://Scripts/AutoLoad/GameServer.cs"
-FocusDebugger="*res://FocusDebugger.gd"
-
 [display]
 
 window/size/viewport_width=256
@@ -46,7 +39,7 @@ enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
 
 [gui]
 
-theme/custom="uid://nedlt21e76s8"
+theme/custom="uid://deojm8fpmsach"
 theme/custom_font="uid://coprcrk20pwv2"
 
 [rendering]

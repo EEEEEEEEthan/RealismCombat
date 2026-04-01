@@ -5,15 +5,6 @@ var texture_rect: TextureRect
 var button: Button
 func _can_handle(object: Object) -> bool:
 	return object is EditableTexture
-func _parse_property(
-	_object: Object,
-	_type: Variant.Type,
-	name: String,
-	_hint_type: PropertyHint,
-	_hint_string: String,
-	_usage_flags: PropertyUsageFlags,
-	_wide: bool) -> bool:
-	return name == "_hex_data"
 func _parse_begin(object: Object) -> void:
 	if object is not EditableTexture:
 		return
