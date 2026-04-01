@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://bb775dleugdvh"]
 
+[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="1_ok1o3"]
+
 [sub_resource type="GDScript" id="GDScript_generic_dialogue"]
 script/source = "extends PanelContainer
 
@@ -61,6 +63,13 @@ func _clear_option_buttons() -> void:
 		child_node.free()
 "
 
+[sub_resource type="Texture2D" id="Texture2D_8ins6"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("1_ok1o3")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAEJJREFUGJVjYCASMELp/4TUscBY//9jV8vICDGLiVir4QphOrGZhqwQUxWSegyrkU1AtwFZITZTGXFJonsdn5OwAwCANgUhx0NobAAAAABJRU5ErkJggg=="
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
+
 [node name="GenericDialogue" type="PanelContainer" unique_id=1569972301]
 anchors_preset = 15
 anchor_right = 1.0
@@ -101,3 +110,12 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 alignment = 2
+
+[node name="Continue" type="TextureButton" parent="Options" unique_id=1087336463]
+unique_name_in_owner = true
+layout_mode = 2
+texture_normal = SubResource("Texture2D_8ins6")
+texture_pressed = SubResource("Texture2D_8ins6")
+texture_hover = SubResource("Texture2D_8ins6")
+texture_disabled = SubResource("Texture2D_8ins6")
+texture_focused = SubResource("Texture2D_8ins6")
