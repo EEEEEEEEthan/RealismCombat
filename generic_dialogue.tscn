@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://bb775dleugdvh"]
+
+[node name="GenericDialogue" type="PanelContainer" unique_id=1569972301]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 144.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1769564816]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer" unique_id=2042591163]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Message
+Message
+Message
+Message
+Message
+Message
+Message
+Message"
+scroll_active = false
+scroll_following = true
+scroll_following_visible_characters = true
+autowrap_mode = 1
+
+[node name="Options" type="HBoxContainer" parent="." unique_id=2071214715]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+alignment = 2
