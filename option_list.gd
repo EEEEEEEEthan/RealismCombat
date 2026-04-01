@@ -2,7 +2,6 @@
 extends MarginContainer
 class_name OptionList
 
-static var _transparent_icon: ImageTexture = null
 static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 
 @export_range(3, 64) var viewport_count: int = 8:
@@ -178,7 +177,11 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 signal option_focused(option_index: int)
 signal option_selected(option_index: int)
 
+var _layout_container: HBoxContainer
+var _focus_indicator_spacer: Control
 var _options_container: VBoxContainer
+var _focus_indicator_layer: Control
+var _focus_indicator: TextureRect
 
 var _viewport_start_index: int
 
@@ -217,9 +220,27 @@ func _notification(notification_type: int) -> void:
 		_update_theme()
 
 func _ready() -> void:
+	_layout_container = HBoxContainer.new()
+	_layout_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_layout_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_layout_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_layout_container)
+	_focus_indicator_spacer = Control.new()
+	_focus_indicator_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_layout_container.add_child(_focus_indicator_spacer)
 	_options_container = VBoxContainer.new()
-	_options_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_options_container)
+	_options_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_options_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_layout_container.add_child(_options_container)
+	_focus_indicator_layer = Control.new()
+	_focus_indicator_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_focus_indicator_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_focus_indicator_layer)
+	_focus_indicator = TextureRect.new()
+	_focus_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_focus_indicator.stretch_mode = TextureRect.STRETCH_KEEP
+	_focus_indicator.visible = false
+	_focus_indicator_layer.add_child(_focus_indicator)
 	_hover_timer = Timer.new()
 	_hover_timer.wait_time = 0.2
 	_hover_timer.one_shot = false
@@ -234,11 +255,15 @@ func _try_update(update_function: Callable) -> void:
 
 func _update_theme() -> void:
 	if _indexer_icon:
-		var icon_size = max(_indexer_icon.get_width(), _indexer_icon.get_height())
-		if _transparent_icon == null or _transparent_icon.get_width() != icon_size:
-			var image = Image.create(icon_size, icon_size, false, Image.FORMAT_RGBA8)
-			image.fill(Color.TRANSPARENT)
-			_transparent_icon = ImageTexture.create_from_image(image)
+		var focus_indicator_size := Vector2(_indexer_icon.get_width(), _indexer_icon.get_height())
+		var focus_indicator_spacing_width = focus_indicator_size.x + get_theme_constant("h_separation", "Button")
+		_focus_indicator_spacer.custom_minimum_size = Vector2(focus_indicator_spacing_width, 0)
+		_focus_indicator.texture = _indexer_icon
+		_focus_indicator.size = focus_indicator_size
+	else:
+		_focus_indicator_spacer.custom_minimum_size = Vector2.ZERO
+		_focus_indicator.texture = null
+		_focus_indicator.size = Vector2.ZERO
 	_update_all_button_appearance()
 
 func _update_viewport() -> void:
@@ -264,23 +289,23 @@ func _update_viewport() -> void:
 	_update_all_button_appearance()
 
 func _on_button_focused(button: Button) -> void:
-	button.icon = _indexer_icon
+	_refresh_focus_indicator()
 	var button_index = button.get_index()
 	if button_index == 0 and _viewport_start_index > 0:
 		_viewport_start_index -= 1
 		button.get_parent().get_child(1).grab_focus()
-		call_deferred("_update_viewport")
+		call_deferred(&"_update_viewport")
 	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
 		_viewport_start_index += 1
 		button.get_parent().get_child(button_index - 1).grab_focus()
-		call_deferred("_update_viewport")
+		call_deferred(&"_update_viewport")
 	else:
 		var option_index = _calculate_option_index(button_index)
 		if option_index >= 0 and option_index < len(_options):
 			option_focused.emit(option_index)
 
-func _on_button_focus_lost(button: Button) -> void:
-	button.icon = _transparent_icon
+func _on_button_focus_lost() -> void:
+	_refresh_focus_indicator()
 
 func _on_button_mouse_entered(button: Button) -> void:
 	button.grab_focus()
@@ -308,8 +333,8 @@ func _on_hover_timer_timeout() -> void:
 		if _is_scrolling_up:
 			if button_index == 0 and _viewport_start_index > 0:
 				_viewport_start_index -= 1
-				call_deferred("_update_viewport")
-				call_deferred("_defer_refresh_hover_after_scroll", true)
+				call_deferred(&"_update_viewport")
+				call_deferred(&"_defer_refresh_hover_after_scroll", true)
 			else:
 				_hovered_button = null
 				_hover_timer.stop()
@@ -320,8 +345,8 @@ func _on_hover_timer_timeout() -> void:
 		else:
 			if button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
 				_viewport_start_index += 1
-				call_deferred("_update_viewport")
-				call_deferred("_defer_refresh_hover_after_scroll", false)
+				call_deferred(&"_update_viewport")
+				call_deferred(&"_defer_refresh_hover_after_scroll", false)
 			else:
 				_hovered_button = null
 				_hover_timer.stop()
@@ -382,32 +407,53 @@ func _on_button_pressed(button: Button) -> void:
 func _create_button() -> Button:
 	var button = Button.new()
 	button.focus_entered.connect(_on_button_focused.bind(button))
-	button.focus_exited.connect(_on_button_focus_lost.bind(button))
+	button.focus_exited.connect(_on_button_focus_lost)
 	button.mouse_entered.connect(_on_button_mouse_entered.bind(button))
 	button.mouse_exited.connect(_on_button_mouse_exited.bind(button))
 	button.pressed.connect(_on_button_pressed.bind(button))
+	button.item_rect_changed.connect(_refresh_focus_indicator)
 	button["theme_override_styles/focus"] = _empty_style
 	button.flat = true
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	if _transparent_icon:
-		button.icon = _transparent_icon
 	return button
 
 func _calculate_option_index(button_index: int) -> int:
 	return button_index + _viewport_start_index
 
+func _find_focused_button() -> Button:
+	var node_count = _options_container.get_child_count()
+	for index in range(node_count):
+		var button = _options_container.get_child(index) as Button
+		if button and button.has_focus():
+			return button
+	return null
+
+func _refresh_focus_indicator() -> void:
+	if not is_node_ready() or not _indexer_icon:
+		_focus_indicator.visible = false
+		return
+	var focused_button = _find_focused_button()
+	if not focused_button:
+		_focus_indicator.visible = false
+		return
+	var indicator_layer_global_position = _focus_indicator_layer.get_global_position()
+	var focused_button_global_position = focused_button.get_global_position()
+	_focus_indicator.position = Vector2(
+		0,
+		focused_button_global_position.y - indicator_layer_global_position.y + (focused_button.size.y - _focus_indicator.size.y) * 0.5
+	)
+	_focus_indicator.visible = true
+
 func _update_all_button_appearance() -> void:
 	var node_count = _options_container.get_child_count()
-	for index in node_count:
+	for index in range(node_count):
 		var button = _options_container.get_child(index) as Button
 		if not button:
 			continue
-		if button.has_focus():
-			button.icon = _indexer_icon
-		else:
-			button.icon = _transparent_icon
+		button.icon = null
 		button.add_theme_font_override("font", font)
 		button.add_theme_font_size_override("font_size", font_size)
 		button.add_theme_color_override("font_color", font_color)
 		button.add_theme_color_override("font_focus_color", font_focus_color)
 		button.add_theme_color_override("font_disabled_color", font_disabled_color)
+	_refresh_focus_indicator()
