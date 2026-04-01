@@ -207,15 +207,18 @@ func _notification(notification_type: int) -> void:
 
 func _ready() -> void:
 	_options_container = VBoxContainer.new()
+	_disable_unneeded_process(_options_container)
 	_options_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_options_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_options_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_options_container)
 	_focus_indicator_layer = Control.new()
+	_disable_unneeded_process(_focus_indicator_layer)
 	_focus_indicator_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_focus_indicator_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_focus_indicator_layer)
 	_focus_indicator = TextureRect.new()
+	_disable_unneeded_process(_focus_indicator)
 	_focus_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_focus_indicator.stretch_mode = TextureRect.STRETCH_KEEP
 	_focus_indicator.visible = false
@@ -231,6 +234,10 @@ func _ready() -> void:
 func _try_update(update_function: Callable) -> void:
 	if is_node_ready():
 		update_function.call()
+
+func _disable_unneeded_process(node: Node) -> void:
+	node.set_process(false)
+	node.set_physics_process(false)
 
 func _update_theme() -> void:
 	var indexer_icon := _indexer_icon
@@ -356,6 +363,7 @@ func _on_button_pressed(button: Button) -> void:
 
 func _create_button() -> Button:
 	var button = Button.new()
+	_disable_unneeded_process(button)
 	button.focus_entered.connect(_on_button_focused.bind(button))
 	button.focus_exited.connect(_refresh_focus_indicator)
 	button.mouse_entered.connect(_on_button_mouse_entered.bind(button))
