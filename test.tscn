@@ -1,9 +1,18 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
-[ext_resource type="PackedScene" path="res://option_list.tscn" id="1_ge527"]
+[ext_resource type="PackedScene" uid="uid://blh2fd8ys272r" path="res://option_list.tscn" id="1_ge527"]
 [ext_resource type="Texture2D" uid="uid://c5k4yesssmw0o" path="res://Textures/Items/Icons3.png" id="2_8uh7m"]
+[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="3_6uqi0"]
+[ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://custom_button.gd" id="3_ppyta"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8uh7m"]
+
+[sub_resource type="Texture2D" id="Texture2D_ppyta"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("3_6uqi0")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAAXNSR0IArs4c6QAAADFJREFUCJl9zUEKACAQQtFndP8rT6tgisiVoF+D8tGEqncnibHNK4SdVF9qwIHeP4EFC3kJDz2n16UAAAAASUVORK5CYII="
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
 
 [node name="Test" type="Control" unique_id=1993894909]
 layout_mode = 3
@@ -19,7 +28,6 @@ offset_left = 63.0
 offset_top = 12.0
 offset_right = 116.0
 offset_bottom = 118.0
-focus_behavior_recursive = 2
 viewport_count = 5
 _options = PackedStringArray("item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8")
 _disabled_mask = 2
@@ -45,22 +53,65 @@ offset_bottom = -29.0
 text = "asdf"
 icon = ExtResource("2_8uh7m")
 
-[node name="Button2" type="Button" parent="." unique_id=1651162087]
+[node name="Button2" type="Button" parent="." unique_id=493733353]
 layout_mode = 0
-offset_left = 27.0
-offset_top = -25.0
-offset_right = 133.0
-offset_bottom = 6.0
-text = "asdf"
-
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1730946589]
-layout_mode = 0
-offset_left = 31.0
-offset_top = 210.0
-offset_right = 240.0
-offset_bottom = 278.0
+offset_left = 68.0
+offset_top = 119.0
+offset_right = 140.0
+offset_bottom = 129.0
+text = "asdf阿斯蒂芬"
+alignment = 0
+script = ExtResource("3_ppyta")
+metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1459036828]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=2093956360]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 148.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1529496388]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=402818697]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 5
+
+[node name="RichTextLabel" type="RichTextLabel" parent="PanelContainer/VBoxContainer/MarginContainer" unique_id=1232715680]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Message
+Message
+Message
+Message
+Message
+Message
+Message
+Message"
+scroll_active = false
+scroll_following = true
+scroll_following_visible_characters = true
+autowrap_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=497171125]
+layout_mode = 2
+alignment = 2
+
+[node name="More" type="TextureRect" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=1254444943]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+texture = SubResource("Texture2D_ppyta")

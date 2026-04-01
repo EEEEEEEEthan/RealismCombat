@@ -1,4 +1,72 @@
 [gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
+[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="1_e1x85"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e1x85"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
+
+[sub_resource type="Texture2D" id="Texture2D_e1x85"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("1_e1x85")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAEBJREFUGJWNj8EKACAMQmf0/79shyJCk/IymE/mqj6FNRn2DpKTBXANGLgNCbTUiWSd4QiqejLktIPPZ5T/rWQaKy4QElsz1JcAAAAASUVORK5CYII="
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cjfk0"]
+atlas = SubResource("Texture2D_e1x85")
+region = Rect2(0, 0, 10, 10)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_e1x85"]
+texture = SubResource("AtlasTexture_cjfk0")
+texture_margin_left = 12.0
+region_rect = Rect2(0, 0, 10, 10)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mihib"]
+content_margin_left = 12.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ttqs8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6cw85"]
+
+[sub_resource type="Texture2D" id="Texture2D_cjfk0"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("1_e1x85")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAAXNSR0IArs4c6QAAAD5JREFUGJWNj0EOAEAEA1v//7M9UUE2ehCRaUFIjilmCcBdHEm1G9BB+yTk3DZnBQcUzr76dNP5O1SwhwHAAx0VHgg8lV0TAAAAAElFTkSuQmCC"
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wvktn"]
+texture = SubResource("Texture2D_cjfk0")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
 [resource]
 default_font_size = 10
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_disabled_color = Color(1, 1, 1, 1)
+Button/colors/font_focus_color = Color(1, 1, 1, 1)
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_disabled_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
+Button/colors/icon_focus_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_normal_color = Color(1, 1, 1, 1)
+Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
+Button/styles/disabled = SubResource("StyleBoxEmpty_e1x85")
+Button/styles/disabled_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/focus = SubResource("StyleBoxTexture_e1x85")
+Button/styles/hover = SubResource("StyleBoxTexture_e1x85")
+Button/styles/hover_mirrored = SubResource("StyleBoxTexture_e1x85")
+Button/styles/hover_pressed = SubResource("StyleBoxTexture_e1x85")
+Button/styles/hover_pressed_mirrored = SubResource("StyleBoxTexture_e1x85")
+Button/styles/normal = SubResource("StyleBoxEmpty_mihib")
+Button/styles/normal_mirrored = SubResource("StyleBoxEmpty_ttqs8")
+Button/styles/pressed = SubResource("StyleBoxTexture_e1x85")
+Button/styles/pressed_mirrored = SubResource("StyleBoxEmpty_6cw85")
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_wvktn")
