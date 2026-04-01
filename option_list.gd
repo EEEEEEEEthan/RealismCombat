@@ -177,8 +177,6 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 signal option_focused(option_index: int)
 signal option_selected(option_index: int)
 
-var _layout_container: HBoxContainer
-var _focus_indicator_spacer: Control
 var _options_container: VBoxContainer
 var _focus_indicator_layer: Control
 var _focus_indicator: TextureRect
@@ -220,18 +218,11 @@ func _notification(notification_type: int) -> void:
 		_update_theme()
 
 func _ready() -> void:
-	_layout_container = HBoxContainer.new()
-	_layout_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_layout_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_layout_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(_layout_container)
-	_focus_indicator_spacer = Control.new()
-	_focus_indicator_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_layout_container.add_child(_focus_indicator_spacer)
 	_options_container = VBoxContainer.new()
+	_options_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_options_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_options_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_layout_container.add_child(_options_container)
+	add_child(_options_container)
 	_focus_indicator_layer = Control.new()
 	_focus_indicator_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_focus_indicator_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -257,11 +248,11 @@ func _update_theme() -> void:
 	if _indexer_icon:
 		var focus_indicator_size := _indexer_icon.get_size()
 		var focus_indicator_spacing_width = focus_indicator_size.x
-		_focus_indicator_spacer.custom_minimum_size = Vector2(focus_indicator_spacing_width, 0)
+		_options_container.offset_left = focus_indicator_spacing_width
 		_focus_indicator.texture = _indexer_icon
 		_focus_indicator.size = focus_indicator_size
 	else:
-		_focus_indicator_spacer.custom_minimum_size = Vector2.ZERO
+		_options_container.offset_left = 0.0
 		_focus_indicator.texture = null
 		_focus_indicator.size = Vector2.ZERO
 	_update_all_button_appearance()
@@ -438,8 +429,10 @@ func _refresh_focus_indicator() -> void:
 		return
 	var indicator_layer_global_position = _focus_indicator_layer.get_global_position()
 	var focused_button_global_position = focused_button.get_global_position()
+	var list_global_position = get_global_position()
+	var focus_icon_x = list_global_position.x - indicator_layer_global_position.x
 	_focus_indicator.position = Vector2(
-		0,
+		focus_icon_x,
 		focused_button_global_position.y - indicator_layer_global_position.y + (focused_button.size.y - _focus_indicator.size.y) * 0.5
 	)
 	_focus_indicator.visible = true
