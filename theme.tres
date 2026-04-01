@@ -2,9 +2,8 @@
 
 [ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="1_e1x85"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e1x85"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mihib"]
+content_margin_left = 12.0
 
 [sub_resource type="Texture2D" id="Texture2D_e1x85"]
 resource_local_to_scene = false
@@ -21,13 +20,6 @@ region = Rect2(0, 0, 10, 10)
 texture = SubResource("AtlasTexture_cjfk0")
 texture_margin_left = 12.0
 region_rect = Rect2(0, 0, 10, 10)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mihib"]
-content_margin_left = 12.0
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ttqs8"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6cw85"]
 
 [sub_resource type="Texture2D" id="Texture2D_cjfk0"]
 resource_local_to_scene = false
@@ -46,27 +38,27 @@ texture_margin_bottom = 4.0
 [resource]
 default_font_size = 10
 Button/colors/font_color = Color(1, 1, 1, 1)
-Button/colors/font_disabled_color = Color(1, 1, 1, 1)
+Button/colors/font_disabled_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
 Button/colors/font_outline_color = Color(0, 0, 0, 1)
 Button/colors/font_pressed_color = Color(1, 1, 1, 1)
-Button/colors/icon_disabled_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
+Button/colors/icon_disabled_color = Color(1, 1, 1, 1)
 Button/colors/icon_focus_color = Color(1, 1, 1, 1)
 Button/colors/icon_hover_color = Color(1, 1, 1, 1)
 Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
 Button/colors/icon_normal_color = Color(1, 1, 1, 1)
 Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
-Button/styles/disabled = SubResource("StyleBoxEmpty_e1x85")
-Button/styles/disabled_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/disabled = SubResource("StyleBoxEmpty_mihib")
+Button/styles/disabled_mirrored = SubResource("StyleBoxEmpty_mihib")
 Button/styles/focus = SubResource("StyleBoxTexture_e1x85")
 Button/styles/hover = SubResource("StyleBoxTexture_e1x85")
 Button/styles/hover_mirrored = SubResource("StyleBoxTexture_e1x85")
 Button/styles/hover_pressed = SubResource("StyleBoxTexture_e1x85")
 Button/styles/hover_pressed_mirrored = SubResource("StyleBoxTexture_e1x85")
 Button/styles/normal = SubResource("StyleBoxEmpty_mihib")
-Button/styles/normal_mirrored = SubResource("StyleBoxEmpty_ttqs8")
+Button/styles/normal_mirrored = SubResource("StyleBoxEmpty_mihib")
 Button/styles/pressed = SubResource("StyleBoxTexture_e1x85")
-Button/styles/pressed_mirrored = SubResource("StyleBoxEmpty_6cw85")
+Button/styles/pressed_mirrored = SubResource("StyleBoxEmpty_mihib")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_wvktn")

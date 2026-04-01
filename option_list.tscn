@@ -1,16 +1,7 @@
 [gd_scene format=3 uid="uid://blh2fd8ys272r"]
 
 [ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://option_list.gd" id="1_wmseh"]
-[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="2_wkyhb"]
-
-[sub_resource type="Texture2D" id="Texture2D_ev4te"]
-resource_local_to_scene = false
-resource_name = ""
-script = ExtResource("2_wkyhb")
-_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAADtJREFUGJV1jkESACAIAqHx/1+mQ2ODZtyQVSQAoYrdSDoM+WQVuImBC4MkIZdGwBXT0CviF5Qn+wE3G/1zEBF+9m+mAAAAAElFTkSuQmCC"
-metadata/_custom_type_script = "uid://xqi7kv2y70eo"
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p5f6p"]
+[ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://custom_button.gd" id="2_ev4te"]
 
 [node name="OptionList" type="MarginContainer" unique_id=2061099515]
 focus_behavior_recursive = 2
@@ -24,26 +15,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="FocusIndicatorLayer" type="Control" parent="." unique_id=1610445070]
-unique_name_in_owner = true
-process_mode = 4
-layout_mode = 2
-mouse_filter = 2
-
-[node name="FocusIndicator" type="TextureRect" parent="FocusIndicatorLayer" unique_id=1542873129]
-unique_name_in_owner = true
-process_mode = 4
-visible = false
-layout_mode = 0
-offset_left = -10.0
-offset_right = -2.0
-offset_bottom = 8.0
-texture = SubResource("Texture2D_ev4te")
-
 [node name="Templates" type="Node" parent="." unique_id=1582735242]
 process_mode = 4
 
-[node name="OptionButtonTemplate" type="Button" parent="Templates" unique_id=1525109898]
+[node name="OptionButtonTemplate" type="Button" parent="Templates" unique_id=1490702151]
 unique_name_in_owner = true
 process_mode = 4
 visible = false
@@ -51,32 +26,11 @@ offset_left = 6.0
 offset_right = 26.0
 offset_bottom = 10.0
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_disabled_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
-theme_override_colors/icon_normal_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_disabled_color = Color(1, 1, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_p5f6p")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_p5f6p")
 text = "asdf"
 flat = true
 alignment = 0
+script = ExtResource("2_ev4te")
+metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="HoverTimer" type="Timer" parent="." unique_id=540290645]
 unique_name_in_owner = true

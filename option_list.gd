@@ -10,8 +10,6 @@ var _hovered_button: Button = null
 var _is_scrolling_up: bool = false
 
 @onready var _options_container: VBoxContainer = %OptionsContainer
-@onready var _focus_indicator_layer: Control = %FocusIndicatorLayer
-@onready var _focus_indicator: Control = %FocusIndicator
 @onready var _option_button_template: Button = %OptionButtonTemplate
 @onready var _hover_timer: Timer = %HoverTimer
 
@@ -33,12 +31,6 @@ var _is_scrolling_up: bool = false
 		if is_node_ready():
 			_sync_viewport()
 
-func _notification(notification_type: int) -> void:
-	if not is_node_ready():
-		return
-	if notification_type == NOTIFICATION_THEME_CHANGED or notification_type == NOTIFICATION_RESIZED:
-		call_deferred(&"_refresh_focus_indicator")
-
 func _ready() -> void:
 	_sync_viewport()
 
@@ -54,7 +46,6 @@ func _sync_viewport() -> void:
 		else:
 			option_button.text = ""
 			option_button.disabled = true
-	_refresh_focus_indicator()
 
 func _clamp_viewport_start_index() -> void:
 	var max_start_index = maxi(_options.size() - viewport_count, 0)
@@ -83,7 +74,6 @@ func _configure_button(option_button: Button, button_index: int, option_count: i
 	option_button.disabled = (((1 << button_index) & _disabled_mask) != 0)
 
 func _on_button_focused(button: Button) -> void:
-	_refresh_focus_indicator()
 	var button_index = button.get_index()
 	var option_count = _options.size()
 	if button_index == 0 and _viewport_start_index > 0:
@@ -172,33 +162,7 @@ func _create_button() -> Button:
 	option_button.name = "OptionButton"
 	option_button.visible = true
 	option_button.focus_entered.connect(_on_button_focused.bind(option_button))
-	option_button.focus_exited.connect(_refresh_focus_indicator)
 	option_button.mouse_entered.connect(_on_button_mouse_entered.bind(option_button))
 	option_button.mouse_exited.connect(_on_button_mouse_exited.bind(option_button))
 	option_button.pressed.connect(_on_button_pressed.bind(option_button))
-	option_button.item_rect_changed.connect(_refresh_focus_indicator)
 	return option_button
-
-func _refresh_focus_indicator() -> void:
-	var indicator_size = _focus_indicator.get_combined_minimum_size()
-	if indicator_size != Vector2.ZERO:
-		_focus_indicator.size = indicator_size
-	else:
-		indicator_size = _focus_indicator.size
-	if indicator_size == Vector2.ZERO:
-		_focus_indicator.visible = false
-		return
-	var focused_button = get_viewport().gui_get_focus_owner() as Button
-	if not focused_button or focused_button.get_parent() != _options_container:
-		_focus_indicator.visible = false
-		return
-	var content_row = _options_container.get_parent() as Control
-	var indicator_layer_global_position = _focus_indicator_layer.global_position
-	var focused_button_global_position = focused_button.global_position
-	var spacer_left_global = content_row.global_position.x
-	var spacer_width = _options_container.global_position.x - spacer_left_global
-	_focus_indicator.position = Vector2(
-		spacer_left_global - indicator_layer_global_position.x + (spacer_width - indicator_size.x) * 0.5,
-		focused_button_global_position.y - indicator_layer_global_position.y + (focused_button.size.y - indicator_size.y) * 0.5
-	)
-	_focus_indicator.visible = true

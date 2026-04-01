@@ -105,8 +105,6 @@ size_flags_horizontal = 4
 size_flags_vertical = 8
 texture = SubResource("Texture2D_ppyta")
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="PanelContainer" unique_id=1492784415]
-
 [node name="CustomButton" type="Button" parent="." unique_id=165199254]
 layout_mode = 0
 offset_left = 177.0
