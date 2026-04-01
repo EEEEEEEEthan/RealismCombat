@@ -2,318 +2,86 @@
 extends MarginContainer
 class_name OptionList
 
-static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
-
-@export_range(3, 64) var viewport_count: int = 8:
-	set(value):
-		viewport_count = value
-		_update_viewport()
-
-@export var _options: PackedStringArray:
-	set(value):
-		if len(value) > 64:
-			value = value.slice(0, 64)
-		_options = value
-		_update_viewport()
-
-@export var _disabled_mask: int:
-	set(value):
-		_disabled_mask = value
-		_update_viewport()
-
-@export_group("Theme Overrides")
-
-@export_subgroup("colors")
-
-@export var override_font_color: bool = false:
-	get:
-		return has_theme_color_override(&"font_color")
-	set(value):
-		if value:
-			add_theme_color_override(&"font_color", font_color)
-		else:
-			remove_theme_color_override(&"font_color")
-		notify_property_list_changed()
-		_update_all_button_appearance()
-
-@export var font_color: Color = Color.WHITE:
-	get:
-		if not has_theme_color(&"font_color"):
-			return get_theme_color(&"font_color", &"Button")
-		return get_theme_color(&"font_color") if has_theme_color_override(&"font_color") else get_theme_color(&"font_color", &"OptionList")
-	set(value):
-		if override_font_color:
-			add_theme_color_override(&"font_color", value)
-		_update_all_button_appearance()
-
-@export var override_focus_color: bool = false:
-	get:
-		return has_theme_color_override(&"font_focus_color")
-	set(value):
-		if value:
-			add_theme_color_override(&"font_focus_color", font_focus_color)
-		else:
-			remove_theme_color_override(&"font_focus_color")
-		notify_property_list_changed()
-		_update_all_button_appearance()
-
-@export var font_focus_color: Color = Color.WHITE:
-	get:
-		if not has_theme_color(&"font_focus_color"):
-			return get_theme_color(&"font_focus_color", &"Button")
-		return get_theme_color(&"font_focus_color") if has_theme_color_override(&"font_focus_color") else get_theme_color(&"font_focus_color", &"OptionList")
-	set(value):
-		if override_focus_color:
-			add_theme_color_override(&"font_focus_color", value)
-		_update_all_button_appearance()
-
-@export var override_disabled_color: bool = false:
-	get:
-		return has_theme_color_override(&"font_disabled_color")
-	set(value):
-		if value:
-			add_theme_color_override(&"font_disabled_color", font_disabled_color)
-		else:
-			remove_theme_color_override(&"font_disabled_color")
-		notify_property_list_changed()
-		_update_all_button_appearance()
-
-@export var font_disabled_color: Color = Color.WHITE:
-	get:
-		if not has_theme_color(&"font_disabled_color"):
-			return get_theme_color(&"font_disabled_color", &"Button")
-		return get_theme_color(&"font_disabled_color") if has_theme_color_override(&"font_disabled_color") else get_theme_color(&"font_disabled_color", &"OptionList")
-	set(value):
-		if override_disabled_color:
-			add_theme_color_override(&"font_disabled_color", value)
-		_update_all_button_appearance()
-
-@export_subgroup("constants")
-
-@export var override_separation: bool = false:
-	get:
-		return _override_separation
-	set(value):
-		if value and not _override_separation and is_node_ready() and _options_container:
-			_separation = (
-				_options_container.get_theme_constant(&"separation")
-				if _options_container.has_theme_constant(&"separation")
-				else _options_container.get_theme_constant(&"separation", &"VBoxContainer")
-			)
-		_override_separation = value
-		_update_options_container_separation()
-		notify_property_list_changed()
-
-@export_range(0, 128) var separation: int = 4:
-	get:
-		return _separation
-	set(value):
-		_separation = value
-		if _override_separation:
-			_update_options_container_separation()
-
-@export_subgroup("fonts")
-
-@export var override_font: bool = false:
-	get:
-		return has_theme_font_override(&"font")
-	set(value):
-		if value:
-			var resolved_font := font
-			if resolved_font:
-				add_theme_font_override(&"font", resolved_font)
-			else:
-				remove_theme_font_override(&"font")
-		else:
-			remove_theme_font_override(&"font")
-		notify_property_list_changed()
-		_update_all_button_appearance()
-
-@export var font: Font = null:
-	get:
-		if not has_theme_font(&"font"):
-			return get_theme_font(&"font", &"Button")
-		return get_theme_font(&"font") if has_theme_font_override(&"font") else get_theme_font(&"font", &"OptionList")
-	set(value):
-		if override_font:
-			if value:
-				add_theme_font_override(&"font", value)
-			else:
-				remove_theme_font_override(&"font")
-		_update_all_button_appearance()
-
-@export var override_font_size: bool = false:
-	get:
-		return has_theme_font_size_override(&"font_size")
-	set(value):
-		if value:
-			add_theme_font_size_override(&"font_size", font_size)
-		else:
-			remove_theme_font_size_override(&"font_size")
-		notify_property_list_changed()
-		_update_all_button_appearance()
-
-@export_range(0, 128) var font_size: int = 12:
-	get:
-		if not has_theme_font_size(&"font_size"):
-			return get_theme_font_size(&"font_size", &"Button")
-		return get_theme_font_size(&"font_size") if has_theme_font_size_override(&"font_size") else get_theme_font_size(&"font_size", &"OptionList")
-	set(value):
-		if override_font_size:
-			add_theme_font_size_override(&"font_size", value)
-		_update_all_button_appearance()
-
-@export_subgroup("icons")
-
-@export var _override_indexer_icon: bool = false:
-	get:
-		return has_theme_icon_override(&"indexer_icon")
-	set(value):
-		if value:
-			add_theme_icon_override(&"indexer_icon", _indexer_icon)
-		else:
-			remove_theme_icon_override(&"indexer_icon")
-		notify_property_list_changed()
-		_update_theme()
-
-@export var _indexer_icon: Texture2D:
-	get:
-		if not has_theme_icon(&"indexer_icon"):
-			return get_theme_icon(&"arrow_collapsed", &"Tree")
-		return get_theme_icon(&"indexer_icon") if has_theme_icon_override(&"indexer_icon") else get_theme_icon(&"indexer_icon", &"OptionList")
-	set(value):
-		if _override_indexer_icon:
-			add_theme_icon_override(&"indexer_icon", value if value else get_theme_icon(&"arrow_collapsed", &"Tree"))
-		_update_theme()
-
 signal option_focused(option_index: int)
 signal option_pressed(option_index: int)
 
-var _override_separation: bool = false
-var _separation: int = 4
-
-var _options_container: VBoxContainer
-var _focus_indicator_layer: Control
-var _focus_indicator: TextureRect
-
-var _viewport_start_index: int
-
-var _hover_timer: Timer
+var _viewport_start_index: int = 0
 var _hovered_button: Button = null
 var _is_scrolling_up: bool = false
 
-func _validate_property(property: Dictionary) -> void:
-	if property.name == "_override_indexer_icon":
-		property.usage = PROPERTY_USAGE_EDITOR
-	elif property.name == "_indexer_icon":
-		if _override_indexer_icon:
-			property.usage = PROPERTY_USAGE_EDITOR
-			property.hint = PROPERTY_HINT_RESOURCE_TYPE
-			property.hint_string = "Texture2D"
-		else:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "font_color":
-		if not override_font_color:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "font_focus_color":
-		if not override_focus_color:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "font_disabled_color":
-		if not override_disabled_color:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "font":
-		if not override_font:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "font_size":
-		if not override_font_size:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	elif property.name == "separation":
-		if not override_separation:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
+@onready var _indicator_spacer: Control = $ContentRow/IndicatorSpacer
+@onready var _options_container: VBoxContainer = $ContentRow/OptionsContainer
+@onready var _focus_indicator_layer: Control = $FocusIndicatorLayer
+@onready var _focus_indicator: Control = $FocusIndicatorLayer/FocusIndicator
+@onready var _option_button_template: Button = $Templates/OptionButtonTemplate
+@onready var _hover_timer: Timer = $HoverTimer
+
+@export_range(3, 64) var viewport_count: int = 8:
+	set(value):
+		viewport_count = clampi(value, 3, 64)
+		if is_node_ready():
+			_sync_viewport()
+
+@export var _options: PackedStringArray:
+	set(value):
+		_options = value.slice(0, 64) if value.size() > 64 else value
+		if is_node_ready():
+			_sync_viewport()
+
+@export var _disabled_mask: int = 0:
+	set(value):
+		_disabled_mask = value
+		if is_node_ready():
+			_sync_viewport()
 
 func _notification(notification_type: int) -> void:
-	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
-		_update_theme()
+	if not is_node_ready():
+		return
+	if notification_type == NOTIFICATION_THEME_CHANGED or notification_type == NOTIFICATION_RESIZED:
+		call_deferred(&"_refresh_focus_indicator")
 
 func _ready() -> void:
-	_options_container = VBoxContainer.new()
-	_disable_unneeded_process(_options_container)
-	_options_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_options_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_options_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(_options_container)
-	_focus_indicator_layer = Control.new()
-	_disable_unneeded_process(_focus_indicator_layer)
-	_focus_indicator_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_focus_indicator_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_focus_indicator_layer)
-	_focus_indicator = TextureRect.new()
-	_disable_unneeded_process(_focus_indicator)
-	_focus_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_focus_indicator.stretch_mode = TextureRect.STRETCH_KEEP
-	_focus_indicator.visible = false
-	_focus_indicator_layer.add_child(_focus_indicator)
-	_hover_timer = Timer.new()
-	_hover_timer.wait_time = 0.2
-	_hover_timer.one_shot = false
-	_hover_timer.timeout.connect(_on_hover_timer_timeout)
-	add_child(_hover_timer)
-	_update_theme()
-	_update_options_container_separation()
-	_update_viewport()
+	_sync_viewport()
 
-func _disable_unneeded_process(node: Node) -> void:
-	node.set_process(false)
-	node.set_physics_process(false)
-
-func _update_options_container_separation() -> void:
-	if not _options_container:
-		return
-	if _override_separation:
-		_options_container.add_theme_constant_override(&"separation", _separation)
-	else:
-		_options_container.remove_theme_constant_override(&"separation")
-
-func _update_theme() -> void:
-	if not _options_container or not _focus_indicator:
-		return
-	var indexer_icon := _indexer_icon
-	if indexer_icon:
-		var focus_indicator_size := indexer_icon.get_size()
-		var focus_indicator_spacing_width = focus_indicator_size.x
-		_options_container.offset_left = focus_indicator_spacing_width
-		_focus_indicator.texture = indexer_icon
-		_focus_indicator.size = focus_indicator_size
-	else:
-		_options_container.offset_left = 0.0
-		_focus_indicator.texture = null
-		_focus_indicator.size = Vector2.ZERO
-	_update_all_button_appearance()
-
-func _update_viewport() -> void:
-	if not _options_container:
-		return
-	var child_count = _options_container.get_child_count()
-	for index in range(child_count - viewport_count):
-		_options_container.get_child(child_count - index - 1).queue_free()
-	for index in range(viewport_count - child_count):
-		_options_container.add_child(_create_button())
+func _sync_viewport() -> void:
+	_clamp_viewport_start_index()
+	_sync_button_count()
 	var option_count = _options.size()
 	var visible_count = min(viewport_count, option_count)
-	for index in range(visible_count):
-		var button = _options_container.get_child(index) as Button
-		if index == 0 and _viewport_start_index > 0:
-			button.text = "...+" + str(_viewport_start_index + 1)
-		elif viewport_count - 1 == index and _viewport_start_index + viewport_count < option_count:
-			button.text = "...+" + str(option_count - (_viewport_start_index + viewport_count) + 1)
-		elif index + _viewport_start_index < option_count:
-			button.text = _options[index + _viewport_start_index]
+	for button_index in range(viewport_count):
+		var option_button = _options_container.get_child(button_index) as Button
+		if button_index < visible_count:
+			_configure_button(option_button, button_index, option_count)
 		else:
-			button.text = ""
-		button.disabled = (((1 << index) & _disabled_mask) != 0)
-	for index in range(visible_count, viewport_count):
-		(_options_container.get_child(index) as Button).text = ""
-	_update_all_button_appearance()
+			option_button.text = ""
+			option_button.disabled = true
+	_refresh_focus_indicator()
+
+func _clamp_viewport_start_index() -> void:
+	var max_start_index = maxi(_options.size() - viewport_count, 0)
+	_viewport_start_index = clampi(_viewport_start_index, 0, max_start_index)
+
+func _sync_button_count() -> void:
+	var child_count = _options_container.get_child_count()
+	while child_count > viewport_count:
+		var option_button = _options_container.get_child(child_count - 1)
+		_options_container.remove_child(option_button)
+		option_button.queue_free()
+		child_count -= 1
+	while child_count < viewport_count:
+		_options_container.add_child(_create_button())
+		child_count += 1
+
+func _configure_button(option_button: Button, button_index: int, option_count: int) -> void:
+	if button_index == 0 and _viewport_start_index > 0:
+		option_button.text = "...+" + str(_viewport_start_index + 1)
+	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < option_count:
+		option_button.text = "...+" + str(option_count - (_viewport_start_index + viewport_count) + 1)
+	elif button_index + _viewport_start_index < option_count:
+		option_button.text = _options[button_index + _viewport_start_index]
+	else:
+		option_button.text = ""
+	option_button.disabled = (((1 << button_index) & _disabled_mask) != 0)
 
 func _on_button_focused(button: Button) -> void:
 	_refresh_focus_indicator()
@@ -321,12 +89,12 @@ func _on_button_focused(button: Button) -> void:
 	var option_count = _options.size()
 	if button_index == 0 and _viewport_start_index > 0:
 		_viewport_start_index -= 1
-		button.get_parent().get_child(1).grab_focus()
-		call_deferred(&"_update_viewport")
+		(_options_container.get_child(1) as Button).grab_focus()
+		call_deferred(&"_sync_viewport")
 	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < option_count:
 		_viewport_start_index += 1
-		button.get_parent().get_child(button_index - 1).grab_focus()
-		call_deferred(&"_update_viewport")
+		(_options_container.get_child(button_index - 1) as Button).grab_focus()
+		call_deferred(&"_sync_viewport")
 	else:
 		var option_index = button_index + _viewport_start_index
 		if option_index >= 0 and option_index < option_count:
@@ -361,14 +129,14 @@ func _on_hover_timer_timeout() -> void:
 	if _is_scrolling_up:
 		if button_index == 0 and _viewport_start_index > 0:
 			_viewport_start_index -= 1
-			call_deferred(&"_update_viewport")
+			call_deferred(&"_sync_viewport")
 			call_deferred(&"_defer_refresh_hover_after_scroll", true)
 			return
 		_defer_refresh_hover_after_scroll(true)
 		return
 	if button_index == viewport_count - 1 and _viewport_start_index + viewport_count < option_count:
 		_viewport_start_index += 1
-		call_deferred(&"_update_viewport")
+		call_deferred(&"_sync_viewport")
 		call_deferred(&"_defer_refresh_hover_after_scroll", false)
 		return
 	_defer_refresh_hover_after_scroll(false)
@@ -388,9 +156,9 @@ func _defer_refresh_hover_after_scroll(scroll_up: bool) -> void:
 	var end_index = child_count if scroll_up else -1
 	var index_step = 1 if scroll_up else -1
 	for button_index in range(start_index, end_index, index_step):
-		var button = _options_container.get_child(button_index) as Button
-		if button.text != "" and not button.text.begins_with("..."):
-			button.grab_focus()
+		var option_button = _options_container.get_child(button_index) as Button
+		if option_button.text != "" and not option_button.text.begins_with("..."):
+			option_button.grab_focus()
 			return
 
 func _on_button_pressed(button: Button) -> void:
@@ -401,52 +169,35 @@ func _on_button_pressed(button: Button) -> void:
 		option_pressed.emit(option_index)
 
 func _create_button() -> Button:
-	var button = Button.new()
-	_disable_unneeded_process(button)
-	button.focus_entered.connect(_on_button_focused.bind(button))
-	button.focus_exited.connect(_refresh_focus_indicator)
-	button.mouse_entered.connect(_on_button_mouse_entered.bind(button))
-	button.mouse_exited.connect(_on_button_mouse_exited.bind(button))
-	button.pressed.connect(_on_button_pressed.bind(button))
-	button.item_rect_changed.connect(_refresh_focus_indicator)
-	button["theme_override_styles/focus"] = _empty_style
-	button.flat = true
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	return button
+	var option_button = _option_button_template.duplicate() as Button
+	option_button.name = "OptionButton"
+	option_button.visible = true
+	option_button.focus_entered.connect(_on_button_focused.bind(option_button))
+	option_button.focus_exited.connect(_refresh_focus_indicator)
+	option_button.mouse_entered.connect(_on_button_mouse_entered.bind(option_button))
+	option_button.mouse_exited.connect(_on_button_mouse_exited.bind(option_button))
+	option_button.pressed.connect(_on_button_pressed.bind(option_button))
+	option_button.item_rect_changed.connect(_refresh_focus_indicator)
+	return option_button
 
 func _refresh_focus_indicator() -> void:
-	if not is_node_ready() or not _indexer_icon:
+	var indicator_size = _focus_indicator.get_combined_minimum_size()
+	if indicator_size != Vector2.ZERO:
+		_focus_indicator.size = indicator_size
+	else:
+		indicator_size = _focus_indicator.size
+	if indicator_size == Vector2.ZERO:
 		_focus_indicator.visible = false
 		return
 	var focused_button = get_viewport().gui_get_focus_owner() as Button
 	if not focused_button or focused_button.get_parent() != _options_container:
 		_focus_indicator.visible = false
 		return
-	var indicator_layer_global_position = _focus_indicator_layer.get_global_position()
-	var focused_button_global_position = focused_button.get_global_position()
-	var list_global_position = get_global_position()
-	var focus_icon_x = list_global_position.x - indicator_layer_global_position.x
+	var indicator_layer_global_position = _focus_indicator_layer.global_position
+	var spacer_global_position = _indicator_spacer.global_position
+	var focused_button_global_position = focused_button.global_position
 	_focus_indicator.position = Vector2(
-		focus_icon_x,
-		focused_button_global_position.y - indicator_layer_global_position.y + (focused_button.size.y - _focus_indicator.size.y) * 0.5
+		spacer_global_position.x - indicator_layer_global_position.x + (_indicator_spacer.size.x - indicator_size.x) * 0.5,
+		focused_button_global_position.y - indicator_layer_global_position.y + (focused_button.size.y - indicator_size.y) * 0.5
 	)
 	_focus_indicator.visible = true
-
-func _update_all_button_appearance() -> void:
-	if not _options_container:
-		return
-	var child_count = _options_container.get_child_count()
-	var resolved_font := font
-	var resolved_font_size := font_size
-	var resolved_font_color := font_color
-	var resolved_focus_color := font_focus_color
-	var resolved_disabled_color := font_disabled_color
-	for index in range(child_count):
-		var button = _options_container.get_child(index) as Button
-		button.icon = null
-		button.add_theme_font_override(&"font", resolved_font)
-		button.add_theme_font_size_override(&"font_size", resolved_font_size)
-		button.add_theme_color_override(&"font_color", resolved_font_color)
-		button.add_theme_color_override(&"font_focus_color", resolved_focus_color)
-		button.add_theme_color_override(&"font_disabled_color", resolved_disabled_color)
-	_refresh_focus_indicator()

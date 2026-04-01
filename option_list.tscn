@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://blh2fd8ys272r"]
+
+[ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://option_list.gd" id="1_wmseh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p5f6p"]
+
+[node name="OptionList" type="MarginContainer" unique_id=2061099515]
+focus_behavior_recursive = 2
+script = ExtResource("1_wmseh")
+
+[node name="ContentRow" type="HBoxContainer" parent="." unique_id=261764002]
+layout_mode = 2
+
+[node name="IndicatorSpacer" type="Control" parent="ContentRow" unique_id=1817170830]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="OptionsContainer" type="VBoxContainer" parent="ContentRow" unique_id=455972856]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="FocusIndicatorLayer" type="Control" parent="." unique_id=1610445070]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FocusIndicator" type="Label" parent="FocusIndicatorLayer" unique_id=1673384835]
+layout_mode = 0
+offset_right = 5.0
+offset_bottom = 10.0
+text = ">"
+
+[node name="Templates" type="Node" parent="." unique_id=1582735242]
+
+[node name="OptionButtonTemplate" type="Button" parent="Templates" unique_id=1525109898]
+visible = false
+size_flags_horizontal = 3
+theme_override_styles/focus = SubResource("StyleBoxEmpty_p5f6p")
+flat = true
+alignment = 0
+
+[node name="HoverTimer" type="Timer" parent="." unique_id=540290645]
+wait_time = 0.2
+
+[connection signal="timeout" from="HoverTimer" to="." method="_on_hover_timer_timeout"]
