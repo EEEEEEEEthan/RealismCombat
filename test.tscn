@@ -5,6 +5,20 @@
 [ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://custom_button.gd" id="3_ppyta"]
 [ext_resource type="PackedScene" uid="uid://bb775dleugdvh" path="res://generic_dialogue.tscn" id="4_ppyta"]
 
+[sub_resource type="GDScript" id="GDScript_ppyta"]
+script/source = "extends Control
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	%GenericDialogue.show_message(\"asdfasdfddddddddddddddddddddddddddddddddd\", \"\")
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8uh7m"]
 
 [node name="Test" type="Control" unique_id=1993894909]
@@ -14,6 +28,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_ppyta")
 
 [node name="OptionList" parent="." unique_id=1580032097 instance=ExtResource("1_ge527")]
 layout_mode = 0
@@ -62,5 +77,6 @@ script = ExtResource("3_ppyta")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="GenericDialogue" parent="." unique_id=1569972301 instance=ExtResource("4_ppyta")]
-layout_mode = 0
-anchors_preset = 0
+unique_name_in_owner = true
+layout_mode = 1
+offset_top = 133.0
