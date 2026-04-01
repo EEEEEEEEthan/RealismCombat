@@ -36,7 +36,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		notify_property_list_changed()
 		_try_update(_update_all_button_appearance)
 
-@export var font_color: Color = Color(1, 1, 1, 1):
+@export var font_color: Color = Color.WHITE:
 	get:
 		if not has_theme_color(&"font_color"):
 			return get_theme_color(&"font_color", &"Button")
@@ -57,7 +57,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		notify_property_list_changed()
 		_try_update(_update_all_button_appearance)
 
-@export var font_focus_color: Color = Color(0, 0, 0, 0):
+@export var font_focus_color: Color = Color.WHITE:
 	get:
 		if not has_theme_color(&"font_focus_color"):
 			return get_theme_color(&"font_focus_color", &"Button")
@@ -78,7 +78,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		notify_property_list_changed()
 		_try_update(_update_all_button_appearance)
 
-@export var font_disabled_color: Color = Color(0, 0, 0, 0):
+@export var font_disabled_color: Color = Color.WHITE:
 	get:
 		if not has_theme_color(&"font_disabled_color"):
 			return get_theme_color(&"font_disabled_color", &"Button")
