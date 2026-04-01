@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c5k4yesssmw0o" path="res://Textures/Items/Icons3.png" id="2_8uh7m"]
 [ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://custom_button.gd" id="3_ppyta"]
 [ext_resource type="PackedScene" uid="uid://bb775dleugdvh" path="res://generic_dialogue.tscn" id="4_ppyta"]
+[ext_resource type="PackedScene" uid="uid://dwko5ylcxomhr" path="res://menu_dialogue.tscn" id="5_ykrsh"]
 
 [sub_resource type="GDScript" id="GDScript_ppyta"]
 script/source = "extends Control
@@ -78,5 +79,10 @@ metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="GenericDialogue" parent="." unique_id=1569972301 instance=ExtResource("4_ppyta")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 offset_top = 133.0
+
+[node name="MenuDialogue" parent="." unique_id=911547528 instance=ExtResource("5_ykrsh")]
+unique_name_in_owner = true
+layout_mode = 1
