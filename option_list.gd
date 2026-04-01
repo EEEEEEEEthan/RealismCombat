@@ -255,8 +255,8 @@ func _try_update(update_function: Callable) -> void:
 
 func _update_theme() -> void:
 	if _indexer_icon:
-		var focus_indicator_size := Vector2(_indexer_icon.get_width(), _indexer_icon.get_height())
-		var focus_indicator_spacing_width = focus_indicator_size.x + get_theme_constant("h_separation", "Button")
+		var focus_indicator_size := _indexer_icon.get_size()
+		var focus_indicator_spacing_width = focus_indicator_size.x
 		_focus_indicator_spacer.custom_minimum_size = Vector2(focus_indicator_spacing_width, 0)
 		_focus_indicator.texture = _indexer_icon
 		_focus_indicator.size = focus_indicator_size

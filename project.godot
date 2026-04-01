@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="超写实战斗"
-run/main_scene="uid://pxjbq4vxq6df"
+run/main_scene="uid://d0s0aws01q13e"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
