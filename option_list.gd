@@ -163,7 +163,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		_try_update(_update_theme)
 
 signal option_focused(option_index: int)
-signal option_selected(option_index: int)
+signal option_pressed(option_index: int)
 
 var _options_container: VBoxContainer
 var _focus_indicator_layer: Control
@@ -359,7 +359,7 @@ func _on_button_pressed(button: Button) -> void:
 	var option_count = _options.size()
 	var option_index = button_index + _viewport_start_index
 	if not button.disabled and option_index >= 0 and option_index < option_count and not button.text.begins_with("..."):
-		option_selected.emit(option_index)
+		option_pressed.emit(option_index)
 
 func _create_button() -> Button:
 	var button = Button.new()
