@@ -7,19 +7,19 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 @export_range(3, 64) var viewport_count: int = 8:
 	set(value):
 		viewport_count = value
-		_try_update(_update_viewport)
+		_update_viewport()
 
 @export var _options: PackedStringArray:
 	set(value):
 		if len(value) > 64:
 			value = value.slice(0, 64)
 		_options = value
-		_try_update(_update_viewport)
+		_update_viewport()
 
 @export var _disabled_mask: int:
 	set(value):
 		_disabled_mask = value
-		_try_update(_update_viewport)
+		_update_viewport()
 
 @export_group("Theme Overrides")
 
@@ -34,7 +34,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_color_override(&"font_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var font_color: Color = Color.WHITE:
 	get:
@@ -44,7 +44,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(value):
 		if override_font_color:
 			add_theme_color_override(&"font_color", value)
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var override_focus_color: bool = false:
 	get:
@@ -55,7 +55,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_color_override(&"font_focus_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var font_focus_color: Color = Color.WHITE:
 	get:
@@ -65,7 +65,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(value):
 		if override_focus_color:
 			add_theme_color_override(&"font_focus_color", value)
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var override_disabled_color: bool = false:
 	get:
@@ -76,7 +76,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_color_override(&"font_disabled_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var font_disabled_color: Color = Color.WHITE:
 	get:
@@ -86,7 +86,31 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(value):
 		if override_disabled_color:
 			add_theme_color_override(&"font_disabled_color", value)
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
+
+@export_subgroup("constants")
+
+@export var override_separation: bool = false:
+	get:
+		return _override_separation
+	set(value):
+		if value and not _override_separation and is_node_ready() and _options_container:
+			_separation = (
+				_options_container.get_theme_constant(&"separation")
+				if _options_container.has_theme_constant(&"separation")
+				else _options_container.get_theme_constant(&"separation", &"VBoxContainer")
+			)
+		_override_separation = value
+		_update_options_container_separation()
+		notify_property_list_changed()
+
+@export_range(0, 128) var separation: int = 4:
+	get:
+		return _separation
+	set(value):
+		_separation = value
+		if _override_separation:
+			_update_options_container_separation()
 
 @export_subgroup("fonts")
 
@@ -103,7 +127,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_font_override(&"font")
 		notify_property_list_changed()
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var font: Font = null:
 	get:
@@ -116,7 +140,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 				add_theme_font_override(&"font", value)
 			else:
 				remove_theme_font_override(&"font")
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export var override_font_size: bool = false:
 	get:
@@ -127,7 +151,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_font_size_override(&"font_size")
 		notify_property_list_changed()
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export_range(0, 128) var font_size: int = 12:
 	get:
@@ -137,7 +161,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(value):
 		if override_font_size:
 			add_theme_font_size_override(&"font_size", value)
-		_try_update(_update_all_button_appearance)
+		_update_all_button_appearance()
 
 @export_subgroup("icons")
 
@@ -150,7 +174,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_icon_override(&"indexer_icon")
 		notify_property_list_changed()
-		_try_update(_update_theme)
+		_update_theme()
 
 @export var _indexer_icon: Texture2D:
 	get:
@@ -160,10 +184,13 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(value):
 		if _override_indexer_icon:
 			add_theme_icon_override(&"indexer_icon", value if value else get_theme_icon(&"arrow_collapsed", &"Tree"))
-		_try_update(_update_theme)
+		_update_theme()
 
 signal option_focused(option_index: int)
 signal option_pressed(option_index: int)
+
+var _override_separation: bool = false
+var _separation: int = 4
 
 var _options_container: VBoxContainer
 var _focus_indicator_layer: Control
@@ -200,6 +227,9 @@ func _validate_property(property: Dictionary) -> void:
 	elif property.name == "font_size":
 		if not override_font_size:
 			property.usage = PROPERTY_USAGE_NO_EDITOR
+	elif property.name == "separation":
+		if not override_separation:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
 
 func _notification(notification_type: int) -> void:
 	if notification_type == NOTIFICATION_THEME_CHANGED and is_node_ready():
@@ -228,18 +258,25 @@ func _ready() -> void:
 	_hover_timer.one_shot = false
 	_hover_timer.timeout.connect(_on_hover_timer_timeout)
 	add_child(_hover_timer)
-	_try_update(_update_theme)
-	_try_update(_update_viewport)
-
-func _try_update(update_function: Callable) -> void:
-	if is_node_ready():
-		update_function.call()
+	_update_theme()
+	_update_options_container_separation()
+	_update_viewport()
 
 func _disable_unneeded_process(node: Node) -> void:
 	node.set_process(false)
 	node.set_physics_process(false)
 
+func _update_options_container_separation() -> void:
+	if not _options_container:
+		return
+	if _override_separation:
+		_options_container.add_theme_constant_override(&"separation", _separation)
+	else:
+		_options_container.remove_theme_constant_override(&"separation")
+
 func _update_theme() -> void:
+	if not _options_container or not _focus_indicator:
+		return
 	var indexer_icon := _indexer_icon
 	if indexer_icon:
 		var focus_indicator_size := indexer_icon.get_size()
@@ -254,6 +291,8 @@ func _update_theme() -> void:
 	_update_all_button_appearance()
 
 func _update_viewport() -> void:
+	if not _options_container:
+		return
 	var child_count = _options_container.get_child_count()
 	for index in range(child_count - viewport_count):
 		_options_container.get_child(child_count - index - 1).queue_free()
@@ -394,6 +433,8 @@ func _refresh_focus_indicator() -> void:
 	_focus_indicator.visible = true
 
 func _update_all_button_appearance() -> void:
+	if not _options_container:
+		return
 	var child_count = _options_container.get_child_count()
 	var resolved_font := font
 	var resolved_font_size := font_size
