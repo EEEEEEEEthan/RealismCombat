@@ -9,15 +9,16 @@
 [sub_resource type="GDScript" id="GDScript_ppyta"]
 script/source = "extends Control
 
-
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	%GenericDialogue.show_message(\"asdfasdfddddddddddddddddddddddddddddddddd\", \"asdf\")
+	var menu_dialogue = %MenuDialogue
+	menu_dialogue.add_option(\"测试项1\", \"第一项说明。\", true)
+	menu_dialogue.add_option(\"测试项2\", \"第二项说明。\", true)
+	menu_dialogue.add_option(\"禁用项\", \"此选项禁用。\", false)
+	menu_dialogue.pressed.connect(_on_menu_dialogue_pressed)
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _on_menu_dialogue_pressed(option_index: int) -> void:
+	print(\"MenuDialogue 选中: \", option_index)
 "
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8uh7m"]

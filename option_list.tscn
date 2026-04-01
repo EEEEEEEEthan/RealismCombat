@@ -175,7 +175,6 @@ func _create_button() -> Button:
 
 [node name="OptionList" type="MarginContainer" unique_id=2061099515]
 focus_behavior_recursive = 2
-theme_override_constants/margin_left = 12
 script = SubResource("GDScript_6e5bi")
 
 [node name="OptionsContainer" type="VBoxContainer" parent="." unique_id=455972856]

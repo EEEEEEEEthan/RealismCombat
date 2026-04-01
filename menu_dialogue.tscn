@@ -7,7 +7,7 @@ script/source = "extends PanelContainer
 
 signal pressed(option_index: int)
 
-@onready var _option_list: OptionList = %OptionList
+@onready var _option_list: Container = %OptionList
 @onready var _description_label: RichTextLabel = %RichTextLabel
 
 var _option_names: Array[String] = []
