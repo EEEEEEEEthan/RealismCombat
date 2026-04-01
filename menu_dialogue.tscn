@@ -32,8 +32,8 @@ func add_option(option_name: String, option_description: String, option_enabled:
 
 func _refresh_option_list() -> void:
 	var packed: PackedStringArray = PackedStringArray()
-	for name in _option_names:
-		packed.append(name)
+	for n in _option_names:
+		packed.append(n)
 	_option_list._options = packed
 	var disabled_mask: int = 0
 	for option_index in range(_option_enabled.size()):

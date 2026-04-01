@@ -80,10 +80,10 @@ metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="GenericDialogue" parent="." unique_id=1569972301 instance=ExtResource("4_ppyta")]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 offset_top = 133.0
 
 [node name="MenuDialogue" parent="." unique_id=911547528 instance=ExtResource("5_ykrsh")]
 unique_name_in_owner = true
 layout_mode = 1
+offset_top = 133.0
