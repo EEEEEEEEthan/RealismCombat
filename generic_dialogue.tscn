@@ -1,5 +1,50 @@
 [gd_scene format=3 uid="uid://bb775dleugdvh"]
 
+[sub_resource type="GDScript" id="GDScript_generic_dialogue"]
+script/source = "extends PanelContainer
+
+signal _choice_resolved(option_index: int)
+
+@onready var message_label: RichTextLabel = %RichTextLabel
+@onready var options_row: HBoxContainer = %Options
+
+var _busy: bool = false
+
+func _ready() -> void:
+	visible = false
+
+func show_message(message_text: String, ...option_texts) -> int:
+	assert(not _busy)
+	_busy = true
+	var option_labels: PackedStringArray = PackedStringArray()
+	for raw_option_text in option_texts:
+		option_labels.append(str(raw_option_text))
+	if option_labels.is_empty():
+		option_labels.append(\"\")
+	message_label.text = message_text
+	_clear_option_buttons()
+	for option_index in range(option_labels.size()):
+		var option_button: CustomButton = CustomButton.new()
+		option_button.text = option_labels[option_index]
+		var captured_index: int = option_index
+		option_button.pressed.connect(func(): _on_option_button_pressed(captured_index))
+		options_row.add_child(option_button)
+	visible = true
+	if options_row.get_child_count() > 0:
+		(options_row.get_child(0) as Control).grab_focus()
+	var chosen: int = await _choice_resolved
+	_busy = false
+	visible = false
+	return chosen
+
+func _on_option_button_pressed(option_index: int) -> void:
+	_choice_resolved.emit(option_index)
+
+func _clear_option_buttons() -> void:
+	for child_node in options_row.get_children():
+		child_node.free()
+"
+
 [node name="GenericDialogue" type="PanelContainer" unique_id=1569972301]
 anchors_preset = 15
 anchor_right = 1.0
@@ -7,6 +52,7 @@ anchor_bottom = 1.0
 offset_top = 144.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_generic_dialogue")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1769564816]
 layout_mode = 2
