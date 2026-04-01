@@ -9,7 +9,6 @@ var _viewport_start_index: int = 0
 var _hovered_button: Button = null
 var _is_scrolling_up: bool = false
 
-@onready var _indicator_spacer: Control = %IndicatorSpacer
 @onready var _options_container: VBoxContainer = %OptionsContainer
 @onready var _focus_indicator_layer: Control = %FocusIndicatorLayer
 @onready var _focus_indicator: Control = %FocusIndicator
@@ -193,11 +192,13 @@ func _refresh_focus_indicator() -> void:
 	if not focused_button or focused_button.get_parent() != _options_container:
 		_focus_indicator.visible = false
 		return
+	var content_row = _options_container.get_parent() as Control
 	var indicator_layer_global_position = _focus_indicator_layer.global_position
-	var spacer_global_position = _indicator_spacer.global_position
 	var focused_button_global_position = focused_button.global_position
+	var spacer_left_global = content_row.global_position.x
+	var spacer_width = _options_container.global_position.x - spacer_left_global
 	_focus_indicator.position = Vector2(
-		spacer_global_position.x - indicator_layer_global_position.x + (_indicator_spacer.size.x - indicator_size.x) * 0.5,
+		spacer_left_global - indicator_layer_global_position.x + (spacer_width - indicator_size.x) * 0.5,
 		focused_button_global_position.y - indicator_layer_global_position.y + (focused_button.size.y - indicator_size.y) * 0.5
 	)
 	_focus_indicator.visible = true

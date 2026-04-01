@@ -39,6 +39,10 @@ enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
 
 [gui]
 
+fonts/dynamic_fonts/use_oversampling=false
+theme/default_font_antialiasing=0
+theme/default_font_hinting=0
+theme/default_font_subpixel_positioning=0
 theme/custom="uid://deojm8fpmsach"
 theme/custom_font="uid://coprcrk20pwv2"
 
