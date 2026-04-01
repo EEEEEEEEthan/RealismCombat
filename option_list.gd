@@ -10,7 +10,6 @@ var _hovered_button: Button = null
 var _is_scrolling_up: bool = false
 
 @onready var _options_container: VBoxContainer = %OptionsContainer
-@onready var _option_button_template: Button = %OptionButtonTemplate
 @onready var _hover_timer: Timer = %HoverTimer
 
 @export_range(3, 64) var viewport_count: int = 8:
@@ -158,9 +157,12 @@ func _on_button_pressed(button: Button) -> void:
 		option_pressed.emit(option_index)
 
 func _create_button() -> Button:
-	var option_button = _option_button_template.duplicate() as Button
+	var option_button := CustomButton.new()
 	option_button.name = "OptionButton"
 	option_button.visible = true
+	option_button.flat = true
+	option_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	option_button.focus_entered.connect(_on_button_focused.bind(option_button))
 	option_button.mouse_entered.connect(_on_button_mouse_entered.bind(option_button))
 	option_button.mouse_exited.connect(_on_button_mouse_exited.bind(option_button))

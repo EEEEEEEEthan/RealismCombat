@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://blh2fd8ys272r"]
 
 [ext_resource type="Script" uid="uid://0buptekbe3qk" path="res://option_list.gd" id="1_wmseh"]
-[ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://custom_button.gd" id="2_ev4te"]
 
 [node name="OptionList" type="MarginContainer" unique_id=2061099515]
 focus_behavior_recursive = 2
@@ -14,23 +13,6 @@ process_mode = 4
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="Templates" type="Node" parent="." unique_id=1582735242]
-process_mode = 4
-
-[node name="OptionButtonTemplate" type="Button" parent="Templates" unique_id=1490702151]
-unique_name_in_owner = true
-process_mode = 4
-visible = false
-offset_left = 6.0
-offset_right = 26.0
-offset_bottom = 10.0
-size_flags_horizontal = 3
-text = "asdf"
-flat = true
-alignment = 0
-script = ExtResource("2_ev4te")
-metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="HoverTimer" type="Timer" parent="." unique_id=540290645]
 unique_name_in_owner = true
