@@ -35,7 +35,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_color_override("font_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var font_color: Color = Color(1, 1, 1, 1):
 	get:
@@ -47,7 +47,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(v):
 		if override_font_color:
 			add_theme_color_override("font_color", v)
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var override_focus_color: bool = false:
 	get:
@@ -58,7 +58,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_color_override("font_focus_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var font_focus_color: Color = Color(0, 0, 0, 0):
 	get:
@@ -70,7 +70,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(v):
 		if override_focus_color:
 			add_theme_color_override("font_focus_color", v)
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var override_disabled_color: bool = false:
 	get:
@@ -81,7 +81,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_color_override("font_disabled_color")
 		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var font_disabled_color: Color = Color(0, 0, 0, 0):
 	get:
@@ -93,7 +93,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(v):
 		if override_disabled_color:
 			add_theme_color_override("font_disabled_color", v)
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export_subgroup("fonts")
 
@@ -110,7 +110,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_font_override("font")
 		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var font: Font = null:
 	get:
@@ -125,7 +125,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 				add_theme_font_override("font", v)
 			else:
 				remove_theme_font_override("font")
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export var override_font_size: bool = false:
 	get:
@@ -136,7 +136,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 		else:
 			remove_theme_font_size_override("font_size")
 		notify_property_list_changed()
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export_range(0, 128) var font_size: int = 12:
 	get:
@@ -148,7 +148,7 @@ static var _empty_style: StyleBoxEmpty = StyleBoxEmpty.new()
 	set(v):
 		if override_font_size:
 			add_theme_font_size_override("font_size", v)
-		_try_update(_update_all_button_themes)
+		_try_update(_update_all_button_appearance)
 
 @export_subgroup("icons")
 
@@ -184,7 +184,7 @@ var _viewport_start_index: int
 
 var _hover_timer: Timer
 var _hovered_button: Button = null
-var _is_scrolling_up: bool = false  # true表示向上滚动，false表示向下滚动
+var _is_scrolling_up: bool = false
 
 func _validate_property(property: Dictionary) -> void:
 	if property.name == "_override_indexer_icon":
@@ -239,8 +239,7 @@ func _update_theme() -> void:
 			var image = Image.create(icon_size, icon_size, false, Image.FORMAT_RGBA8)
 			image.fill(Color.TRANSPARENT)
 			_transparent_icon = ImageTexture.create_from_image(image)
-	_update_all_button_icons()
-	_update_all_button_themes()
+	_update_all_button_appearance()
 
 func _update_viewport() -> void:
 	var node_count = _options_container.get_child_count()
@@ -262,8 +261,7 @@ func _update_viewport() -> void:
 		button.disabled = (((1 << index) & _disabled_mask) != 0)
 	for index in range(visible_count, viewport_count):
 		(_options_container.get_child(index) as Button).text = ""
-	_update_all_button_icons()
-	_update_all_button_themes()
+	_update_all_button_appearance()
 
 func _on_button_focused(button: Button) -> void:
 	button.icon = _indexer_icon
@@ -287,12 +285,10 @@ func _on_button_focus_lost(button: Button) -> void:
 func _on_button_mouse_entered(button: Button) -> void:
 	button.grab_focus()
 	var button_index = button.get_index()
-	# 如果是第一个按钮且还有更多选项（向上...+x）
 	if button_index == 0 and _viewport_start_index > 0:
 		_hovered_button = button
 		_is_scrolling_up = true
 		_hover_timer.start()
-	# 如果是最后一个按钮且还有更多选项（向下...+4）
 	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
 		_hovered_button = button
 		_is_scrolling_up = false
@@ -309,16 +305,12 @@ func _on_button_mouse_exited(button: Button) -> void:
 func _on_hover_timer_timeout() -> void:
 	if _hovered_button and is_instance_valid(_hovered_button):
 		var button_index = _hovered_button.get_index()
-		
 		if _is_scrolling_up:
-			# 向上滚动
 			if button_index == 0 and _viewport_start_index > 0:
 				_viewport_start_index -= 1
 				call_deferred("_update_viewport")
-				# 更新后重新设置hovered_button和焦点
-				call_deferred("_update_hovered_button_after_scroll_up")
+				call_deferred("_defer_refresh_hover_after_scroll", true)
 			else:
-				# 滚动到顶了，让第一个实际选项获得焦点
 				_hovered_button = null
 				_hover_timer.stop()
 				if _options_container.get_child_count() > 0:
@@ -326,14 +318,11 @@ func _on_hover_timer_timeout() -> void:
 					if first_button and not first_button.text.begins_with("..."):
 						first_button.grab_focus()
 		else:
-			# 向下滚动
 			if button_index == viewport_count - 1 and _viewport_start_index + viewport_count < len(_options):
 				_viewport_start_index += 1
 				call_deferred("_update_viewport")
-				# 更新后重新设置hovered_button和焦点
-				call_deferred("_update_hovered_button_after_scroll_down")
+				call_deferred("_defer_refresh_hover_after_scroll", false)
 			else:
-				# 滚动到底了，让最后一个实际选项获得焦点
 				_hovered_button = null
 				_hover_timer.stop()
 				if _options_container.get_child_count() > 0:
@@ -341,52 +330,47 @@ func _on_hover_timer_timeout() -> void:
 					if last_button and not last_button.text.begins_with("..."):
 						last_button.grab_focus()
 					else:
-						# 如果最后一个还是...+x，找最后一个实际选项
-						for i in range(viewport_count - 1, -1, -1):
-							var btn = _options_container.get_child(i) as Button
-							if btn and not btn.text.begins_with("...") and btn.text != "":
-								btn.grab_focus()
+						for scroll_index in range(viewport_count - 1, -1, -1):
+							var scroll_button = _options_container.get_child(scroll_index) as Button
+							if scroll_button and not scroll_button.text.begins_with("...") and scroll_button.text != "":
+								scroll_button.grab_focus()
 								break
 	else:
 		_hovered_button = null
 		_hover_timer.stop()
 
-func _update_hovered_button_after_scroll_up() -> void:
-	if _options_container.get_child_count() > 0:
+func _defer_refresh_hover_after_scroll(scroll_up: bool) -> void:
+	if _options_container.get_child_count() == 0:
+		return
+	if scroll_up:
 		var first_button = _options_container.get_child(0) as Button
 		if first_button and first_button.text.begins_with("..."):
 			_hovered_button = first_button
 		else:
-			# 滚动到顶了，让第一个实际选项获得焦点
 			_hovered_button = null
 			_hover_timer.stop()
 			if first_button and not first_button.text.begins_with("...") and first_button.text != "":
 				first_button.grab_focus()
 			else:
-				# 如果第一个还是...+x，找第一个实际选项
-				for i in range(viewport_count):
-					var btn = _options_container.get_child(i) as Button
-					if btn and not btn.text.begins_with("...") and btn.text != "":
-						btn.grab_focus()
+				for scroll_index in range(viewport_count):
+					var scroll_button = _options_container.get_child(scroll_index) as Button
+					if scroll_button and not scroll_button.text.begins_with("...") and scroll_button.text != "":
+						scroll_button.grab_focus()
 						break
-
-func _update_hovered_button_after_scroll_down() -> void:
-	if _options_container.get_child_count() > 0:
+	else:
 		var last_button = _options_container.get_child(viewport_count - 1) as Button
 		if last_button and last_button.text.begins_with("..."):
 			_hovered_button = last_button
 		else:
-			# 滚动到底了，让最后一个实际选项获得焦点
 			_hovered_button = null
 			_hover_timer.stop()
 			if last_button and not last_button.text.begins_with("...") and last_button.text != "":
 				last_button.grab_focus()
 			else:
-				# 如果最后一个还是...+x，找最后一个实际选项
-				for i in range(viewport_count - 1, -1, -1):
-					var btn = _options_container.get_child(i) as Button
-					if btn and not btn.text.begins_with("...") and btn.text != "":
-						btn.grab_focus()
+				for scroll_index in range(viewport_count - 1, -1, -1):
+					var scroll_button = _options_container.get_child(scroll_index) as Button
+					if scroll_button and not scroll_button.text.begins_with("...") and scroll_button.text != "":
+						scroll_button.grab_focus()
 						break
 
 func _on_button_pressed(button: Button) -> void:
@@ -412,22 +396,16 @@ func _create_button() -> Button:
 func _calculate_option_index(button_index: int) -> int:
 	return button_index + _viewport_start_index
 
-func _update_all_button_icons() -> void:
+func _update_all_button_appearance() -> void:
 	var node_count = _options_container.get_child_count()
-	for i in range(node_count):
-		var button = _options_container.get_child(i) as Button
-		if button:
-			if button.has_focus():
-				button.icon = _indexer_icon
-			else:
-				button.icon = _transparent_icon
-
-func _update_all_button_themes() -> void:
-	var node_count = _options_container.get_child_count()
-	for i in range(node_count):
-		var button := _options_container.get_child(i) as Button
+	for index in node_count:
+		var button = _options_container.get_child(index) as Button
 		if not button:
 			continue
+		if button.has_focus():
+			button.icon = _indexer_icon
+		else:
+			button.icon = _transparent_icon
 		button.add_theme_font_override("font", font)
 		button.add_theme_font_size_override("font_size", font_size)
 		button.add_theme_color_override("font_color", font_color)
