@@ -9,12 +9,12 @@ var _viewport_start_index: int = 0
 var _hovered_button: Button = null
 var _is_scrolling_up: bool = false
 
-@onready var _indicator_spacer: Control = $ContentRow/IndicatorSpacer
-@onready var _options_container: VBoxContainer = $ContentRow/OptionsContainer
-@onready var _focus_indicator_layer: Control = $FocusIndicatorLayer
-@onready var _focus_indicator: Control = $FocusIndicatorLayer/FocusIndicator
-@onready var _option_button_template: Button = $Templates/OptionButtonTemplate
-@onready var _hover_timer: Timer = $HoverTimer
+@onready var _indicator_spacer: Control = %IndicatorSpacer
+@onready var _options_container: VBoxContainer = %OptionsContainer
+@onready var _focus_indicator_layer: Control = %FocusIndicatorLayer
+@onready var _focus_indicator: Control = %FocusIndicator
+@onready var _option_button_template: Button = %OptionButtonTemplate
+@onready var _hover_timer: Timer = %HoverTimer
 
 @export_range(3, 64) var viewport_count: int = 8:
 	set(value):
