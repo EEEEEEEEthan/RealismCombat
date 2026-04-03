@@ -12,6 +12,12 @@ var _player: AudioStreamPlayer:
 		add_child(player)
 		return player
 
-func play(stream: AudioStream) -> void:
+func play_beep():
+	_play(Resources.audio_stream_beep)
+
+func play_selection():
+	_play(Resources.audio_selection)
+
+func _play(stream: AudioStream) -> void:
 	_player.stream = stream
 	_player.play()
