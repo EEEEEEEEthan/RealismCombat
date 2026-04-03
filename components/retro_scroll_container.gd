@@ -30,6 +30,10 @@ var _focus_index: int:
 
 var _up: TextureRect
 var _down: TextureRect
+var _hover_scroll_direction: int = 0
+var _hover_scroll_accum_sec: float = 0.0
+
+const _HOVER_SCROLL_INTERVAL_SEC := 0.5
 
 func _init() -> void:
 	connect(&"child_entered_tree", _on_child_entered_tree)
@@ -39,12 +43,15 @@ func _ready() -> void:
 	_up = TextureRect.new()
 	_up.texture = Resources.atlas_texture_theme_up
 	_up.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	_up.connect(&"mouse_entered", _on_hover_up)
+	_up.connect(&"mouse_entered", _on_hover_up_entered)
+	_up.connect(&"mouse_exited", _on_hover_up_exited)
 	_down = TextureRect.new()
 	_down.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_down.texture = Resources.atlas_texture_theme_up
 	_down.flip_v = true
-	_down.connect(&"mouse_entered", _on_hover_down)
+	_down.connect(&"mouse_entered", _on_hover_down_entered)
+	_down.connect(&"mouse_exited", _on_hover_down_exited)
+	set_process(false)
 	add_child(_up, false, Node.INTERNAL_MODE_FRONT)
 	add_child(_down, false, Node.INTERNAL_MODE_BACK)
 	_update_viewport()
@@ -59,13 +66,54 @@ func _on_child_exiting_tree(node: Node) -> void:
 	node.disconnect(&"focus_entered", _on_focus_changed)
 	_update_viewport()
 
-func _on_hover_up() -> void:
-	if _show_up:
-		viewport_begin -= 1
+func _on_hover_up_entered() -> void:
+	_hover_scroll_direction = -1
+	_hover_scroll_accum_sec = 0.0
+	_scroll_viewport_by_hover()
+	if _hover_scroll_direction != 0:
+		set_process(true)
 
-func _on_hover_down() -> void:
-	if _show_down:
+func _on_hover_up_exited() -> void:
+	if _hover_scroll_direction == -1:
+		_hover_scroll_direction = 0
+		_hover_scroll_accum_sec = 0.0
+		_stop_hover_scroll_process_if_idle()
+
+func _on_hover_down_entered() -> void:
+	_hover_scroll_direction = 1
+	_hover_scroll_accum_sec = 0.0
+	_scroll_viewport_by_hover()
+	if _hover_scroll_direction != 0:
+		set_process(true)
+
+func _on_hover_down_exited() -> void:
+	if _hover_scroll_direction == 1:
+		_hover_scroll_direction = 0
+		_hover_scroll_accum_sec = 0.0
+		_stop_hover_scroll_process_if_idle()
+
+func _scroll_viewport_by_hover() -> void:
+	if _hover_scroll_direction == -1 and _show_up:
+		viewport_begin -= 1
+	elif _hover_scroll_direction == 1 and _show_down:
 		viewport_begin += 1
+	else:
+		_hover_scroll_direction = 0
+
+func _process(delta: float) -> void:
+	if _hover_scroll_direction == 0:
+		return
+	_hover_scroll_accum_sec += delta
+	while _hover_scroll_accum_sec >= _HOVER_SCROLL_INTERVAL_SEC and _hover_scroll_direction != 0:
+		_hover_scroll_accum_sec -= _HOVER_SCROLL_INTERVAL_SEC
+		_scroll_viewport_by_hover()
+	if _hover_scroll_direction == 0:
+		_hover_scroll_accum_sec = 0.0
+		_stop_hover_scroll_process_if_idle()
+
+func _stop_hover_scroll_process_if_idle() -> void:
+	if _hover_scroll_direction == 0:
+		set_process(false)
 
 func _on_focus_changed() -> void:
 	if not _is_focus_change_from_ui_navigation():

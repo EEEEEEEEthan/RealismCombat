@@ -8,7 +8,7 @@ const MENU_DIALOGUE_SCENE: PackedScene = preload(\"res://dialogues/menu_dialogue
 
 func _ready() -> void:
 	var menu_data: Array[MenuItemData] = []
-	for option_index in range(8):
+	for option_index in range(16):
 		var entry := MenuItemData.new()
 		entry.text = \"测试项%d\" % (option_index + 1)
 		entry.description = \"第 %d 项说明。\" % (option_index + 1)
