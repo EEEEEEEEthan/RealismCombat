@@ -32,31 +32,32 @@ var _up: TextureRect
 var _down: TextureRect
 
 func _init() -> void:
+	connect(&"child_entered_tree", _on_child_entered_tree)
+	connect(&"child_exiting_tree", _on_child_exiting_tree)
+
+func _ready() -> void:
 	_up = TextureRect.new()
 	_up.texture = Resources.atlas_texture_theme_up
 	_up.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_up.connect(&"mouse_entered", _on_hover_up)
-	add_child(_up, false, Node.INTERNAL_MODE_FRONT)
 	_down = TextureRect.new()
 	_down.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_down.texture = Resources.atlas_texture_theme_up
 	_down.flip_v = true
 	_down.connect(&"mouse_entered", _on_hover_down)
+	add_child(_up, false, Node.INTERNAL_MODE_FRONT)
 	add_child(_down, false, Node.INTERNAL_MODE_BACK)
-	connect(&"child_entered_tree", _on_child_entered_tree)
-	connect(&"child_exiting_tree", _on_child_exiting_tree)
-	_update_viewport()
-
-func _ready() -> void:
 	_update_viewport()
 	
 func _on_child_entered_tree(node: Node) -> void:
 	if node.get_parent() != self: return
 	if node is not Control: return
 	node.connect(&"focus_entered", _on_focus_changed)
+	_update_viewport()
 
 func _on_child_exiting_tree(node: Node) -> void:
 	node.disconnect(&"focus_entered", _on_focus_changed)
+	_update_viewport()
 
 func _on_hover_up() -> void:
 	if _show_up:
@@ -86,6 +87,11 @@ func _is_focus_change_from_ui_navigation() -> bool:
 	)
 
 func _update_viewport() -> void:
+	_update_viewport_immediate()
+
+func _update_viewport_immediate() -> void:
+	if not is_node_ready():
+		return
 	var child_count = get_child_count()
 	var viewport_end = viewport_begin + viewport_count
 	for i in child_count:
