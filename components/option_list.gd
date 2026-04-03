@@ -8,6 +8,7 @@ signal option_pressed(option_index: int)
 var _viewport_start_index: int = 0
 var _hovered_button: Button = null
 var _is_scrolling_up: bool = false
+var _option_data_list: Array[OptionData] = []
 
 @onready var _hover_timer: Timer:
 	get:
@@ -22,17 +23,20 @@ var _is_scrolling_up: bool = false
 		if is_node_ready():
 			_sync_viewport()
 
-@export var _options: PackedStringArray:
+@export var options: Array[OptionData]:
 	set(value):
-		_options = value.slice(0, 64) if value.size() > 64 else value
+		var limited_option_data_list: Array[OptionData] = []
+		var option_count = min(value.size(), 64)
+		for option_index in range(option_count):
+			limited_option_data_list.append(value[option_index])
+		_option_data_list = limited_option_data_list
 		if is_node_ready():
 			_sync_viewport()
+	get:
+		return _option_data_list
 
-@export var _disabled_mask: int = 0:
-	set(value):
-		_disabled_mask = value
-		if is_node_ready():
-			_sync_viewport()
+static func new_option(option_text: String, option_disabled: bool = false) -> OptionData:
+	return OptionData.new(option_text, option_disabled)
 
 func _ready() -> void:
 	_sync_viewport()
@@ -40,7 +44,7 @@ func _ready() -> void:
 func _sync_viewport() -> void:
 	_clamp_viewport_start_index()
 	_sync_button_count()
-	var option_count = _options.size()
+	var option_count = options.size()
 	var visible_count = min(viewport_count, option_count)
 	for button_index in range(viewport_count):
 		var option_button = get_child(button_index) as Button
@@ -51,7 +55,7 @@ func _sync_viewport() -> void:
 			option_button.disabled = true
 
 func _clamp_viewport_start_index() -> void:
-	var max_start_index = maxi(_options.size() - viewport_count, 0)
+	var max_start_index = maxi(options.size() - viewport_count, 0)
 	_viewport_start_index = clampi(_viewport_start_index, 0, max_start_index)
 
 func _sync_button_count() -> void:
@@ -68,17 +72,21 @@ func _sync_button_count() -> void:
 func _configure_button(option_button: Button, button_index: int, option_count: int) -> void:
 	if button_index == 0 and _viewport_start_index > 0:
 		option_button.text = "...+" + str(_viewport_start_index + 1)
+		option_button.disabled = false
 	elif button_index == viewport_count - 1 and _viewport_start_index + viewport_count < option_count:
 		option_button.text = "...+" + str(option_count - (_viewport_start_index + viewport_count) + 1)
+		option_button.disabled = false
 	elif button_index + _viewport_start_index < option_count:
-		option_button.text = _options[button_index + _viewport_start_index]
+		var option_data = options[button_index + _viewport_start_index]
+		option_button.text = option_data.text
+		option_button.disabled = option_data.disabled
 	else:
 		option_button.text = ""
-	option_button.disabled = (((1 << button_index) & _disabled_mask) != 0)
+		option_button.disabled = true
 
 func _on_button_focused(button: Button) -> void:
 	var button_index = button.get_index()
-	var option_count = _options.size()
+	var option_count = options.size()
 	if button_index == 0 and _viewport_start_index > 0:
 		_viewport_start_index -= 1
 		(get_child(1) as Button).grab_focus()
@@ -94,7 +102,7 @@ func _on_button_focused(button: Button) -> void:
 
 func _on_button_mouse_entered(button: Button) -> void:
 	var button_index = button.get_index()
-	var option_count = _options.size()
+	var option_count = options.size()
 	var can_scroll_up = button_index == 0 and _viewport_start_index > 0
 	var can_scroll_down = button_index == viewport_count - 1 and _viewport_start_index + viewport_count < option_count
 	if can_scroll_up or can_scroll_down:
@@ -117,7 +125,7 @@ func _on_hover_timer_timeout() -> void:
 		_hover_timer.stop()
 		return
 	var button_index = _hovered_button.get_index()
-	var option_count = _options.size()
+	var option_count = options.size()
 	if _is_scrolling_up:
 		if button_index == 0 and _viewport_start_index > 0:
 			_viewport_start_index -= 1
@@ -155,7 +163,7 @@ func _defer_refresh_hover_after_scroll(scroll_up: bool) -> void:
 
 func _on_button_pressed(button: Button) -> void:
 	var button_index = button.get_index()
-	var option_count = _options.size()
+	var option_count = options.size()
 	var option_index = button_index + _viewport_start_index
 	if not button.disabled and option_index >= 0 and option_index < option_count and not button.text.begins_with("..."):
 		option_pressed.emit(option_index)
