@@ -163,7 +163,6 @@ func _create_button() -> Button:
 	var option_button := CustomButton.new()
 	option_button.name = \"OptionButton\"
 	option_button.visible = true
-	option_button.flat = true
 	option_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	option_button.focus_entered.connect(_on_button_focused.bind(option_button))
