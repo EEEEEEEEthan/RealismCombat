@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://blh2fd8ys272r"]
-
-[ext_resource type="Script" uid="uid://cu12ykvnijilv" path="res://components/option_list.gd" id="1_i227b"]
-
-[node name="OptionList" type="VBoxContainer" unique_id=157606185]
-focus_behavior_recursive = 2
-mouse_filter = 2
-script = ExtResource("1_i227b")

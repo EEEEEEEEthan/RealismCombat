@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
-[ext_resource type="Script" uid="uid://dolbksu3b7efb" path="res://components/option_list.gd" id="1_37kl0"]
+[ext_resource type="Script" uid="uid://dolbksu3b7efb" path="res://components/retro_scroll_container.gd" id="1_37kl0"]
 [ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://components/retro_button.gd" id="2_8uh7m"]
 [ext_resource type="Texture2D" uid="uid://h71uiu3ephqf" path="res://textures/theme_atlas.png" id="3_6uqi0"]
 
