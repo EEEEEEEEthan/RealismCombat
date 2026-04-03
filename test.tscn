@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://d0s0aws01q13e"]
 
 [ext_resource type="PackedScene" uid="uid://blh2fd8ys272r" path="res://components/option_list.tscn" id="1_ge527"]
-[ext_resource type="Texture2D" uid="uid://c5k4yesssmw0o" path="res://Textures/Items/Icons3.png" id="2_8uh7m"]
 [ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://components/custom_button.gd" id="3_ppyta"]
 [ext_resource type="PackedScene" uid="uid://dvlj8x6gfa37e" path="res://dialogues/generic_dialogue.tscn" id="4_ppyta"]
 [ext_resource type="PackedScene" uid="uid://dwko5ylcxomhr" path="res://dialogues/menu_dialogue.tscn" id="5_ykrsh"]
@@ -23,6 +22,9 @@ func _on_menu_dialogue_pressed(option_index: int) -> void:
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8uh7m"]
 
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ppyta"]
+load_path = "res://.godot/imported/Icons3.png-d788ba3cab8c02daf54f24ed4284b4ef.ctex"
+
 [node name="Test" type="Control" unique_id=1993894909]
 layout_mode = 3
 anchors_preset = 15
@@ -37,10 +39,8 @@ layout_mode = 0
 offset_left = 63.0
 offset_top = 12.0
 offset_right = 116.0
-offset_bottom = 118.0
-viewport_count = 5
-_options = PackedStringArray("item🍎", "item2", "item3", "item4", "item5", "item6", "item7", "item8")
-_disabled_mask = 2
+offset_bottom = 120.0
+_options = PackedStringArray("asdfasdf", "fdfd", "ass", "asdass", "asdf", "sdf", "asd", "ffdas", "asdf", "aaa")
 
 [node name="Label" type="Label" parent="." unique_id=1427771887]
 layout_mode = 0
@@ -61,7 +61,7 @@ offset_top = -60.0
 offset_right = 133.0
 offset_bottom = -29.0
 text = "asdf🍎"
-icon = ExtResource("2_8uh7m")
+icon = SubResource("CompressedTexture2D_ppyta")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1459036828]
 layout_mode = 0
