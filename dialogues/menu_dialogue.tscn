@@ -77,6 +77,7 @@ theme_override_constants/separation = -4
 
 [node name="RetroScrollContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1692893319]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_w4tth")
@@ -85,7 +86,7 @@ metadata/_custom_type_script = "uid://dolbksu3b7efb"
 
 [node name="RetroButton" type="Button" parent="MarginContainer/HBoxContainer/RetroScrollContainer" unique_id=798464038]
 layout_mode = 2
-text = "asdfasdf"
+text = "Option"
 icon = SubResource("ImageTexture_yjxsp")
 script = ExtResource("2_pog8u")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
@@ -103,3 +104,20 @@ mouse_filter = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="." unique_id=40093970]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Control" unique_id=312726400]
+layout_mode = 0
+offset_left = 1.0
+offset_top = -19.0
+offset_right = 10.0
+
+[node name="Title" type="RichTextLabel" parent="Control/PanelContainer" unique_id=57634815]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Title"
+fit_content = true
+autowrap_mode = 0
