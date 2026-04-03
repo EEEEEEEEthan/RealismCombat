@@ -12,11 +12,11 @@ var audio_stream_beep2: AudioStream:
 			audio_stream_beep = _load_audio_stream(&"res://audios/beep2.mp3")
 		return audio_stream_beep
 
-var audio_selection: AudioStream:
+var audio_stream_selection: AudioStream:
 	get:
-		if not audio_stream_beep:
-			audio_stream_beep = _load_audio_stream(&"res://audios/selection.wav")
-		return audio_stream_beep
+		if not audio_stream_selection:
+			audio_stream_selection = _load_audio_stream(&"res://audios/selection.wav")
+		return audio_stream_selection
 
 func _load_audio_stream(path: StringName) -> AudioStream:
 	var stream: AudioStream = ResourceLoader.load(path)

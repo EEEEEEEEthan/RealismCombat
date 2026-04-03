@@ -16,7 +16,7 @@ func play_beep():
 	_play(Resources.audio_stream_beep)
 
 func play_selection():
-	_play(Resources.audio_selection)
+	_play(Resources.audio_stream_selection)
 
 func _play(stream: AudioStream) -> void:
 	_player.stream = stream
