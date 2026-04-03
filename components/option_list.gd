@@ -26,10 +26,10 @@ func _ready() -> void:
 	_update_viewport()
 
 func _on_hover_up() -> void:
-	pass
+	return
 
 func _on_hover_down() -> void:
-	pass
+	return
 
 func _update_viewport() -> void:
 	var child_count = get_child_count()
