@@ -7,9 +7,9 @@ script/source = "extends PanelContainer
 
 signal pressed(option_index: int)
 
-@export var data: Array[MenuItemData]:
+@export var options: Array[MenuItemData]:
 	set(v):
-		data = v
+		options = v
 		_update_menu()
 
 func _ready() -> void:
@@ -20,7 +20,7 @@ func _update_menu() -> void:
 		return
 	var container := %RetroScrollContainer
 	var child_count = container.get_child_count()
-	var length = len(data)
+	var length = len(options)
 	if child_count < length:
 		for i in length - child_count:
 			var button = RetroButton.new()
@@ -32,11 +32,11 @@ func _update_menu() -> void:
 			container.get_child(child_count - i - 1).queue_free()
 	for i in length:
 		var button: RetroButton = container.get_child(i)
-		button.text = data[i].text
-		button.disabled = data[i].disabled
+		button.text = options[i].text
+		button.disabled = options[i].disabled
 
 func _on_focus_button(button: RetroButton) -> void:
-	%RichTextLabel.text = data[button.get_index()].description
+	%RichTextLabel.text = options[button.get_index()].description
 
 func _on_press_button(button: RetroButton) -> void:
 	pressed.emit(button.get_index())
@@ -65,6 +65,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("1_w4tth")
+viewport_count = 6
 metadata/_custom_type_script = "uid://dolbksu3b7efb"
 
 [node name="ColorRect" type="ColorRect" parent="MarginContainer/HBoxContainer" unique_id=998074296]
