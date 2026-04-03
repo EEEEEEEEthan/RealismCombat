@@ -1,14 +1,16 @@
 [gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
 [ext_resource type="Texture2D" uid="uid://h71uiu3ephqf" path="res://textures/theme_atlas.png" id="1_cjfk0"]
+[ext_resource type="FontVariation" uid="uid://cad14ymkmupbq" path="res://fonts/font8.tres" id="1_vj6dk"]
 [ext_resource type="FontVariation" uid="uid://dulxe567oc12r" path="res://fonts/font10.tres" id="2_cjfk0"]
+[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="3_110ce"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
 content_margin_right = 9.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vj6dk"]
 atlas = ExtResource("1_cjfk0")
-region = Rect2(1, 11, 18, 18)
+region = Rect2(0, 10, 10, 10)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wvktn"]
 texture = SubResource("AtlasTexture_vj6dk")
@@ -16,6 +18,29 @@ texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
+
+[sub_resource type="Texture2D" id="Texture2D_sapek"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("3_110ce")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAADCAYAAAC56t6BAAAAAXNSR0IArs4c6QAAABtJREFUCJk1xqEBAAAIwCD0/59nksRUYNFn4ABZGAQD/eFxfQAAAABJRU5ErkJggg=="
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vpuba"]
+atlas = SubResource("Texture2D_sapek")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_110ce"]
+texture = SubResource("AtlasTexture_vpuba")
+texture_margin_top = 1.0
+texture_margin_bottom = 1.0
+axis_stretch_horizontal = 1
+modulate_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_05tig"]
+texture = SubResource("AtlasTexture_vpuba")
+texture_margin_top = 1.0
+texture_margin_bottom = 1.0
+axis_stretch_horizontal = 1
 
 [resource]
 default_font = ExtResource("2_cjfk0")
@@ -45,4 +70,9 @@ Button/styles/normal = SubResource("StyleBoxEmpty_cjfk0")
 Button/styles/normal_mirrored = SubResource("StyleBoxEmpty_cjfk0")
 Button/styles/pressed = SubResource("StyleBoxEmpty_cjfk0")
 Button/styles/pressed_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+LabelSmall/base_type = &"Label"
+LabelSmall/font_sizes/font_size = 8
+LabelSmall/fonts/font = ExtResource("1_vj6dk")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_wvktn")
+ProgressBar/styles/background = SubResource("StyleBoxTexture_110ce")
+ProgressBar/styles/fill = SubResource("StyleBoxTexture_05tig")

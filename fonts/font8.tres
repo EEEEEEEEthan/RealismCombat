@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" format=3 uid="uid://cad14ymkmupbq"]
+
+[ext_resource type="FontFile" uid="uid://b4onarkhmr1wm" path="res://fonts/custom_font_8.fnt" id="1_02cny"]
+[ext_resource type="FontFile" uid="uid://bywdlxfo1bn40" path="res://fonts/fusion-pixel-8px-monospaced-zh_hant.otf" id="2_02cny"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_02cny")])
+base_font = ExtResource("1_02cny")

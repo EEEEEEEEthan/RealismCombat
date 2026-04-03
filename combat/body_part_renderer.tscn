@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://1lw5fd5ui03t"]
+
+[sub_resource type="GDScript" id="GDScript_ok0sw"]
+script/source = "extends Node
+
+@export var part: BodyPart:
+	set(v):
+		pass
+"
+
+[node name="LeftFoot" type="HBoxContainer" unique_id=918096459]
+offset_right = 25.0
+offset_bottom = 8.0
+theme_override_constants/separation = 1
+script = SubResource("GDScript_ok0sw")
+
+[node name="Label" type="Label" parent="." unique_id=1793239943]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "头部"
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=1524849649]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(13, 6)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 6.0
+step = 1.0
+value = 1.0
+show_percentage = false

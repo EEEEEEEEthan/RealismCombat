@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://bgu8rncknhalj"]
+
+[ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://combat/body_part_renderer.tscn" id="1_lselw"]
+
+[node name="Warrior" type="PanelContainer" unique_id=1218273912]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -206.0
+offset_bottom = -169.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1996760864]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Name" type="Label" parent="VBoxContainer" unique_id=89098987]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Name"
+
+[node name="Head" type="Label" parent="VBoxContainer" unique_id=1898118734]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "头部"
+
+[node name="Chest" type="Label" parent="VBoxContainer" unique_id=1675488533]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "头部"
+
+[node name="RightHand" type="Label" parent="VBoxContainer" unique_id=103392055]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "头部"
+
+[node name="LeftHand" type="Label" parent="VBoxContainer" unique_id=146066542]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "头部"
+
+[node name="RightFoot" type="Label" parent="VBoxContainer" unique_id=319116615]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "头部"
+
+[node name="LeftFoot" parent="VBoxContainer" unique_id=869673898 instance=ExtResource("1_lselw")]
+layout_mode = 2
