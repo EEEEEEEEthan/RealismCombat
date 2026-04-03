@@ -45,44 +45,59 @@ metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton2" type="Button" parent="VBoxContainer" unique_id=1606440902]
 layout_mode = 2
-text = "asdf"
+text = "asdf2"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton3" type="Button" parent="VBoxContainer" unique_id=690035039]
 layout_mode = 2
-text = "asdf"
+text = "asdf3"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton4" type="Button" parent="VBoxContainer" unique_id=1039559485]
 layout_mode = 2
-text = "asdf"
+text = "asdf4"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton5" type="Button" parent="VBoxContainer" unique_id=1909237880]
 layout_mode = 2
-text = "asdf"
+text = "asdf5"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton6" type="Button" parent="VBoxContainer" unique_id=2017392507]
 layout_mode = 2
-text = "asdf"
+text = "asdf6"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton7" type="Button" parent="VBoxContainer" unique_id=955167571]
 visible = false
 layout_mode = 2
-text = "asdf"
+text = "asdf7"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="CustomButton8" type="Button" parent="VBoxContainer" unique_id=1705255664]
 visible = false
 layout_mode = 2
+text = "asdf8"
+script = ExtResource("2_8uh7m")
+metadata/_custom_type_script = "uid://dboonrwg0krvc"
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1222418034]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CustomButton" type="Button" parent="." unique_id=1769253261]
+layout_mode = 0
+offset_left = 187.0
+offset_top = 30.0
+offset_right = 225.0
+offset_bottom = 59.0
 text = "asdf"
 script = ExtResource("2_8uh7m")
 metadata/_custom_type_script = "uid://dboonrwg0krvc"
