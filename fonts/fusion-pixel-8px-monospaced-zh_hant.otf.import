@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://coprcrk20pwv2"
-path="res://.godot/imported/fusion-pixel-10px-monospaced-zh_hant.otf-114f83a6d180720d2cb6d9f5ebdf83fd.fontdata"
+uid="uid://bywdlxfo1bn40"
+path="res://.godot/imported/fusion-pixel-8px-monospaced-zh_hant.otf-d35e8f222f5ac00bebbf9f19c2508246.fontdata"
 
 [deps]
 
-source_file="res://字体/fusion-pixel-10px-monospaced-zh_hant.otf"
-dest_files=["res://.godot/imported/fusion-pixel-10px-monospaced-zh_hant.otf-114f83a6d180720d2cb6d9f5ebdf83fd.fontdata"]
+source_file="res://fonts/fusion-pixel-8px-monospaced-zh_hant.otf"
+dest_files=["res://.godot/imported/fusion-pixel-8px-monospaced-zh_hant.otf-d35e8f222f5ac00bebbf9f19c2508246.fontdata"]
 
 [params]
 

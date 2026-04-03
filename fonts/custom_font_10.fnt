@@ -1,0 +1,22 @@
+info face="icons" size=10 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=0 padding=0,0,0,0 spacing=0,0 outline=0
+common lineHeight=10 base=9 scaleW=10 scaleH=10 pages=1 packed=0
+page id=0 file="custom_font.png"
+chars count=13
+# raw0
+char id=128180 x=1 y=1 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 💴
+char id=127822 x=12 y=1 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 🌾
+char id=129365 x=23 y=1 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 🥕
+char id=9888 x=34 y=1 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # ⚠
+# raw1
+char id=20008 x=1 y=12 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 丨
+char id=129717 x=12 y=12 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 🪵
+char id=127812 x=23 y=12 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 🍄
+char id=128522 x=34 y=12 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 😊
+# raw2
+char id=10004 x=1 y=23 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # ✔
+char id=10060 x=12 y=23 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # ❌
+char id=128081 x=23 y=23 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 👑
+char id=128532 x=34 y=23 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # 😔
+# raw3
+char id=9898 x=1 y=34 width=10 height=10 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=15 # ⚪
+kernings count=0
