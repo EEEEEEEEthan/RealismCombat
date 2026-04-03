@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dwko5ylcxomhr"]
 
-[ext_resource type="PackedScene" uid="uid://blh2fd8ys272r" path="res://option_list.tscn" id="1_pekvy"]
+[ext_resource type="PackedScene" uid="uid://blh2fd8ys272r" path="res://components/option_list.tscn" id="1_pekvy"]
 
 [sub_resource type="GDScript" id="GDScript_pekvy"]
 script/source = "extends PanelContainer
