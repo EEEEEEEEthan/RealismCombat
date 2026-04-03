@@ -35,14 +35,12 @@ func _init() -> void:
 	_up.texture = Resources.atlas_texture_theme_up
 	_up.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_up.connect(&"mouse_entered", _on_hover_up)
-	_up.focus_mode = Control.FOCUS_ALL
 	add_child(_up, false, Node.INTERNAL_MODE_FRONT)
 	_down = TextureRect.new()
 	_down.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_down.texture = Resources.atlas_texture_theme_up
 	_down.flip_v = true
 	_down.connect(&"mouse_entered", _on_hover_down)
-	_down.focus_mode = Control.FOCUS_ALL
 	add_child(_down, false, Node.INTERNAL_MODE_BACK)
 	connect(&"child_entered_tree", _on_child_entered_tree)
 	connect(&"child_exiting_tree", _on_child_exiting_tree)
