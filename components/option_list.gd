@@ -67,11 +67,23 @@ func _on_hover_down() -> void:
 		viewport_begin += 1
 
 func _on_focus_changed() -> void:
-	if _focus_index <= viewport_begin and _show_up:
+	if not _is_focus_change_from_ui_navigation():
+		return
+	while _focus_index >= 0 and _focus_index <= viewport_begin and _show_up:
 		viewport_begin -= 1
-	elif _focus_index >= viewport_begin + viewport_count - 1 and _show_down:
+	while _focus_index >= 0 and _focus_index >= viewport_begin + viewport_count - 1 and _show_down:
 		viewport_begin += 1
 	_update_viewport()
+
+func _is_focus_change_from_ui_navigation() -> bool:
+	return (
+		Input.is_action_just_pressed(&"ui_up")
+		or Input.is_action_just_pressed(&"ui_down")
+		or Input.is_action_just_pressed(&"ui_left")
+		or Input.is_action_just_pressed(&"ui_right")
+		or Input.is_action_just_pressed(&"ui_focus_next")
+		or Input.is_action_just_pressed(&"ui_focus_prev")
+	)
 
 func _update_viewport() -> void:
 	var child_count = get_child_count()
