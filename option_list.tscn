@@ -175,14 +175,15 @@ func _create_button() -> Button:
 
 [node name="OptionList" type="MarginContainer" unique_id=2061099515]
 focus_behavior_recursive = 2
+mouse_filter = 2
 script = SubResource("GDScript_6e5bi")
 
 [node name="OptionsContainer" type="VBoxContainer" parent="." unique_id=455972856]
 unique_name_in_owner = true
-process_mode = 4
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="HoverTimer" type="Timer" parent="." unique_id=540290645]
 unique_name_in_owner = true
