@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="1_ok1o3"]
 
 [sub_resource type="GDScript" id="GDScript_generic_dialogue"]
-script/source = "extends VBoxContainer
+script/source = "extends PanelContainer
 
 signal _choice_resolved(option_index: int)
 
