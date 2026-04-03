@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://b8qm3vx7n2k4p"]
+
+[sub_resource type="GDScript" id="GDScript_test_generic"]
+script/source = "extends Control
+
+const GENERIC_DIALOGUE_SCENE: PackedScene = preload(\"res://dialogues/generic_dialogue.tscn\")
+
+
+func _ready() -> void:
+	_run_generic_dialogue_demo()
+
+
+func _run_generic_dialogue_demo() -> void:
+	var dialogue_root: Node = GENERIC_DIALOGUE_SCENE.instantiate()
+	add_child(dialogue_root)
+	# 空正文跳过打字机，测「仅继续」
+	var chosen_continue: int = await dialogue_root.show_message(\"\")
+	print(\"GenericDialogue 仅继续 返回值: \", chosen_continue)
+	var chosen_branch: int = await dialogue_root.show_message(\"选一项\", \"甲\", \"乙\")
+	print(\"GenericDialogue 分支 返回值: \", chosen_branch)
+"
+
+[node name="TestGenericDialogue" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_test_generic")

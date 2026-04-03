@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://darn4wy8o3l5q"]
+
+[sub_resource type="GDScript" id="GDScript_test_menu"]
+script/source = "extends Control
+
+const MENU_DIALOGUE_SCENE: PackedScene = preload(\"res://dialogues/menu_dialogue.tscn\")
+
+
+func _ready() -> void:
+	var menu_root: Node = MENU_DIALOGUE_SCENE.instantiate()
+	add_child(menu_root)
+	menu_root.add_option(\"测试项1\", \"第一项说明。\", true)
+	menu_root.add_option(\"测试项2\", \"第二项说明。\", true)
+	menu_root.add_option(\"禁用项\", \"此选项禁用。\", false)
+	menu_root.pressed.connect(_on_menu_dialogue_pressed)
+
+
+func _on_menu_dialogue_pressed(option_index: int) -> void:
+	print(\"MenuDialogue 选中: \", option_index)
+"
+
+[node name="TestMenuDialogue" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_test_menu")

@@ -1,20 +1,17 @@
 [gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
-[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="1_e1x85"]
+[ext_resource type="Texture2D" uid="uid://h71uiu3ephqf" path="res://textures/theme_atlas.png" id="1_cjfk0"]
 [ext_resource type="FontVariation" uid="uid://dulxe567oc12r" path="res://fonts/font10.tres" id="2_cjfk0"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
 content_margin_right = 9.0
 
-[sub_resource type="Texture2D" id="Texture2D_cjfk0"]
-resource_local_to_scene = false
-resource_name = ""
-script = ExtResource("1_e1x85")
-_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAAXNSR0IArs4c6QAAAD5JREFUGJWNj0EOAEAEA1v//7M9UUE2ehCRaUFIjilmCcBdHEm1G9BB+yTk3DZnBQcUzr76dNP5O1SwhwHAAx0VHgg8lV0TAAAAAElFTkSuQmCC"
-metadata/_custom_type_script = "uid://xqi7kv2y70eo"
+[sub_resource type="AtlasTexture" id="AtlasTexture_vj6dk"]
+atlas = ExtResource("1_cjfk0")
+region = Rect2(1, 11, 18, 18)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wvktn"]
-texture = SubResource("Texture2D_cjfk0")
+texture = SubResource("AtlasTexture_vj6dk")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
