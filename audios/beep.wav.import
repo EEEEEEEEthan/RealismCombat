@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://bcgvtwn5rt0u1"
-path="res://.godot/imported/selection3.wav-a69f50da47cb7802b1303bc20911a409.sample"
+uid="uid://cprvbv8d0kowk"
+path="res://.godot/imported/beep.wav-76d2fd36e62dda2c4a3c7fb31b3bf0b4.sample"
 
 [deps]
 
-source_file="res://selection3.wav"
-dest_files=["res://.godot/imported/selection3.wav-a69f50da47cb7802b1303bc20911a409.sample"]
+source_file="res://audios/beep.wav"
+dest_files=["res://.godot/imported/beep.wav-76d2fd36e62dda2c4a3c7fb31b3bf0b4.sample"]
 
 [params]
 
