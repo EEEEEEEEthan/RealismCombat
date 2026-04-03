@@ -7,48 +7,38 @@ script/source = "extends PanelContainer
 
 signal pressed(option_index: int)
 
-@onready var _option_list: Container = %OptionList
-@onready var _description_label: RichTextLabel = %RichTextLabel
-
-var _option_names: Array[String] = []
-var _option_descriptions: Array[String] = []
-var _option_enabled: Array[bool] = []
-
+@export var data: Array[MenuItemData]:
+	set(v):
+		data = v
+		_update_menu()
 
 func _ready() -> void:
-	_option_list.option_focused.connect(_on_option_focused)
-	_option_list.option_pressed.connect(_on_option_list_pressed)
-	_refresh_option_list()
+	_update_menu()
 
+func _update_menu() -> void:
+	if not is_node_ready():
+		return
+	var container := %RetroScrollContainer
+	var child_count = container.get_child_count()
+	var length = len(data)
+	if child_count < length:
+		for i in length - child_count:
+			var button = RetroButton.new()
+			button.connect(&\"focus_entered\", _on_focus_button.bind(button))
+			container.add_child(button)
+	elif child_count > length:
+		for i in child_count - length:
+			container.get_child(child_count - i - 1).queue_free()
+	for i in length:
+		var button: RetroButton = container.get_child(i)
+		button.text = data[i].text
+		button.disabled = !data[i].enabled
 
-func add_option(option_name: String, option_description: String, option_enabled: bool = true) -> void:
-	assert(_option_names.size() < 64, \"选项不能超过 64 个\")
-	_option_names.append(option_name)
-	_option_descriptions.append(option_description)
-	_option_enabled.append(option_enabled)
-	if is_node_ready():
-		_refresh_option_list()
+func _on_focus_button(button: RetroButton) -> void:
+	%RichTextLabel.text = data[button.get_index()].text
 
-
-func _refresh_option_list() -> void:
-	var packed: PackedStringArray = PackedStringArray()
-	for n in _option_names:
-		packed.append(n)
-	_option_list._options = packed
-	var disabled_mask: int = 0
-	for option_index in range(_option_enabled.size()):
-		if not _option_enabled[option_index]:
-			disabled_mask |= 1 << option_index
-	_option_list._disabled_mask = disabled_mask
-
-
-func _on_option_focused(option_index: int) -> void:
-	if option_index >= 0 and option_index < _option_descriptions.size():
-		_description_label.text = _option_descriptions[option_index]
-
-
-func _on_option_list_pressed(option_index: int) -> void:
-	pressed.emit(option_index)
+func _on_press_button(button: RetroButton) -> void:
+	pressed.emit(button.get_index())
 "
 
 [node name="MenuDialogue" type="PanelContainer" unique_id=1569972301]
@@ -70,13 +60,11 @@ theme_override_constants/margin_bottom = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1631289998]
 layout_mode = 2
 
-[node name="OptionList" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=2061099515]
+[node name="RetroScrollContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1692893319]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
-focus_behavior_recursive = 2
-mouse_filter = 2
 script = ExtResource("1_w4tth")
+metadata/_custom_type_script = "uid://dolbksu3b7efb"
 
 [node name="ColorRect" type="ColorRect" parent="MarginContainer/HBoxContainer" unique_id=998074296]
 custom_minimum_size = Vector2(1, 0)

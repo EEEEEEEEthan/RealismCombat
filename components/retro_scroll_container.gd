@@ -1,5 +1,5 @@
 @tool
-extends Node
+extends VBoxContainer
 class_name RetroScrollContainer
 
 @export var viewport_begin: int:
