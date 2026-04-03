@@ -1,28 +1,10 @@
 [gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
 [ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="1_e1x85"]
-[ext_resource type="Texture2D" uid="uid://h71uiu3ephqf" path="res://textures/theme_atlas.png" id="1_vj6dk"]
 [ext_resource type="FontVariation" uid="uid://dulxe567oc12r" path="res://fonts/font10.tres" id="2_cjfk0"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mihib"]
-content_margin_left = 13.0
-content_margin_right = 12.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_cjfk0"]
-atlas = ExtResource("1_vj6dk")
-region = Rect2(16, 0, 16, 16)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_e1x85"]
-content_margin_right = 12.0
-texture = SubResource("AtlasTexture_cjfk0")
-texture_margin_left = 13.0
-region_rect = Rect2(3, 3, 11, 10)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vj6dk"]
-content_margin_right = 12.0
-texture = SubResource("AtlasTexture_cjfk0")
-texture_margin_left = 13.0
-region_rect = Rect2(2, 3, 11, 10)
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
+content_margin_right = 9.0
 
 [sub_resource type="Texture2D" id="Texture2D_cjfk0"]
 resource_local_to_scene = false
@@ -46,7 +28,7 @@ Button/colors/font_disabled_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_outline_color = Color(1, 1, 1, 1)
 Button/colors/font_pressed_color = Color(1, 1, 1, 1)
 Button/colors/icon_disabled_color = Color(1, 1, 1, 1)
 Button/colors/icon_focus_color = Color(1, 1, 1, 1)
@@ -54,15 +36,15 @@ Button/colors/icon_hover_color = Color(1, 1, 1, 1)
 Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
 Button/colors/icon_normal_color = Color(1, 1, 1, 1)
 Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
-Button/styles/disabled = SubResource("StyleBoxEmpty_mihib")
-Button/styles/disabled_mirrored = SubResource("StyleBoxEmpty_mihib")
-Button/styles/focus = SubResource("StyleBoxTexture_e1x85")
-Button/styles/hover = SubResource("StyleBoxTexture_e1x85")
-Button/styles/hover_mirrored = SubResource("StyleBoxTexture_e1x85")
-Button/styles/hover_pressed = SubResource("StyleBoxTexture_vj6dk")
-Button/styles/hover_pressed_mirrored = SubResource("StyleBoxTexture_vj6dk")
-Button/styles/normal = SubResource("StyleBoxEmpty_mihib")
-Button/styles/normal_mirrored = SubResource("StyleBoxEmpty_mihib")
-Button/styles/pressed = SubResource("StyleBoxTexture_vj6dk")
-Button/styles/pressed_mirrored = SubResource("StyleBoxTexture_vj6dk")
+Button/styles/disabled = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/disabled_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/focus = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/hover = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/hover_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/hover_pressed = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/normal = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/normal_mirrored = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/pressed = SubResource("StyleBoxEmpty_cjfk0")
+Button/styles/pressed_mirrored = SubResource("StyleBoxEmpty_cjfk0")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_wvktn")

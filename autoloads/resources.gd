@@ -24,12 +24,20 @@ var texture2d_theme_atlas: Texture2D:
 			texture2d_theme_atlas = _load_texture2d(&"res://textures/theme_atlas.png")
 		return texture2d_theme_atlas
 
+var atlas_texture_theme_right: AtlasTexture:
+	get:
+		if not atlas_texture_theme_right:
+			atlas_texture_theme_right = AtlasTexture.new()
+			atlas_texture_theme_right.atlas = texture2d_theme_atlas
+			atlas_texture_theme_right.region = Rect2(11, 1, 8, 8)
+		return atlas_texture_theme_right
+
 var atlas_texture_theme_up: AtlasTexture:
 	get:
 		if not atlas_texture_theme_up:
 			atlas_texture_theme_up = AtlasTexture.new()
 			atlas_texture_theme_up.atlas = texture2d_theme_atlas
-			atlas_texture_theme_up.region = Rect2(36, 5, 8, 5)
+			atlas_texture_theme_up.region = Rect2(21, 2, 8, 5)
 		return atlas_texture_theme_up
 
 func _load_audio_stream(path: StringName) -> AudioStream:

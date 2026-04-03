@@ -1,5 +1,6 @@
 @tool
 extends Node
+class_name RetroScrollContainer
 
 @export var viewport_begin: int:
 	set(v):
@@ -44,6 +45,7 @@ func _init() -> void:
 	add_child(_down, false, Node.INTERNAL_MODE_BACK)
 	connect(&"child_entered_tree", _on_child_entered_tree)
 	connect(&"child_exiting_tree", _on_child_exiting_tree)
+	
 
 func _ready() -> void:
 	_update_viewport()
