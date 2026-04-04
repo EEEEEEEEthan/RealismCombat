@@ -1,0 +1,35 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bbkmxh635fyl3"]
+
+[sub_resource type="Shader" id="Shader_lselw"]
+code = "shader_type canvas_item;
+
+/// 按本地空间顶点 x（vertex 阶段的 VERTEX.x，经 varying 传入）做伪随机，采样时在垂直方向偏移 −1 / 0 / +1 纹理像素（各占约 1/3）；方向每 0.3 秒随 TIME 重算。
+
+const float DIRECTION_REPICK_SECONDS = 0.3;
+
+varying float local_vertex_x;
+
+void vertex() {
+	local_vertex_x = VERTEX.x;
+}
+
+float hash_column(float key_x) {
+	float x = fract(key_x * 0.1031);
+	x *= x + 33.33;
+	return fract(x * x);
+}
+
+void fragment() {
+	float column_x = floor(local_vertex_x);
+	float time_slice = floor(TIME / DIRECTION_REPICK_SECONDS);
+	float random_unit = hash_column(column_x + time_slice * 419.431);
+	float above_first_third = step(1.0 / 3.0, random_unit);
+	float above_second_third = step(2.0 / 3.0, random_unit);
+	float direction = -1.0 + above_first_third + above_second_third;
+	vec2 sample_uv = UV + vec2(0.0, direction * TEXTURE_PIXEL_SIZE.y);
+	COLOR = texture(TEXTURE, sample_uv);
+}
+"
+
+[resource]
+shader = SubResource("Shader_lselw")

@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://bgu8rncknhalj"]
+
+[ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_4pwla"]
+[ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://combat/body_part_renderer.tscn" id="1_lselw"]
+
+[node name="Warrior" type="PanelContainer" unique_id=1218273912]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -210.0
+offset_bottom = -137.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1367901981]
+layout_mode = 2
+theme_override_constants/margin_left = 1
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 1
+theme_override_constants/margin_bottom = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1996760864]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Name" type="Label" parent="MarginContainer/VBoxContainer" unique_id=89098987]
+unique_name_in_owner = true
+layout_mode = 2
+text = "名字"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer" unique_id=1784902997]
+layout_mode = 2
+theme_override_constants/margin_left = 1
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 1
+theme_override_constants/margin_bottom = 1
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=1524247364]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=649617691]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1645070398]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+text = "行动"
+
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1822765512]
+material = ExtResource("1_4pwla")
+custom_minimum_size = Vector2(19, 0)
+layout_mode = 2
+size_flags_vertical = 1
+max_value = 10.0
+value = 6.0
+show_percentage = false
+
+[node name="HP" parent="MarginContainer/VBoxContainer" unique_id=918096459 instance=ExtResource("1_lselw")]
+layout_mode = 2
+
+[node name="Head" parent="MarginContainer/VBoxContainer" unique_id=869673898 instance=ExtResource("1_lselw")]
+layout_mode = 2
+part = 1
+
+[node name="Chest" parent="MarginContainer/VBoxContainer" unique_id=851368283 instance=ExtResource("1_lselw")]
+layout_mode = 2
+part = 2
+
+[node name="RightHand" parent="MarginContainer/VBoxContainer" unique_id=960000449 instance=ExtResource("1_lselw")]
+layout_mode = 2
+part = 3
+
+[node name="LeftHand" parent="MarginContainer/VBoxContainer" unique_id=960693474 instance=ExtResource("1_lselw")]
+layout_mode = 2
+part = 4
+
+[node name="RightFoot" parent="MarginContainer/VBoxContainer" unique_id=1823406850 instance=ExtResource("1_lselw")]
+layout_mode = 2
+part = 5
+
+[node name="LeftFoot" parent="MarginContainer/VBoxContainer" unique_id=1922295510 instance=ExtResource("1_lselw")]
+layout_mode = 2
+part = 6

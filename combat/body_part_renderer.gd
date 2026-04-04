@@ -1,3 +1,4 @@
+@tool
 extends HBoxContainer
 
 const HP_VALUE_TWEEN_DURATION_SEC := 0.2
@@ -45,4 +46,4 @@ func _refresh_part_label() -> void:
 		Defs.BodyPart.LEFT_FOOT:
 			part_label.text = "左脚"
 		_:
-			part_label.text = ""
+			part_label.text = "生命"

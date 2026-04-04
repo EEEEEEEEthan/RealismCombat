@@ -7,6 +7,7 @@ offset_right = 25.0
 offset_bottom = 8.0
 theme_override_constants/separation = 1
 script = ExtResource("1_bprend")
+part = 0
 
 [node name="Label" type="Label" parent="." unique_id=1793239943]
 unique_name_in_owner = true
