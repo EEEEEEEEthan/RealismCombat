@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://1lw5fd5ui03t"]
 
-[ext_resource type="Script" path="res://combat/body_part_renderer.gd" id="1_bprend"]
+[ext_resource type="Script" uid="uid://c2h8xak1m4npx" path="res://combat/body_part_renderer.gd" id="1_bprend"]
 
 [node name="LeftFoot" type="HBoxContainer" unique_id=918096459]
 offset_right = 25.0
@@ -16,10 +16,10 @@ text = "头部"
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=1524849649]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(13, 6)
+custom_minimum_size = Vector2(11, 0)
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 1
 max_value = 6.0
 step = 1.0
-value = 1.0
+value = 4.0
 show_percentage = false
