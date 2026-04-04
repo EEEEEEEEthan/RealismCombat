@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bgu8rncknhalj"]
 
-[ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_4pwla"]
-[ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://combat/body_part_renderer.tscn" id="1_lselw"]
+[ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_ho3s7"]
+[ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://combat/body_part_renderer.tscn" id="2_jenu5"]
 
 [node name="Warrior" type="PanelContainer" unique_id=1218273912]
 anchors_preset = 15
@@ -49,7 +49,7 @@ theme_type_variation = &"LabelSmall"
 text = "行动"
 
 [node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1822765512]
-material = ExtResource("1_4pwla")
+material = ExtResource("1_ho3s7")
 custom_minimum_size = Vector2(19, 0)
 layout_mode = 2
 size_flags_vertical = 1
@@ -57,29 +57,29 @@ max_value = 10.0
 value = 6.0
 show_percentage = false
 
-[node name="HP" parent="MarginContainer/VBoxContainer" unique_id=918096459 instance=ExtResource("1_lselw")]
+[node name="HP" parent="MarginContainer/VBoxContainer" unique_id=918096459 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 
-[node name="Head" parent="MarginContainer/VBoxContainer" unique_id=869673898 instance=ExtResource("1_lselw")]
+[node name="Head" parent="MarginContainer/VBoxContainer" unique_id=869673898 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 part = 1
 
-[node name="Chest" parent="MarginContainer/VBoxContainer" unique_id=851368283 instance=ExtResource("1_lselw")]
+[node name="Chest" parent="MarginContainer/VBoxContainer" unique_id=851368283 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 part = 2
 
-[node name="RightHand" parent="MarginContainer/VBoxContainer" unique_id=960000449 instance=ExtResource("1_lselw")]
+[node name="RightHand" parent="MarginContainer/VBoxContainer" unique_id=960000449 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 part = 3
 
-[node name="LeftHand" parent="MarginContainer/VBoxContainer" unique_id=960693474 instance=ExtResource("1_lselw")]
+[node name="LeftHand" parent="MarginContainer/VBoxContainer" unique_id=960693474 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 part = 4
 
-[node name="RightFoot" parent="MarginContainer/VBoxContainer" unique_id=1823406850 instance=ExtResource("1_lselw")]
+[node name="RightFoot" parent="MarginContainer/VBoxContainer" unique_id=1823406850 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 part = 5
 
-[node name="LeftFoot" parent="MarginContainer/VBoxContainer" unique_id=1922295510 instance=ExtResource("1_lselw")]
+[node name="LeftFoot" parent="MarginContainer/VBoxContainer" unique_id=1922295510 instance=ExtResource("2_jenu5")]
 layout_mode = 2
 part = 6
