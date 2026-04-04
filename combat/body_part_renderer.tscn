@@ -3,7 +3,7 @@
 [sub_resource type="GDScript" id="GDScript_ok0sw"]
 script/source = "extends Node
 
-@export var part: BodyPart:
+@export var part: BodyPart.Kind:
 	set(v):
 		pass
 "
