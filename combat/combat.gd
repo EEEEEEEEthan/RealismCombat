@@ -14,3 +14,5 @@ func _ready() -> void:
 	
 	chr = Character.create_default("Dove")
 	add_character(chr, 1)
+
+	#await GenericDialogue.show_message(get_tree(), "战斗开始了!")

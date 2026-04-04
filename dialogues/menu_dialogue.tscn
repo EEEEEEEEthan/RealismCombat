@@ -1,47 +1,8 @@
 [gd_scene format=3 uid="uid://dwko5ylcxomhr"]
 
 [ext_resource type="Script" uid="uid://dolbksu3b7efb" path="res://components/retro_scroll_container.gd" id="1_w4tth"]
+[ext_resource type="Script" uid="uid://t3ao6s2gx8wk" path="res://dialogues/menu_dialogue.gd" id="1_yjxsp"]
 [ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://components/retro_button.gd" id="2_pog8u"]
-
-[sub_resource type="GDScript" id="GDScript_pekvy"]
-script/source = "extends PanelContainer
-
-signal pressed(option_index: int)
-
-@export var options: Array[MenuItemData]:
-	set(v):
-		options = v
-		_update_menu()
-
-func _ready() -> void:
-	_update_menu()
-
-func _update_menu() -> void:
-	if not is_node_ready():
-		return
-	var container := %RetroScrollContainer
-	var child_count = container.get_child_count()
-	var length = len(options)
-	if child_count < length:
-		for i in length - child_count:
-			var button = RetroButton.new()
-			button.connect(&\"focus_entered\", _on_focus_button.bind(button))
-			button.connect(&\"pressed\", _on_press_button.bind(button))
-			container.add_child(button)
-	elif child_count > length:
-		for i in child_count - length:
-			container.get_child(child_count - i - 1).queue_free()
-	for i in length:
-		var button: RetroButton = container.get_child(i)
-		button.text = options[i].text
-		button.disabled = options[i].disabled
-
-func _on_focus_button(button: RetroButton) -> void:
-	%RichTextLabel.text = options[button.get_index()].description
-
-func _on_press_button(button: RetroButton) -> void:
-	pressed.emit(button.get_index())
-"
 
 [sub_resource type="Image" id="Image_pog8u"]
 data = {
@@ -62,7 +23,7 @@ anchor_bottom = 1.0
 offset_top = 142.0
 grow_horizontal = 2
 grow_vertical = 2
-script = SubResource("GDScript_pekvy")
+script = ExtResource("1_yjxsp")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1255087158]
 layout_mode = 2
