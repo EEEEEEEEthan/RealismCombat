@@ -1,16 +1,22 @@
 extends HBoxContainer
 
-@export var part: Enums.BodyPart = Enums.BodyPart.HEAD:
+@export var part: Defs.BodyPart = Defs.BodyPart.HEAD:
 	set(v):
 		part = v
 		if is_node_ready():
 			_refresh_part_label()
 
-func update_hp(current_hp: int, max_hp: int, immedate: bool = false) -> void:
-	if immedate:
-		%ProgressBar.custom_minimum_size.x = max_hp * 2 + 1
-		%ProgressBar.max_value = max_hp
-		%ProgressBar.value = current_hp
+func set_hp(hp: int, max_hp: int) -> void:
+	%ProgressBar.custom_minimum_size.x = max_hp * 2 + 1
+	%ProgressBar.max_value = max_hp
+	%ProgressBar.value = hp
+
+func update_hp(hp: int) -> void:
+	%ProgressBar.theme_type_variation = &"ProgressBarRed"
+	%Label.self_modulate = Defs.COLOR_DARK_PINK
+	# %ProgressBar.value 渐变到 hp
+	%ProgressBar.theme_type_variation = &""
+	%Label.self_modulate = Color.WHITE
 
 func _ready() -> void:
 	_refresh_part_label()
@@ -18,17 +24,17 @@ func _ready() -> void:
 
 func _refresh_part_label() -> void:
 	match part:
-		Enums.BodyPart.HEAD:
+		Defs.BodyPart.HEAD:
 			%Label.text = "头部"
-		Enums.BodyPart.CHEST:
+		Defs.BodyPart.CHEST:
 			%Label.text = "胸部"
-		Enums.BodyPart.RIGHT_HAND:
+		Defs.BodyPart.RIGHT_HAND:
 			%Label.text = "右手"
-		Enums.BodyPart.LEFT_HAND:
+		Defs.BodyPart.LEFT_HAND:
 			%Label.text = "左手"
-		Enums.BodyPart.RIGHT_FOOT:
+		Defs.BodyPart.RIGHT_FOOT:
 			%Label.text = "右脚"
-		Enums.BodyPart.LEFT_FOOT:
+		Defs.BodyPart.LEFT_FOOT:
 			%Label.text = "左脚"
 		_:
 			%Label.text = ""
