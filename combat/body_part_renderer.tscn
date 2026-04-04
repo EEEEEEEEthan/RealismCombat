@@ -18,8 +18,8 @@ func setup(part: BodyPartData) -> void:
 			%Label.text = \"右脚\"
 		Defs.BodyPart.LEFT_FOOT:
 			%Label.text = \"左脚\"
-	%ProgressBar.custom_minimum_size.x = part.max_hp * 2 + 1
-	%ProgressBar.max_value = part.max_hp
+	%ProgressBar.custom_minimum_size.x = part.hp_max * 2 + 1
+	%ProgressBar.max_value = part.hp_max
 	%ProgressBar.value = part.hp
 	part.connect(&\"hp_changed\", _on_hp_changed)
 
