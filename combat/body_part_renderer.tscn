@@ -1,13 +1,44 @@
 [gd_scene format=3 uid="uid://1lw5fd5ui03t"]
 
-[ext_resource type="Script" uid="uid://c2h8xak1m4npx" path="res://combat/body_part_renderer.gd" id="1_bprend"]
+[sub_resource type="GDScript" id="GDScript_5q8d6"]
+script/source = "@tool
+extends HBoxContainer
 
-[node name="LeftFoot" type="HBoxContainer" unique_id=918096459]
+func setup(part: BodyPartData) -> void:
+	match part.part:
+		Defs.BodyPart.HEAD:
+			%Label.text = \"头部\"
+		Defs.BodyPart.CHEST:
+			%Label.text = \"胸部\"
+		Defs.BodyPart.RIGHT_HAND:
+			%Label.text = \"右手\"
+		Defs.BodyPart.LEFT_HAND:
+			%Label.text = \"左手\"
+		Defs.BodyPart.RIGHT_FOOT:
+			%Label.text = \"右脚\"
+		Defs.BodyPart.LEFT_FOOT:
+			%Label.text = \"左脚\"
+	%ProgressBar.custom_minimum_size.x = part.max_hp * 2 + 1
+	%ProgressBar.max_value = part.max_hp
+	%ProgressBar.value = part.hp
+	part.connect(&\"hp_changed\", _on_hp_changed)
+
+func _on_hp_changed(hp: int) -> void:
+	var hp_display_tween: Tween = create_tween()
+	%ProgressBar.theme_type_variation = &\"ProgressBarRed\"
+	%Label.self_modulate = Defs.COLOR_DARK_PINK
+	hp_display_tween.tween_property(%ProgressBar, \"value\", float(hp), 0.2)
+	hp_display_tween.tween_callback(func() -> void:
+		%ProgressBar.theme_type_variation = &\"\"
+		%Label.self_modulate = Color.WHITE
+	)
+"
+
+[node name="BodyPartRenderer" type="HBoxContainer" unique_id=918096459]
 offset_right = 25.0
 offset_bottom = 8.0
 theme_override_constants/separation = 1
-script = ExtResource("1_bprend")
-part = 0
+script = SubResource("GDScript_5q8d6")
 
 [node name="Label" type="Label" parent="." unique_id=1793239943]
 unique_name_in_owner = true

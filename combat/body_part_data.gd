@@ -1,4 +1,11 @@
-extends Node
 class_name BodyPartData
 
-@export var part: Defs.BodyPart = Defs.BodyPart.HEAD
+signal hp_changed
+
+var part: Defs.BodyPart = Defs.BodyPart.HEAD
+var hp: int:
+	set(v):
+		hp = v
+		hp_changed.emit()
+
+var hp_max: int

@@ -3,7 +3,23 @@
 [ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_ho3s7"]
 [ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://combat/body_part_renderer.tscn" id="2_jenu5"]
 
-[node name="Warrior" type="PanelContainer" unique_id=1218273912]
+[sub_resource type="GDScript" id="GDScript_ho3s7"]
+script/source = "extends PanelContainer
+
+var all_body_part_renderers: Array:
+	get:
+		if not all_body_part_renderers:
+			all_body_part_renderers = [
+				%Head, %Chest, %RightHand, %LeftHand, %RightFoot, %LeftFoot]
+		return all_body_part_renderers
+
+func setup(character: Character) -> void:
+	%Name.text = character.character_name
+	for i in 6:
+		all_body_part_renderers[i].setup(character.all_body_parts[i])
+"
+
+[node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -11,6 +27,7 @@ offset_right = -210.0
 offset_bottom = -137.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_ho3s7")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1367901981]
 layout_mode = 2
@@ -57,29 +74,26 @@ max_value = 10.0
 value = 6.0
 show_percentage = false
 
-[node name="HP" parent="MarginContainer/VBoxContainer" unique_id=918096459 instance=ExtResource("2_jenu5")]
-layout_mode = 2
-
 [node name="Head" parent="MarginContainer/VBoxContainer" unique_id=869673898 instance=ExtResource("2_jenu5")]
+unique_name_in_owner = true
 layout_mode = 2
-part = 1
 
 [node name="Chest" parent="MarginContainer/VBoxContainer" unique_id=851368283 instance=ExtResource("2_jenu5")]
+unique_name_in_owner = true
 layout_mode = 2
-part = 2
 
 [node name="RightHand" parent="MarginContainer/VBoxContainer" unique_id=960000449 instance=ExtResource("2_jenu5")]
+unique_name_in_owner = true
 layout_mode = 2
-part = 3
 
 [node name="LeftHand" parent="MarginContainer/VBoxContainer" unique_id=960693474 instance=ExtResource("2_jenu5")]
+unique_name_in_owner = true
 layout_mode = 2
-part = 4
 
 [node name="RightFoot" parent="MarginContainer/VBoxContainer" unique_id=1823406850 instance=ExtResource("2_jenu5")]
+unique_name_in_owner = true
 layout_mode = 2
-part = 5
 
 [node name="LeftFoot" parent="MarginContainer/VBoxContainer" unique_id=1922295510 instance=ExtResource("2_jenu5")]
+unique_name_in_owner = true
 layout_mode = 2
-part = 6

@@ -2,7 +2,6 @@ class_name Defs
 
 enum BodyPart
 {
-	NONE,
 	HEAD,
 	CHEST,
 	RIGHT_HAND,
