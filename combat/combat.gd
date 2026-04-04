@@ -9,6 +9,8 @@ func add_character(character_data: Character, side: int) -> void:
 		character.layout_direction = Control.LAYOUT_DIRECTION_RTL
 
 func _ready() -> void:
-	var chr = Character.new()
-	chr.character_name = "Ethan"
+	var chr = Character.create_default("Ethan")
 	add_character(chr, 0)
+	
+	chr = Character.create_default("Dove")
+	add_character(chr, 1)

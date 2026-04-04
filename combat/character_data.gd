@@ -1,6 +1,23 @@
 class_name Character
 
-@export var character_name: String
+static func create_default(name: String) -> Character:
+	var character = Character.new()
+	character.character_name = name
+	character.head.hp_max = 3
+	character.head.hp = 3
+	character.chest.hp_max = 10
+	character.chest.hp = 10
+	character.right_hand.hp_max = 6
+	character.right_hand.hp = 6
+	character.left_hand.hp_max = 6
+	character.left_hand.hp = 6
+	character.right_foot.hp_max = 7
+	character.right_foot.hp = 7
+	character.left_foot.hp_max = 7
+	character.left_foot.hp = 7
+	return character
+
+var character_name: String
 var head: BodyPartData
 var chest: BodyPartData
 var right_hand: BodyPartData

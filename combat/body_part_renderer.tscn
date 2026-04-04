@@ -37,7 +37,7 @@ func _on_hp_changed(hp: int) -> void:
 [node name="BodyPartRenderer" type="HBoxContainer" unique_id=918096459]
 offset_right = 25.0
 offset_bottom = 8.0
-theme_override_constants/separation = 1
+theme_override_constants/separation = 2
 script = SubResource("GDScript_5q8d6")
 
 [node name="Label" type="Label" parent="." unique_id=1793239943]
