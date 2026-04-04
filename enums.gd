@@ -1,6 +1,6 @@
-class_name BodyPart
+class_name Enums
 
-enum Kind
+enum BodyPart
 {
 	HEAD,
 	CHEST,
