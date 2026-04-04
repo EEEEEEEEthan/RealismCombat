@@ -22,7 +22,7 @@ static var audio_stream_selection: AudioStream:
 static var texture2d_theme_atlas: Texture2D:
 	get:
 		if not texture2d_theme_atlas:
-			texture2d_theme_atlas = _load_texture2d(&"res://textures/theme_atlas.png")
+			texture2d_theme_atlas = _load_texture2d(&"res://theme_atlas.png")
 		return texture2d_theme_atlas
 
 static var atlas_texture_theme_right: AtlasTexture:
@@ -51,6 +51,6 @@ static func _load_audio_stream(path: StringName) -> AudioStream:
 static func _load_texture2d(path: StringName) -> Texture2D:
 	var texture: Texture2D = ResourceLoader.load(path)
 	if not texture:
-		texture = ResourceLoader.load(&"res://textures/theme_atlas.png")
+		texture = ResourceLoader.load(&"res://theme_atlas.png")
 		push_error(path + " missing")
 	return texture

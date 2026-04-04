@@ -1,15 +1,17 @@
 [gd_resource type="Theme" format=3 uid="uid://deojm8fpmsach"]
 
-[ext_resource type="Texture2D" path="res://textures/theme_atlas.png" id="1_cjfk0"]
 [ext_resource type="FontVariation" uid="uid://cad14ymkmupbq" path="res://fonts/font8.tres" id="1_vj6dk"]
+[ext_resource type="Texture2D" uid="uid://1txn02kq184k" path="res://theme_atlas.png" id="2_110ce"]
 [ext_resource type="FontVariation" uid="uid://dulxe567oc12r" path="res://fonts/font10.tres" id="2_cjfk0"]
-[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="3_110ce"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
 resource_name = "button_empty"
 
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vj6dk"]
+load_path = "res://.godot/imported/theme_atlas.png-50a9de86a86cbdd08c9008fcd558cad7.ctex"
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_vj6dk"]
-atlas = ExtResource("1_cjfk0")
+atlas = SubResource("CompressedTexture2D_vj6dk")
 region = Rect2(0, 10, 10, 10)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wvktn"]
@@ -20,29 +22,20 @@ texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 
-[sub_resource type="Texture2D" id="Texture2D_110ce"]
-resource_local_to_scene = false
-resource_name = "progress_fill_texture"
-script = ExtResource("3_110ce")
-_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAAAXNSR0IArs4c6QAAAB1JREFUCJlj/P//PwMDAwMDEwMUoDD+Y4gwYlcMAPykBA313xgfAAAAAElFTkSuQmCC"
-metadata/_custom_type_script = "uid://xqi7kv2y70eo"
+[sub_resource type="AtlasTexture" id="AtlasTexture_05tig"]
+atlas = ExtResource("2_110ce")
+region = Rect2(15, 11, 2, 8)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_05tig"]
 resource_name = "progress_background_gray"
-texture = SubResource("Texture2D_110ce")
+texture = SubResource("AtlasTexture_05tig")
 axis_stretch_horizontal = 1
 modulate_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 
-[sub_resource type="Texture2D" id="Texture2D_sapek"]
-resource_local_to_scene = false
-resource_name = "progress_fill_texture"
-script = ExtResource("3_110ce")
-_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAAAXNSR0IArs4c6QAAACFJREFUCJlj/P//PwMDAwMDEwMUMDEwMPzHEMFkMKKIAAAFoQQNZQIusgAAAABJRU5ErkJggg=="
-metadata/_custom_type_script = "uid://xqi7kv2y70eo"
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_vpuba"]
 resource_name = "progress_bar_atlas"
-atlas = SubResource("Texture2D_sapek")
+atlas = ExtResource("2_110ce")
+region = Rect2(13, 11, 2, 8)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_110ce"]
 resource_name = "progress_fill_white"
