@@ -7,7 +7,7 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 142.0
+offset_top = 132.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_yjxsp")
@@ -29,7 +29,7 @@ custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_w4tth")
-viewport_count = 6
+viewport_count = 7
 metadata/_custom_type_script = "uid://dolbksu3b7efb"
 
 [node name="ColorRect" type="ColorRect" parent="MarginContainer/HBoxContainer" unique_id=998074296]
