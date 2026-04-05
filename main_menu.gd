@@ -22,4 +22,3 @@ func _ready() -> void:
 			print(game)
 			await game.tree_exiting
 			menu.visible = true
-			menu.grab_focus()

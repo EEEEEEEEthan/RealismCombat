@@ -84,8 +84,9 @@ func _on_visibility_changed() -> void:
 
 func _grab_focus() -> void:
 	var container = %RetroScrollContainer
-	if container:
-		if container.selected > 0:
-			container.get_child(container.selected).grab_focus()
-		elif container.get_child_count() > 0:
-			container.get_child(0).grab_focus()
+	if not container:
+		return
+	if container.last_selected > 0:
+		container.get_child(container.last_selected).grab_focus()
+	elif container.get_child_count() > 0:
+		container.get_child(0).grab_focus()

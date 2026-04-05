@@ -12,7 +12,7 @@ class_name RetroScrollContainer
 		viewport_count = v
 		_update_viewport()
 
-var selected: int
+var last_selected: int
 
 var _show_up: bool:
 	get:
@@ -110,15 +110,17 @@ func _stop_hover_scroll_process_if_idle() -> void:
 		set_process(false)
 
 func _on_focus_changed() -> void:
-	selected = _get_selection()
+	var new_selected = _get_selection()
 	if not _is_focus_change_from_ui_navigation():
 		return
-	while selected >= 0 and selected <= viewport_begin and _show_up:
+	while new_selected >= 0 and new_selected <= viewport_begin and _show_up:
 		viewport_begin -= 1
-		selected = _get_selection()
-	while selected >= 0 and selected >= viewport_begin + viewport_count - 1 and _show_down:
+		new_selected = _get_selection()
+	while new_selected >= 0 and new_selected >= viewport_begin + viewport_count - 1 and _show_down:
 		viewport_begin += 1
-		selected = _get_selection()
+		new_selected = _get_selection()
+	if new_selected >= 0:
+		last_selected = new_selected
 	_update_viewport()
 
 func _get_selection() -> int:
