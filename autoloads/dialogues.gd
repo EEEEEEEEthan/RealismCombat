@@ -7,14 +7,9 @@ func show_dialogue(text: String, ...options) -> int:
 	arguments.append_array(options)
 	return await _generic_dialogue.callv(&"show_message", arguments)
 
-func show_menu(
-	title: String,
-	options: Array[MenuItemData],
-) -> MenuDialogue:
+func create_menu() -> MenuDialogue:
 	var scene:PackedScene = ResourceLoader.load("res://dialogues/menu_dialogue.tscn")
 	var dialogue:MenuDialogue = scene.instantiate()
-	dialogue.title = title
-	dialogue.options = options
 	add_child(dialogue)
 	return dialogue
 

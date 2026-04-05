@@ -27,15 +27,14 @@ func create_combat() -> Combat:
 	return combat
 
 func _ready() -> void:
-	Dialogues.show_menu(
-		\"Realism Combat\",
-		[
-			MenuItemData.new(\"新游戏\", false, \"\", _on_press_new_game),
-		],
-	)
-
-func _on_press_new_game():
-	print(\"on_press_new_game\")
+	var menu:MenuDialogue = Dialogues.create_menu()
+	menu.title = \"Realism Combat\"
+	menu.options = [
+		MenuItemData.new(\"新游戏\", false, \"开启一段新的故事\", func(): 
+			print(\"new_game\")
+			menu.queue_free()
+			%Game.create_instance()),
+	]
 "
 
 [sub_resource type="Image" id="Image_nslm1"]
