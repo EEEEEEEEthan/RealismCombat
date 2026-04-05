@@ -12,7 +12,7 @@ func add_character(character_data: Character, side: int) -> void:
 		character.layout_direction = Control.LAYOUT_DIRECTION_RTL
 
 func run() -> void:
-	Dialogues.show_menu(
-		"Realism Combat",
-		[_menu_item_data_script.new("开始", false, "") as MenuItemData],
-	)
+	pass
+	#var menu = Dialogues.create_menu()
+	#menu.title = "战斗"
+	#

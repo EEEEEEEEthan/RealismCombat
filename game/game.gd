@@ -19,10 +19,9 @@ func _ready() -> void:
 	var index = await menu.pressed
 	menu.queue_free()
 	if index == 0:
-		var combat = Combat.new()
+		var combat:Combat = %Combat.create_instance()
 		combat.add_character(character_ethan, 0)
 		combat.add_character(Character.create_default("Dove"), 1)
 		combat.run()
 	elif index == 6:
-		var program:Program = get_parent()
 		queue_free()
