@@ -36,21 +36,21 @@ var _hover_scroll_accum_sec: float = 0.0
 const _HOVER_SCROLL_INTERVAL_SEC := 0.5
 
 func _init() -> void:
-	connect(&"child_entered_tree", _on_child_entered_tree)
-	connect(&"child_exiting_tree", _on_child_exiting_tree)
+	child_entered_tree.connect(_on_child_entered_tree)
+	child_exiting_tree.connect(_on_child_exiting_tree)
 
 func _ready() -> void:
 	_up = TextureRect.new()
 	_up.texture = Resources.atlas_texture_theme_up
 	_up.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	_up.connect(&"mouse_entered", _on_hover_up_entered)
-	_up.connect(&"mouse_exited", _on_hover_up_exited)
+	_up.mouse_entered.connect(_on_hover_up_entered)
+	_up.mouse_exited.connect(_on_hover_up_exited)
 	_down = TextureRect.new()
 	_down.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_down.texture = Resources.atlas_texture_theme_up
 	_down.flip_v = true
-	_down.connect(&"mouse_entered", _on_hover_down_entered)
-	_down.connect(&"mouse_exited", _on_hover_down_exited)
+	_down.mouse_entered.connect(_on_hover_down_entered)
+	_down.mouse_exited.connect(_on_hover_down_exited)
 	set_process(false)
 	add_child(_up, false, Node.INTERNAL_MODE_FRONT)
 	add_child(_down, false, Node.INTERNAL_MODE_BACK)
@@ -59,11 +59,11 @@ func _ready() -> void:
 func _on_child_entered_tree(node: Node) -> void:
 	if node.get_parent() != self: return
 	if node is not Control: return
-	node.connect(&"focus_entered", _on_focus_changed)
+	node.focus_entered.connect(_on_focus_changed)
 	_update_viewport()
 
 func _on_child_exiting_tree(node: Node) -> void:
-	node.disconnect(&"focus_entered", _on_focus_changed)
+	node.focus_entered.connect(_on_focus_changed)
 	_update_viewport()
 
 func _on_hover_up_entered() -> void:

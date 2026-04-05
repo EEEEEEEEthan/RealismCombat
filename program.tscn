@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://c5s6vu1i6b0q1"]
 
+[ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://components/retro_button.gd" id="2_gi0ye"]
 [ext_resource type="PackedScene" uid="uid://dvlj8x6gfa37e" path="res://dialogues/generic_dialogue.tscn" id="2_ix1r6"]
 
 [sub_resource type="GDScript" id="GDScript_bm06t"]
@@ -12,11 +13,10 @@ var combat: Combat
 func show_menu(
 	title: String,
 	options: Array[MenuItemData],
-	on_pressed: Callable) -> void:
+) -> void:
 	var dialogue:MenuDialogue = %MenuDialogue.create_instance()
 	dialogue.title = title
 	dialogue.options = options
-	dialogue.pressed.connect(on_pressed)
 
 func create_combat() -> Combat:
 	if not combat:
@@ -30,15 +30,25 @@ func _ready() -> void:
 	Dialogues.show_menu(
 		\"Realism Combat\",
 		[
-			MenuItemData.new(\"开始\", false, \"\")
+			MenuItemData.new(\"新游戏\", false, \"\", _on_press_new_game),
 		],
-		func(_option_index: int) -> void: 
-			print(_option_index)
-			if _option_index == 0:
-				print(123)
-			,
 	)
+
+func _on_press_new_game():
+	print(\"on_press_new_game\")
 "
+
+[sub_resource type="Image" id="Image_nslm1"]
+data = {
+"data": PackedByteArray(255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0),
+"format": "RGBA8",
+"height": 9,
+"mipmaps": false,
+"width": 9
+}
+
+[sub_resource type="ImageTexture" id="ImageTexture_yjxsp"]
+image = SubResource("Image_nslm1")
 
 [node name="Program" type="Node" unique_id=1981943603]
 script = SubResource("GDScript_bm06t")
@@ -51,3 +61,10 @@ unique_name_in_owner = true
 
 [node name="MenuDialogue" parent="." unique_id=719267554 instance_placeholder="res://dialogues/menu_dialogue.tscn"]
 unique_name_in_owner = true
+
+[node name="RetroButton" type="Button" parent="." unique_id=1659355676]
+offset_right = 9.0
+offset_bottom = 9.0
+icon = SubResource("ImageTexture_yjxsp")
+script = ExtResource("2_gi0ye")
+metadata/_custom_type_script = "uid://dboonrwg0krvc"

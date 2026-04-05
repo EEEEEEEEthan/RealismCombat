@@ -10,18 +10,15 @@ func _ready() -> void:
 	var menu_data: Array[MenuItemData] = []
 	for option_index in range(16):
 		var entry := MenuItemData.new()
+		var captured_index: int = option_index
 		entry.text = \"测试项%d\" % (option_index + 1)
 		entry.description = \"第 %d 项说明。\" % (option_index + 1)
 		entry.disabled = option_index == 6
+		entry.pressed = func() -> void: print(\"MenuDialogue 选中: \", captured_index)
 		menu_data.append(entry)
 	var menu_root: Node = MENU_DIALOGUE_SCENE.instantiate()
 	add_child(menu_root)
 	menu_root.options = menu_data
-	menu_root.pressed.connect(_on_menu_dialogue_pressed)
-
-
-func _on_menu_dialogue_pressed(option_index: int) -> void:
-	print(\"MenuDialogue 选中: \", option_index)
 "
 
 [node name="TestMenuDialogue" type="Control" unique_id=1286952369]

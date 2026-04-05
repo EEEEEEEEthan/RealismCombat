@@ -15,5 +15,4 @@ func run() -> void:
 	Dialogues.show_menu(
 		"Realism Combat",
 		[_menu_item_data_script.new("开始", false, "") as MenuItemData],
-		func(_option_index: int) -> void: pass,
 	)
