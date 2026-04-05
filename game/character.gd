@@ -25,6 +25,8 @@ var left_hand: BodyPartData
 var right_foot: BodyPartData
 var left_foot: BodyPartData
 var all_body_parts: Array[BodyPartData]
+var speed: float
+var action_points: float
 
 func _init() -> void:
 	head = BodyPartData.new()
