@@ -65,7 +65,8 @@ func _play_typewriter() -> void:
 		return
 	for visible_character_index in range(visible_character_count):
 		%RichTextLabel.visible_characters = visible_character_index + 1
-		await get_tree().create_timer(_typewriter_duration).timeout
+		%TypewriterTimer.start(_typewriter_duration)
+		await %TypewriterTimer.timeout
 
 func _clear_option_buttons() -> void:
 	for child_node in %Options.get_children():

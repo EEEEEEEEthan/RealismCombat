@@ -1,7 +1,18 @@
 extends PanelContainer
 class_name MenuDialogue
 
+static func create(tree: SceneTree) -> MenuDialogue:
+	var scene:PackedScene = ResourceLoader.load("res://dialogues/menu_dialogue.tscn")
+	var dialogue:MenuDialogue = scene.instantiate()
+	tree.root.add_child(dialogue)
+	return dialogue
+
 signal pressed(option_index: int)
+
+@export var title: String:
+	set(v):
+		title = v
+		_update_title()
 
 @export var options: Array[MenuItemData]:
 	set(v):
@@ -9,11 +20,15 @@ signal pressed(option_index: int)
 		_update_menu()
 
 func _ready() -> void:
+	_update_title()
 	_update_menu()
 
+func _update_title() -> void:
+	if not is_node_ready(): return
+	%Title.text = title
+
 func _update_menu() -> void:
-	if not is_node_ready():
-		return
+	if not is_node_ready(): return
 	var container := %RetroScrollContainer
 	var child_count = container.get_child_count()
 	var length = len(options)

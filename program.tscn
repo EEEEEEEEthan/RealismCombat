@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://c5s6vu1i6b0q1"]
+
+[ext_resource type="PackedScene" uid="uid://dvlj8x6gfa37e" path="res://dialogues/generic_dialogue.tscn" id="2_ix1r6"]
+
+[sub_resource type="GDScript" id="GDScript_bm06t"]
+script/source = "extends Node
+class_name Program
+
+@onready var generic_dialogue: GenericDialogue = %GenericDialogue
+var combat: Combat
+
+func show_menu(
+	title: String,
+	options: Array[MenuItemData],
+	on_pressed: Callable) -> void:
+	var dialogue:MenuDialogue = %MenuDialogue.create_instance()
+	dialogue.title = title
+	dialogue.options = options
+	dialogue.pressed.connect(on_pressed)
+
+func create_combat() -> Combat:
+	if not combat:
+		var c:Combat = %Combat.create_instance()
+		combat = c
+	else:
+		push_error(&\"combat already exists\")
+	return combat
+
+func _ready() -> void:
+	create_combat()
+	var chr = Character.create_default(\"Ethan\")
+	combat.add_character(chr, 0)
+	chr = Character.create_default(\"Dove\")
+	combat.add_character(chr, 1)
+"
+
+[node name="Program" type="Node" unique_id=1981943603]
+script = SubResource("GDScript_bm06t")
+
+[node name="CombatSlot" type="Node" parent="." unique_id=1272645908]
+
+[node name="Combat" parent="CombatSlot" unique_id=1435013025 instance_placeholder="res://combat/combat.tscn"]
+unique_name_in_owner = true
+
+[node name="GenericDialogue" parent="." unique_id=1569972301 instance=ExtResource("2_ix1r6")]
+unique_name_in_owner = true
+
+[node name="MenuDialogue" parent="." unique_id=719267554 instance_placeholder="res://dialogues/menu_dialogue.tscn"]
+unique_name_in_owner = true

@@ -11,12 +11,13 @@ _base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAA
 metadata/_custom_type_script = "uid://xqi7kv2y70eo"
 
 [node name="GenericDialogue" type="PanelContainer" unique_id=1569972301]
-anchors_preset = 15
+anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 142.0
+offset_top = -82.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 script = ExtResource("1_h13in")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1769564816]
@@ -59,3 +60,7 @@ texture_pressed = SubResource("Texture2D_8ins6")
 texture_hover = SubResource("Texture2D_8ins6")
 texture_disabled = SubResource("Texture2D_8ins6")
 texture_focused = SubResource("Texture2D_8ins6")
+
+[node name="TypewriterTimer" type="Timer" parent="." unique_id=1098765432]
+unique_name_in_owner = true
+one_shot = true
