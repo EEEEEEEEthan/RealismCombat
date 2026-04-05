@@ -1,48 +1,8 @@
 [gd_scene format=3 uid="uid://c5s6vu1i6b0q1"]
 
+[ext_resource type="Script" uid="uid://bwymqw7bicrnh" path="res://program.gd" id="1_nslm1"]
 [ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://components/retro_button.gd" id="2_gi0ye"]
 [ext_resource type="PackedScene" uid="uid://dvlj8x6gfa37e" path="res://dialogues/generic_dialogue.tscn" id="2_ix1r6"]
-
-[sub_resource type="GDScript" id="GDScript_bm06t"]
-script/source = "extends Node
-class_name Program
-
-@onready var generic_dialogue: GenericDialogue = %GenericDialogue
-var combat: Combat
-
-func show_menu(
-	title: String,
-	options: Array[MenuItemData],
-) -> void:
-	var dialogue:MenuDialogue = %MenuDialogue.create_instance()
-	dialogue.title = title
-	dialogue.options = options
-
-func create_combat() -> Combat:
-	if not combat:
-		var c:Combat = %Combat.create_instance()
-		combat = c
-	else:
-		push_error(&\"combat already exists\")
-	return combat
-
-func _ready() -> void:
-	var menu:MenuDialogue = Dialogues.create_menu()
-	menu.title = \"Realism Combat\"
-	menu.options = [
-		MenuItemData.new(\"新游戏\", false, \"开启一段新的故事\"),
-		MenuItemData.new(),
-		MenuItemData.new(),
-		MenuItemData.new(),
-		MenuItemData.new(),
-		MenuItemData.new(),
-		MenuItemData.new(\"退出\", false, \"离开\"),
-	]
-	var index = await menu.pressed
-	if index == 0:
-		menu.queue_free()
-		%Game.create_instance()
-"
 
 [sub_resource type="Image" id="Image_ix1r6"]
 data = {
@@ -57,7 +17,10 @@ data = {
 image = SubResource("Image_ix1r6")
 
 [node name="Program" type="Node" unique_id=1981943603]
-script = SubResource("GDScript_bm06t")
+script = ExtResource("1_nslm1")
+
+[node name="MainMenu" parent="." unique_id=695629312 instance_placeholder="res://main_menu.tscn"]
+unique_name_in_owner = true
 
 [node name="Game" parent="." unique_id=782850094 instance_placeholder="res://game.tscn"]
 unique_name_in_owner = true

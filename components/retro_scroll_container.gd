@@ -63,7 +63,7 @@ func _on_child_entered_tree(node: Node) -> void:
 	_update_viewport()
 
 func _on_child_exiting_tree(node: Node) -> void:
-	node.focus_entered.connect(_on_focus_changed)
+	node.focus_entered.disconnect(_on_focus_changed)
 	_update_viewport()
 
 func _on_hover_up_entered() -> void:
