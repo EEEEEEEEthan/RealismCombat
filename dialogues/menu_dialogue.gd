@@ -1,6 +1,10 @@
 extends PanelContainer
 class_name MenuDialogue
 
+signal pressed(index: int)
+
+const _META_MENU_BUTTON_WIRED: StringName = &"menu_dialogue_button_wired"
+
 static func create(tree: SceneTree) -> MenuDialogue:
 	var scene:PackedScene = ResourceLoader.load("res://dialogues/menu_dialogue.tscn")
 	var dialogue:MenuDialogue = scene.instantiate()
@@ -33,8 +37,6 @@ func _update_menu() -> void:
 	if child_count < length:
 		for i in length - child_count:
 			var button = RetroButton.new()
-			button.focus_entered.connect(_on_focus_button.bind(button))
-			button.pressed.connect(_on_press_button.bind(button))
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			container.add_child(button)
 	elif child_count > length:
@@ -42,13 +44,20 @@ func _update_menu() -> void:
 			container.get_child(child_count - i - 1).queue_free()
 	for i in length:
 		var button: RetroButton = container.get_child(i)
+		_wire_menu_button_if_needed(button)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.text = options[i].text
 		button.disabled = options[i].disabled
+
+func _wire_menu_button_if_needed(button: RetroButton) -> void:
+	if button.get_meta(_META_MENU_BUTTON_WIRED, false):
+		return
+	button.focus_entered.connect(_on_focus_button.bind(button))
+	button.pressed.connect(_on_press_button.bind(button))
+	button.set_meta(_META_MENU_BUTTON_WIRED, true)
 
 func _on_focus_button(button: RetroButton) -> void:
 	%RichTextLabel.text = options[button.get_index()].description
 
 func _on_press_button(button: RetroButton) -> void:
-	var callback: Callable = options[button.get_index()].pressed
-	if callback.is_valid():
-		callback.call()
+	pressed.emit(button.get_index())

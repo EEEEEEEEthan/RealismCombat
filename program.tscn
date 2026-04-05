@@ -30,11 +30,14 @@ func _ready() -> void:
 	var menu:MenuDialogue = Dialogues.create_menu()
 	menu.title = \"Realism Combat\"
 	menu.options = [
-		MenuItemData.new(\"新游戏\", false, \"开启一段新的故事\", func(): 
-			print(\"new_game\")
-			menu.queue_free()
-			%Game.create_instance()),
+		MenuItemData.new(\"新游戏\", false, \"开启一段新的故事\"),
 	]
+	menu.pressed.connect(func(index: int) -> void:
+		if index != 0:
+			return
+		print(\"new_game\")
+		menu.queue_free()
+		%Game.create_instance())
 "
 
 [sub_resource type="Image" id="Image_nslm1"]
