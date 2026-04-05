@@ -14,7 +14,12 @@ func _ready() -> void:
 		MenuItemData.new(),
 		MenuItemData.new("退出", false, "离开"),
 	]
-	var index = await menu.pressed
-	menu.queue_free()
-	if index == 0:
-		program.create_new_game()
+	while true:
+		var index = await menu.pressed
+		menu.visible = false
+		if index == 0:
+			var game = program.create_new_game()
+			print(game)
+			await game.tree_exiting
+			menu.visible = true
+			menu.grab_focus()
