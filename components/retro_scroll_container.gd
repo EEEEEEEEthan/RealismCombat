@@ -12,6 +12,8 @@ class_name RetroScrollContainer
 		viewport_count = v
 		_update_viewport()
 
+var selected: int
+
 var _show_up: bool:
 	get:
 		return viewport_begin > 0
@@ -19,14 +21,6 @@ var _show_up: bool:
 var _show_down: bool:
 	get:
 		return viewport_begin + viewport_count < get_child_count()
-
-var _focus_index: int:
-	get:
-		for i in get_child_count():
-			var child: Control = get_child(i)
-			if child.has_focus():
-				return i
-		return -1
 
 var _up: TextureRect
 var _down: TextureRect
@@ -116,13 +110,23 @@ func _stop_hover_scroll_process_if_idle() -> void:
 		set_process(false)
 
 func _on_focus_changed() -> void:
+	selected = _get_selection()
 	if not _is_focus_change_from_ui_navigation():
 		return
-	while _focus_index >= 0 and _focus_index <= viewport_begin and _show_up:
+	while selected >= 0 and selected <= viewport_begin and _show_up:
 		viewport_begin -= 1
-	while _focus_index >= 0 and _focus_index >= viewport_begin + viewport_count - 1 and _show_down:
+		selected = _get_selection()
+	while selected >= 0 and selected >= viewport_begin + viewport_count - 1 and _show_down:
 		viewport_begin += 1
+		selected = _get_selection()
 	_update_viewport()
+
+func _get_selection() -> int:
+	for i in get_child_count():
+		var child: Control = get_child(i)
+		if child.has_focus():
+			return i
+	return -1
 
 func _is_focus_change_from_ui_navigation() -> bool:
 	return (
