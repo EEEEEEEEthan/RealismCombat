@@ -48,6 +48,12 @@ func _update_menu() -> void:
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.text = options[i].text
 		button.disabled = options[i].disabled
+		if options[i].text:
+			button.mouse_filter = Control.MOUSE_FILTER_STOP
+			button.focus_mode = Control.FOCUS_ALL
+		else:
+			button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			button.focus_mode = Control.FOCUS_NONE
 
 func _wire_menu_button_if_needed(button: RetroButton) -> void:
 	if button.get_meta(_META_MENU_BUTTON_WIRED, false):
