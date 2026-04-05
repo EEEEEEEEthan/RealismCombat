@@ -9,7 +9,5 @@ func add_character(character_data: Character, side: int) -> void:
 	else:
 		character.layout_direction = Control.LAYOUT_DIRECTION_RTL
 
-	#var dialogue = GenericDialogue.create(get_tree())
-	#await dialogue.show_message("战斗开始了!")
-
-	#await GenericDialogue.show_message(get_tree(), "战斗开始了!")
+func _ready() -> void:
+	await Dialogues.show_dialogue("战斗开始了!")
