@@ -2,19 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dolbksu3b7efb" path="res://components/retro_scroll_container.gd" id="1_w4tth"]
 [ext_resource type="Script" uid="uid://t3ao6s2gx8wk" path="res://dialogues/menu_dialogue.gd" id="1_yjxsp"]
-[ext_resource type="Script" uid="uid://dboonrwg0krvc" path="res://components/retro_button.gd" id="2_pog8u"]
-
-[sub_resource type="Image" id="Image_yjxsp"]
-data = {
-"data": PackedByteArray(255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0),
-"format": "RGBA8",
-"height": 9,
-"mipmaps": false,
-"width": 9
-}
-
-[sub_resource type="ImageTexture" id="ImageTexture_yjxsp"]
-image = SubResource("Image_yjxsp")
 
 [node name="MenuDialogue" type="PanelContainer" unique_id=1569972301]
 anchors_preset = 15
@@ -44,13 +31,6 @@ theme_override_constants/separation = 0
 script = ExtResource("1_w4tth")
 viewport_count = 6
 metadata/_custom_type_script = "uid://dolbksu3b7efb"
-
-[node name="RetroButton" type="Button" parent="MarginContainer/HBoxContainer/RetroScrollContainer" unique_id=798464038]
-layout_mode = 2
-text = "Option"
-icon = SubResource("ImageTexture_yjxsp")
-script = ExtResource("2_pog8u")
-metadata/_custom_type_script = "uid://dboonrwg0krvc"
 
 [node name="ColorRect" type="ColorRect" parent="MarginContainer/HBoxContainer" unique_id=998074296]
 custom_minimum_size = Vector2(1, 0)
