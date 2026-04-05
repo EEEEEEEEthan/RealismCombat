@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bgu8rncknhalj"]
 
 [ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_ho3s7"]
-[ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://combat/character_renderer.gd" id="1_jenu5"]
-[ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://combat/body_part_renderer.tscn" id="2_jenu5"]
+[ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combat/character_renderer.gd" id="1_jenu5"]
+[ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://game/combat/body_part_renderer.tscn" id="2_jenu5"]
 
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
 anchors_preset = 15
