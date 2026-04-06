@@ -6,22 +6,28 @@ var from_body_part: BodyPartData
 var to_character: Character
 var to_body_part: BodyPartData
 
-var static_valid: bool:
+var static_validate: CombatActionError:
 	# 静态验证。不符合验证的会被剔除
 	get:
-		return _static_valid()
+		return _static_validate()
 
-var dynamic_valid: bool:
+var dynamic_validate: CombatActionError:
 	# 动态验证。不符合验证的可显示但不可用
 	get:
-		return _dynamic_valid()
+		return _dynamic_validate()
 
-var valid: bool:
+var validate: CombatActionError:
 	get:
-		return static_valid and dynamic_valid
+		var s = static_validate
+		if s:
+			return s
+		var d = dynamic_validate
+		if d:
+			return d
+		return null
 
-func _static_valid() -> bool:
-	return false
+func _static_validate() -> CombatActionError:
+	return CombatActionError.new(CombatActionError.ErrorCode.ABSTRACT_CLASS)
 
-func _dynamic_valid() -> bool:
-	return false
+func _dynamic_validate() -> CombatActionError:
+	return CombatActionError.new(CombatActionError.ErrorCode.ABSTRACT_CLASS)
