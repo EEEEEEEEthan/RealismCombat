@@ -19,6 +19,18 @@ func run() -> void:
 		%Timer.start(0.3)
 		await %Timer.timeout
 		for chr: Character in characters.keys():
+			if not chr.alive:
+				continue
 			chr.action_points.value += chr.speed
 			if chr.action_points.value >= chr.action_points.max_value:
-				print(123213)
+				var side = characters[chr]
+				if side == 0:
+					await player_input(chr)
+				else:
+					await ai_input(chr)
+
+func player_input(character: Character) -> void:
+	pass
+
+func ai_input(character: Character) -> void:
+	pass
