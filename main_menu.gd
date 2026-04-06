@@ -19,6 +19,5 @@ func _ready() -> void:
 		menu.visible = false
 		if index == 0:
 			var game = program.create_new_game()
-			print(game)
 			await game.tree_exiting
 			menu.visible = true

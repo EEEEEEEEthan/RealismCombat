@@ -21,7 +21,7 @@ func setup(part: BodyPartData) -> void:
 	%ProgressBar.custom_minimum_size.x = part.hp_max * 2 + 1
 	%ProgressBar.max_value = part.hp_max
 	%ProgressBar.value = part.hp
-	part.connect(&\"hp_changed\", _on_hp_changed)
+	part.hp_changed.connect(_on_hp_changed)
 
 func _on_hp_changed(hp: int) -> void:
 	var hp_display_tween: Tween = create_tween()

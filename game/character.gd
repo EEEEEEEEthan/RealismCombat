@@ -25,8 +25,15 @@ var left_hand: BodyPartData
 var right_foot: BodyPartData
 var left_foot: BodyPartData
 var all_body_parts: Array[BodyPartData]
-var speed: float
-var action_points: float
+var action_points:= Property.new(0, 10)
+
+var alive: bool:
+	get:
+		return head.hp > 0 and chest.hp > 0
+
+var speed: float:
+	get:
+		return 1
 
 func _init() -> void:
 	head = BodyPartData.new()

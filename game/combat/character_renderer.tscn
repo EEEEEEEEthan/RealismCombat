@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bgu8rncknhalj"]
 
-[ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_ho3s7"]
 [ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combat/character_renderer.gd" id="1_jenu5"]
+[ext_resource type="PackedScene" uid="uid://bqm5qt8d8hw21" path="res://game/combat/action_points_renderer.tscn" id="2_idsq7"]
 [ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://game/combat/body_part_renderer.tscn" id="2_jenu5"]
 
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
@@ -41,23 +41,9 @@ theme_override_constants/margin_bottom = 1
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=649617691]
+[node name="ActionPoints" parent="MarginContainer/VBoxContainer" unique_id=1089510000 instance=ExtResource("2_idsq7")]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 1
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1645070398]
-layout_mode = 2
-theme_type_variation = &"LabelSmall"
-text = "行动"
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1822765512]
-material = ExtResource("1_ho3s7")
-custom_minimum_size = Vector2(19, 0)
-layout_mode = 2
-size_flags_vertical = 1
-max_value = 10.0
-value = 6.0
-show_percentage = false
 
 [node name="Head" parent="MarginContainer/VBoxContainer" unique_id=869673898 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
