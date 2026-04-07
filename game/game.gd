@@ -14,7 +14,7 @@ func _ready() -> void:
 		MenuItemData.new(),
 		MenuItemData.new(),
 		MenuItemData.new(),
-		MenuItemData.new("退出", false, "离开"),
+		MenuItemData.new("返回菜单", false, "离开"),
 	]
 	var index = await menu.pressed
 	menu.queue_free()

@@ -16,8 +16,6 @@ func add_character(character_data: Character, side: int) -> void:
 
 func run() -> void:
 	while true:
-		%Timer.start(0.3)
-		await %Timer.timeout
 		for chr: Character in characters.keys():
 			if not chr.alive:
 				continue
@@ -28,6 +26,8 @@ func run() -> void:
 					await player_input(chr)
 				else:
 					await ai_input(chr)
+		%Timer.start(0.3)
+		await %Timer.timeout
 
 func player_input(character: Character) -> void:
 	pass
