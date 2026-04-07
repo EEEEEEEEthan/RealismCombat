@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name CharacterRenderer
 
-var all_body_part_renderers: Array:
+var all_body_part_renderers: Array[BodyPartRenderer]:
 	get:
 		if not all_body_part_renderers:
 			all_body_part_renderers = [
