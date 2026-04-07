@@ -17,7 +17,15 @@ class_name Character
 	right_foot,
 	left_foot,
 ]
+var state_machine: CharacterStateMachine
 var action_points:= Property.new(0, 10)
+
+var actions: Array[Action]:
+	get:
+		if not actions:
+			actions = []
+			actions.append_array(%Actions.get_children())
+		return actions
 
 var alive: bool:
 	get:
@@ -26,3 +34,13 @@ var alive: bool:
 var speed: float:
 	get:
 		return 1
+
+func add_action(action: Action) -> void:
+	%actions.add_child(action)
+	actions = []
+
+func on_enter_combat() -> void:
+	state_machine = %CharacterStateMachineTemplate.create_instance()
+
+func on_exit_combat() -> void:
+	state_machine = null

@@ -5,32 +5,23 @@ const _menu_item_data_script: GDScript = preload("res://dialogues/menu_item_data
 
 var characters: Dictionary[Character, int] = {}
 
-func add_character(character_data: Character, side: int) -> void:
-	var character: CharacterRenderer = %CharacterPlaceHolder.create_instance()
-	character.bind(character_data)
+func add_character(character: Character, side: int) -> void:
+	var chr: CharacterRenderer = %CharacterPlaceHolder.create_instance()
+	chr.bind(character)
 	if side == 0:
-		character.layout_direction = Control.LAYOUT_DIRECTION_LTR
+		chr.layout_direction = Control.LAYOUT_DIRECTION_LTR
 	else:
-		character.layout_direction = Control.LAYOUT_DIRECTION_RTL
-	characters[character_data] = side
+		chr.layout_direction = Control.LAYOUT_DIRECTION_RTL
+	characters[character] = side
+	character.on_enter_combat()
+	await tree_exited
+	character.on_exit_combat()
 
 func run() -> void:
 	while true:
 		for chr: Character in characters.keys():
 			if not chr.alive:
 				continue
-			chr.action_points.value += chr.speed
-			if chr.action_points.value >= chr.action_points.max_value:
-				var side = characters[chr]
-				if side == 0:
-					await player_input(chr)
-				else:
-					await ai_input(chr)
+			chr.state_machine.new_tick()
 		%Timer.start(0.3)
 		await %Timer.timeout
-
-func player_input(character: Character) -> void:
-	pass
-
-func ai_input(character: Character) -> void:
-	pass

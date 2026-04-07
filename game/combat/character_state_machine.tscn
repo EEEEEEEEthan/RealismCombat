@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bsvk4v5bj0fxm"]
+
+[node name="CharacterStateMachine" type="Node" unique_id=296951462]
+
+[node name="IdleState" type="Node" parent="." unique_id=245378043]
+
+[node name="ActionState" type="Node" parent="." unique_id=250296828]
