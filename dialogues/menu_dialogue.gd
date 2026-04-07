@@ -29,7 +29,9 @@ static func create(tree: SceneTree) -> MenuDialogue:
 
 func _ready() -> void:
 	_update_title()
-	for button:RetroButton in %RetroScrollContainer.get_children():
+	var scroll: RetroScrollContainer = %RetroScrollContainer
+	scroll.navigation_selection_changed.connect(_on_navigation_selection_changed)
+	for button: RetroButton in scroll.get_children():
 		_connect_button(button)
 	_update_menu()
 
@@ -68,6 +70,10 @@ func _update_menu() -> void:
 func _connect_button(button: RetroButton) -> void:
 	button.focus_entered.connect(_on_focus_button.bind(button))
 	button.pressed.connect(_on_press_button.bind(button))
+
+
+func _on_navigation_selection_changed(_index: int) -> void:
+	AudioManager.play_beep()
 
 
 func _on_focus_button(button: RetroButton) -> void:

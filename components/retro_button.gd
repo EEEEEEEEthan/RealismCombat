@@ -44,7 +44,6 @@ func _on_mouse_entered() -> void:
 	grab_focus()
 
 func _on_focus_entered() -> void:
-	AudioManager.play_beep()
 	_update_icon()
 
 func _on_focus_exited() -> void:

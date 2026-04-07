@@ -2,6 +2,9 @@
 extends VBoxContainer
 class_name RetroScrollContainer
 
+## 方向键 / Tab 等 UI 导航导致可见列表内选中项变化时发出，参数为子节点索引。
+signal navigation_selection_changed(index: int)
+
 @export var viewport_begin: int:
 	set(v):
 		viewport_begin = v
@@ -111,8 +114,6 @@ func _stop_hover_scroll_process_if_idle() -> void:
 
 func _on_focus_changed() -> void:
 	var new_selected = _get_selection()
-	if not _is_focus_change_from_ui_navigation():
-		return
 	while new_selected >= 0 and new_selected <= viewport_begin and _show_up:
 		viewport_begin -= 1
 		new_selected = _get_selection()
@@ -120,7 +121,9 @@ func _on_focus_changed() -> void:
 		viewport_begin += 1
 		new_selected = _get_selection()
 	if new_selected >= 0:
-		last_selected = new_selected
+		if new_selected != last_selected:
+			last_selected = new_selected
+			navigation_selection_changed.emit(new_selected)
 	_update_viewport()
 
 func _get_selection() -> int:
