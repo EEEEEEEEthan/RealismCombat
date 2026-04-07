@@ -3,8 +3,14 @@ class_name Game
 
 var character_ethan: Character
 
+func _create_character(name: String) -> Character:
+	var chr:Character = %CharacterTemplate.create_instance()
+	chr.character_name = "Dove"
+	add_child(chr)
+	return chr
+
 func _ready() -> void:
-	character_ethan = %CharacterTemplate.create_instance()
+	character_ethan = _create_character("Ethan")
 	var menu:MenuDialogue = Dialogues.create_menu()
 	menu.title = "Realism Combat"
 	menu.options = [
@@ -21,8 +27,7 @@ func _ready() -> void:
 	if index == 0:
 		var combat:Combat = %Combat.create_instance()
 		combat.add_character(character_ethan, 0)
-		var dove:Character = %CharacterTemplate.create_instance()
-		dove.character_name = "Dove"
+		var dove:Character = _create_character("Dove")
 		combat.add_character(dove, 1)
 		combat.run()
 	elif index == 6:
