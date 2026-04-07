@@ -5,8 +5,8 @@ var character_ethan: Character
 
 func _create_character(name: String) -> Character:
 	var chr:Character = %CharacterTemplate.create_instance()
-	chr.character_name = "Dove"
-	add_child(chr)
+	chr.name = name
+	chr.character_name = name
 	return chr
 
 func _ready() -> void:
