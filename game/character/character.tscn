@@ -35,3 +35,6 @@ _hp = Vector2i(7, 7)
 unique_name_in_owner = true
 part = 5
 _hp = Vector2i(7, 7)
+
+[node name="Actions" type="Node" parent="." unique_id=961988933]
+unique_name_in_owner = true

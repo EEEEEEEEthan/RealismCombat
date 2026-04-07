@@ -8,7 +8,15 @@ var character_name: String
 @onready var left_hand: BodyPart = %LeftHand
 @onready var right_foot: BodyPart = %RightFoot
 @onready var left_foot: BodyPart = %LeftFoot
-var all_body_parts: Array[BodyPart]
+@onready var game: Game = get_parent()
+@onready var all_body_parts: Array[BodyPart] = [
+	head,
+	chest,
+	right_hand,
+	left_hand,
+	right_foot,
+	left_foot,
+]
 var action_points:= Property.new(0, 10)
 
 var alive: bool:
@@ -18,11 +26,3 @@ var alive: bool:
 var speed: float:
 	get:
 		return 1
-
-func _ready() -> void:
-	all_body_parts.append(head)
-	all_body_parts.append(chest)
-	all_body_parts.append(right_hand)
-	all_body_parts.append(left_hand)
-	all_body_parts.append(right_foot)
-	all_body_parts.append(left_foot)
