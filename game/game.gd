@@ -3,10 +3,10 @@ class_name Game
 
 var character_ethan: Character
 
-func _create_character(name: String) -> Character:
+func _create_character(character_name: String) -> Character:
 	var chr:Character = %CharacterTemplate.create_instance()
-	chr.name = name
-	chr.character_name = name
+	chr.name = character_name
+	chr.character_name = character_name
 	return chr
 
 func _ready() -> void:
