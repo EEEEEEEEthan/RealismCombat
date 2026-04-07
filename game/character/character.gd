@@ -1,7 +1,7 @@
 extends Node
 class_name Character
 
-var character_name: String
+@export var character_name: String
 @onready var head: BodyPart = %Head
 @onready var chest: BodyPart = %Chest
 @onready var right_hand: BodyPart = %RightHand

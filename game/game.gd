@@ -1,7 +1,8 @@
 extends Node
 class_name Game
 
-var character_ethan: Character
+var combat: Combat
+@onready var character_ethan: Character = %Ethan
 
 func _create_character(character_name: String) -> Character:
 	var chr:Character = %CharacterTemplate.create_instance()
@@ -10,7 +11,6 @@ func _create_character(character_name: String) -> Character:
 	return chr
 
 func _ready() -> void:
-	character_ethan = _create_character("Ethan")
 	var menu:MenuDialogue = Dialogues.create_menu()
 	menu.title = "Realism Combat"
 	menu.options = [
@@ -25,7 +25,7 @@ func _ready() -> void:
 	var index = await menu.pressed
 	menu.queue_free()
 	if index == 0:
-		var combat:Combat = %Combat.create_instance()
+		combat = %Combat.create_instance()
 		combat.add_character(character_ethan, 0)
 		var dove:Character = _create_character("Dove")
 		combat.add_character(dove, 1)

@@ -1,12 +1,17 @@
 [gd_scene format=3 uid="uid://d4fyln5qrlp3s"]
 
 [ext_resource type="Script" uid="uid://dapr8ca26q2mv" path="res://game/game.gd" id="1_80nbo"]
+[ext_resource type="PackedScene" uid="uid://ddjp7f31joan7" path="res://game/character/character.tscn" id="2_vasa2"]
 
 [node name="Game" type="Node" unique_id=782850094]
 script = ExtResource("1_80nbo")
 
 [node name="Combat" parent="." unique_id=1435013025 instance_placeholder="res://game/combat/combat.tscn"]
 unique_name_in_owner = true
+
+[node name="Ethan" parent="." unique_id=88401472 instance=ExtResource("2_vasa2")]
+unique_name_in_owner = true
+character_name = "Ethan"
 
 [node name="CharacterTemplate" parent="." unique_id=1285653012 instance_placeholder="res://game/character/character.tscn"]
 unique_name_in_owner = true
