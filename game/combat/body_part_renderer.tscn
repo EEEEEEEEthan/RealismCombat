@@ -4,7 +4,7 @@
 script/source = "@tool
 extends HBoxContainer
 
-func setup(part: BodyPartData) -> void:
+func setup(part: BodyPart) -> void:
 	match part.part:
 		Defs.BodyPart.HEAD:
 			%Label.text = \"头部\"
@@ -18,10 +18,10 @@ func setup(part: BodyPartData) -> void:
 			%Label.text = \"右脚\"
 		Defs.BodyPart.LEFT_FOOT:
 			%Label.text = \"左脚\"
-	%ProgressBar.custom_minimum_size.x = part.hp_max * 2 + 1
-	%ProgressBar.max_value = part.hp_max
-	%ProgressBar.value = part.hp
-	part.hp_changed.connect(_on_hp_changed)
+	%ProgressBar.custom_minimum_size.x = part.hp.max_value * 2 - 1
+	%ProgressBar.max_value = part.hp.max_value
+	%ProgressBar.value = part.hp.value
+	part.hp.changed.connect(_on_hp_changed)
 
 func _on_hp_changed(hp: int) -> void:
 	var hp_display_tween: Tween = create_tween()

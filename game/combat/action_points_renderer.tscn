@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://bbkmxh635fyl3" path="res://jump_material.tres" id="1_mkfl3"]
 
 [node name="ActionPoints" type="HBoxContainer" unique_id=1089510000]
-theme_override_constants/separation = 1
+theme_override_constants/separation = 2
 script = ExtResource("1_7i7lx")
 
 [node name="Label" type="Label" parent="." unique_id=421053883]

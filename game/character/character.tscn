@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://ddjp7f31joan7"]
+
+[ext_resource type="Script" uid="uid://dtiny76lu38pm" path="res://game/character/character.gd" id="1_k2vk2"]
+[ext_resource type="PackedScene" uid="uid://drx5uooytwdyu" path="res://game/character/body_part.tscn" id="1_l8xil"]
+
+[node name="Character" type="Node" unique_id=1285653012]
+process_mode = 4
+script = ExtResource("1_k2vk2")
+
+[node name="Head" parent="." unique_id=182424932 instance=ExtResource("1_l8xil")]
+unique_name_in_owner = true
+_hp = Vector2i(3, 3)
+
+[node name="Chest" parent="." unique_id=527096756 instance=ExtResource("1_l8xil")]
+unique_name_in_owner = true
+part = 1
+_hp = Vector2i(10, 10)
+
+[node name="RightHand" parent="." unique_id=998770070 instance=ExtResource("1_l8xil")]
+unique_name_in_owner = true
+part = 2
+_hp = Vector2i(6, 6)
+
+[node name="LeftHand" parent="." unique_id=899666299 instance=ExtResource("1_l8xil")]
+unique_name_in_owner = true
+part = 3
+_hp = Vector2i(6, 6)
+
+[node name="RightFoot" parent="." unique_id=476604892 instance=ExtResource("1_l8xil")]
+unique_name_in_owner = true
+part = 4
+_hp = Vector2i(7, 7)
+
+[node name="LeftFoot" parent="." unique_id=1943058582 instance=ExtResource("1_l8xil")]
+unique_name_in_owner = true
+part = 5
+_hp = Vector2i(7, 7)

@@ -7,3 +7,6 @@ script = ExtResource("1_80nbo")
 
 [node name="Combat" parent="." unique_id=1435013025 instance_placeholder="res://game/combat/combat.tscn"]
 unique_name_in_owner = true
+
+[node name="CharacterTemplate" parent="." unique_id=1285653012 instance_placeholder="res://game/character/character.tscn"]
+unique_name_in_owner = true

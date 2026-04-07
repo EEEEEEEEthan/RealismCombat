@@ -4,7 +4,7 @@ class_name Game
 var character_ethan: Character
 
 func _ready() -> void:
-	character_ethan = Character.create_default("Ethan")
+	character_ethan = %CharacterTemplate.create_instance()
 	var menu:MenuDialogue = Dialogues.create_menu()
 	menu.title = "Realism Combat"
 	menu.options = [
@@ -21,7 +21,9 @@ func _ready() -> void:
 	if index == 0:
 		var combat:Combat = %Combat.create_instance()
 		combat.add_character(character_ethan, 0)
-		combat.add_character(Character.create_default("Dove"), 1)
+		var dove:Character = %CharacterTemplate.create_instance()
+		dove.character_name = "Dove"
+		combat.add_character(dove, 1)
 		combat.run()
 	elif index == 6:
 		queue_free()

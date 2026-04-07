@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://drx5uooytwdyu"]
+
+[ext_resource type="Script" uid="uid://emnksjs3djbr" path="res://game/character/body_part.gd" id="1_iogss"]
+
+[node name="BodyPart" type="Node" unique_id=182424932]
+script = ExtResource("1_iogss")
