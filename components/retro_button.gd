@@ -29,8 +29,6 @@ static var _icon_empty: Texture2D:
 			_icon_empty = ImageTexture.create_from_image(image)
 		return _icon_empty
 
-var _down: bool
-
 func _ready() -> void:
 	connect(&"mouse_entered", _on_mouse_entered)
 	connect(&"focus_entered", _on_focus_entered)
@@ -54,19 +52,17 @@ func _on_pressed() -> void:
 	_update_icon()
 
 func _on_button_down() -> void:
-	_down = true
 	grab_focus()
 	_update_icon()
 
 func _on_button_up() -> void:
-	_down = false
 	_update_icon()
 
 func _update_icon() -> void:
 	if not has_focus():
 		icon = _icon_empty
 		return
-	if _down:
+	if button_pressed:
 		icon = _icon_pressed
 		return
 	icon = _icon
