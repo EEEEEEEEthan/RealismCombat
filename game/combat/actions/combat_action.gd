@@ -6,28 +6,22 @@ var from_body_part: BodyPartData
 var to_character: Character
 var to_body_part: BodyPartData
 
-var static_validate: CombatActionError:
-	# 静态验证。不符合验证的会被剔除
-	get:
-		return _static_validate()
+## 依次产出 { "bodypart": BodyPartData, "errormsg": String }；errormsg 为空表示可作发动部位。
+func iter_available_from_body_parts() -> Array:
+	var pairs: Array = []
+	for body_part in from_character.all_body_parts:
+		if not _static_validate_from_body_part(body_part):
+			continue
+		pairs.append({
+			"bodypart": body_part,
+			"errormsg": _dynamic_validate_from_body_part(body_part),
+		})
+	return pairs
 
-var dynamic_validate: CombatActionError:
-	# 动态验证。不符合验证的可显示但不可用
-	get:
-		return _dynamic_validate()
+## 子类覆写：返回false菜单不可见
+func _static_validate_from_body_part(body_part: BodyPartData) -> bool:
+	return false
 
-var validate: CombatActionError:
-	get:
-		var s = static_validate
-		if s:
-			return s
-		var d = dynamic_validate
-		if d:
-			return d
-		return null
-
-func _static_validate() -> CombatActionError:
-	return CombatActionError.new(CombatActionError.ErrorCode.ABSTRACT_CLASS)
-
-func _dynamic_validate() -> CombatActionError:
-	return CombatActionError.new(CombatActionError.ErrorCode.ABSTRACT_CLASS)
+## 子类覆写：返回空串表示该部位可用，否则为不可用说明。
+func _dynamic_validate_from_body_part(body_part: BodyPartData) -> String:
+	return ""
