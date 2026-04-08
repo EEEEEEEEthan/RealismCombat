@@ -22,6 +22,6 @@ func run() -> void:
 		for chr: Character in characters.keys():
 			if not chr.alive:
 				continue
-			chr.state_machine.new_tick()
+			await chr.state_machine.new_tick()
 		%Timer.start(0.3)
 		await %Timer.timeout

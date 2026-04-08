@@ -2,9 +2,27 @@
 
 [ext_resource type="Script" uid="uid://dwgq7aw8kbysj" path="res://game/combat/character_state_machine.gd" id="1_tpvsg"]
 
+[sub_resource type="GDScript" id="GDScript_tpvsg"]
+resource_name = "IdleState"
+script/source = "extends Node
+
+func new_tick() -> void:
+	pass
+"
+
+[sub_resource type="GDScript" id="GDScript_4kuc4"]
+resource_name = "ActionState"
+script/source = "extends Node
+
+func new_tick() -> void:
+	pass
+"
+
 [node name="CharacterStateMachine" type="Node" unique_id=296951462]
 script = ExtResource("1_tpvsg")
 
 [node name="IdleState" type="Node" parent="." unique_id=245378043]
+script = SubResource("GDScript_tpvsg")
 
 [node name="ActionState" type="Node" parent="." unique_id=250296828]
+script = SubResource("GDScript_4kuc4")
