@@ -21,7 +21,7 @@ texture_margin_bottom = 4.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_05tig"]
 atlas = ExtResource("2_110ce")
-region = Rect2(15, 11, 2, 8)
+region = Rect2(14, 11, 2, 8)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_05tig"]
 resource_name = "progress_background_gray"
@@ -35,7 +35,7 @@ modulate_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
 [sub_resource type="AtlasTexture" id="AtlasTexture_vpuba"]
 resource_name = "progress_bar_atlas"
 atlas = ExtResource("2_110ce")
-region = Rect2(13, 11, 2, 8)
+region = Rect2(12, 11, 2, 8)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_110ce"]
 resource_name = "progress_fill_white"
@@ -44,13 +44,21 @@ texture_margin_top = 2.0
 texture_margin_bottom = 2.0
 axis_stretch_horizontal = 1
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vj6dk"]
+resource_name = "progress_background_gray"
+texture = SubResource("AtlasTexture_05tig")
+texture_margin_top = 3.0
+texture_margin_bottom = 3.0
+axis_stretch_horizontal = 1
+region_rect = Rect2(0, 0, 2, 8)
+modulate_color = Color(0.4745098, 0.4745098, 0.4745098, 1)
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1rmny"]
-resource_name = "progress_fill_red"
+resource_name = "progress_fill_white"
 texture = SubResource("AtlasTexture_vpuba")
 texture_margin_top = 2.0
 texture_margin_bottom = 2.0
 axis_stretch_horizontal = 1
-modulate_color = Color(0.69803923, 0.0627451, 0.1882353, 1)
 
 [resource]
 default_font = ExtResource("2_cjfk0")
@@ -86,6 +94,6 @@ LabelSmall/fonts/font = ExtResource("1_vj6dk")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_wvktn")
 ProgressBar/styles/background = SubResource("StyleBoxTexture_05tig")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_110ce")
-ProgressBarRed/base_type = &"ProgressBar"
-ProgressBarRed/styles/background = SubResource("StyleBoxTexture_05tig")
-ProgressBarRed/styles/fill = SubResource("StyleBoxTexture_1rmny")
+ProgressBarRightToLeft/base_type = &"ProgressBar"
+ProgressBarRightToLeft/styles/background = SubResource("StyleBoxTexture_vj6dk")
+ProgressBarRightToLeft/styles/fill = SubResource("StyleBoxTexture_1rmny")
