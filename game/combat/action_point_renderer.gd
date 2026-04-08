@@ -14,7 +14,4 @@ func _ready() -> void:
 
 func _on_value_changed() -> void:
 	$ProgressBar.value = _action_points.value
-	if _action_points.value >= $ProgressBar.max_value:
-		$ProgressBar.material = _material
-	else:
-		$ProgressBar.material = null
+	$ProgressBar.jump = _action_points.value >= $ProgressBar.max_value
