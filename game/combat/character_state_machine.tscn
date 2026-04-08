@@ -6,8 +6,15 @@
 resource_name = "IdleState"
 script/source = "extends Node
 
+@onready var parent_machine: CharacterStateMachine = get_parent()
+@onready var character: Character = parent_machine.character
+
 func new_tick() -> void:
-	pass
+	var action_points := parent_machine.action_points
+	action_points.value = minf(
+		action_points.value + parent_machine.character.speed / 10.0,
+		action_points.max_value,
+	)
 "
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]
