@@ -1,7 +1,14 @@
 extends Node
 class_name CharacterStateMachine
 
-@onready var character: Character = get_parent()
+var character: Character:
+	get: return get_parent()
+var game: Game:
+	get: return character.game
+var combat: Combat:
+	get: return game.combat
+var is_player: bool:
+	get: return combat.characters[character] == 0
 var action_points:= Property.new(0, 10)
 
 @onready var current_state: Node = %IdleState

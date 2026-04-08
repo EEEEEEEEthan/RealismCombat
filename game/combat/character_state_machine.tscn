@@ -15,6 +15,11 @@ func new_tick() -> void:
 		action_points.value + parent_machine.character.speed / 10.0,
 		action_points.max_value,
 	)
+	if action_points.value >= action_points.max_value:
+		if parent_machine.is_player:
+			pass  # 玩家回合
+		else:
+			pass  # AI回合
 "
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]
