@@ -7,11 +7,8 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjfk0"]
 resource_name = "button_empty"
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vj6dk"]
-load_path = "res://.godot/imported/theme_atlas.png-50a9de86a86cbdd08c9008fcd558cad7.ctex"
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_vj6dk"]
-atlas = SubResource("CompressedTexture2D_vj6dk")
+atlas = ExtResource("2_110ce")
 region = Rect2(0, 10, 10, 10)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wvktn"]

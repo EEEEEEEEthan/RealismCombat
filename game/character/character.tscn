@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://dtiny76lu38pm" path="res://game/character/character.gd" id="1_k2vk2"]
 [ext_resource type="PackedScene" uid="uid://drx5uooytwdyu" path="res://game/character/body_part.tscn" id="1_l8xil"]
 [ext_resource type="Script" uid="uid://b38ygvfgttm4n" path="res://game/character/actions/action_punch.gd" id="3_d8xd1"]
-[ext_resource type="PackedScene" uid="uid://bsvk4v5bj0fxm" path="res://game/combat/character_state_machine.tscn" id="4_jrqbp"]
 
 [node name="Character" type="Node" unique_id=1285653012]
 process_mode = 4
@@ -44,5 +43,5 @@ unique_name_in_owner = true
 [node name="Punch" type="Node" parent="Actions" unique_id=461851238]
 script = ExtResource("3_d8xd1")
 
-[node name="CharacterStateMachineTemplate" parent="." unique_id=296951462 instance=ExtResource("4_jrqbp")]
+[node name="CharacterStateMachineTemplate" parent="." unique_id=296951462 instance_placeholder="res://game/combat/character_state_machine.tscn"]
 unique_name_in_owner = true
