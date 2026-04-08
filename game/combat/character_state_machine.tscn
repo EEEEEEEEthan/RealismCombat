@@ -16,10 +16,23 @@ func new_tick() -> void:
 		action_points.max_value,
 	)
 	if action_points.value >= action_points.max_value:
+		print(\"这里应该播放音效\")
 		if parent_machine.is_player:
-			pass  # 玩家回合
+			await Dialogues.show_dialogue(parent_machine.character.character_name + \"的回合!\")
+			var menu = Dialogues.create_menu()
+			var list:Array[MenuItemData] = [
+				MenuItemData.new(&\"头部\", false, &\"头部状态\"),
+				MenuItemData.new(&\"胸部\", false, &\"胸部状态\"),
+				MenuItemData.new(&\"右手\", false, &\"右手状态\"),
+				MenuItemData.new(&\"左手\", false, &\"左手状态\"),
+				MenuItemData.new(&\"右腿\", false, &\"右腿状态\"),
+				MenuItemData.new(&\"左腿\", false, &\"左腿状态\"),
+			]
+			menu.options = list
+			var choice = menu.pressed
+			print(choice)
 		else:
-			pass  # AI回合
+			pass
 "
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]
