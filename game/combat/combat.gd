@@ -7,13 +7,13 @@ var characters: Dictionary[Character, int] = {}
 
 func add_character(character: Character, side: int) -> void:
 	var chr: CharacterRenderer = %CharacterPlaceHolder.create_instance()
+	character.on_enter_combat()
 	chr.bind(character)
 	if side == 0:
 		chr.layout_direction = Control.LAYOUT_DIRECTION_LTR
 	else:
 		chr.layout_direction = Control.LAYOUT_DIRECTION_RTL
 	characters[character] = side
-	character.on_enter_combat()
 	await tree_exited
 	character.on_exit_combat()
 

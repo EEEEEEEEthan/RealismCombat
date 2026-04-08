@@ -18,7 +18,6 @@ class_name Character
 	left_foot,
 ]
 var state_machine: CharacterStateMachine
-var action_points:= Property.new(0, 10)
 
 var actions: Array[Action]:
 	get:

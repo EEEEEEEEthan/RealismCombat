@@ -12,4 +12,4 @@ func bind(character: Character) -> void:
 	%Name.text = character.character_name
 	for i in 6:
 		all_body_part_renderers[i].setup(character.all_body_parts[i])
-	%ActionPoints.bind(character.action_points)
+	%ActionPoints.bind(character.state_machine.action_points)
