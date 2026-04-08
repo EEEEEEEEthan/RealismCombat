@@ -29,6 +29,7 @@ func new_tick() -> void:
 script = ExtResource("1_tpvsg")
 
 [node name="IdleState" type="Node" parent="." unique_id=245378043]
+unique_name_in_owner = true
 script = SubResource("GDScript_tpvsg")
 
 [node name="ActionState" type="Node" parent="." unique_id=250296828]
