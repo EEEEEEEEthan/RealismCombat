@@ -32,7 +32,7 @@ var alive: bool:
 
 var speed: float:
 	get:
-		return 1
+		return 10
 
 func add_action(action: Action) -> void:
 	%actions.add_child(action)
