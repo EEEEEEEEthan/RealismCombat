@@ -25,3 +25,9 @@ func _get_name() -> StringName:
 
 func _get_description() -> String:
 	return &"一种几乎本能的徒手攻击"
+
+func _get_windup_action_points() -> int:
+	return 1
+
+func _get_recovery_action_points() -> int:
+	return 1

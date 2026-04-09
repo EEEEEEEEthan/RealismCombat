@@ -9,6 +9,12 @@ var action_name: StringName:
 var description: String:
 	get: return _get_description()
 
+var windup_action_points: int:
+	get: return _get_windup_action_points()
+
+var recovery_action_points: int:
+	get: return _get_recovery_action_points()
+
 func static_valid_from_body(_from_body: BodyPart) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
@@ -32,3 +38,9 @@ func _get_description() -> String:
 
 func _get_name() -> StringName:
 	return &"unknown"
+
+func _get_windup_action_points() -> int:
+	return 0
+
+func _get_recovery_action_points() -> int:
+	return 0
