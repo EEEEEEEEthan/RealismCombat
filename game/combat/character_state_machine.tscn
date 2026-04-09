@@ -29,8 +29,7 @@ func new_tick() -> void:
 				MenuItemData.new(&\"左腿\", false, &\"左腿状态\"),
 			]
 			menu.options = list
-			var choice = menu.pressed
-			print(choice)
+			var choice = await menu.pressed
 		else:
 			pass
 "

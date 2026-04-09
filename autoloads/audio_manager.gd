@@ -7,7 +7,7 @@ func play_button_press():
 	_play(Resources.audio_stream_selection)
 
 func play_turn_begin():
-	_play(Resources.audio_stream_double_beep)
+	_play(Resources.audio_stream_start)
 
 func _play(stream: AudioStream) -> void:
 	var player = AudioStreamPlayer.new()

@@ -3,18 +3,23 @@ class_name Resources
 
 static var audio_stream_beep: AudioStream:
 	get:
-		if not audio_stream_beep: audio_stream_beep = _load_audio_stream(&"res://audios/beep.mp3")
+		if not audio_stream_beep: audio_stream_beep = _load_audio_stream(&"res://audios/beep.wav")
 		return audio_stream_beep
 
 static var audio_stream_double_beep: AudioStream:
 	get:
-		if not audio_stream_double_beep: audio_stream_double_beep = _load_audio_stream(&"res://audios/double_beep.ogg")
+		if not audio_stream_double_beep: audio_stream_double_beep = _load_audio_stream(&"res://audios/double_beep.wav")
 		return audio_stream_double_beep
 
 static var audio_stream_selection: AudioStream:
 	get:
 		if not audio_stream_selection: audio_stream_selection = _load_audio_stream(&"res://audios/selection.wav")
 		return audio_stream_selection
+
+static var audio_stream_start: AudioStream:
+	get:
+		if not audio_stream_start: audio_stream_start = _load_audio_stream(&"res://audios/start.wav")
+		return audio_stream_start
 
 static var texture2d_theme_atlas: Texture2D:
 	get:
