@@ -1,23 +1,15 @@
 extends Node
 
-var _players: Array = []
-
-var _player: AudioStreamPlayer:
-	get:
-		for player: AudioStreamPlayer in _players:
-			if player.finished:
-				return player
-		var player = AudioStreamPlayer.new()
-		_players.append(player)
-		add_child(player)
-		return player
-
-func play_beep():
+func play_button_hover():
 	_play(Resources.audio_stream_beep)
 
-func play_selection():
+func play_button_press():
 	_play(Resources.audio_stream_selection)
 
 func _play(stream: AudioStream) -> void:
-	_player.stream = stream
-	_player.play()
+	var player = AudioStreamPlayer.new()
+	add_child(player)
+	player.stream = stream
+	player.play()
+	await player.finished
+	player.queue_free()

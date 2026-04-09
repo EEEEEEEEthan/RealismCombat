@@ -73,7 +73,7 @@ func _connect_button(button: RetroButton) -> void:
 
 
 func _on_navigation_selection_changed(_index: int) -> void:
-	AudioManager.play_beep()
+	AudioManager.play_button_hover()
 
 
 func _on_focus_button(button: RetroButton) -> void:

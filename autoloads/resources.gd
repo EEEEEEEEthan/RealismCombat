@@ -4,13 +4,7 @@ class_name Resources
 static var audio_stream_beep: AudioStream:
 	get:
 		if not audio_stream_beep:
-			audio_stream_beep = _load_audio_stream(&"res://audios/beep.wav")
-		return audio_stream_beep
-
-static var audio_stream_beep2: AudioStream:
-	get:
-		if not audio_stream_beep:
-			audio_stream_beep = _load_audio_stream(&"res://audios/beep2.mp3")
+			audio_stream_beep = _load_audio_stream(&"res://audios/beep.mp3")
 		return audio_stream_beep
 
 static var audio_stream_selection: AudioStream:
@@ -44,7 +38,7 @@ static var atlas_texture_theme_up: AtlasTexture:
 static func _load_audio_stream(path: StringName) -> AudioStream:
 	var stream: AudioStream = ResourceLoader.load(path)
 	if not stream:
-		stream = ResourceLoader.load(&"res://audios/beep.wav")
+		stream = ResourceLoader.load(&"res://audios/beep.mp3")
 		push_error(path + " missing")
 	return stream
 
