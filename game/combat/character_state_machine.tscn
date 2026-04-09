@@ -4,13 +4,11 @@
 
 [sub_resource type="GDScript" id="GDScript_tpvsg"]
 resource_name = "IdleState"
-script/source = "extends Node
+script/source = "extends CharacterStateMachine
 
 @onready var parent_machine: CharacterStateMachine = get_parent()
-@onready var character: Character = parent_machine.character
 
 func new_tick() -> void:
-	var action_points := parent_machine.action_points
 	action_points.value = minf(
 		action_points.value + parent_machine.character.speed / 10.0,
 		action_points.max_value,
@@ -25,7 +23,7 @@ func new_tick() -> void:
 
 func player_turn_choose_from_body_part() -> void:
 	var menu = Dialogues.create_menu()
-	var list:Array[MenuItemData] = [
+	var options:Array[MenuItemData] = [
 		MenuItemData.new(&\"头部\", false, &\"头部状态\"),
 		MenuItemData.new(&\"胸部\", false, &\"胸部状态\"),
 		MenuItemData.new(&\"右手\", false, &\"右手状态\"),
@@ -33,7 +31,7 @@ func player_turn_choose_from_body_part() -> void:
 		MenuItemData.new(&\"右腿\", false, &\"右腿状态\"),
 		MenuItemData.new(&\"左腿\", false, &\"左腿状态\"),
 	]
-	menu.options = list
+	menu.options = options
 	while true:
 		var choice = await menu.pressed
 		var from_body := character.all_body_parts[choice]
@@ -42,11 +40,11 @@ func player_turn_choose_from_body_part() -> void:
 	menu.queue_free()
 
 func player_turn_choose_action(from_body: BodyPart) -> bool:
-	var action_options: Array[MenuItemData]
+	var menu = Dialogues.create_menu()
+	var options: Array[MenuItemData]
 	var action_list: Array[Action]
 	for action in character.actions:
-		if not action.static_valid_from_body(from_body).success:
-			continue
+		if not action.static_valid_from_body(from_body).success: continue
 		var outcome = action.static_valid_to_body(from_body)
 		var data = MenuItemData.new(action.action_name)
 		if not outcome.success:
@@ -55,24 +53,51 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 		else:
 			data.disabled = false
 			data.description = action.description
-		action_options.append(data)
+		options.append(data)
 		action_list.append(action)
-	action_options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
-	var menu = Dialogues.create_menu()
-	menu.options = action_options
+	options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	menu.options = options
 	while true:
 		var choice = await menu.pressed
-		if choice >= len(action_list):
-			break
+		if choice >= len(action_list): break
 		var action = action_list[choice]
-		# build action
+		if await player_turn_choose_target(action, from_body):
+			menu.queue_free()
+			return true
+	return false
+
+func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
+	var menu = Dialogues.create_menu()
+	var options: Array[MenuItemData]
+	var characters: Array[MenuItemData]
+	for chr in parent_machine.combat.characters:
+		if not action.static_valid_to_character(chr).success:
+			continue
+		var data = MenuItemData.new(chr.character_name)
+		var outcome = action.dynamic_valid_to_character(chr)
+		if outcome.success:
+			data.description = &\"选择\" + chr.character_name + &\"为目标\"
+		options.append(data)
+		characters.append(chr)
+	options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	menu.options = options
+	while true:
+		var choice = await menu.pressed
+		if choice >= len(characters): break
+		var chr = characters[choice]
+		if await player_turn_choose_target_body(action, from_body, chr):
+			menu.queue_free()
+			return true
 	menu.queue_free()
+	return false
+
+func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_character: Character) -> bool:
 	return false
 "
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]
 resource_name = "ActionState"
-script/source = "extends Node
+script/source = "extends CharacterStateMachine
 
 func new_tick() -> void:
 	pass
