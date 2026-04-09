@@ -16,7 +16,7 @@ func new_tick() -> void:
 		action_points.max_value,
 	)
 	if action_points.value >= action_points.max_value:
-		print(\"这里应该播放音效\")
+		AudioManager.play_turn_begin()
 		if parent_machine.is_player:
 			await Dialogues.show_dialogue(parent_machine.character.character_name + \"的回合!\")
 			var menu = Dialogues.create_menu()

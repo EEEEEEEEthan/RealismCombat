@@ -6,6 +6,9 @@ func play_button_hover():
 func play_button_press():
 	_play(Resources.audio_stream_selection)
 
+func play_turn_begin():
+	_play(Resources.audio_stream_double_beep)
+
 func _play(stream: AudioStream) -> void:
 	var player = AudioStreamPlayer.new()
 	add_child(player)
