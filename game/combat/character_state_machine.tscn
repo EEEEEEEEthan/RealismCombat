@@ -91,7 +91,31 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 	menu.queue_free()
 	return false
 
-func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_character: Character) -> bool:
+func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_character: Character) -> bool:
+	var menu = Dialogues.create_menu()
+	var options: Array[MenuItemData]
+	var body_list: Array[BodyPart]
+	for to_body in to_character.all_body_parts:
+		if not action.static_valid_to_body(to_body).success:
+			continue
+		var data = MenuItemData.new(str(to_body.part_name))
+		var dynamic_outcome = action.dynamic_valid_to_body(to_body)
+		if dynamic_outcome.success:
+			data.disabled = false
+			data.description = \"选择\" + str(to_body.part_name) + \"为目标\"
+		else:
+			data.disabled = true
+			data.description = dynamic_outcome.error_message
+		options.append(data)
+		body_list.append(to_body)
+	options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	menu.options = options
+	while true:
+		var choice = await menu.pressed
+		if choice >= len(body_list): break
+		menu.queue_free()
+		return true
+	menu.queue_free()
 	return false
 "
 
