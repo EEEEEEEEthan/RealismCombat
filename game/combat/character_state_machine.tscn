@@ -19,19 +19,55 @@ func new_tick() -> void:
 		AudioManager.play_turn_begin()
 		if parent_machine.is_player:
 			await Dialogues.show_dialogue(parent_machine.character.character_name + \"的回合!\")
-			var menu = Dialogues.create_menu()
-			var list:Array[MenuItemData] = [
-				MenuItemData.new(&\"头部\", false, &\"头部状态\"),
-				MenuItemData.new(&\"胸部\", false, &\"胸部状态\"),
-				MenuItemData.new(&\"右手\", false, &\"右手状态\"),
-				MenuItemData.new(&\"左手\", false, &\"左手状态\"),
-				MenuItemData.new(&\"右腿\", false, &\"右腿状态\"),
-				MenuItemData.new(&\"左腿\", false, &\"左腿状态\"),
-			]
-			menu.options = list
-			var choice = await menu.pressed
+			await player_turn_choose_from_body_part()
 		else:
 			pass
+
+func player_turn_choose_from_body_part() -> void:
+	var menu = Dialogues.create_menu()
+	var list:Array[MenuItemData] = [
+		MenuItemData.new(&\"头部\", false, &\"头部状态\"),
+		MenuItemData.new(&\"胸部\", false, &\"胸部状态\"),
+		MenuItemData.new(&\"右手\", false, &\"右手状态\"),
+		MenuItemData.new(&\"左手\", false, &\"左手状态\"),
+		MenuItemData.new(&\"右腿\", false, &\"右腿状态\"),
+		MenuItemData.new(&\"左腿\", false, &\"左腿状态\"),
+	]
+	menu.options = list
+	while true:
+		var choice = await menu.pressed
+		var from_body := character.all_body_parts[choice]
+		if await player_turn_choose_action(from_body):
+			break
+	menu.queue_free()
+
+func player_turn_choose_action(from_body: BodyPart) -> bool:
+	var action_options: Array[MenuItemData]
+	var action_list: Array[Action]
+	for action in character.actions:
+		if not action.static_valid_from_body(from_body).success:
+			continue
+		var outcome = action.static_valid_to_body(from_body)
+		var data = MenuItemData.new(action.action_name)
+		if not outcome.success:
+			data.disabled = true
+			data.description = outcome.error_message
+		else:
+			data.disabled = false
+			data.description = action.description
+		action_options.append(data)
+		action_list.append(action)
+	action_options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	var menu = Dialogues.create_menu()
+	menu.options = action_options
+	while true:
+		var choice = await menu.pressed
+		if choice >= len(action_list):
+			break
+		var action = action_list[choice]
+		# build action
+	menu.queue_free()
+	return false
 "
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]

@@ -19,3 +19,9 @@ func dynamic_valid_to_body(to_body: BodyPart) -> Outcome:
 	if to_body.hp.value <= 0:
 		return Outcome.from_failure(to_body.part_name + &"早已无法行动")
 	return Outcome.from_success()
+
+func _get_name() -> StringName:
+	return &"直拳"
+
+func _get_description() -> String:
+	return &"一种几乎本能的徒手攻击"
