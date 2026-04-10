@@ -7,9 +7,7 @@ signal pressed(index: int)
 
 var _active: bool = true
 var _title: String = ""
-var _text: String = ""
 var _options: Array = []
-
 
 var active: bool:
 	get:
@@ -21,7 +19,6 @@ var active: bool:
 		if is_node_ready():
 			_refresh_active()
 
-
 var title: String:
 	get:
 		return _title
@@ -29,16 +26,6 @@ var title: String:
 		_title = value
 		if is_node_ready():
 			_refresh_title()
-
-
-var text: String:
-	get:
-		return _text
-	set(value):
-		_text = value
-		if is_node_ready():
-			_refresh_text()
-
 
 var options: Array:
 	get:
@@ -48,19 +35,15 @@ var options: Array:
 		if is_node_ready():
 			_refresh_options()
 
-
 @onready var rich_text_label: RichTextLabel = %RichTextLabel
 @onready var retro_scroll_container: RetroScrollContainer = %RetroScrollContainer
 @onready var title_label: RichTextLabel = %Title
 
-
 func _ready() -> void:
-	retro_scroll_container.navigation_selection_changed.connect(_on_navigation_selection_changed)
+	retro_scroll_container.navigation_selection_changed.connect(func(_i): AudioManager.play_button_hover())
 	_refresh_title()
 	_refresh_options()
-	_refresh_text()
 	_refresh_active()
-
 
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_VISIBILITY_CHANGED:
@@ -70,29 +53,22 @@ func _notification(what: int) -> void:
 	if visible and active:
 		_refresh_active()
 
-
 func _refresh_title() -> void:
 	title_label.text = title
 
-
-func _refresh_text() -> void:
-	pass
-
-
 func _refresh_options() -> void:
-	var container := retro_scroll_container
-	var child_count = container.get_child_count()
+	var child_count = retro_scroll_container.get_child_count()
 	var length = options.size()
 	if child_count < length:
 		for _i in range(length - child_count):
 			var button = RetroButton.new()
-			container.add_child(button)
+			retro_scroll_container.add_child(button)
 			_connect_button(button)
 	elif child_count > length:
 		for removal_offset in range(child_count - length):
-			container.get_child(child_count - removal_offset - 1).queue_free()
+			retro_scroll_container.get_child(child_count - removal_offset - 1).queue_free()
 	for option_index in range(length):
-		var button: RetroButton = container.get_child(option_index)
+		var button: RetroButton = retro_scroll_container.get_child(option_index)
 		var option: MenuItemData = options[option_index]
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.text = option.text
@@ -100,28 +76,20 @@ func _refresh_options() -> void:
 	_refresh_button_states()
 	_refresh_description()
 
-
 func _refresh_active() -> void:
 	_refresh_button_states()
 	if active and visible:
 		_restore_focus.call_deferred()
 
-
 func _connect_button(button: RetroButton) -> void:
 	button.focus_entered.connect(_on_focus_button.bind(button))
 	button.pressed.connect(_on_press_button.bind(button))
-
-
-func _on_navigation_selection_changed(_index: int) -> void:
-	AudioManager.play_button_hover()
-
 
 func _on_focus_button(button: RetroButton) -> void:
 	var option_index := button.get_index()
 	if option_index < 0 or option_index >= options.size():
 		return
 	rich_text_label.text = options[option_index].description
-
 
 func _on_press_button(button: RetroButton) -> void:
 	pressed.emit(button.get_index())
@@ -134,14 +102,12 @@ func _refresh_button_states() -> void:
 		button.mouse_filter = Control.MOUSE_FILTER_STOP if can_focus else Control.MOUSE_FILTER_IGNORE
 		button.focus_mode = Control.FOCUS_ALL if can_focus else Control.FOCUS_NONE
 
-
 func _refresh_description() -> void:
 	var option_index := _get_preferred_option_index()
 	if option_index < 0:
 		rich_text_label.text = ""
 		return
 	rich_text_label.text = options[option_index].description
-
 
 func _restore_focus() -> void:
 	if not active or not visible:
@@ -153,7 +119,6 @@ func _restore_focus() -> void:
 	var button: Control = retro_scroll_container.get_child(option_index)
 	button.grab_focus()
 
-
 func _get_preferred_option_index() -> int:
 	var option_index := retro_scroll_container.last_selected
 	if _can_focus_option(option_index):
@@ -162,7 +127,6 @@ func _get_preferred_option_index() -> int:
 		if _can_focus_option(fallback_option_index):
 			return fallback_option_index
 	return -1
-
 
 func _can_focus_option(option_index: int) -> bool:
 	return option_index >= 0 and option_index < options.size() and not options[option_index].text.is_empty()
