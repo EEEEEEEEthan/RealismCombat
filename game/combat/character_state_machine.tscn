@@ -23,7 +23,7 @@ func new_tick() -> void:
 			dialogue.queue_free()
 			await player_turn_choose_from_body_part()
 		else:
-			pass
+			await ai()
 
 func player_turn_choose_from_body_part() -> void:
 	var menu = Dialogues.create_menu_dialogue()
@@ -127,6 +127,46 @@ func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_char
 		return true
 	menu.queue_free()
 	return false
+
+func ai() -> void:
+	var actions: Array[ActionParameter]
+	var from = parent_machine.character
+	for action:Action in from.actions:
+		for from_body:BodyPart in from.all_body_parts:
+			if not action.valid_from_body(from_body): continue
+			for to_character:Character in parent_machine.combat.characters:
+				if not action.valid_to_character(to_character): continue
+				for to_body:BodyPart in to_character.all_body_parts:
+					if not action.valid_to_body(to_body): continue
+					var weight = action.get_weight(from_body, to_body)
+					var parameter = ActionParameter.new()
+					parameter.action = action
+					parameter.from = from_body
+					parameter.to = to_body
+					parameter.weight = weight
+					actions.append(parameter)
+	# 从actions里抽选一个
+	if actions.is_empty():
+		return
+	var total_weight := 0.0
+	for p in actions:
+		total_weight += p.weight
+	var chosen: ActionParameter = actions[0]
+	if total_weight > 0.0:
+		var roll := randf() * total_weight
+		var acc := 0.0
+		for p in actions:
+			acc += p.weight
+			if roll < acc:
+				chosen = p
+				break
+	await parent_machine._set_action(chosen.action, chosen.from, chosen.to)
+
+class ActionParameter:
+	var action: Action
+	var from: BodyPart
+	var to: BodyPart
+	var weight: float
 "
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]

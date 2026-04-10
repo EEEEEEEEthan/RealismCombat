@@ -33,17 +33,30 @@ func static_valid_from_body(_from_body: BodyPart) -> Outcome:
 func dynamic_valid_from_body(_from_body: BodyPart) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
+func valid_from_body(from_body: BodyPart) -> bool:
+	return static_valid_from_body(from_body).success and dynamic_valid_from_body(from_body).success
+
 func static_valid_to_character(_to_character: Character) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
 func dynamic_valid_to_character(_to_character: Character) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
+func valid_to_character(to_character: Character) -> bool:
+	return static_valid_to_character(to_character).success and dynamic_valid_to_character(to_character).success
+
 func static_valid_to_body(_to_body: BodyPart) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
 func dynamic_valid_to_body(_to_body: BodyPart) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
+
+func valid_to_body(to_body: BodyPart) -> bool:
+	return static_valid_to_body(to_body).success and dynamic_valid_to_body(to_body).success
+
+func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
+	push_error("抽象基类禁止")
+	return 1
 
 func _get_description() -> String:
 	return &"unknown"
