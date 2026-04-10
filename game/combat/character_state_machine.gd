@@ -15,3 +15,7 @@ var action_points:= Property.new(0, 10)
 
 func new_tick() -> void:
 	await current_state.new_tick()
+
+func _set_action(action:Action, from_body:BodyPart, to_body:BodyPart) -> void:
+	current_state = %ActionState
+	await %ActionState.set_action(action, from_body, to_body)

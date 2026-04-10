@@ -75,6 +75,7 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 
 func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 	var menu = Dialogues.create_menu_dialogue()
+	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name + &\">\" + action.action_name
 	var options: Array[MenuItemData]
 	var characters: Array[MenuItemData]
 	for chr in parent_machine.combat.characters:
@@ -98,8 +99,9 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 	menu.queue_free()
 	return false
 
-func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_character: Character) -> bool:
+func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_character: Character) -> bool:
 	var menu = Dialogues.create_menu_dialogue()
+	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name + &\">\" + action.action_name + &\">\" + to_character.character_name
 	var options: Array[MenuItemData]
 	var body_list: Array[BodyPart]
 	for to_body in to_character.all_body_parts:
@@ -121,6 +123,7 @@ func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_cha
 		var choice = await menu.pressed
 		if choice >= len(body_list): break
 		menu.queue_free()
+		await parent_machine._set_action(action, from_body, body_list[choice])
 		return true
 	menu.queue_free()
 	return false
@@ -130,8 +133,15 @@ func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_cha
 resource_name = "ActionState"
 script/source = "extends Node
 
+@onready var parent_machine: CharacterStateMachine = get_parent()
+var _windup: float
+
+func set_action(action:Action, from_body:BodyPart, to_body:BodyPart) -> void:
+	_windup = action.windup_action_points
+	await action.prepare(from_body, to_body)
+
 func new_tick() -> void:
-	pass
+	_windup -= parent_machine.character.speed
 "
 
 [node name="CharacterStateMachine" type="Node" unique_id=296951462]

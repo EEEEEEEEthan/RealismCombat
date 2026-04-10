@@ -15,6 +15,18 @@ var windup_action_points: int:
 var recovery_action_points: int:
 	get: return _get_recovery_action_points()
 
+func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
+	var menu = Dialogues.create_generic_dialogue()
+	menu.text = from_body.character.character_name + "的" + from_body.part_name + "开始蓄力..."
+	await menu.pressed
+	menu.queue_free()
+
+func execute(from_body: BodyPart, to_body: BodyPart) -> void:
+	var menu = Dialogues.create_generic_dialogue()
+	menu.text = from_body.character.character_name + "的" + from_body.part_name + "对" + to_body.character.character_name + "的" + to_body.part_name + "发动" + action_name
+	await menu.pressed
+	menu.queue_free()
+
 func static_valid_from_body(_from_body: BodyPart) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
