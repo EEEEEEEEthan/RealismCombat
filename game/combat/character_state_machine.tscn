@@ -4,11 +4,12 @@
 
 [sub_resource type="GDScript" id="GDScript_tpvsg"]
 resource_name = "IdleState"
-script/source = "extends CharacterStateMachine
+script/source = "extends Node
 
 @onready var parent_machine: CharacterStateMachine = get_parent()
 
 func new_tick() -> void:
+	var action_points:= parent_machine.action_points
 	action_points.value = minf(
 		action_points.value + parent_machine.character.speed / 10.0,
 		action_points.max_value,
@@ -34,7 +35,7 @@ func player_turn_choose_from_body_part() -> void:
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
-		var from_body := character.all_body_parts[choice]
+		var from_body := parent_machine.character.all_body_parts[choice]
 		if await player_turn_choose_action(from_body):
 			break
 	menu.queue_free()
@@ -43,7 +44,7 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 	var menu = Dialogues.create_menu()
 	var options: Array[MenuItemData]
 	var action_list: Array[Action]
-	for action in character.actions:
+	for action in parent_machine.character.actions:
 		if not action.static_valid_from_body(from_body).success: continue
 		var outcome = action.static_valid_to_body(from_body)
 		var data = MenuItemData.new(action.action_name)
@@ -121,7 +122,7 @@ func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_cha
 
 [sub_resource type="GDScript" id="GDScript_4kuc4"]
 resource_name = "ActionState"
-script/source = "extends CharacterStateMachine
+script/source = "extends Node
 
 func new_tick() -> void:
 	pass
