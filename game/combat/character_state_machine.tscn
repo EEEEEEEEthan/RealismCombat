@@ -142,4 +142,5 @@ unique_name_in_owner = true
 script = SubResource("GDScript_tpvsg")
 
 [node name="ActionState" type="Node" parent="." unique_id=250296828]
+unique_name_in_owner = true
 script = SubResource("GDScript_4kuc4")
