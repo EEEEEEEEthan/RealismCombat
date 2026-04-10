@@ -32,6 +32,7 @@ func player_turn_choose_from_body_part() -> void:
 		MenuItemData.new(&\"右腿\", false, &\"右腿状态\"),
 		MenuItemData.new(&\"左腿\", false, &\"左腿状态\"),
 	]
+	menu.title = parent_machine.character.character_name + &\"的回合\"
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
@@ -42,6 +43,7 @@ func player_turn_choose_from_body_part() -> void:
 
 func player_turn_choose_action(from_body: BodyPart) -> bool:
 	var menu = Dialogues.create_menu()
+	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name
 	var options: Array[MenuItemData]
 	var action_list: Array[Action]
 	for action in parent_machine.character.actions:
@@ -56,7 +58,7 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 			data.description = action.description
 		options.append(data)
 		action_list.append(action)
-	options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	options.append(MenuItemData.new(&\"返回\", false, &\"返回上一级\"))
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
@@ -65,6 +67,7 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 		if await player_turn_choose_target(action, from_body):
 			menu.queue_free()
 			return true
+	menu.queue_free()
 	return false
 
 func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
@@ -80,7 +83,7 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 			data.description = &\"选择\" + chr.character_name + &\"为目标\"
 		options.append(data)
 		characters.append(chr)
-	options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	options.append(MenuItemData.new(&\"返回\", false, &\"返回上一级\"))
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
@@ -103,13 +106,13 @@ func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_cha
 		var dynamic_outcome = action.dynamic_valid_to_body(to_body)
 		if dynamic_outcome.success:
 			data.disabled = false
-			data.description = \"选择\" + str(to_body.part_name) + \"为目标\"
+			data.description = &\"选择\" + str(to_body.part_name) + &\"为目标\"
 		else:
 			data.disabled = true
 			data.description = dynamic_outcome.error_message
 		options.append(data)
 		body_list.append(to_body)
-	options.append(MenuItemData.new(\"返回\", false, \"返回上一级\"))
+	options.append(MenuItemData.new(&\"返回\", false, &\"返回上一级\"))
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
