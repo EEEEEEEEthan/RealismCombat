@@ -1,5 +1,8 @@
 extends Action
 
+func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
+	return 1
+
 func static_valid_from_body(from_body: BodyPart) -> Outcome:
 	if not from_body.is_hand:
 		return Outcome.from_failure()
