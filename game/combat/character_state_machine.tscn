@@ -11,7 +11,7 @@ script/source = "extends Node
 func new_tick() -> void:
 	var action_points:= parent_machine.action_points
 	action_points.value = minf(
-		action_points.value + parent_machine.character.speed / 10.0,
+		action_points.value + parent_machine.action_points_per_tick,
 		action_points.max_value,
 	)
 	if action_points.value >= action_points.max_value:
@@ -77,7 +77,7 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name + &\">\" + action.action_name
 	var options: Array[MenuItemData]
-	var characters: Array[MenuItemData]
+	var characters: Array[Character]
 	for chr in parent_machine.combat.characters:
 		if not action.static_valid_to_character(chr).success:
 			continue
@@ -135,13 +135,25 @@ script/source = "extends Node
 
 @onready var parent_machine: CharacterStateMachine = get_parent()
 var _windup: float
+var _action: Action
+var _from_body: BodyPart
+var _to_body: BodyPart
 
 func set_action(action:Action, from_body:BodyPart, to_body:BodyPart) -> void:
+	_action = action
+	_from_body = from_body
+	_to_body = to_body
 	_windup = action.windup_action_points
 	await action.prepare(from_body, to_body)
 
 func new_tick() -> void:
-	_windup -= parent_machine.character.speed
+	_windup -= parent_machine.action_points_per_tick
+	if _windup <= 0:
+		await _action.execute(_from_body, _to_body)
+		parent_machine._set_idle(_action.recovery_action_points)
+		_action = null
+		_from_body = null
+		_to_body = null
 "
 
 [node name="CharacterStateMachine" type="Node" unique_id=296951462]
