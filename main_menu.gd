@@ -3,7 +3,7 @@ class_name MainMenu
 
 func _ready() -> void:
 	var program: Program = get_parent()
-	var menu:MenuDialogue = Dialogues.create_menu()
+	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "Realism Combat"
 	menu.options = [
 		MenuItemData.new("新游戏", false, "开启一段新的故事"),

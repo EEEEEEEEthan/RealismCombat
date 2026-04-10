@@ -17,13 +17,16 @@ func new_tick() -> void:
 	if action_points.value >= action_points.max_value:
 		AudioManager.play_turn_begin()
 		if parent_machine.is_player:
-			await Dialogues.show_dialogue(parent_machine.character.character_name + \"的回合!\")
+			var dialogue := Dialogues.create_generic_dialogue()
+			dialogue.text = parent_machine.character.character_name + \"的回合!\"
+			await dialogue.pressed
+			dialogue.queue_free()
 			await player_turn_choose_from_body_part()
 		else:
 			pass
 
 func player_turn_choose_from_body_part() -> void:
-	var menu = Dialogues.create_menu()
+	var menu = Dialogues.create_menu_dialogue()
 	var options:Array[MenuItemData] = [
 		MenuItemData.new(&\"头部\", false, &\"头部状态\"),
 		MenuItemData.new(&\"胸部\", false, &\"胸部状态\"),
@@ -42,7 +45,7 @@ func player_turn_choose_from_body_part() -> void:
 	menu.queue_free()
 
 func player_turn_choose_action(from_body: BodyPart) -> bool:
-	var menu = Dialogues.create_menu()
+	var menu = Dialogues.create_menu_dialogue()
 	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name
 	var options: Array[MenuItemData]
 	var action_list: Array[Action]
@@ -71,7 +74,7 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 	return false
 
 func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
-	var menu = Dialogues.create_menu()
+	var menu = Dialogues.create_menu_dialogue()
 	var options: Array[MenuItemData]
 	var characters: Array[MenuItemData]
 	for chr in parent_machine.combat.characters:
@@ -96,7 +99,7 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 	return false
 
 func player_turn_choose_target_body(action: Action, _from_body: BodyPart, to_character: Character) -> bool:
-	var menu = Dialogues.create_menu()
+	var menu = Dialogues.create_menu_dialogue()
 	var options: Array[MenuItemData]
 	var body_list: Array[BodyPart]
 	for to_body in to_character.all_body_parts:

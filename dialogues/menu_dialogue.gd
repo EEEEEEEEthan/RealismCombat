@@ -5,66 +5,106 @@ class_name MenuDialogue
 signal pressed(index: int)
 
 
-const _META_MENU_BUTTON_WIRED: StringName = &"menu_dialogue_button_wired"
+var _active: bool = true
+var _title: String = ""
+var _text: String = ""
+var _options: Array = []
 
 
-static func create(tree: SceneTree) -> MenuDialogue:
-	var scene:PackedScene = ResourceLoader.load("res://dialogues/menu_dialogue.tscn")
-	var dialogue:MenuDialogue = scene.instantiate()
-	tree.root.add_child(dialogue)
-	return dialogue
+var active: bool:
+	get:
+		return _active
+	set(value):
+		if _active == value:
+			return
+		_active = value
+		if is_node_ready():
+			_refresh_active()
 
 
-@export var title: String:
-	set(v):
-		title = v
-		_update_title()
+var title: String:
+	get:
+		return _title
+	set(value):
+		_title = value
+		if is_node_ready():
+			_refresh_title()
 
 
-@export var options: Array[MenuItemData]:
-	set(v):
-		options = v
-		_update_menu()
+var text: String:
+	get:
+		return _text
+	set(value):
+		_text = value
+		if is_node_ready():
+			_refresh_text()
+
+
+var options: Array:
+	get:
+		return _options
+	set(value):
+		_options = value
+		if is_node_ready():
+			_refresh_options()
+
+
+@onready var rich_text_label: RichTextLabel = %RichTextLabel
+@onready var retro_scroll_container: RetroScrollContainer = %RetroScrollContainer
+@onready var title_label: RichTextLabel = %Title
 
 
 func _ready() -> void:
-	_update_title()
-	var scroll: RetroScrollContainer = %RetroScrollContainer
-	scroll.navigation_selection_changed.connect(_on_navigation_selection_changed)
-	for button: RetroButton in scroll.get_children():
-		_connect_button(button)
-	_update_menu()
+	retro_scroll_container.navigation_selection_changed.connect(_on_navigation_selection_changed)
+	_refresh_title()
+	_refresh_options()
+	_refresh_text()
+	_refresh_active()
 
 
-func _update_title() -> void:
-	if not is_node_ready(): return
-	%Title.text = title
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_VISIBILITY_CHANGED:
+		return
+	if not is_node_ready():
+		return
+	if visible and active:
+		_refresh_active()
 
 
-func _update_menu() -> void:
-	if not is_node_ready(): return
-	var container := %RetroScrollContainer
+func _refresh_title() -> void:
+	title_label.text = title
+
+
+func _refresh_text() -> void:
+	pass
+
+
+func _refresh_options() -> void:
+	var container := retro_scroll_container
 	var child_count = container.get_child_count()
-	var length = len(options)
+	var length = options.size()
 	if child_count < length:
-		for i in length - child_count:
+		for _i in range(length - child_count):
 			var button = RetroButton.new()
-			_connect_button(button)
 			container.add_child(button)
+			_connect_button(button)
 	elif child_count > length:
-		for i in child_count - length:
-			container.get_child(child_count - i - 1).queue_free()
-	for i in length:
-		var button: RetroButton = container.get_child(i)
+		for removal_offset in range(child_count - length):
+			container.get_child(child_count - removal_offset - 1).queue_free()
+	for option_index in range(length):
+		var button: RetroButton = container.get_child(option_index)
+		var option: MenuItemData = options[option_index]
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.text = options[i].text
-		button.disabled = options[i].disabled
-		if options[i].text:
-			button.mouse_filter = Control.MOUSE_FILTER_STOP
-			button.focus_mode = Control.FOCUS_ALL
-		else:
-			button.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			button.focus_mode = Control.FOCUS_NONE
+		button.text = option.text
+		button.disabled = option.disabled
+	_refresh_button_states()
+	_refresh_description()
+
+
+func _refresh_active() -> void:
+	_refresh_button_states()
+	if active and visible:
+		_restore_focus.call_deferred()
 
 
 func _connect_button(button: RetroButton) -> void:
@@ -77,22 +117,52 @@ func _on_navigation_selection_changed(_index: int) -> void:
 
 
 func _on_focus_button(button: RetroButton) -> void:
-	%RichTextLabel.text = options[button.get_index()].description
+	var option_index := button.get_index()
+	if option_index < 0 or option_index >= options.size():
+		return
+	rich_text_label.text = options[option_index].description
 
 
 func _on_press_button(button: RetroButton) -> void:
 	pressed.emit(button.get_index())
 
+func _refresh_button_states() -> void:
+	for option_index in range(options.size()):
+		var button: RetroButton = retro_scroll_container.get_child(option_index)
+		var option: MenuItemData = options[option_index]
+		var can_focus := active and not option.text.is_empty()
+		button.mouse_filter = Control.MOUSE_FILTER_STOP if can_focus else Control.MOUSE_FILTER_IGNORE
+		button.focus_mode = Control.FOCUS_ALL if can_focus else Control.FOCUS_NONE
 
-func _on_visibility_changed() -> void:
-	if visible:
-		_grab_focus.call_deferred()
 
-func _grab_focus() -> void:
-	var container = %RetroScrollContainer
-	if not container:
+func _refresh_description() -> void:
+	var option_index := _get_preferred_option_index()
+	if option_index < 0:
+		rich_text_label.text = ""
 		return
-	if container.last_selected > 0:
-		container.get_child(container.last_selected).grab_focus()
-	elif container.get_child_count() > 0:
-		container.get_child(0).grab_focus()
+	rich_text_label.text = options[option_index].description
+
+
+func _restore_focus() -> void:
+	if not active or not visible:
+		return
+	var option_index := _get_preferred_option_index()
+	if option_index < 0:
+		return
+	retro_scroll_container.last_selected = option_index
+	var button: Control = retro_scroll_container.get_child(option_index)
+	button.grab_focus()
+
+
+func _get_preferred_option_index() -> int:
+	var option_index := retro_scroll_container.last_selected
+	if _can_focus_option(option_index):
+		return option_index
+	for fallback_option_index in range(options.size()):
+		if _can_focus_option(fallback_option_index):
+			return fallback_option_index
+	return -1
+
+
+func _can_focus_option(option_index: int) -> bool:
+	return option_index >= 0 and option_index < options.size() and not options[option_index].text.is_empty()

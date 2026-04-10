@@ -11,7 +11,7 @@ func _create_character(character_name: String) -> Character:
 	return chr
 
 func _ready() -> void:
-	var menu:MenuDialogue = Dialogues.create_menu()
+	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "Realism Combat"
 	menu.options = [
 		MenuItemData.new("测试项", false, "测试项"),
