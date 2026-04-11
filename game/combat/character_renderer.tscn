@@ -1,8 +1,61 @@
 [gd_scene format=3 uid="uid://bgu8rncknhalj"]
 
 [ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combat/character_renderer.gd" id="1_jenu5"]
+[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="2_cybvm"]
 [ext_resource type="PackedScene" uid="uid://bqm5qt8d8hw21" path="res://game/combat/action_points_renderer.tscn" id="2_idsq7"]
 [ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://game/combat/body_part_renderer.tscn" id="2_jenu5"]
+
+[sub_resource type="Shader" id="Shader_idsq7"]
+code = "shader_type canvas_item;
+
+// progress < 1：按 UV.x 分色；progress >= 1：满条 + 参考 retro_progress_bar 的列随机方向、按像素竖直偏移采样
+uniform float progress : hint_range(0.0, 2.0) = 0.0;
+uniform vec4 color_fill : source_color = vec4(0.35, 0.78, 0.38, 1.0);
+uniform vec4 color_bg : source_color = vec4(0.14, 0.14, 0.16, 1.0);
+uniform float repick_seconds : hint_range(0.05, 2.0) = 0.3;
+
+varying float local_vertex_x;
+
+void vertex() {
+	local_vertex_x = VERTEX.x;
+}
+
+float hash_column(float key_x) {
+	float x = fract(key_x * 0.1031);
+	x *= x + 33.33;
+	return fract(x * x);
+}
+
+void fragment() {
+	if (progress < 1.0) {
+		COLOR = mix(color_bg, color_fill, float(UV.x < progress)) * texture(TEXTURE, UV);
+	}
+	else
+	{
+		float column_x = floor(local_vertex_x);
+		float time_slice = floor(TIME / repick_seconds);
+		float random_unit = hash_column(column_x + time_slice * 419.431);
+		// 约 70% 不跳，上/下各约 15%（原为三等分各 33%）
+		float direction = step(0.85, random_unit) - (1.0 - step(0.15, random_unit));
+		vec2 sample_uv = UV + vec2(0.0, direction * TEXTURE_PIXEL_SIZE.y);
+		COLOR = color_fill * texture(TEXTURE, sample_uv);
+	}
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cybvm"]
+shader = SubResource("Shader_idsq7")
+shader_parameter/progress = 0.7350000349125
+shader_parameter/color_fill = Color(1, 1, 1, 1)
+shader_parameter/color_bg = Color(0.4745098, 0.4745098, 0.4745098, 1)
+shader_parameter/repick_seconds = 0.10000000312006
+
+[sub_resource type="Texture2D" id="Texture2D_cybvm"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("2_cybvm")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAAXNSR0IArs4c6QAAABdJREFUCJlj+P//PwMTAwPDfyYGBgZGAC0BBAIRVpvGAAAAAElFTkSuQmCC"
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
 
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
 anchors_preset = 15
@@ -37,9 +90,11 @@ theme_override_constants/margin_top = 1
 theme_override_constants/margin_right = 1
 theme_override_constants/margin_bottom = 1
 
-[node name="ColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=1524247364]
+[node name="ColorRect" type="TextureRect" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=951438353]
+material = SubResource("ShaderMaterial_cybvm")
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
+texture = SubResource("Texture2D_cybvm")
 
 [node name="ActionPoints" parent="MarginContainer/VBoxContainer" unique_id=1089510000 instance=ExtResource("2_idsq7")]
 unique_name_in_owner = true
