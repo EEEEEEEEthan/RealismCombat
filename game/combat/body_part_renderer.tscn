@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://ck1nic6mkisma" path="res://components/retro_progress_bar.gd" id="2_guqmu"]
 
 [node name="BodyPartRenderer" type="HBoxContainer" unique_id=918096459]
-offset_right = 25.0
+offset_right = 37.0
 offset_bottom = 8.0
 theme_override_constants/separation = 2
 script = ExtResource("1_mjwv4")
@@ -40,7 +40,7 @@ texture_repeat = 0
 material = null
 use_parent_material = false
 clip_contents = false
-custom_minimum_size = Vector2(11, 4)
+custom_minimum_size = Vector2(19, 4)
 layout_direction = 0
 layout_mode = 2
 size_flags_horizontal = 1
@@ -71,7 +71,7 @@ accessibility_flow_to_nodes = Array[NodePath]([])
 theme = null
 theme_type_variation = &""
 min_value = 0.0
-max_value = 6.0
+max_value = 10.0
 step = 1.0
 page = 0.0
 value = 4.0

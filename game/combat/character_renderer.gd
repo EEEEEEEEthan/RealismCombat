@@ -1,5 +1,15 @@
+@tool
 extends PanelContainer
 class_name CharacterRenderer
+
+@export var expanded: bool:
+	set(value):
+		expanded = value
+		if is_node_ready():
+			%Expanded.expanded = expanded
+
+func _ready() -> void:
+	%Expanded.expanded = expanded
 
 var all_body_part_renderers: Array[BodyPartRenderer]:
 	get:

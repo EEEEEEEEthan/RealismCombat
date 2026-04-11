@@ -93,7 +93,8 @@ func _process(delta: float) -> void:
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -210.0
+offset_left = -4.0
+offset_right = -213.0
 offset_bottom = -183.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -141,6 +142,7 @@ layout_mode = 2
 [node name="Expanded" type="Control" parent="MarginContainer/VBoxContainer" unique_id=558657063]
 unique_name_in_owner = true
 clip_contents = true
+custom_minimum_size = Vector2(0, 0.0014950905)
 layout_mode = 2
 size_flags_vertical = 3
 script = SubResource("GDScript_cybvm")

@@ -26,8 +26,9 @@ layout_mode = 0
 anchors_preset = 0
 anchor_right = 0.0
 anchor_bottom = 0.0
+offset_left = 0.0
 offset_right = 47.0
-offset_bottom = 79.0
+offset_bottom = 41.0
 grow_horizontal = 1
 grow_vertical = 1
 
@@ -44,18 +45,57 @@ anchors_preset = -1
 anchor_bottom = 1.0
 offset_right = 47.0
 grow_vertical = 2
-metadata/_edit_lock_ = true
+
+[node name="PlayerFoldedReference" type="ReferenceRect" parent="SafeArea/PlayerContainer" unique_id=703142727]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 41)
+layout_mode = 2
 
 [node name="EnemyContainer" type="VBoxContainer" parent="SafeArea" unique_id=1886502329]
 unique_name_in_owner = true
+layout_direction = 3
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -47.0
+offset_right = 47.0
 grow_horizontal = 0
-metadata/_edit_lock_ = true
+
+[node name="EnemyFoldedReference" type="ReferenceRect" parent="SafeArea/EnemyContainer" unique_id=398443530]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 41)
+layout_mode = 2
+
+[node name="PlayerReference" type="ReferenceRect" parent="SafeArea" unique_id=344437396]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 73)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -52.0
+offset_top = -36.5
+offset_right = -5.0
+offset_bottom = 36.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="EnemyReference" type="ReferenceRect" parent="SafeArea" unique_id=230518244]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 73)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 5.0
+offset_top = -36.5
+offset_right = 52.0
+offset_bottom = 36.5
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Timer" type="Timer" parent="." unique_id=307905982]
 unique_name_in_owner = true
