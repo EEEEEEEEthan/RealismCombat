@@ -16,16 +16,14 @@ func new_tick() -> void:
 	)
 	if action_points.value >= action_points.max_value:
 		AudioManager.play_turn_begin()
-		if parent_machine.is_player:
-			var dialogue := Dialogues.create_generic_dialogue()
-			dialogue.text = parent_machine.character.character_name + \"的回合!\"
-			await dialogue.pressed
-			dialogue.queue_free()
-			await player_turn_choose_from_body_part()
-		else:
-			await ai()
+		var parameter := await player_turn_choose_from_body_part() if parent_machine.is_player else ai()
+		await parent_machine._set_action(parameter.action, parameter.from, parameter.to)
 
-func player_turn_choose_from_body_part() -> void:
+func player_turn_choose_from_body_part() -> ActionParameter:
+	var dialogue := Dialogues.create_generic_dialogue()
+	dialogue.text = parent_machine.character.character_name + \"的回合!\"
+	await dialogue.pressed
+	dialogue.queue_free()
 	var menu = Dialogues.create_menu_dialogue()
 	var options:Array[MenuItemData] = [
 		MenuItemData.new(&\"头部\", false, &\"头部状态\"),
@@ -40,11 +38,13 @@ func player_turn_choose_from_body_part() -> void:
 	while true:
 		var choice = await menu.pressed
 		var from_body := parent_machine.character.all_body_parts[choice]
-		if await player_turn_choose_action(from_body):
-			break
-	menu.queue_free()
+		var parameter = await player_turn_choose_action(from_body)
+		if parameter:
+			menu.queue_free()
+			return parameter
+	return null
 
-func player_turn_choose_action(from_body: BodyPart) -> bool:
+func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name
 	var options: Array[MenuItemData]
@@ -67,13 +67,14 @@ func player_turn_choose_action(from_body: BodyPart) -> bool:
 		var choice = await menu.pressed
 		if choice >= len(action_list): break
 		var action = action_list[choice]
-		if await player_turn_choose_target(action, from_body):
+		var parameter = await player_turn_choose_target(action, from_body)
+		if parameter:
 			menu.queue_free()
-			return true
+			return parameter
 	menu.queue_free()
-	return false
+	return null
 
-func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
+func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name + &\">\" + action.action_name
 	var options: Array[MenuItemData]
@@ -93,13 +94,14 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> bool:
 		var choice = await menu.pressed
 		if choice >= len(characters): break
 		var chr = characters[choice]
-		if await player_turn_choose_target_body(action, from_body, chr):
+		var parameter = await player_turn_choose_target_body(action, from_body, chr)
+		if parameter:
 			menu.queue_free()
-			return true
+			return parameter
 	menu.queue_free()
-	return false
+	return null
 
-func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_character: Character) -> bool:
+func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_character: Character) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = parent_machine.character.character_name + &\"的回合>\" + from_body.part_name + &\">\" + action.action_name + &\">\" + to_character.character_name
 	var options: Array[MenuItemData]
@@ -123,12 +125,15 @@ func player_turn_choose_target_body(action: Action, from_body: BodyPart, to_char
 		var choice = await menu.pressed
 		if choice >= len(body_list): break
 		menu.queue_free()
-		await parent_machine._set_action(action, from_body, body_list[choice])
-		return true
+		var parameter = ActionParameter.new()
+		parameter.action = action
+		parameter.from = from_body
+		parameter.to = body_list[choice]
+		return parameter
 	menu.queue_free()
-	return false
+	return null
 
-func ai() -> void:
+func ai() -> ActionParameter:
 	var actions: Array[ActionParameter]
 	var from = parent_machine.character
 	for action:Action in from.actions:
@@ -160,7 +165,7 @@ func ai() -> void:
 			if roll < acc:
 				chosen = p
 				break
-	await parent_machine._set_action(chosen.action, chosen.from, chosen.to)
+	return chosen
 
 class ActionParameter:
 	var action: Action
