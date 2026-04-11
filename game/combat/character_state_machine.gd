@@ -1,6 +1,10 @@
 extends Node
 class_name CharacterStateMachine
 
+var action_points := Property.new(0, 10)
+
+@onready var current_state: Node = %IdleState
+
 var character: Character:
 	get: return get_parent()
 var game: Game:
@@ -8,12 +12,9 @@ var game: Game:
 var combat: Combat:
 	get: return game.combat
 var is_player: bool:
-	get: return combat.characters[character] == 0
-var action_points:= Property.new(0, 10)
+	get: return combat.is_player_character(character)
 var action_points_per_tick: float:
 	get: return character.speed * 0.05
-
-@onready var current_state: Node = %IdleState
 
 func new_tick() -> void:
 	await current_state.new_tick()

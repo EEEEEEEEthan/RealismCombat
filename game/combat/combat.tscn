@@ -23,14 +23,7 @@ grow_vertical = 2
 [node name="CharacterPlaceHolder" parent="." unique_id=1218273912 instance_placeholder="res://game/combat/character_renderer.tscn"]
 unique_name_in_owner = true
 layout_mode = 0
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-offset_left = 0.0
-offset_right = 47.0
-offset_bottom = 41.0
-grow_horizontal = 1
-grow_vertical = 1
+mouse_filter = 2
 
 [node name="SafeArea" type="Control" parent="." unique_id=1896073041]
 layout_mode = 1
@@ -56,8 +49,9 @@ unique_name_in_owner = true
 layout_direction = 3
 layout_mode = 1
 anchors_preset = -1
+anchor_right = 0.18400002
 anchor_bottom = 1.0
-offset_right = 47.0
+offset_right = -0.104003906
 grow_horizontal = 0
 
 [node name="EnemyFoldedReference" type="ReferenceRect" parent="SafeArea/EnemyContainer" unique_id=398443530]
@@ -94,6 +88,15 @@ offset_left = 5.0
 offset_top = -36.5
 offset_right = 52.0
 offset_bottom = 36.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CharacterLayer" type="Control" parent="SafeArea" unique_id=596637880]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
