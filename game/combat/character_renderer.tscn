@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combat/character_renderer.gd" id="1_jenu5"]
 [ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="2_cybvm"]
-[ext_resource type="PackedScene" uid="uid://bqm5qt8d8hw21" path="res://game/combat/action_points_renderer.tscn" id="2_idsq7"]
 [ext_resource type="PackedScene" uid="uid://1lw5fd5ui03t" path="res://game/combat/body_part_renderer.tscn" id="2_jenu5"]
 
 [sub_resource type="Shader" id="Shader_idsq7"]
@@ -57,12 +56,26 @@ script = ExtResource("2_cybvm")
 _base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAAXNSR0IArs4c6QAAABdJREFUCJlj+P//PwMTAwPDfyYGBgZGAC0BBAIRVpvGAAAAAElFTkSuQmCC"
 metadata/_custom_type_script = "uid://xqi7kv2y70eo"
 
+[sub_resource type="GDScript" id="GDScript_idsq7"]
+script/source = "extends TextureRect
+
+var _action_points: Property
+
+func bind(action_points: Property) -> void:
+	_action_points = action_points
+	action_points.changed.connect(_on_value_changed)
+
+func _on_value_changed() -> void:
+	var mat:ShaderMaterial = material
+	mat.set_shader_parameter(\"shader_parameter/progress\", _action_points.value)
+"
+
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = -210.0
-offset_bottom = -137.0
+offset_bottom = -151.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_jenu5")
@@ -90,36 +103,48 @@ theme_override_constants/margin_top = 1
 theme_override_constants/margin_right = 1
 theme_override_constants/margin_bottom = 1
 
-[node name="ColorRect" type="TextureRect" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=951438353]
+[node name="ActionPoints" type="TextureRect" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=951438353]
+unique_name_in_owner = true
 material = SubResource("ShaderMaterial_cybvm")
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 texture = SubResource("Texture2D_cybvm")
+script = SubResource("GDScript_idsq7")
 
-[node name="ActionPoints" parent="MarginContainer/VBoxContainer" unique_id=1089510000 instance=ExtResource("2_idsq7")]
+[node name="Folded" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=970662544]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Head" parent="MarginContainer/VBoxContainer/Folded" unique_id=869673898 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Head" parent="MarginContainer/VBoxContainer" unique_id=869673898 instance=ExtResource("2_jenu5")]
+[node name="Chest" parent="MarginContainer/VBoxContainer/Folded" unique_id=851368283 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Chest" parent="MarginContainer/VBoxContainer" unique_id=851368283 instance=ExtResource("2_jenu5")]
+[node name="Spacing" type="Control" parent="MarginContainer/VBoxContainer/Folded" unique_id=511296686]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="RightHand" parent="MarginContainer/VBoxContainer" unique_id=960000449 instance=ExtResource("2_jenu5")]
+[node name="Expanded" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1912797120]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="RightHand" parent="MarginContainer/VBoxContainer/Expanded" unique_id=960000449 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="LeftHand" parent="MarginContainer/VBoxContainer" unique_id=960693474 instance=ExtResource("2_jenu5")]
+[node name="LeftHand" parent="MarginContainer/VBoxContainer/Expanded" unique_id=960693474 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="RightFoot" parent="MarginContainer/VBoxContainer" unique_id=1823406850 instance=ExtResource("2_jenu5")]
+[node name="RightFoot" parent="MarginContainer/VBoxContainer/Expanded" unique_id=1823406850 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="LeftFoot" parent="MarginContainer/VBoxContainer" unique_id=1922295510 instance=ExtResource("2_jenu5")]
+[node name="LeftFoot" parent="MarginContainer/VBoxContainer/Expanded" unique_id=1922295510 instance=ExtResource("2_jenu5")]
 unique_name_in_owner = true
 layout_mode = 2
