@@ -7,16 +7,16 @@
 [sub_resource type="Shader" id="Shader_idsq7"]
 code = "shader_type canvas_item;
 
-// progress < 1：按 UV.x 分色；progress >= 1：满条 + 参考 retro_progress_bar 的列随机方向、按像素竖直偏移采样
-uniform float progress : hint_range(0.0, 2.0) = 0.0;
 uniform vec4 color_fill : source_color = vec4(0.35, 0.78, 0.38, 1.0);
 uniform vec4 color_bg : source_color = vec4(0.14, 0.14, 0.16, 1.0);
 uniform float repick_seconds : hint_range(0.05, 2.0) = 0.3;
 
 varying float local_vertex_x;
+varying vec4 modulate;
 
 void vertex() {
 	local_vertex_x = VERTEX.x;
+	modulate = COLOR;
 }
 
 float hash_column(float key_x) {
@@ -26,6 +26,7 @@ float hash_column(float key_x) {
 }
 
 void fragment() {
+	float progress = modulate.a;
 	if (progress < 1.0) {
 		COLOR = mix(color_bg, color_fill, float(UV.x < progress)) * texture(TEXTURE, UV);
 	}
@@ -44,7 +45,6 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cybvm"]
 shader = SubResource("Shader_idsq7")
-shader_parameter/progress = 0.7350000349125
 shader_parameter/color_fill = Color(1, 1, 1, 1)
 shader_parameter/color_bg = Color(0.4745098, 0.4745098, 0.4745098, 1)
 shader_parameter/repick_seconds = 0.10000000312006
@@ -66,8 +66,27 @@ func bind(action_points: Property) -> void:
 	action_points.changed.connect(_on_value_changed)
 
 func _on_value_changed() -> void:
-	var mat:ShaderMaterial = material
-	mat.set_shader_parameter(\"shader_parameter/progress\", _action_points.value)
+	self_modulate = Color(1, 1, 1, _action_points.value / _action_points.max_value)
+"
+
+[sub_resource type="GDScript" id="GDScript_cybvm"]
+script/source = "@tool
+extends Control
+
+var _preferred_height: float
+@export var expanded: bool:
+	set(v):
+		expanded = v
+		_preferred_height = $VBoxContainer.size.y if v else 0
+
+func _ready() -> void:
+	set_process(true)
+
+func _process(delta: float) -> void:
+	var height = custom_minimum_size.y
+	height = lerpf(height, _preferred_height, clampf(12 * delta, 0.0, 1.0))
+	var new_min := Vector2(custom_minimum_size.x, height)
+	custom_minimum_size = new_min
 "
 
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
@@ -75,7 +94,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = -210.0
-offset_bottom = -151.0
+offset_bottom = -183.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_jenu5")
@@ -124,6 +143,7 @@ unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
+script = SubResource("GDScript_cybvm")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Expanded" unique_id=1912797120]
 layout_mode = 1

@@ -23,5 +23,5 @@ func run() -> void:
 			if not chr.alive:
 				continue
 			await chr.state_machine.new_tick()
-		%Timer.start(0.3)
+		%Timer.start(0.1)
 		await %Timer.timeout

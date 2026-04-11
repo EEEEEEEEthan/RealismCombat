@@ -11,7 +11,7 @@ var is_player: bool:
 	get: return combat.characters[character] == 0
 var action_points:= Property.new(0, 10)
 var action_points_per_tick: float:
-	get: return character.speed * 0.1
+	get: return character.speed * 0.05
 
 @onready var current_state: Node = %IdleState
 
