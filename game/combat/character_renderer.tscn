@@ -99,7 +99,7 @@ func _process(delta: float) -> void:
 "
 
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
-offset_right = 47.0
+offset_right = 32.0
 offset_bottom = 41.0
 mouse_filter = 2
 script = ExtResource("1_jenu5")
@@ -138,11 +138,13 @@ script = SubResource("GDScript_idsq7")
 [node name="Head" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=869673898]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
 [node name="Chest" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=851368283]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
 [node name="Expanded" type="Control" parent="MarginContainer/VBoxContainer" unique_id=558657063]
@@ -163,19 +165,23 @@ theme_override_constants/separation = 0
 [node name="RightHand" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960000449]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
 [node name="LeftHand" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960693474]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
 [node name="RightFoot" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1823406850]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
 [node name="LeftFoot" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1922295510]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")

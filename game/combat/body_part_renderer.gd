@@ -8,15 +8,11 @@ var _part: BodyPart
 var _label: Label
 var _progress_bar: Range
 
-func _ready() -> void:
-	_build_ui()
-
-func _build_ui() -> void:
-	if _label:
-		return
+func _init() -> void:
 	add_theme_constant_override("separation", 2)
 	_label = Label.new()
 	_label.name = &"Label"
+	_label.text = &"头部"
 	_label.unique_name_in_owner = true
 	_label.theme_type_variation = &"LabelSmall"
 	add_child(_label)
@@ -31,7 +27,6 @@ func _build_ui() -> void:
 	add_child(_progress_bar)
 
 func setup(part: BodyPart) -> void:
-	_build_ui()
 	_part = part
 	_label.text = part.part_name
 	_progress_bar.custom_minimum_size.x = part.hp.max_value * 2 - 1
