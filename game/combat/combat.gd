@@ -123,18 +123,14 @@ func _refresh_side_targets(
 			continue
 		var character_renderer: CharacterRenderer = character_renderers[character]
 		if character == _action_actor:
-			character_renderer.z_index = 200
 			character_renderer.preferred_position = active_reference_position
 			continue
 		if character == _action_target:
-			character_renderer.z_index = 150
 			character_renderer.preferred_position = active_reference_position
 			continue
 		if no_action and character_renderer.expanded:
-			character_renderer.z_index = 150
 			character_renderer.preferred_position = active_reference_position
 			continue
-		character_renderer.z_index = folded_index
 		character_renderer.preferred_position = (
 			folded_reference_rect.position
 			+ Vector2(0.0, folded_reference_rect.size.y * folded_index)
