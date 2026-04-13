@@ -8,7 +8,6 @@ var characters: Dictionary[Character, int] = {}
 var character_renderers: Dictionary[Character, CharacterRenderer] = {}
 var player_characters: Array[Character] = []
 var enemy_characters: Array[Character] = []
-var _turn_focus_character: Character
 var _action_actor: Character
 var _action_target: Character
 
@@ -61,21 +60,20 @@ func is_player_character(character: Character) -> bool:
 	return characters[character] == PLAYER_SIDE
 
 func present_turn_choice(character: Character) -> void:
-	_turn_focus_character = character
 	_action_actor = null
 	_action_target = null
-	_refresh_character_targets()
 	_set_character_expanded(character, true)
+	_refresh_character_targets()
 
 func clear_turn_choice(character: Character) -> void:
-	if _turn_focus_character != character:
+	if not character_renderers.has(character):
+		return
+	if not character_renderers[character].expanded:
 		return
 	_set_character_expanded(character, false)
-	_turn_focus_character = null
 	_refresh_character_targets()
 
 func present_action_execution(attacker: Character, target: Character) -> void:
-	_turn_focus_character = null
 	_action_actor = attacker
 	_action_target = target
 	_refresh_character_targets()
@@ -119,6 +117,7 @@ func _refresh_side_targets(
 	var folded_reference_rect := _get_reference_rect_in_character_layer(folded_reference)
 	var active_reference_position := _get_reference_rect_in_character_layer(active_reference).position
 	var folded_index := 0
+	var no_action := _action_actor == null and _action_target == null
 	for character in side_characters:
 		if not character_renderers.has(character):
 			continue
@@ -127,7 +126,11 @@ func _refresh_side_targets(
 			character_renderer.z_index = 200
 			character_renderer.preferred_position = active_reference_position
 			continue
-		if character == _action_target or character == _turn_focus_character:
+		if character == _action_target:
+			character_renderer.z_index = 150
+			character_renderer.preferred_position = active_reference_position
+			continue
+		if no_action and character_renderer.expanded:
 			character_renderer.z_index = 150
 			character_renderer.preferred_position = active_reference_position
 			continue
