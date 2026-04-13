@@ -6,6 +6,7 @@ const POSITION_LERP_SPEED := 12.0
 const POSITION_SETTLE_DISTANCE_SQUARED := 0.25
 
 signal preferred_position_reached
+signal centered_changed
 
 var _is_at_preferred_position := true
 @onready var _expanded: Control = %Expanded
@@ -15,6 +16,13 @@ var preferred_position: Vector2 = Vector2.ZERO:
 		preferred_position = value
 		if not _is_position_settled(position, preferred_position):
 			_is_at_preferred_position = false
+
+var centered: bool = false:
+	set(value):
+		if centered == value:
+			return
+		centered = value
+		centered_changed.emit()
 
 @export var expanded: bool:
 	set(value):

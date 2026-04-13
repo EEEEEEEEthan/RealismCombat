@@ -8,8 +8,6 @@ var characters: Dictionary[Character, int] = {}
 var character_renderers: Dictionary[Character, CharacterRenderer] = {}
 var player_characters: Array[Character] = []
 var enemy_characters: Array[Character] = []
-var _action_actor: Character
-var _action_target: Character
 
 func _ready() -> void:
 	%CharacterLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -33,6 +31,7 @@ func add_character(character: Character, side: int) -> void:
 	var character_renderer := character_renderer_scene.instantiate() as CharacterRenderer
 	character_renderer.bind(character)
 	character_renderer.expanded = false
+	character_renderer.centered_changed.connect(_refresh_character_targets)
 	if side == PLAYER_SIDE:
 		character_renderer.layout_direction = Control.LAYOUT_DIRECTION_LTR
 	else:
@@ -59,43 +58,8 @@ func run() -> void:
 func is_player_character(character: Character) -> bool:
 	return characters[character] == PLAYER_SIDE
 
-func present_turn_choice(character: Character) -> void:
-	_action_actor = null
-	_action_target = null
-	_set_character_expanded(character, true)
-	_refresh_character_targets()
-
-func clear_turn_choice(character: Character) -> void:
-	if not character_renderers.has(character):
-		return
-	if not character_renderers[character].expanded:
-		return
-	_set_character_expanded(character, false)
-	_refresh_character_targets()
-
-func present_action_execution(attacker: Character, target: Character) -> void:
-	_action_actor = attacker
-	_action_target = target
-	_refresh_character_targets()
-	var waited_characters: Array[Character] = []
-	for character in [attacker, target]:
-		if character == null or waited_characters.has(character):
-			continue
-		waited_characters.append(character)
-		if not character_renderers.has(character):
-			continue
-		await character_renderers[character].wait_until_preferred_position()
-	_set_character_expanded(attacker, true)
-	_set_character_expanded(target, true)
-
-func clear_action_execution() -> void:
-	if _action_actor != null:
-		_set_character_expanded(_action_actor, false)
-	if _action_target != null and _action_target != _action_actor:
-		_set_character_expanded(_action_target, false)
-	_action_actor = null
-	_action_target = null
-	_refresh_character_targets()
+func get_character_renderer(character: Character) -> CharacterRenderer:
+	return character_renderers[character]
 
 func _refresh_character_targets() -> void:
 	_refresh_side_targets(
@@ -117,18 +81,11 @@ func _refresh_side_targets(
 	var folded_reference_rect := _get_reference_rect_in_character_layer(folded_reference)
 	var active_reference_position := _get_reference_rect_in_character_layer(active_reference).position
 	var folded_index := 0
-	var no_action := _action_actor == null and _action_target == null
 	for character in side_characters:
 		if not character_renderers.has(character):
 			continue
 		var character_renderer: CharacterRenderer = character_renderers[character]
-		if character == _action_actor:
-			character_renderer.preferred_position = active_reference_position
-			continue
-		if character == _action_target:
-			character_renderer.preferred_position = active_reference_position
-			continue
-		if no_action and character_renderer.expanded:
+		if character_renderer.centered:
 			character_renderer.preferred_position = active_reference_position
 			continue
 		character_renderer.preferred_position = (
@@ -143,10 +100,3 @@ func _get_reference_rect_in_character_layer(reference: Control) -> Rect2:
 		reference_global_rect.position - %CharacterLayer.global_position,
 		reference_global_rect.size,
 	)
-
-func _set_character_expanded(character: Character, should_expand: bool) -> void:
-	if character == null or not character_renderers.has(character):
-		return
-	var character_renderer: CharacterRenderer = character_renderers[character]
-	if character_renderer.expanded != should_expand:
-		character_renderer.expanded = should_expand

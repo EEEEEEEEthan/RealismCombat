@@ -16,10 +16,13 @@ func new_tick() -> void:
 	)
 	if action_points.value >= action_points.max_value:
 		AudioManager.play_turn_begin()
-		parent_machine.combat.present_turn_choice(parent_machine.character)
+		var character_renderer := parent_machine.character_renderer
+		character_renderer.centered = true
+		character_renderer.expanded = true
 		var parameter := await player_turn_choose_from_body_part() if parent_machine.is_player else ai()
 		if not parameter:
-			parent_machine.combat.clear_turn_choice(parent_machine.character)
+			character_renderer.expanded = false
+			character_renderer.centered = false
 			return
 		await parent_machine._set_action(parameter.action, parameter.from, parameter.to)
 
@@ -193,17 +196,27 @@ func set_action(action:Action, from_body:BodyPart, to_body:BodyPart) -> void:
 	_to_body = to_body
 	_windup = action.windup_action_points
 	await action.prepare(from_body, to_body)
-	parent_machine.combat.clear_turn_choice(parent_machine.character)
+	parent_machine.character_renderer.expanded = false
+	parent_machine.character_renderer.centered = false
 
 func new_tick() -> void:
 	_windup -= parent_machine.action_points_per_tick
 	if _windup <= 0:
-		await parent_machine.combat.present_action_execution(
-			_from_body.character,
-			_to_body.character,
-		)
+		var participating_renderers: Array[CharacterRenderer] = []
+		for participant_character in [_from_body.character, _to_body.character]:
+			var character_renderer := parent_machine.combat.get_character_renderer(participant_character)
+			if participating_renderers.has(character_renderer):
+				continue
+			participating_renderers.append(character_renderer)
+			character_renderer.centered = true
+		for character_renderer in participating_renderers:
+			await character_renderer.wait_until_preferred_position()
+		for character_renderer in participating_renderers:
+			character_renderer.expanded = true
 		await _action.execute(_from_body, _to_body)
-		parent_machine.combat.clear_action_execution()
+		for character_renderer in participating_renderers:
+			character_renderer.expanded = false
+			character_renderer.centered = false
 		parent_machine._set_idle(_action.recovery_action_points)
 		_action = null
 		_from_body = null
