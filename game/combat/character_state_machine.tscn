@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bsvk4v5bj0fxm"]
+[gd_scene format=3 uid="uid://cof8vqofeemsp"]
 
 [ext_resource type="Script" uid="uid://dwgq7aw8kbysj" path="res://game/combat/character_state_machine.gd" id="1_tpvsg"]
 

@@ -42,6 +42,3 @@ unique_name_in_owner = true
 
 [node name="Punch" type="Node" parent="Actions" unique_id=461851238]
 script = ExtResource("3_d8xd1")
-
-[node name="CharacterStateMachineTemplate" parent="." unique_id=296951462 instance_placeholder="res://game/combat/character_state_machine.tscn"]
-unique_name_in_owner = true

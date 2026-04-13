@@ -39,8 +39,7 @@ func add_action(action: Action) -> void:
 	actions = []
 
 func on_enter_combat() -> void:
-	state_machine = %CharacterStateMachineTemplate.create_instance()
+	state_machine = CharacterStateMachine.new(self)
 
 func on_exit_combat() -> void:
-	state_machine.queue_free()
 	state_machine = null
