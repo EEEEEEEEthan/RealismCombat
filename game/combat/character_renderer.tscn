@@ -27,19 +27,16 @@ float hash_column(float key_x) {
 
 void fragment() {
 	float progress = modulate.a;
-	if (progress < 1.0) {
-		COLOR = mix(color_bg, color_fill, float(UV.x < progress)) * texture(TEXTURE, UV);
-	}
-	else
-	{
-		float column_x = floor(local_vertex_x);
-		float time_slice = floor(TIME / repick_seconds);
-		float random_unit = hash_column(column_x + time_slice * 419.431);
-		// 约 70% 不跳，上/下各约 15%（原为三等分各 33%）
-		float direction = step(0.85, random_unit) - (1.0 - step(0.15, random_unit));
-		vec2 sample_uv = UV + vec2(0.0, direction * TEXTURE_PIXEL_SIZE.y);
-		COLOR = color_fill * texture(TEXTURE, sample_uv);
-	}
+	float use_full = step(1.0, progress);
+	float u = mix(UV.x, 1.0 - UV.x, step(0.5, modulate.r));
+	vec4 bar = mix(color_bg, color_fill, float(u < progress)) * texture(TEXTURE, UV);
+	float column_x = floor(local_vertex_x);
+	float time_slice = floor(TIME / repick_seconds);
+	float random_unit = hash_column(column_x + time_slice * 419.431);
+	float direction = step(0.85, random_unit) - (1.0 - step(0.15, random_unit));
+	vec2 sample_uv = UV + vec2(0.0, direction * TEXTURE_PIXEL_SIZE.y);
+	vec4 full = color_fill * texture(TEXTURE, sample_uv);
+	COLOR = mix(bar, full, use_full);
 }
 "
 
@@ -61,12 +58,24 @@ script/source = "extends TextureRect
 
 var _action_points: Property
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_LAYOUT_DIRECTION_CHANGED:
+		_refresh_action_points_modulate()
+
 func bind(action_points: Property) -> void:
 	_action_points = action_points
 	action_points.changed.connect(_on_value_changed)
+	_refresh_action_points_modulate()
 
 func _on_value_changed() -> void:
-	self_modulate = Color(1, 1, 1, _action_points.value / _action_points.max_value)
+	_refresh_action_points_modulate()
+
+func _refresh_action_points_modulate() -> void:
+	if not _action_points:
+		return
+	var layout_r := 1.0 if is_layout_rtl() else 0.0
+	var progress := _action_points.value / _action_points.max_value
+	self_modulate = Color(layout_r, 1.0, 1.0, progress)
 "
 
 [sub_resource type="GDScript" id="GDScript_cybvm"]
@@ -92,6 +101,7 @@ func _process(delta: float) -> void:
 [node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
 offset_right = 47.0
 offset_bottom = 41.0
+mouse_filter = 2
 script = ExtResource("1_jenu5")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1367901981]
@@ -136,7 +146,6 @@ layout_mode = 2
 [node name="Expanded" type="Control" parent="MarginContainer/VBoxContainer" unique_id=558657063]
 unique_name_in_owner = true
 clip_contents = true
-custom_minimum_size = Vector2(0, 0.0014950905)
 layout_mode = 2
 size_flags_vertical = 3
 script = SubResource("GDScript_cybvm")

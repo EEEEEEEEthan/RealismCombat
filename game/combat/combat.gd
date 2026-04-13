@@ -14,7 +14,11 @@ var _action_target: Character
 
 func _ready() -> void:
 	%CharacterLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_set_reference_visibility(false)
+	$DialogueArea.visible = false
+	%PlayerFoldedReference.visible = false
+	%PlayerReference.visible = false
+	%EnemyReference.visible = false
+	%EnemyFoldedReference.visible = false
 	resized.connect(_refresh_character_targets)
 	$SafeArea.resized.connect(_refresh_character_targets)
 	_refresh_character_targets()
@@ -26,7 +30,8 @@ func _exit_tree() -> void:
 
 func add_character(character: Character, side: int) -> void:
 	character.on_enter_combat()
-	var character_renderer := _new_character_renderer()
+	var character_renderer_scene := load(%CharacterPlaceHolder.get_instance_path()) as PackedScene
+	var character_renderer := character_renderer_scene.instantiate() as CharacterRenderer
 	character_renderer.bind(character)
 	character_renderer.expanded = false
 	if side == PLAYER_SIDE:
@@ -52,10 +57,6 @@ func run() -> void:
 		%Timer.start(0.1)
 		await %Timer.timeout
 
-func _new_character_renderer() -> CharacterRenderer:
-	var character_renderer_scene := load(%CharacterPlaceHolder.get_instance_path()) as PackedScene
-	return character_renderer_scene.instantiate() as CharacterRenderer
-
 func is_player_character(character: Character) -> bool:
 	return characters[character] == PLAYER_SIDE
 
@@ -78,7 +79,14 @@ func present_action_execution(attacker: Character, target: Character) -> void:
 	_action_actor = attacker
 	_action_target = target
 	_refresh_character_targets()
-	await _wait_for_characters([attacker, target])
+	var waited_characters: Array[Character] = []
+	for character in [attacker, target]:
+		if character == null or waited_characters.has(character):
+			continue
+		waited_characters.append(character)
+		if not character_renderers.has(character):
+			continue
+		await character_renderers[character].wait_until_preferred_position()
 	_set_character_expanded(attacker, true)
 	_set_character_expanded(target, true)
 
@@ -130,17 +138,6 @@ func _refresh_side_targets(
 		)
 		folded_index += 1
 
-func _wait_for_characters(characters_to_wait: Array[Character]) -> void:
-	var waited_characters: Array[Character] = []
-	for character in characters_to_wait:
-		if character == null or waited_characters.has(character):
-			continue
-		waited_characters.append(character)
-		if not character_renderers.has(character):
-			continue
-		var character_renderer: CharacterRenderer = character_renderers[character]
-		await character_renderer.wait_until_preferred_position()
-
 func _get_reference_rect_in_character_layer(reference: Control) -> Rect2:
 	var reference_global_rect := reference.get_global_rect()
 	return Rect2(
@@ -154,10 +151,3 @@ func _set_character_expanded(character: Character, should_expand: bool) -> void:
 	var character_renderer: CharacterRenderer = character_renderers[character]
 	if character_renderer.expanded != should_expand:
 		character_renderer.expanded = should_expand
-
-func _set_reference_visibility(should_show: bool) -> void:
-	$DialogueArea.visible = should_show
-	%PlayerFoldedReference.visible = should_show
-	%PlayerReference.visible = should_show
-	%EnemyReference.visible = should_show
-	%EnemyFoldedReference.visible = should_show

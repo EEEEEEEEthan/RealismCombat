@@ -9,7 +9,7 @@ script/source = "extends Node
 @onready var parent_machine: CharacterStateMachine = get_parent()
 
 func new_tick() -> void:
-	var action_points:= parent_machine.action_points
+	var action_points := parent_machine.action_points
 	action_points.value = minf(
 		action_points.value + parent_machine.action_points_per_tick,
 		action_points.max_value,
@@ -154,7 +154,6 @@ func ai() -> ActionParameter:
 					parameter.to = to_body
 					parameter.weight = weight
 					actions.append(parameter)
-	# 从actions里抽选一个
 	if actions.is_empty():
 		return
 	var total_weight := 0.0
