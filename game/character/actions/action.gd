@@ -1,19 +1,31 @@
 @abstract
-extends Node
+extends RefCounted
 class_name Action
 
-@onready var character: Character = get_parent().get_parent()
+var _character_ref: WeakRef
+
+var character: Character:
+	get:
+		return _character_ref.get_ref() as Character
+
+func _init(p_character: Character) -> void:
+	_character_ref = weakref(p_character)
+
 var action_name: StringName:
-	get: return _get_name()
+	get:
+		return _get_name()
 
 var description: String:
-	get: return _get_description()
+	get:
+		return _get_description()
 
 var windup_action_points: int:
-	get: return _get_windup_action_points()
+	get:
+		return _get_windup_action_points()
 
 var recovery_action_points: int:
-	get: return _get_recovery_action_points()
+	get:
+		return _get_recovery_action_points()
 
 func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	var menu = Dialogues.create_generic_dialogue()

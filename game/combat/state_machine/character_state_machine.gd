@@ -1,11 +1,11 @@
 extends RefCounted
 class_name CharacterStateMachine
 
-const _IDLE_STATE_SCRIPT := "res://game/combat/character_state_machine_idle_state.gd"
-const _ACTION_STATE_SCRIPT := "res://game/combat/character_state_machine_action_state.gd"
-
 var action_points := Property.new(0, 10)
-var character: Character
+var _character_ref: WeakRef
+var character: Character:
+	get:
+		return _character_ref.get_ref() as Character
 var idle_state
 var action_state
 var current_state
@@ -32,11 +32,9 @@ var action_points_per_tick: float:
 
 
 func _init(p_character: Character) -> void:
-	character = p_character
-	var idle_cls = load(_IDLE_STATE_SCRIPT) as GDScript
-	var action_cls = load(_ACTION_STATE_SCRIPT) as GDScript
-	idle_state = idle_cls.new(self)
-	action_state = action_cls.new(self)
+	_character_ref = weakref(p_character)
+	idle_state = CharacterStateMachineIdleState.new(self)
+	action_state = CharacterStateMachineActionState.new(self)
 	current_state = idle_state
 
 

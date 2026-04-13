@@ -60,41 +60,35 @@ void fragment() {
 		jump = v
 		_fill.material = _material if v else null
 
-var _background: NinePatchRect:
-	get:
-		if not _background:
-			_background = NinePatchRect.new()
-			_background.region_rect = Rect2(0, 0, 2, 1)
-			_background.patch_margin_top = 1
-			_background.patch_margin_bottom = 1
-			_background.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_TILE
-			_background.pivot_offset_ratio = Vector2(.5, .5)
-			_background.texture = _back_texture
-			_background.self_modulate = Color("797979")
-			add_child(_background)
-			_background.set_anchor_and_offset(SIDE_TOP, 0, 1)
-			_background.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
-			_background.set_anchor_and_offset(SIDE_BOTTOM, 1, -1)
-			# _background.owner = get_tree().edited_scene_root
-		return _background
+var _background: NinePatchRect
+var _fill: NinePatchRect
 
-var _fill: NinePatchRect:
-	get:
-		if not _fill:
-			_fill = NinePatchRect.new()
-			_fill.region_rect = Rect2(0, 0, 2, 6)
-			_fill.patch_margin_top = 3
-			_fill.patch_margin_bottom = 3
-			_fill.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_TILE
-			_fill.pivot_offset_ratio = Vector2(.5, .5)
-			_fill.texture = _fill_texture
-			_fill.layout_direction = Control.LAYOUT_DIRECTION_LTR
-			_background.add_child(_fill)
-			_fill.set_anchor_and_offset(SIDE_TOP, 0, -2)
-			_fill.set_anchor_and_offset(SIDE_BOTTOM, 1, 2)
-			# _fill.owner = get_tree().edited_scene_root
-		return _fill
-		
+func _init() -> void:
+	# 须在任意 layout 通知或属性访问前建好子节点；懒加载 getter 会在祖先 blocked>0 时 add_child 失败
+	_background = NinePatchRect.new()
+	_background.region_rect = Rect2(0, 0, 2, 1)
+	_background.patch_margin_top = 1
+	_background.patch_margin_bottom = 1
+	_background.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_TILE
+	_background.pivot_offset_ratio = Vector2(.5, .5)
+	_background.texture = _back_texture
+	_background.self_modulate = Color("797979")
+	add_child(_background)
+	_background.set_anchor_and_offset(SIDE_TOP, 0, 1)
+	_background.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
+	_background.set_anchor_and_offset(SIDE_BOTTOM, 1, -1)
+	_fill = NinePatchRect.new()
+	_fill.region_rect = Rect2(0, 0, 2, 6)
+	_fill.patch_margin_top = 3
+	_fill.patch_margin_bottom = 3
+	_fill.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_TILE
+	_fill.pivot_offset_ratio = Vector2(.5, .5)
+	_fill.texture = _fill_texture
+	_fill.layout_direction = Control.LAYOUT_DIRECTION_LTR
+	_background.add_child(_fill)
+	_fill.set_anchor_and_offset(SIDE_TOP, 0, -2)
+	_fill.set_anchor_and_offset(SIDE_BOTTOM, 1, 2)
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_LAYOUT_DIRECTION_CHANGED:
 		_update_layout_direction()

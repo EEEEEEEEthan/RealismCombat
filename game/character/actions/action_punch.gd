@@ -1,5 +1,8 @@
 extends Action
 
+func _init(p_character: Character) -> void:
+	super(p_character)
+
 func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	return 1
 
