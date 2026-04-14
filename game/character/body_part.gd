@@ -4,16 +4,12 @@ class_name BodyPart
 static var _hands = [Defs.BodyPart.LEFT_HAND, Defs.BodyPart.RIGHT_HAND]
 static var _feet = [Defs.BodyPart.LEFT_FOOT, Defs.BodyPart.RIGHT_FOOT]
 
-var _character_ref: WeakRef
+var character: Character
 var part: Defs.BodyPart
 var hp: Property = Property.new(0, 0)
 
-var character: Character:
-	get:
-		return _character_ref.get_ref() as Character
-
 func _init(p_character: Character, p_part: Defs.BodyPart, hp_current: float, hp_max: float) -> void:
-	_character_ref = weakref(p_character)
+	character = p_character
 	part = p_part
 	hp.value = hp_current
 	hp.max_value = hp_max
