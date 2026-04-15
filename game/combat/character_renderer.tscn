@@ -87,9 +87,8 @@ var _preferred_height: float
 	set(v):
 		expanded = v
 		_preferred_height = $VBoxContainer.size.y if v else 0
-
-func _ready() -> void:
-	set_process(true)
+		if Engine.is_editor_hint():
+			custom_minimum_size = Vector2(custom_minimum_size.x, _preferred_height)
 
 func _process(delta: float) -> void:
 	var height = custom_minimum_size.y
@@ -98,36 +97,45 @@ func _process(delta: float) -> void:
 	custom_minimum_size = new_min
 "
 
-[node name="CharacterRenderer" type="PanelContainer" unique_id=1218273912]
-offset_right = 32.0
+[node name="CharacterRenderer" type="Control" unique_id=956500720]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 47.0
 offset_bottom = 41.0
 mouse_filter = 2
 script = ExtResource("1_jenu5")
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1367901981]
+[node name="Container" type="PanelContainer" parent="." unique_id=1218273912]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 47.0
+offset_bottom = 41.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Container" unique_id=1367901981]
 layout_mode = 2
 theme_override_constants/margin_left = 1
 theme_override_constants/margin_top = 1
 theme_override_constants/margin_right = 1
 theme_override_constants/margin_bottom = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1996760864]
+[node name="VBoxContainer" type="VBoxContainer" parent="Container/MarginContainer" unique_id=1996760864]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="Name" type="Label" parent="MarginContainer/VBoxContainer" unique_id=89098987]
+[node name="Name" type="Label" parent="Container/MarginContainer/VBoxContainer" unique_id=89098987]
 unique_name_in_owner = true
 layout_mode = 2
 text = "名字"
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer" unique_id=1784902997]
+[node name="MarginContainer" type="MarginContainer" parent="Container/MarginContainer/VBoxContainer" unique_id=1784902997]
 layout_mode = 2
 theme_override_constants/margin_left = 1
 theme_override_constants/margin_top = 1
 theme_override_constants/margin_right = 1
 theme_override_constants/margin_bottom = 1
 
-[node name="ActionPoints" type="TextureRect" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=951438353]
+[node name="ActionPoints" type="TextureRect" parent="Container/MarginContainer/VBoxContainer/MarginContainer" unique_id=951438353]
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_cybvm")
 custom_minimum_size = Vector2(0, 1)
@@ -135,26 +143,26 @@ layout_mode = 2
 texture = SubResource("Texture2D_cybvm")
 script = SubResource("GDScript_idsq7")
 
-[node name="Head" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=869673898]
+[node name="Head" type="HBoxContainer" parent="Container/MarginContainer/VBoxContainer" unique_id=869673898]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
-[node name="Chest" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=851368283]
+[node name="Chest" type="HBoxContainer" parent="Container/MarginContainer/VBoxContainer" unique_id=851368283]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
-[node name="Expanded" type="Control" parent="MarginContainer/VBoxContainer" unique_id=558657063]
+[node name="Expanded" type="Control" parent="Container/MarginContainer/VBoxContainer" unique_id=558657063]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
 script = SubResource("GDScript_cybvm")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Expanded" unique_id=1912797120]
+[node name="VBoxContainer" type="VBoxContainer" parent="Container/MarginContainer/VBoxContainer/Expanded" unique_id=1912797120]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -162,25 +170,25 @@ offset_bottom = 32.0
 grow_horizontal = 2
 theme_override_constants/separation = 0
 
-[node name="RightHand" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960000449]
+[node name="RightHand" type="HBoxContainer" parent="Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960000449]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
-[node name="LeftHand" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960693474]
+[node name="LeftHand" type="HBoxContainer" parent="Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960693474]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
-[node name="RightFoot" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1823406850]
+[node name="RightFoot" type="HBoxContainer" parent="Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1823406850]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
 
-[node name="LeftFoot" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1922295510]
+[node name="LeftFoot" type="HBoxContainer" parent="Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1922295510]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2

@@ -1,5 +1,5 @@
 @tool
-extends PanelContainer
+extends Control
 class_name CharacterRenderer
 
 const POSITION_LERP_SPEED := 12.0
@@ -61,7 +61,9 @@ func _layout_target_position() -> Vector2:
 	return active_position if centered else original_position
 
 func _refresh_renderer_size() -> void:
-	size = get_combined_minimum_size()
+	var minimun_size = %Container.get_combined_minimum_size()
+	%Container.size = minimun_size
+	size = minimun_size
 
 static func _is_position_settled(pos: Vector2, target: Vector2) -> bool:
 	return pos.distance_squared_to(target) <= POSITION_SETTLE_DISTANCE_SQUARED
