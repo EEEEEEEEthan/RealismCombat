@@ -40,6 +40,7 @@ func _ready() -> void:
 	_refresh_layout_direction()
 	position = _layout_target_position
 	%AnimationPlayer.play(&"RESET")
+	_refresh_color()
 
 func _process(delta: float) -> void:
 	_refresh_renderer_size()
@@ -63,6 +64,7 @@ func bind(chr: Character) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_LAYOUT_DIRECTION_CHANGED:
 		_refresh_layout_direction()
+		_refresh_color()
 
 var _layout_target_position: Vector2:
 	get: return active_position if centered else original_position
@@ -77,13 +79,21 @@ func _refresh_layout_direction() -> void:
 	%Mirror.scale = s
 	%Container.scale = s
 
+func _refresh_color() -> void:
+	if character.alive:
+		if is_layout_rtl():
+			%Container.theme_type_variation = &"PanelContainerLightOrange"
+		else:
+			%Container.theme_type_variation = &"PanelContainerLightBlue"
+	else:
+		%Container.theme_type_variation = &"PanelContainerGrey"
+
 signal deliver_hit
 
 func _on_attack() -> void:
 	deliver_hit.emit()
 
 func animate_generic_attack() -> void:
-	print("generic_attack")
 	%AnimationPlayer.play(&"general_attack")
 	await deliver_hit
 	Engine.time_scale = 0

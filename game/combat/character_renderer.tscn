@@ -252,6 +252,7 @@ offset_right = 47.0
 offset_bottom = 41.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
+theme_type_variation = &"PanelContainerLightBlue"
 
 [node name="MarginContainer" type="MarginContainer" parent="Mirror/Container" unique_id=1367901981]
 layout_mode = 2
