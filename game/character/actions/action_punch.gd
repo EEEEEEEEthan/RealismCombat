@@ -55,7 +55,9 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	await super.execute(from_body, to_body)
 	var combat := from_body.character.game.combat
 	var attacker_renderer := combat.get_character_renderer(from_body.character)
-	attacker_renderer.animate_generic_attack()
+	var defender_renderer := combat.get_character_renderer(to_body.character)
+	await attacker_renderer.animate_generic_attack()
+	defender_renderer.animate_generic_hit()
 	var menu = Dialogues.create_generic_dialogue()
 	menu.text = &"伤害结算"
 	await menu.pressed
