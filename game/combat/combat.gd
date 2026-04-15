@@ -49,7 +49,8 @@ func add_character(character: Character, side: int) -> void:
 		folded_reference_rect.position
 		+ Vector2(0.0, folded_reference_rect.size.y * slot_index)
 	)
-	character_renderer.set_battle_layout(original_position, active_reference_position)
+	character_renderer.original_position = original_position
+	character_renderer.active_position = active_reference_position
 	%CharacterLayer.add_child(character_renderer)
 	characters[character] = side
 	character_renderers[character] = character_renderer

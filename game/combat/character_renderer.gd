@@ -22,10 +22,6 @@ var centered: bool = false:
 		if is_node_ready():
 			_expanded.expanded = expanded
 
-func set_battle_layout(original: Vector2, active: Vector2) -> void:
-	original_position = original
-	active_position = active
-
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	anchor_left = 0.0
