@@ -1,8 +1,8 @@
 extends Action
 class_name ActionPunch
 
-func _init(p_character: Character) -> void:
-	super(p_character)
+func _init(chr: Character) -> void:
+	super(chr)
 
 func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	return 1
@@ -57,6 +57,7 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	var attacker_renderer := combat.get_character_renderer(from_body.character)
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 	await attacker_renderer.animate_generic_attack()
+	await combat.hit_stop(0.2)
 	defender_renderer.animate_generic_hit()
 	var menu = Dialogues.create_generic_dialogue()
 	menu.text = &"伤害结算"

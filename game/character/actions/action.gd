@@ -2,14 +2,10 @@
 extends RefCounted
 class_name Action
 
-var _character_ref: WeakRef
+var character: Character
 
-var character: Character:
-	get:
-		return _character_ref.get_ref() as Character
-
-func _init(p_character: Character) -> void:
-	_character_ref = weakref(p_character)
+func _init(chr: Character) -> void:
+	character = chr
 
 var action_name: StringName:
 	get:

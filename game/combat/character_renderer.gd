@@ -88,18 +88,14 @@ func _refresh_color() -> void:
 	else:
 		%Container.theme_type_variation = &"PanelContainerGrey"
 
-signal deliver_hit
+signal _deliver_hit
 
 func _on_attack() -> void:
-	deliver_hit.emit()
+	_deliver_hit.emit()
 
 func animate_generic_attack() -> void:
 	%AnimationPlayer.play(&"general_attack")
-	await deliver_hit
-	Engine.time_scale = 0
-	%Timer.start(0.3)
-	Engine.time_scale = 1
-	await %Timer.timeout
+	await _deliver_hit
 
 func animate_generic_hit() -> void:
 	%AnimationPlayer.play(&"general_hit")

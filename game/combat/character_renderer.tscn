@@ -342,7 +342,3 @@ libraries/ = SubResource("AnimationLibrary_cybvm")
 
 [node name="Shake" type="Node" parent="." unique_id=1188609234]
 script = SubResource("GDScript_1ydc4")
-
-[node name="Timer" type="Timer" parent="." unique_id=1285209175]
-unique_name_in_owner = true
-ignore_time_scale = true
