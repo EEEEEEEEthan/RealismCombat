@@ -85,3 +85,6 @@ func animate_generic_attack() -> void:
 	%Timer.start(0.3)
 	Engine.time_scale = 1
 	await %Timer.timeout
+
+func animate_generic_hit() -> void:
+	%AnimationPlayer.play(&"general_hit")
