@@ -35,17 +35,16 @@ func _ready() -> void:
 	set_process(true)
 	_expanded.expanded = expanded
 	_refresh_renderer_size()
-	position = _layout_target_position()
+	_refresh_layout_direction()
+	position = _layout_target_position
 
 func _process(delta: float) -> void:
 	_refresh_renderer_size()
-	var layout_target := _layout_target_position()
+	var layout_target := _layout_target_position
 	position = position.lerp(
 		layout_target,
 		clampf(POSITION_LERP_SPEED * delta, 0.0, 1.0),
 	)
-	if _is_position_settled(position, layout_target):
-		position = layout_target
 
 func bind(character: Character) -> void:
 	%Name.text = character.character_name
@@ -57,13 +56,32 @@ func bind(character: Character) -> void:
 	%ActionPoints.bind(character.state_machine.action_points)
 	_refresh_renderer_size()
 
-func _layout_target_position() -> Vector2:
-	return active_position if centered else original_position
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_LAYOUT_DIRECTION_CHANGED:
+		_refresh_layout_direction()
+
+var _layout_target_position: Vector2:
+	get: return active_position if centered else original_position
 
 func _refresh_renderer_size() -> void:
 	var minimun_size = %Container.get_combined_minimum_size()
 	%Container.size = minimun_size
 	size = minimun_size
 
-static func _is_position_settled(pos: Vector2, target: Vector2) -> bool:
-	return pos.distance_squared_to(target) <= POSITION_SETTLE_DISTANCE_SQUARED
+func _refresh_layout_direction() -> void:
+	var s = Vector2(-1, 1) if is_layout_rtl() else Vector2(1, 1)
+	%Mirror.scale = s
+	%Container.scale = s
+
+signal deliver_hit
+
+func _on_attack() -> void:
+	deliver_hit.emit()
+
+func animate_generic_attack() -> void:
+	%AnimationPlayer.play(&"general_attack")
+	await deliver_hit
+	Engine.time_scale = 0
+	%Timer.start(0.3)
+	Engine.time_scale = 1
+	await %Timer.timeout

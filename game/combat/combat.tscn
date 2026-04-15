@@ -23,7 +23,6 @@ grow_vertical = 2
 [node name="CharacterPlaceHolder" parent="." unique_id=1218273912 instance_placeholder="res://game/combat/character_renderer.tscn"]
 unique_name_in_owner = true
 layout_mode = 0
-mouse_filter = 2
 
 [node name="SafeArea" type="Control" parent="." unique_id=1896073041]
 layout_mode = 1
