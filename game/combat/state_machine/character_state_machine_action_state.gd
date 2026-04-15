@@ -33,8 +33,6 @@ func new_tick() -> void:
 			participating_renderers.append(character_renderer)
 			character_renderer.centered = true
 		for character_renderer in participating_renderers:
-			await character_renderer.wait_until_preferred_position()
-		for character_renderer in participating_renderers:
 			character_renderer.expanded = true
 		await _action.execute(_from_body, _to_body)
 		for character_renderer in participating_renderers:
