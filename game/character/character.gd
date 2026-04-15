@@ -14,16 +14,13 @@ var _actions: Array[Action] = []
 var state_machine: CharacterStateMachine
 
 var actions: Array[Action]:
-	get:
-		return _actions
+	get: return _actions
 
 var alive: bool:
-	get:
-		return head.hp.value > 0 and chest.hp.value > 0
+	get: return head.hp.value > 0 and chest.hp.value > 0
 
 var speed: float:
-	get:
-		return 10
+	get: return 10
 
 func _init(p_game: Game, p_name: String) -> void:
 	game = p_game
@@ -34,14 +31,7 @@ func _init(p_game: Game, p_name: String) -> void:
 	left_hand = BodyPart.new(self, Defs.BodyPart.LEFT_HAND, 6, 6)
 	right_foot = BodyPart.new(self, Defs.BodyPart.RIGHT_FOOT, 7, 7)
 	left_foot = BodyPart.new(self, Defs.BodyPart.LEFT_FOOT, 7, 7)
-	all_body_parts = [
-		head,
-		chest,
-		right_hand,
-		left_hand,
-		right_foot,
-		left_foot,
-	]
+	all_body_parts = [ head, chest, right_hand, left_hand, right_foot, left_foot, ]
 	add_action(ActionPunch.new(self) as Action)
 
 func add_action(action: Action) -> void:
