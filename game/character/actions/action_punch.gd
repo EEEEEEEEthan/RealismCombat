@@ -50,3 +50,13 @@ func _get_windup_action_points() -> int:
 
 func _get_recovery_action_points() -> int:
 	return 3
+
+func execute(from_body: BodyPart, to_body: BodyPart) -> void:
+	await super.execute(from_body, to_body)
+	var combat := from_body.character.game.combat
+	var attacker_renderer := combat.get_character_renderer(from_body.character)
+	attacker_renderer.animate_generic_attack()
+	var menu = Dialogues.create_generic_dialogue()
+	menu.text = &"伤害结算"
+	await menu.pressed
+	menu.queue_free()

@@ -22,6 +22,8 @@ var centered: bool = false:
 		if is_node_ready():
 			_expanded.expanded = expanded
 
+var character: Character
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	anchor_left = 0.0
@@ -37,6 +39,7 @@ func _ready() -> void:
 	_refresh_renderer_size()
 	_refresh_layout_direction()
 	position = _layout_target_position
+	%AnimationPlayer.play(&"RESET")
 
 func _process(delta: float) -> void:
 	_refresh_renderer_size()
@@ -46,7 +49,8 @@ func _process(delta: float) -> void:
 		clampf(POSITION_LERP_SPEED * delta, 0.0, 1.0),
 	)
 
-func bind(character: Character) -> void:
+func bind(chr: Character) -> void:
+	character = chr
 	%Name.text = character.character_name
 	var body_parts: Array[BodyPartRenderer] = [
 		%Head, %Chest, %RightHand, %LeftHand, %RightFoot, %LeftFoot,
@@ -79,6 +83,7 @@ func _on_attack() -> void:
 	deliver_hit.emit()
 
 func animate_generic_attack() -> void:
+	print("generic_attack")
 	%AnimationPlayer.play(&"general_attack")
 	await deliver_hit
 	Engine.time_scale = 0
