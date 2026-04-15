@@ -5,17 +5,11 @@ class_name CharacterRenderer
 const POSITION_LERP_SPEED := 12.0
 const POSITION_SETTLE_DISTANCE_SQUARED := 0.25
 
-signal preferred_position_reached
 signal centered_changed
 
-var _is_at_preferred_position := true
 @onready var _expanded: Control = %Expanded
 
-var preferred_position: Vector2 = Vector2.ZERO:
-	set(value):
-		preferred_position = value
-		if not _is_position_settled(position, preferred_position):
-			_is_at_preferred_position = false
+var preferred_position: Vector2 = Vector2.ZERO
 
 var centered: bool = false:
 	set(value):
@@ -44,7 +38,6 @@ func _ready() -> void:
 	_expanded.expanded = expanded
 	_refresh_renderer_size()
 	position = preferred_position
-	_is_at_preferred_position = true
 
 func _process(delta: float) -> void:
 	_refresh_renderer_size()
@@ -54,11 +47,6 @@ func _process(delta: float) -> void:
 	)
 	if _is_position_settled(position, preferred_position):
 		position = preferred_position
-		if not _is_at_preferred_position:
-			_is_at_preferred_position = true
-			preferred_position_reached.emit()
-	else:
-		_is_at_preferred_position = false
 
 func bind(character: Character) -> void:
 	%Name.text = character.character_name
@@ -69,13 +57,6 @@ func bind(character: Character) -> void:
 		body_parts[i].setup(character.all_body_parts[i])
 	%ActionPoints.bind(character.state_machine.action_points)
 	_refresh_renderer_size()
-
-func wait_until_preferred_position() -> void:
-	if _is_position_settled(position, preferred_position):
-		position = preferred_position
-		_is_at_preferred_position = true
-		return
-	await preferred_position_reached
 
 func _refresh_renderer_size() -> void:
 	size = get_combined_minimum_size()
