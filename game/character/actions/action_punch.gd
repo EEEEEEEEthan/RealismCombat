@@ -1,4 +1,5 @@
 extends Action
+class_name ActionPunch
 
 func _init(p_character: Character) -> void:
 	super(p_character)

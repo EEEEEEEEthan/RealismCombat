@@ -1,8 +1,6 @@
 extends RefCounted
 class_name Character
 
-const _ACTION_PUNCH_SCRIPT := preload("res://game/character/actions/action_punch.gd")
-
 var game: Game
 var character_name: String
 var head: BodyPart
@@ -44,7 +42,7 @@ func _init(p_game: Game, p_name: String) -> void:
 		right_foot,
 		left_foot,
 	]
-	add_action(_ACTION_PUNCH_SCRIPT.new(self) as Action)
+	add_action(ActionPunch.new(self) as Action)
 
 func add_action(action: Action) -> void:
 	_actions.append(action)
