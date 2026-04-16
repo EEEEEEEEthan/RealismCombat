@@ -58,6 +58,7 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 	await attacker_renderer.animate_generic_attack()
 	await combat.hit_stop(0.2)
+	to_body.hp.value -= 1
 	defender_renderer.animate_generic_hit()
 	var menu = Dialogues.create_generic_dialogue()
 	menu.text = &"伤害结算"
