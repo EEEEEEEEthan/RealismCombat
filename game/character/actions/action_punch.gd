@@ -91,16 +91,17 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	var attacker_renderer := combat.get_character_renderer(from_body.character)
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 	await attacker_renderer.animate_generic_attack()
-	await combat.hit_stop(0.2)
 	var hit_chance := _get_hit_chance(from_body, to_body)
 	var menu = Dialogues.create_generic_dialogue()
 	if randf() < hit_chance:
+		await combat.hit_stop(0.2)
 		var d = damage.sum
 		to_body.hp.value -= d
 		AudioManager.play_hit()
 		defender_renderer.animate_generic_hit()
 		menu.text = &"造成伤害:" + str(damage)
 	else:
+		defender_renderer.animate_generic_dodge()
 		menu.text = &"未命中"
 	await menu.pressed
 	menu.queue_free()

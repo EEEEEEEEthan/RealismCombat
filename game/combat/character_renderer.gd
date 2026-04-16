@@ -106,3 +106,6 @@ func animate_generic_attack() -> void:
 
 func animate_generic_hit() -> void:
 	%AnimationPlayer.play(&"general_hit")
+
+func animate_generic_dodge() -> void:
+	%AnimationPlayer.play(&"generic_dodge")
