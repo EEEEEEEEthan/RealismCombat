@@ -144,7 +144,7 @@ func player_turn_choose_target_body(
 		var dynamic_outcome = action.dynamic_valid_to_body(to_body)
 		if dynamic_outcome.success:
 			data.disabled = false
-			data.description = &"选择" + str(to_body.part_name) + &"为目标"
+			data.description = &"选择" + str(to_body.part_name) + &"为目标\n" + action.preview(from_body, to_body)
 		else:
 			data.disabled = true
 			data.description = dynamic_outcome.error_message

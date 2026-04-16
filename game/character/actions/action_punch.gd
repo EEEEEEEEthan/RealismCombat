@@ -1,11 +1,17 @@
 extends Action
 class_name ActionPunch
 
+static var damage: Damage:
+	get:
+		if not damage:
+			damage = Damage.new(0, 0, 1)
+		return damage
+
 func _init(chr: Character) -> void:
 	super(chr)
 
-func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
-	return 1
+func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
+	return get_hit_chance(from_body, to_body) * _get_damage(from_body, to_body).sum
 
 func static_valid_from_body(from_body: BodyPart) -> Outcome:
 	if not from_body.is_hand:
@@ -43,13 +49,36 @@ func _get_name() -> StringName:
 	return &"直拳"
 
 func _get_description() -> String:
-	return &"一种几乎本能的徒手攻击"
+	return &"一种几乎本能的徒手攻击\n伤害:" + str(damage)
 
 func _get_windup_action_points() -> int:
 	return 2
 
 func _get_recovery_action_points() -> int:
 	return 3
+
+func _get_hit_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
+	match to_body.part:
+		Defs.BodyPart.HEAD:
+			return 0.1
+		Defs.BodyPart.CHEST:
+			return 0.6
+		Defs.BodyPart.RIGHT_HAND:
+			return 0.3
+		Defs.BodyPart.LEFT_HAND:
+			return 0.3
+		Defs.BodyPart.RIGHT_FOOT:
+			return 0.1
+		Defs.BodyPart.LEFT_FOOT:
+			return 0.1
+	return 0.85
+
+func _get_damage(_from_body: BodyPart, _to_body: BodyPart) -> Damage:
+	return damage
+
+func preview(from_body: BodyPart, to_body: BodyPart) -> String:
+	var hit_chance = _get_hit_chance(from_body, to_body)
+	return &"命中率" + str(int(hit_chance * 100)) + &"%"
 
 func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	await super.execute(from_body, to_body)
@@ -58,9 +87,14 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 	await attacker_renderer.animate_generic_attack()
 	await combat.hit_stop(0.2)
-	to_body.hp.value -= 1
-	defender_renderer.animate_generic_hit()
+	var hit_chance := _get_hit_chance(from_body, to_body)
 	var menu = Dialogues.create_generic_dialogue()
-	menu.text = &"伤害结算"
+	if randf() < hit_chance:
+		var d = damage.sum
+		to_body.hp.value -= d
+		defender_renderer.animate_generic_hit()
+		menu.text = &"造成伤害:" + str(damage)
+	else:
+		menu.text = &"未命中"
 	await menu.pressed
 	menu.queue_free()
