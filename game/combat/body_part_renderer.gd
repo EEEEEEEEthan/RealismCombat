@@ -40,6 +40,7 @@ func setup(part: BodyPart) -> void:
 
 func _on_hp_changed() -> void:
 	_progress_bar.red = true
+	_progress_bar.value = _part.hp.value
 	_label.self_modulate = Defs.get_family_color(Defs.ColorFamily.ROSE_PINK, Defs.ColorShade.DARK)
 	await get_tree().create_timer(0.2).timeout
 	_label.self_modulate = Color.WHITE
