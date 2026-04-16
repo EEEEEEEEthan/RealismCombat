@@ -9,6 +9,11 @@ const POSITION_SETTLE_DISTANCE_SQUARED := 0.25
 
 var original_position: Vector2 = Vector2.ZERO
 var active_position: Vector2 = Vector2.ZERO
+var body_parts: Array[BodyPartRenderer]:
+	get:
+		if not body_parts:
+			body_parts = [ %Head, %Chest, %RightHand, %LeftHand, %RightFoot, %LeftFoot, ]
+		return body_parts
 
 var centered: bool = false:
 	set(value):
@@ -53,9 +58,7 @@ func _process(delta: float) -> void:
 func bind(chr: Character) -> void:
 	character = chr
 	%Name.text = character.character_name
-	var body_parts: Array[BodyPartRenderer] = [
-		%Head, %Chest, %RightHand, %LeftHand, %RightFoot, %LeftFoot,
-	]
+	assert(len(body_parts) > 0)
 	for index in body_parts.size():
 		body_parts[index].setup(character.all_body_parts[index])
 	%ActionPoints.bind(character.state_machine.action_points)
@@ -80,13 +83,17 @@ func _refresh_layout_direction() -> void:
 	%Container.scale = s
 
 func _refresh_color() -> void:
+	var color: Defs.ColorFamily
 	if character.alive:
 		if is_layout_rtl():
-			%Container.fill_color_family = Defs.ColorFamily.FORGE_EMBER
+			color = Defs.ColorFamily.FORGE_EMBER
 		else:
-			%Container.fill_color_family = Defs.ColorFamily.OCEAN_BLUE
+			color = Defs.ColorFamily.OCEAN_BLUE
 	else:
-		%Container.fill_color_family = Defs.ColorFamily.NEUTRAL
+		color = Defs.ColorFamily.NEUTRAL
+	%Container.fill_color_family = color
+	for part: BodyPartRenderer in body_parts:
+		part.color_family = color
 
 signal _deliver_hit
 
