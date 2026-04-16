@@ -37,7 +37,7 @@ func setup(part: BodyPart) -> void:
 func _on_hp_changed() -> void:
 	var hp_display_tween: Tween = create_tween()
 	_progress_bar.theme_type_variation = &"ProgressBarRed"
-	_label.self_modulate = Defs.COLOR_DARK_PINK
+	_label.self_modulate = Defs.get_family_color(Defs.ColorFamily.ROSE_PINK, Defs.ColorShade.DARK)
 	hp_display_tween.tween_property(_progress_bar, "value", _part.hp.value, 0.2)
 	hp_display_tween.tween_callback(func() -> void:
 		_progress_bar.theme_type_variation = &""

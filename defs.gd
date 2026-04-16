@@ -10,6 +10,32 @@ enum BodyPart
 	LEFT_FOOT,
 }
 
+## 四档色阶的色系；成员顺序须与 _FAMILY_COLORS 各行一致。NEUTRAL 为黑与三级灰。
+enum ColorFamily
+{
+	NEUTRAL,
+	SLATE_CYAN,
+	PINE_MINT,
+	LEAF_GREEN,
+	SPRING_LIME,
+	FIELD_GOLD,
+	TORCH_AMBER,
+	FORGE_EMBER,
+	ROSE_PINK,
+	WILD_MAGENTA,
+	TWILIGHT_VIOLET,
+	SAPPHIRE,
+	OCEAN_BLUE,
+}
+
+enum ColorShade
+{
+	DARK,
+	MID,
+	BRIGHT,
+	LIGHT,
+}
+
 static func get_body_part_name(part: Defs.BodyPart) -> StringName:
 	match part:
 		Defs.BodyPart.HEAD:
@@ -26,66 +52,23 @@ static func get_body_part_name(part: Defs.BodyPart) -> StringName:
 			return &"左脚"
 	return &"Unknown"
 
-static var COLOR_DARK_GREY: Color = Color("797979")
-static var COLOR_MID_GREY: Color = Color("a2a2a2")
-static var COLOR_LIGHT_GREY: Color = Color("ebebeb")
 
-static var COLOR_SLATE_CYAN_DARK: Color = Color("305182")
-static var COLOR_SLATE_CYAN_MID: Color = Color("4192c3")
-static var COLOR_SLATE_CYAN_BRIGHT: Color = Color("61d3e3")
-static var COLOR_SLATE_CYAN_LIGHT: Color = Color("a2fff3")
+## 每行对应 ColorFamily 同序成员，每行四色对应 ColorShade。
+const _FAMILY_COLORS: Array[PackedColorArray] = [
+	PackedColorArray([Color("000000"), Color("797979"), Color("a2a2a2"), Color("ebebeb")]),
+	PackedColorArray([Color("305182"), Color("4192c3"), Color("61d3e3"), Color("a2fff3")]),
+	PackedColorArray([Color("306141"), Color("49a269"), Color("71e392"), Color("a2ffcb")]),
+	PackedColorArray([Color("386d00"), Color("49aa10"), Color("71f341"), Color("a2f3a2")]),
+	PackedColorArray([Color("386900"), Color("51a200"), Color("9aeb00"), Color("cbf382")]),
+	PackedColorArray([Color("495900"), Color("8a8a00"), Color("ebd320"), Color("fff392")]),
+	PackedColorArray([Color("794100"), Color("c37100"), Color("ffa200"), Color("ffdba2")]),
+	PackedColorArray([Color("a23000"), Color("e35100"), Color("ff7930"), Color("ffcbaa")]),
+	PackedColorArray([Color("b21030"), Color("db4161"), Color("ff61b2"), Color("ffbaeb")]),
+	PackedColorArray([Color("9a2079"), Color("db41c3"), Color("f361ff"), Color("e3b2ff")]),
+	PackedColorArray([Color("6110a2"), Color("9241f3"), Color("a271ff"), Color("c3b2ff")]),
+	PackedColorArray([Color("2800ba"), Color("4141ff"), Color("5182ff"), Color("a2baff")]),
+	PackedColorArray([Color("2000b2"), Color("4161fb"), Color("61a2ff"), Color("92d3ff")]),
+]
 
-static var COLOR_PINE_MINT_DARK: Color = Color("306141")
-static var COLOR_PINE_MINT_MID: Color = Color("49a269")
-static var COLOR_PINE_MINT_BRIGHT: Color = Color("71e392")
-static var COLOR_PINE_MINT_LIGHT: Color = Color("a2ffcb")
-
-static var COLOR_LEAF_GREEN_DARK: Color = Color("386d00")
-static var COLOR_LEAF_GREEN_MID: Color = Color("49aa10")
-static var COLOR_LEAF_GREEN_BRIGHT: Color = Color("71f341")
-static var COLOR_LEAF_GREEN_LIGHT: Color = Color("a2f3a2")
-
-static var COLOR_SPRING_LIME_DARK: Color = Color("386900")
-static var COLOR_SPRING_LIME_MID: Color = Color("51a200")
-static var COLOR_SPRING_LIME_BRIGHT: Color = Color("9aeb00")
-static var COLOR_SPRING_LIME_LIGHT: Color = Color("cbf382")
-
-static var COLOR_FIELD_GOLD_DARK: Color = Color("495900")
-static var COLOR_FIELD_GOLD_MID: Color = Color("8a8a00")
-static var COLOR_FIELD_GOLD_BRIGHT: Color = Color("ebd320")
-static var COLOR_FIELD_GOLD_LIGHT: Color = Color("fff392")
-
-static var COLOR_TORCH_AMBER_DARK: Color = Color("794100")
-static var COLOR_TORCH_AMBER_MID: Color = Color("c37100")
-static var COLOR_TORCH_AMBER_BRIGHT: Color = Color("ffa200")
-static var COLOR_TORCH_AMBER_LIGHT: Color = Color("ffdba2")
-
-static var COLOR_FORGE_EMBER_DARK: Color = Color("a23000")
-static var COLOR_FORGE_EMBER_MID: Color = Color("e35100")
-static var COLOR_FORGE_EMBER_BRIGHT: Color = Color("ff7930")
-static var COLOR_FORGE_EMBER_LIGHT: Color = Color("ffcbaa")
-
-static var COLOR_DARK_PINK: Color = Color("b21030")
-static var COLOR_ROSE_PINK_MID: Color = Color("db4161")
-static var COLOR_ROSE_PINK_BRIGHT: Color = Color("ff61b2")
-static var COLOR_ROSE_PINK_LIGHT: Color = Color("ffbaeb")
-
-static var COLOR_WILD_MAGENTA_DARK: Color = Color("9a2079")
-static var COLOR_WILD_MAGENTA_MID: Color = Color("db41c3")
-static var COLOR_WILD_MAGENTA_BRIGHT: Color = Color("f361ff")
-static var COLOR_WILD_MAGENTA_LIGHT: Color = Color("e3b2ff")
-
-static var COLOR_TWILIGHT_VIOLET_DARK: Color = Color("6110a2")
-static var COLOR_TWILIGHT_VIOLET_MID: Color = Color("9241f3")
-static var COLOR_TWILIGHT_VIOLET_BRIGHT: Color = Color("a271ff")
-static var COLOR_TWILIGHT_VIOLET_LIGHT: Color = Color("c3b2ff")
-
-static var COLOR_SAPPHIRE_DARK: Color = Color("2800ba")
-static var COLOR_SAPPHIRE_MID: Color = Color("4141ff")
-static var COLOR_SAPPHIRE_BRIGHT: Color = Color("5182ff")
-static var COLOR_SAPPHIRE_LIGHT: Color = Color("a2baff")
-
-static var COLOR_OCEAN_BLUE_DARK: Color = Color("2000b2")
-static var COLOR_OCEAN_BLUE_MID: Color = Color("4161fb")
-static var COLOR_OCEAN_BLUE_BRIGHT: Color = Color("61a2ff")
-static var COLOR_OCEAN_BLUE_ICE: Color = Color("92d3ff")
+static func get_family_color(family: ColorFamily, shade: ColorShade) -> Color:
+	return _FAMILY_COLORS[family][shade as int]
