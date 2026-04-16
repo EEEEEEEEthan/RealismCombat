@@ -37,12 +37,11 @@ func _init(p_character: Character) -> void:
 func new_tick() -> void:
 	await current_state.new_tick()
 
+func set_idle() -> void:
+	current_state = idle_state
+
 func _set_action(action: Action, from_body: BodyPart, to_body: BodyPart) -> void:
 	var action_state = CharacterStateMachineActionState.new(self)
 	current_state = action_state
 	await action_state.set_action(action, from_body, to_body)
 	action_state = null
-
-func _set_idle(points: float) -> void:
-	current_state = idle_state
-	action_points.value -= points

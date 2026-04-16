@@ -35,7 +35,8 @@ func new_tick() -> void:
 		for character_renderer in participating_renderers:
 			character_renderer.expanded = false
 			character_renderer.centered = false
-		machine._set_idle(_action.recovery_action_points)
+		machine.set_idle()
+		machine.action_points.value -= _action.recovery_action_points
 		_action = null
 		_from_body = null
 		_to_body = null

@@ -74,11 +74,6 @@ func is_player_character(character: Character) -> bool:
 func get_character_renderer(character: Character) -> CharacterRenderer:
 	return character_renderers[character]
 
-func hit_stop(seconds: float) -> void:
-	Engine.time_scale = 0
-	await get_tree().create_timer(seconds, true, false, true).timeout
-	Engine.time_scale = 1
-
 func _get_reference_rect_in_character_layer(reference: Control) -> Rect2:
 	var reference_global_rect := reference.get_global_rect()
 	return Rect2(
