@@ -9,10 +9,10 @@ func _init(chr: Character) -> void:
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var dmg = damage.sum
 	var weight = pow(1 - get_dodge_chance(from_body, to_body) * dmg, 2)
+	var bonus = 1
 	# 如果这一击能把部位打烂，权重应该翻倍
-	if dmg >= to_body.hp.value:
-		weight += weight
-	return weight
+	if dmg >= to_body.hp.value: bonus += 1
+	return weight * bonus
 
 func static_valid_from_body(from_body: BodyPart) -> Outcome:
 	if not from_body.is_hand:
