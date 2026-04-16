@@ -11,7 +11,12 @@ func _init(chr: Character) -> void:
 	super(chr)
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
-	return get_hit_chance(from_body, to_body) * _get_damage(from_body, to_body).sum
+	var dmg = _get_damage(from_body, to_body).sum
+	var weight = _get_hit_chance(from_body, to_body) * dmg
+	# 如果这一击能把部位打烂，权重应该翻倍
+	if dmg >= to_body.hp.value:
+		weight += weight
+	return weight
 
 func static_valid_from_body(from_body: BodyPart) -> Outcome:
 	if not from_body.is_hand:

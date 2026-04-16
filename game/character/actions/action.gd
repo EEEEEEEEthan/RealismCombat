@@ -23,9 +23,6 @@ var recovery_action_points: int:
 	get:
 		return _get_recovery_action_points()
 
-func get_hit_chance(from_body: BodyPart, to_body: BodyPart) -> float:
-	return _get_hit_chance(from_body, to_body)
-
 func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	var menu = Dialogues.create_generic_dialogue()
 	menu.text = from_body.character.character_name + "的" + from_body.part_name + "开始蓄力..."
@@ -84,6 +81,3 @@ func _get_windup_action_points() -> int:
 
 func _get_recovery_action_points() -> int:
 	return 0
-
-func _get_hit_chance(_from_body: BodyPart, _to_body: BodyPart) -> float:
-	return 1.0

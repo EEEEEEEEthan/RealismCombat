@@ -21,6 +21,11 @@ static var audio_stream_start: AudioStream:
 		if not audio_stream_start: audio_stream_start = _load_audio_stream(&"res://audios/start.wav")
 		return audio_stream_start
 
+static var audio_hit: AudioStream:
+	get:
+		if not audio_hit: audio_hit = _load_audio_stream(&"res://audios/hit.wav")
+		return audio_hit
+
 static var texture2d_theme_atlas: Texture2D:
 	get:
 		if not texture2d_theme_atlas: texture2d_theme_atlas = _load_texture2d(&"res://theme_atlas.png")

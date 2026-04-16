@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bofoc3l6ngg6n"
-path="res://.godot/imported/retro-hurt-1-236672.wav-0991a5add9b5b7d8f1ece44450013713.sample"
+path="res://.godot/imported/hit.wav-4f89b010c09c7db7c4c728cf5ceb4f6c.sample"
 
 [deps]
 
-source_file="res://audios/retro-hurt-1-236672.wav"
-dest_files=["res://.godot/imported/retro-hurt-1-236672.wav-0991a5add9b5b7d8f1ece44450013713.sample"]
+source_file="res://audios/hit.wav"
+dest_files=["res://.godot/imported/hit.wav-4f89b010c09c7db7c4c728cf5ceb4f6c.sample"]
 
 [params]
 
