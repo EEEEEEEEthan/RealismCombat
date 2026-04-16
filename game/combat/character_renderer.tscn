@@ -294,12 +294,14 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
+color_family = 12
 
 [node name="Chest" type="HBoxContainer" parent="Mirror/Container/MarginContainer/VBoxContainer" unique_id=851368283]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
+color_family = 12
 
 [node name="Expanded" type="Control" parent="Mirror/Container/MarginContainer/VBoxContainer" unique_id=558657063]
 unique_name_in_owner = true
@@ -321,24 +323,28 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
+color_family = 12
 
 [node name="LeftHand" type="HBoxContainer" parent="Mirror/Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=960693474]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
+color_family = 12
 
 [node name="RightFoot" type="HBoxContainer" parent="Mirror/Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1823406850]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
+color_family = 12
 
 [node name="LeftFoot" type="HBoxContainer" parent="Mirror/Container/MarginContainer/VBoxContainer/Expanded/VBoxContainer" unique_id=1922295510]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_jenu5")
+color_family = 12
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1127807125]
 unique_name_in_owner = true

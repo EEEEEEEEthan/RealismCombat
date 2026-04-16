@@ -60,6 +60,16 @@ void fragment() {
 		jump = v
 		_fill.material = _material if v else null
 
+@export var red: bool:
+	set(v):
+		red = v
+		_update_color()
+
+@export var color_family: Defs.ColorFamily:
+	set(v):
+		color_family = v
+		_update_color()
+
 var _background: NinePatchRect
 var _fill: NinePatchRect
 
@@ -72,7 +82,6 @@ func _init() -> void:
 	_background.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_TILE
 	_background.pivot_offset_ratio = Vector2(.5, .5)
 	_background.texture = _back_texture
-	_background.self_modulate = Color("797979")
 	add_child(_background)
 	_background.set_anchor_and_offset(SIDE_TOP, 0, 1)
 	_background.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
@@ -88,6 +97,7 @@ func _init() -> void:
 	_background.add_child(_fill)
 	_fill.set_anchor_and_offset(SIDE_TOP, 0, -2)
 	_fill.set_anchor_and_offset(SIDE_BOTTOM, 1, 2)
+	_update_color()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_LAYOUT_DIRECTION_CHANGED:
@@ -110,3 +120,12 @@ func _update_layout_direction() -> void:
 
 func _update_progress() -> void:
 	_fill.set_anchor_and_offset(SIDE_RIGHT, value / max_value, 0)
+
+func _update_color() -> void:
+	if not is_node_ready(): return
+	if red:
+		_background.self_modulate = Defs.get_family_color(Defs.ColorFamily.ROSE_PINK, Defs.ColorShade.LIGHT)
+		_fill.self_modulate = Defs.get_family_color(Defs.ColorFamily.ROSE_PINK, Defs.ColorShade.DARK)
+	else:
+		_background.self_modulate = Defs.get_family_color(color_family, Defs.ColorShade.LIGHT)
+		_fill.self_modulate = Color.WHITE
