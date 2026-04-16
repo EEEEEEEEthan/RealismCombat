@@ -71,7 +71,7 @@ func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	return 1
 
 func _get_description() -> String:
-	return &"unknown"
+	return &"前后摇:" + str(windup_action_points) + &"/" + str(recovery_action_points)
 
 func _get_name() -> StringName:
 	return &"unknown"

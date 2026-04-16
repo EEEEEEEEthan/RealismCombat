@@ -12,7 +12,7 @@ func _init(chr: Character) -> void:
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var dmg = _get_damage(from_body, to_body).sum
-	var weight = pow(_get_hit_chance(from_body, to_body) * dmg, 2)
+	var weight = pow(1 - _get_dodge_chance(from_body, to_body) * dmg, 2)
 	# 如果这一击能把部位打烂，权重应该翻倍
 	if dmg >= to_body.hp.value:
 		weight += weight
@@ -54,7 +54,7 @@ func _get_name() -> StringName:
 	return &"直拳"
 
 func _get_description() -> String:
-	return &"一种几乎本能的徒手攻击\n伤害:" + str(damage)
+	return &"一种几乎本能的徒手攻击\n" + super._get_description() + &"\n伤害:" + str(damage)
 
 func _get_windup_action_points() -> int:
 	return 2
@@ -62,28 +62,28 @@ func _get_windup_action_points() -> int:
 func _get_recovery_action_points() -> int:
 	return 3
 
-func _get_hit_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
+func _get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
 	match to_body.part:
 		Defs.BodyPart.HEAD:
-			return 0.1
+			return 0.9
 		Defs.BodyPart.CHEST:
-			return 0.6
+			return 0.4
 		Defs.BodyPart.RIGHT_HAND:
-			return 0.3
+			return 0.7
 		Defs.BodyPart.LEFT_HAND:
-			return 0.3
+			return 0.7
 		Defs.BodyPart.RIGHT_FOOT:
-			return 0.1
+			return 0.9
 		Defs.BodyPart.LEFT_FOOT:
-			return 0.1
-	return 0.85
+			return 0.9
+	return 0
 
 func _get_damage(_from_body: BodyPart, _to_body: BodyPart) -> Damage:
 	return damage
 
 func preview(from_body: BodyPart, to_body: BodyPart) -> String:
-	var hit_chance = _get_hit_chance(from_body, to_body)
-	return &"命中率" + str(int(hit_chance * 100)) + &"%"
+	var dodge_chance = _get_dodge_chance(from_body, to_body)
+	return &"闪避成功率" + str(int(dodge_chance * 100)) + &"%"
 
 func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	await super.execute(from_body, to_body)
@@ -91,7 +91,7 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	var attacker_renderer := combat.get_character_renderer(from_body.character)
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 	await attacker_renderer.animate_generic_attack()
-	var hit_chance := _get_hit_chance(from_body, to_body)
+	var hit_chance := 1 - _get_dodge_chance(from_body, to_body)
 	var menu = Dialogues.create_generic_dialogue()
 	if randf() < hit_chance:
 		await combat.hit_stop(0.2)
