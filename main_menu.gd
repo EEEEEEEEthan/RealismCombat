@@ -13,7 +13,7 @@ func _ready() -> void:
 		MenuItemData.new(),
 		MenuItemData.new(),
 		MenuItemData.new("退出", false, "离开"),
-	]
+	] as Array[MenuItemData]
 	while true:
 		var index = await menu.pressed
 		menu.visible = false

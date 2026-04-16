@@ -19,7 +19,7 @@ func _ready() -> void:
 		MenuItemData.new(),
 		MenuItemData.new(),
 		MenuItemData.new("返回菜单", false, "离开"),
-	]
+	] as Array[MenuItemData]
 	var index = await menu.pressed
 	menu.queue_free()
 	if index == 0:

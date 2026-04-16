@@ -29,9 +29,12 @@ func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	await menu.pressed
 	menu.queue_free()
 
+func get_execution_text(from_body: BodyPart, to_body: BodyPart) -> String:
+	return from_body.character.character_name + "的" + from_body.part_name + "对" + to_body.character.character_name + "的" + to_body.part_name + "发动" + action_name
+
 func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	var menu = Dialogues.create_generic_dialogue()
-	menu.text = from_body.character.character_name + "的" + from_body.part_name + "对" + to_body.character.character_name + "的" + to_body.part_name + "发动" + action_name
+	menu.text = get_execution_text(from_body, to_body)
 	await menu.pressed
 	menu.queue_free()
 

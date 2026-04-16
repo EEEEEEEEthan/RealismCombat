@@ -7,7 +7,7 @@ signal pressed(index: int)
 
 var _active: bool = true
 var _title: String = ""
-var _options: Array = []
+var _options: Array[MenuItemData] = []
 
 var active: bool:
 	get:
@@ -27,13 +27,12 @@ var title: String:
 		if is_node_ready():
 			_refresh_title()
 
-var options: Array:
+var options: Array[MenuItemData]:
 	get:
 		return _options
 	set(value):
 		_options = value
-		if is_node_ready():
-			_refresh_options()
+		_refresh_options()
 
 @onready var rich_text_label: RichTextLabel = %RichTextLabel
 @onready var retro_scroll_container: RetroScrollContainer = %RetroScrollContainer
@@ -57,6 +56,7 @@ func _refresh_title() -> void:
 	title_label.text = title
 
 func _refresh_options() -> void:
+	if not is_node_ready(): return
 	var child_count = retro_scroll_container.get_child_count()
 	var length = options.size()
 	if child_count < length:
