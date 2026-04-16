@@ -9,6 +9,9 @@ func play_button_press():
 func play_turn_begin():
 	_play(Resources.audio_stream_start)
 
+func play_hit():
+	_play(Resources.audio_stream_hit)
+
 func _play(stream: AudioStream) -> void:
 	var player = AudioStreamPlayer.new()
 	add_child(player)

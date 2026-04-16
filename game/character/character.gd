@@ -32,7 +32,7 @@ func _init(p_game: Game, p_name: String) -> void:
 	right_foot = BodyPart.new(self, Defs.BodyPart.RIGHT_FOOT, 7, 7)
 	left_foot = BodyPart.new(self, Defs.BodyPart.LEFT_FOOT, 7, 7)
 	all_body_parts = [ head, chest, right_hand, left_hand, right_foot, left_foot, ]
-	add_action(ActionPunch.new(self) as Action)
+	add_action(ActionPunch.new(self))
 
 func add_action(action: Action) -> void:
 	_actions.append(action)

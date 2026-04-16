@@ -97,6 +97,7 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	if randf() < hit_chance:
 		var d = damage.sum
 		to_body.hp.value -= d
+		AudioManager.play_hit()
 		defender_renderer.animate_generic_hit()
 		menu.text = &"造成伤害:" + str(damage)
 	else:
