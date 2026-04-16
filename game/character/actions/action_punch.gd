@@ -12,7 +12,7 @@ func _init(chr: Character) -> void:
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var dmg = _get_damage(from_body, to_body).sum
-	var weight = _get_hit_chance(from_body, to_body) * dmg
+	var weight = pow(_get_hit_chance(from_body, to_body) * dmg, 2)
 	# 如果这一击能把部位打烂，权重应该翻倍
 	if dmg >= to_body.hp.value:
 		weight += weight
