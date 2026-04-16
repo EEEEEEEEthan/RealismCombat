@@ -6,7 +6,6 @@ var machine: CharacterStateMachine
 func _init(p_machine: CharacterStateMachine) -> void:
 	machine = p_machine
 
-
 func new_tick() -> void:
 	var action_points := machine.action_points
 	action_points.value = minf(
@@ -24,7 +23,6 @@ func new_tick() -> void:
 			character_renderer.centered = false
 			return
 		await machine._set_action(parameter.action, parameter.from, parameter.to)
-
 
 func player_turn_choose_from_body_part() -> ActionParameter:
 	var dialogue := Dialogues.create_generic_dialogue()
@@ -50,7 +48,6 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 			menu.queue_free()
 			return parameter
 	return null
-
 
 func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
@@ -165,7 +162,6 @@ func player_turn_choose_target_body(
 	menu.queue_free()
 	return null
 
-
 func ai() -> ActionParameter:
 	var actions: Array[ActionParameter]
 	var from = machine.character
@@ -201,7 +197,6 @@ func ai() -> ActionParameter:
 				chosen = p
 				break
 	return chosen
-
 
 class ActionParameter:
 	var action: Action

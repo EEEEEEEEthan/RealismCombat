@@ -30,23 +30,19 @@ var action_points_per_tick: float:
 	get:
 		return character.speed * 0.05
 
-
 func _init(p_character: Character) -> void:
 	_character_ref = weakref(p_character)
 	idle_state = CharacterStateMachineIdleState.new(self)
 	current_state = idle_state
 
-
 func new_tick() -> void:
 	await current_state.new_tick()
-
 
 func _set_action(action: Action, from_body: BodyPart, to_body: BodyPart) -> void:
 	action_state = CharacterStateMachineActionState.new(self)
 	current_state = action_state
 	await action_state.set_action(action, from_body, to_body)
 	action_state = null
-
 
 func _set_idle(points: float) -> void:
 	current_state = idle_state

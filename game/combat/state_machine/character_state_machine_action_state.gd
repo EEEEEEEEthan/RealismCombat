@@ -7,10 +7,8 @@ var _action: Action
 var _from_body: BodyPart
 var _to_body: BodyPart
 
-
 func _init(p_machine: CharacterStateMachine) -> void:
 	machine = p_machine
-
 
 func set_action(action: Action, from_body: BodyPart, to_body: BodyPart) -> void:
 	_action = action
@@ -20,7 +18,6 @@ func set_action(action: Action, from_body: BodyPart, to_body: BodyPart) -> void:
 	await action.prepare(from_body, to_body)
 	machine.character_renderer.expanded = false
 	machine.character_renderer.centered = false
-
 
 func new_tick() -> void:
 	_windup -= machine.action_points_per_tick
