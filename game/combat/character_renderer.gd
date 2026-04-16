@@ -82,11 +82,11 @@ func _refresh_layout_direction() -> void:
 func _refresh_color() -> void:
 	if character.alive:
 		if is_layout_rtl():
-			%Container.theme_type_variation = &"PanelContainerLightOrange"
+			%Container.fill_color_family = Defs.ColorFamily.FORGE_EMBER
 		else:
-			%Container.theme_type_variation = &"PanelContainerLightBlue"
+			%Container.fill_color_family = Defs.ColorFamily.OCEAN_BLUE
 	else:
-		%Container.theme_type_variation = &"PanelContainerGrey"
+		%Container.fill_color_family = Defs.ColorFamily.NEUTRAL
 
 signal _deliver_hit
 

@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://tmxsjb7r61h3"]
+
+[ext_resource type="Script" uid="uid://gu4lxcimog2h" path="res://components/retro_panel_container.gd" id="1_4ybui"]
+
+[node name="Test" type="Control" unique_id=535567346]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RetroPanelContainer" type="PanelContainer" parent="." unique_id=494759620]
+layout_mode = 0
+offset_right = 27.0
+offset_bottom = 19.0
+script = ExtResource("1_4ybui")
+fill_color_family = 2
+metadata/_custom_type_script = "uid://gu4lxcimog2h"

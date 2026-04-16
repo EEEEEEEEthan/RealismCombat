@@ -10,8 +10,8 @@ var left_hand: BodyPart
 var right_foot: BodyPart
 var left_foot: BodyPart
 var all_body_parts: Array[BodyPart]
-var _actions: Array[Action] = []
 var state_machine: CharacterStateMachine
+var _actions: Array[Action] = []
 
 var actions: Array[Action]:
 	get: return _actions

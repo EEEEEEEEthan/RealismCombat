@@ -19,66 +19,6 @@ texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_110ce"]
-atlas = ExtResource("2_110ce")
-region = Rect2(10, 20, 10, 10)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_yin2u"]
-resource_name = "panel_dark_blue"
-texture = SubResource("AtlasTexture_110ce")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_vj6dk"]
-atlas = ExtResource("2_110ce")
-region = Rect2(10, 10, 10, 10)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mihib"]
-resource_name = "panel_dark_orange"
-texture = SubResource("AtlasTexture_vj6dk")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_mihib"]
-atlas = ExtResource("2_110ce")
-region = Rect2(0, 20, 10, 10)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pnlgr"]
-resource_name = "panel_gray"
-texture = SubResource("AtlasTexture_mihib")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yin2u"]
-atlas = ExtResource("2_110ce")
-region = Rect2(20, 20, 10, 10)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ltblu"]
-resource_name = "panel_light_blue"
-texture = SubResource("AtlasTexture_yin2u")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ttqs8"]
-atlas = ExtResource("2_110ce")
-region = Rect2(20, 10, 10, 10)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lforg"]
-resource_name = "panel_light_orange"
-texture = SubResource("AtlasTexture_ttqs8")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_05tig"]
 atlas = ExtResource("2_110ce")
 region = Rect2(14, 11, 2, 8)
@@ -152,16 +92,6 @@ LabelSmall/base_type = &"Label"
 LabelSmall/font_sizes/font_size = 8
 LabelSmall/fonts/font = ExtResource("1_vj6dk")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_wvktn")
-PanelContainerDarkBlue/base_type = &"PanelContainer"
-PanelContainerDarkBlue/styles/panel = SubResource("StyleBoxTexture_yin2u")
-PanelContainerDarkOrange/base_type = &"PanelContainer"
-PanelContainerDarkOrange/styles/panel = SubResource("StyleBoxTexture_mihib")
-PanelContainerGrey/base_type = &"PanelContainer"
-PanelContainerGrey/styles/panel = SubResource("StyleBoxTexture_pnlgr")
-PanelContainerLightBlue/base_type = &"PanelContainer"
-PanelContainerLightBlue/styles/panel = SubResource("StyleBoxTexture_ltblu")
-PanelContainerLightOrange/base_type = &"PanelContainer"
-PanelContainerLightOrange/styles/panel = SubResource("StyleBoxTexture_lforg")
 ProgressBar/styles/background = SubResource("StyleBoxTexture_05tig")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_110ce")
 ProgressBarRightToLeft/base_type = &"ProgressBar"

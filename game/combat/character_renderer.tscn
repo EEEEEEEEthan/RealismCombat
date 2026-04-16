@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bgu8rncknhalj"]
 
 [ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combat/character_renderer.gd" id="1_jenu5"]
+[ext_resource type="Script" uid="uid://gu4lxcimog2h" path="res://components/retro_panel_container.gd" id="2_1ydc4"]
 [ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="2_cybvm"]
 [ext_resource type="Script" uid="uid://bncf5716crnvr" path="res://game/combat/body_part_renderer.gd" id="2_jenu5"]
 
@@ -245,14 +246,17 @@ grow_horizontal = 2
 grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0.5)
 
-[node name="Container" type="PanelContainer" parent="Mirror" unique_id=1218273912]
+[node name="Container" type="PanelContainer" parent="Mirror" unique_id=200727058]
 unique_name_in_owner = true
 layout_mode = 1
 offset_right = 47.0
 offset_bottom = 41.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
-theme_type_variation = &"PanelContainerLightBlue"
+script = ExtResource("2_1ydc4")
+fill_color_family = 12
+fill_color_shade = 2
+metadata/_custom_type_script = "uid://gu4lxcimog2h"
 
 [node name="MarginContainer" type="MarginContainer" parent="Mirror/Container" unique_id=1367901981]
 layout_mode = 2
