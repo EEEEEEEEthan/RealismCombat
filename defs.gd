@@ -54,7 +54,7 @@ static func get_body_part_name(part: Defs.BodyPart) -> StringName:
 
 
 ## 每行对应 ColorFamily 同序成员，每行四色对应 ColorShade。
-const _FAMILY_COLORS: Array[PackedColorArray] = [
+static var _FAMILY_COLORS: Array[PackedColorArray] = [
 	PackedColorArray([Color("000000"), Color("797979"), Color("a2a2a2"), Color("ebebeb")]),
 	PackedColorArray([Color("305182"), Color("4192c3"), Color("61d3e3"), Color("a2fff3")]),
 	PackedColorArray([Color("306141"), Color("49a269"), Color("71e392"), Color("a2ffcb")]),
