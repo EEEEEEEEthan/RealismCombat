@@ -6,9 +6,6 @@ var _damage: Damage = Damage.new(0, 0, 1)
 func _init(chr: Character) -> void:
 	super(chr)
 
-func _get_damage() -> Damage:
-	return _damage
-
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var dmg = damage.sum
 	var weight = pow(1 - get_dodge_chance(from_body, to_body) * dmg, 2)
@@ -49,18 +46,6 @@ func dynamic_valid_to_character(to_character: Character) -> Outcome:
 		return Outcome.from_failure()
 	return Outcome.from_success()
 
-func _get_name() -> StringName:
-	return &"直拳"
-
-func _get_description() -> String:
-	return &"一种几乎本能的徒手攻击\n" + super._get_description()
-
-func _get_windup_action_points() -> int:
-	return 2
-
-func _get_recovery_action_points() -> int:
-	return 3
-
 func get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
 	match to_body.part:
 		Defs.BodyPart.HEAD:
@@ -77,7 +62,17 @@ func get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
 			return 0.9
 	return 0
 
+func _get_damage() -> Damage:
+	return _damage
 
-func preview(from_body: BodyPart, to_body: BodyPart) -> String:
-	var dodge_chance = get_dodge_chance(from_body, to_body)
-	return &"闪避成功率" + str(int(dodge_chance * 100)) + &"%"
+func _get_name() -> StringName:
+	return &"直拳"
+
+func _get_description() -> String:
+	return &"一种几乎本能的徒手攻击\n" + super._get_description()
+
+func _get_windup_action_points() -> int:
+	return 2
+
+func _get_recovery_action_points() -> int:
+	return 3

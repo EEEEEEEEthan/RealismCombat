@@ -12,6 +12,10 @@ func get_dodge_chance(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	push_error("override me")
 	return 0
 
+func preview(from_body: BodyPart, to_body: BodyPart) -> String:
+	var dodge_chance = get_dodge_chance(from_body, to_body)
+	return &"闪避成功率" + str(int(dodge_chance * 100)) + &"%"
+
 func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	await super.execute(from_body, to_body)
 	var combat := from_body.character.game.combat
