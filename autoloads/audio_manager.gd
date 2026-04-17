@@ -12,6 +12,9 @@ func play_turn_begin():
 func play_hit():
 	_play(Resources.audio_stream_hit)
 
+func play_dodge():
+	_play(Resources.audio_stream_dodge)
+
 func _play(stream: AudioStream) -> void:
 	var player = AudioStreamPlayer.new()
 	add_child(player)

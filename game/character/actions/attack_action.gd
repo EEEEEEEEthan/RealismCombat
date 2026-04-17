@@ -63,6 +63,7 @@ func _dodge(from_body: BodyPart, to_body: BodyPart) -> void:
 		var defender_renderer := combat.get_character_renderer(to_body.character)
 		defender_renderer.animate_generic_dodge()
 		menu.text = to_body.character.character_name + &"轻巧地闪开了"
+		AudioManager.play_dodge()
 		await menu.pressed
 		menu.queue_free()
 	else:

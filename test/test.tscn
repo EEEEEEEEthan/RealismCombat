@@ -90,6 +90,5 @@ rounded = false
 allow_greater = false
 allow_lesser = false
 script = ExtResource("1_syuel")
-red = null
 color_family = 12
 metadata/_custom_type_script = "uid://ck1nic6mkisma"
