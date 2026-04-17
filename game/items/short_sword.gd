@@ -5,7 +5,7 @@ func get_name() -> StringName:
 	return &"短剑"
 
 func get_description() -> String:
-	return "一种基础武器\n%s" % [super.get_description()]
+	return "一种基础武器\n\n%s" % [super.get_description()]
 
 func _init() -> void:
 	super._init()

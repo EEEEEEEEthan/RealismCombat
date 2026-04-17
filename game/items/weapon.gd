@@ -52,7 +52,7 @@ func get_title() -> StringName:
 		return &"平衡的"
 
 func get_description() -> String:
-	return "挥砍:%s\n戳刺:%s" % [swing_damage, stab_damage]
+	return "基础伤害:\n  挥砍:%s\n  戳刺:%s" % [swing_damage, stab_damage]
 
 func _init() -> void:
 	super._init()
