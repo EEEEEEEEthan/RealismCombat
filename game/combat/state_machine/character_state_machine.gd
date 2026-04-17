@@ -2,10 +2,7 @@ extends RefCounted
 class_name CharacterStateMachine
 
 var action_points := Property.new(0, 10)
-var _character_ref: WeakRef
-var character: Character:
-	get:
-		return _character_ref.get_ref() as Character
+var character: Character
 var idle_state
 var current_state
 
@@ -30,7 +27,7 @@ var action_points_per_tick: float:
 		return character.speed * 0.05
 
 func _init(p_character: Character) -> void:
-	_character_ref = weakref(p_character)
+	character = p_character
 	idle_state = CharacterStateMachineIdleState.new(self)
 	current_state = idle_state
 
