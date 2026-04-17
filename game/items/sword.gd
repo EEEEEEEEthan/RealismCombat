@@ -1,13 +1,8 @@
 extends Weapon
 class_name ShortSword
 
-var __slash_damage: Damage = Damage.new(2, 0, 1)
-var __pierce_damage: Damage = Damage.new(0, 2, 1)
-
-# 基础挥砍伤害
-func get_slash_damage() -> Damage:
-	return __slash_damage
-
-# 基础戳刺伤害
-func get_pierce_damage() -> Damage:
-	return __pierce_damage
+func _init() -> void:
+	super._init()
+	_base_slash_damage = Damage.new(2, 0, 1)
+	_base_pierce_damage = Damage.new(1, 1, 1)
+	_base_protection = Protection.new(3, 99, 3)
