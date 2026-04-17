@@ -47,6 +47,11 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 			menu.queue_free()
 
 	var dodge = func() -> void:
+		var defender_sm := to_body.character.state_machine
+		defender_sm.action_points.value = maxf(
+			0.0,
+			defender_sm.action_points.value - dodge_cost,
+		)
 		var menu = Dialogues.create_generic_dialogue()
 		if randf() < get_dodge_chance(from_body, to_body):
 			Engine.time_scale = 1
@@ -74,11 +79,20 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		)
 		if dodge_busy and busy_name.is_empty():
 			busy_name = "动作"
-		var dodge_desc := &"成功率" + str(int(dodge_chance * 100)) + &"%"
+		var dodge_insufficient_action_points := defender_sm.action_points.value < dodge_cost
+		var dodge_disabled := dodge_busy or dodge_insufficient_action_points
+		var dodge_desc := (
+			&"成功率"
+			+ str(int(dodge_chance * 100))
+			+ &"% 消耗行动力:"
+			+ str(dodge_cost)
+		)
 		if dodge_busy:
 			dodge_desc = &"当前正在" + busy_name + &",不可闪避"
+		elif dodge_insufficient_action_points:
+			dodge_desc = &"行动力不足(需要" + str(dodge_cost) + &")"
 		menu.options = [
-			MenuItemData.new(&"闪避", dodge_busy, dodge_desc),
+			MenuItemData.new(&"闪避", dodge_disabled, dodge_desc),
 			MenuItemData.new(&"硬抗"),
 		] as Array[MenuItemData]
 		var option = await menu.pressed
@@ -88,4 +102,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		else:
 			await deliver_damage.call(true)
 	else:
-		await dodge.call()
+		if to_body.character.state_machine.action_points.value < dodge_cost:
+			await deliver_damage.call(false)
+		else:
+			await dodge.call()
