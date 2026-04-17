@@ -15,13 +15,13 @@ func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	return weight * bonus
 
 func static_valid_from_body(from_body: BodyPart) -> Outcome:
-	if not from_body.is_hand:
+	if not (from_body is Hand):
 		return Outcome.from_failure()
 	return Outcome.from_success()
 
 func dynamic_valid_from_body(from_body: BodyPart) -> Outcome:
 	if from_body.hp.value <= 0:
-		return Outcome.from_failure(from_body.part_name + &"无法行动")
+		return Outcome.from_failure(from_body.part_name() + &"无法行动")
 	return Outcome.from_success()
 
 func static_valid_to_body(to_body: BodyPart) -> Outcome:
@@ -31,7 +31,7 @@ func static_valid_to_body(to_body: BodyPart) -> Outcome:
 
 func dynamic_valid_to_body(to_body: BodyPart) -> Outcome:
 	if to_body.hp.value <= 0:
-		return Outcome.from_failure(to_body.part_name + &"早已无法行动")
+		return Outcome.from_failure(to_body.part_name() + &"早已无法行动")
 	return Outcome.from_success()
 
 func static_valid_to_character(to_character: Character) -> Outcome:
@@ -47,19 +47,14 @@ func dynamic_valid_to_character(to_character: Character) -> Outcome:
 	return Outcome.from_success()
 
 func get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
-	match to_body.part:
-		Defs.BodyPart.HEAD:
-			return 0.9
-		Defs.BodyPart.CHEST:
-			return 0.4
-		Defs.BodyPart.RIGHT_HAND:
-			return 0.7
-		Defs.BodyPart.LEFT_HAND:
-			return 0.7
-		Defs.BodyPart.RIGHT_FOOT:
-			return 0.9
-		Defs.BodyPart.LEFT_FOOT:
-			return 0.9
+	if to_body is Head:
+		return 0.9
+	if to_body is Chest:
+		return 0.4
+	if to_body is Hand:
+		return 0.7
+	if to_body is Foot:
+		return 0.9
 	return 0
 
 func get_damage() -> Damage:

@@ -1,14 +1,10 @@
 @tool
 class_name Defs
 
-enum BodyPart
+enum Side
 {
-	HEAD,
-	CHEST,
-	RIGHT_HAND,
-	LEFT_HAND,
-	RIGHT_FOOT,
-	LEFT_FOOT,
+	LEFT,
+	RIGHT,
 }
 
 ## 四档色阶的色系；成员顺序须与 _FAMILY_COLORS 每连续四项（一族）一致。NEUTRAL 为黑与三级灰。
@@ -36,23 +32,6 @@ enum ColorShade
 	BRIGHT,
 	LIGHT,
 }
-
-static func get_body_part_name(part: Defs.BodyPart) -> StringName:
-	match part:
-		Defs.BodyPart.HEAD:
-			return &"头部"
-		Defs.BodyPart.CHEST:
-			return &"胸部"
-		Defs.BodyPart.RIGHT_HAND:
-			return &"右手"
-		Defs.BodyPart.LEFT_HAND:
-			return &"左手"
-		Defs.BodyPart.RIGHT_FOOT:
-			return &"右脚"
-		Defs.BodyPart.LEFT_FOOT:
-			return &"左脚"
-	return &"Unknown"
-
 
 const _SHADES_PER_FAMILY: int = 4 ## 须与 ColorShade 档位数一致
 

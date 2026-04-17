@@ -3,12 +3,12 @@ class_name Character
 
 var game: Game
 var character_name: String
-var head: BodyPart
-var chest: BodyPart
-var right_hand: BodyPart
-var left_hand: BodyPart
-var right_foot: BodyPart
-var left_foot: BodyPart
+var head: Head
+var chest: Chest
+var right_hand: Hand
+var left_hand: Hand
+var right_foot: Foot
+var left_foot: Foot
 var all_body_parts: Array[BodyPart]
 var state_machine: CharacterStateMachine
 var _actions: Array[Action] = []
@@ -25,12 +25,12 @@ var speed: float:
 func _init(p_game: Game, p_name: String) -> void:
 	game = p_game
 	character_name = p_name
-	head = BodyPart.new(self, Defs.BodyPart.HEAD, 3, 3)
-	chest = BodyPart.new(self, Defs.BodyPart.CHEST, 10, 10)
-	right_hand = BodyPart.new(self, Defs.BodyPart.RIGHT_HAND, 6, 6)
-	left_hand = BodyPart.new(self, Defs.BodyPart.LEFT_HAND, 6, 6)
-	right_foot = BodyPart.new(self, Defs.BodyPart.RIGHT_FOOT, 7, 7)
-	left_foot = BodyPart.new(self, Defs.BodyPart.LEFT_FOOT, 7, 7)
+	head = Head.new(self, 3, 3)
+	chest = Chest.new(self, 10, 10)
+	right_hand = Hand.new(self, 6, 6, Defs.Side.RIGHT)
+	left_hand = Hand.new(self, 6, 6, Defs.Side.LEFT)
+	right_foot = Foot.new(self, 7, 7, Defs.Side.RIGHT)
+	left_foot = Foot.new(self, 7, 7, Defs.Side.LEFT)
 	all_body_parts = [ head, chest, right_hand, left_hand, right_foot, left_foot, ]
 	add_action(AttackActionPunch.new(self))
 

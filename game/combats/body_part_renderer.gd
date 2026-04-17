@@ -32,7 +32,7 @@ func _ready() -> void:
 
 func setup(part: BodyPart) -> void:
 	_part = part
-	_label.text = part.part_name
+	_label.text = part.part_name()
 	_progress_bar.custom_minimum_size.x = part.hp.max_value * 2 - 1
 	_progress_bar.max_value = part.hp.max_value
 	_progress_bar.value = part.hp.value

@@ -5,5 +5,5 @@
 [node name="Game" type="Node" unique_id=782850094]
 script = ExtResource("1_80nbo")
 
-[node name="Combat" parent="." unique_id=1435013025 instance_placeholder="res://game/combat/combat.tscn"]
+[node name="Combat" parent="." unique_id=1435013025 instance_placeholder="res://game/combats/combat.tscn"]
 unique_name_in_owner = true
