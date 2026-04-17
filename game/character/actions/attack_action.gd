@@ -6,7 +6,7 @@ var block_cost: float = 2
 var dodge_cost: float = 4
 
 func get_dodge_chance(_from_body: BodyPart, _to_body: BodyPart) -> float:
-	push_error("override me")
+	push_error(&"override me")
 	return 0
 
 func preview(from_body: BodyPart, to_body: BodyPart) -> String:
@@ -21,7 +21,7 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	await _react(from_body, to_body)
 
 func get_damage() -> Damage:
-	push_error("override me")
+	push_error(&"override me")
 	return Damage.new(0, 0, 0)
 
 func _get_description() -> String:
@@ -34,7 +34,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 
 	var deliver_damage = func(show_dialogue: bool) -> void:
-		await combat.get_tree().create_timer(0.3, true, false, true).timeout
+		await combat.get_tree().create_timer(0.3, true, false, true).timeout  # 根据伤害要有一个顿帧
 		Engine.time_scale = 1
 		var damage_total = get_damage().sum
 		to_body.hp.value -= damage_total
@@ -66,8 +66,8 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
 		menu.options = [
-			MenuItemData.new("闪避", false, &"成功率" + str(int(dodge_chance * 100)) + &"%"),
-			MenuItemData.new("硬抗"),
+			MenuItemData.new(&"闪避", false, &"成功率" + str(int(dodge_chance * 100)) + &"%"),
+			MenuItemData.new(&"硬抗"),
 		] as Array[MenuItemData]
 		var option = await menu.pressed
 		menu.queue_free()
