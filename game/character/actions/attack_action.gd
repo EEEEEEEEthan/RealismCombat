@@ -34,6 +34,36 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 	Engine.time_scale = 0
 	var combat := to_body.character.game.combat
 	var dodge_chance = get_dodge_chance(from_body, to_body)
+	var defender_renderer := combat.get_character_renderer(to_body.character)
+
+	var deliver_damage = func(show_dialogue: bool) -> void:
+		await combat.get_tree().create_timer(0.3, true, false, true).timeout
+		Engine.time_scale = 1
+		var damage_total = damage.sum
+		to_body.hp.value -= damage_total
+		AudioManager.play_hit()
+		defender_renderer.animate_generic_hit()
+		if show_dialogue:
+			var menu = Dialogues.create_generic_dialogue()
+			menu.text = &"造成伤害:" + str(damage)
+			await menu.pressed
+			menu.queue_free()
+
+	var dodge = func() -> void:
+		var menu = Dialogues.create_generic_dialogue()
+		if randf() < get_dodge_chance(from_body, to_body):
+			Engine.time_scale = 1
+			defender_renderer.animate_generic_dodge()
+			menu.text = to_body.character.character_name + &"轻巧地闪开了"
+			AudioManager.play_dodge()
+			await menu.pressed
+			menu.queue_free()
+		else:
+			await deliver_damage.call(false)
+			menu.text = to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(damage)
+			await menu.pressed
+			menu.queue_free()
+
 	if combat.characters[to_body.character] == 0:
 		var execution_text = get_execution_text(from_body, to_body)
 		var menu = Dialogues.create_menu_dialogue()
@@ -44,44 +74,9 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		] as Array[MenuItemData]
 		var option = await menu.pressed
 		menu.queue_free()
-		Engine.time_scale = 1
 		if option == 0:
-			await _dodge(from_body, to_body)
-			return
+			await dodge.call()
 		else:
-			await _deliver_damage(from_body, to_body)
+			await deliver_damage.call(true)
 	else:
-		await _dodge(from_body, to_body)
-
-func _dodge(from_body: BodyPart, to_body: BodyPart) -> void:
-	var dodge_chance = get_dodge_chance(from_body, to_body)
-	var menu = Dialogues.create_generic_dialogue()
-	var combat := to_body.character.game.combat
-	if randf() < dodge_chance:
-		Engine.time_scale = 1
-		var defender_renderer := combat.get_character_renderer(to_body.character)
-		defender_renderer.animate_generic_dodge()
-		menu.text = to_body.character.character_name + &"轻巧地闪开了"
-		AudioManager.play_dodge()
-		await menu.pressed
-		menu.queue_free()
-	else:
-		await combat.get_tree().create_timer(0.3, true, false, true).timeout
-		Engine.time_scale = 1
-		await _deliver_damage(from_body, to_body, false)
-		menu.text = to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(damage)
-		await menu.pressed
-		menu.queue_free()
-
-func _deliver_damage(_from_body: BodyPart, to_body: BodyPart, dialogue: bool = true) -> void:
-	var combat := to_body.character.game.combat
-	var defender_renderer := combat.get_character_renderer(to_body.character)
-	var d = damage.sum
-	to_body.hp.value -= d
-	AudioManager.play_hit()
-	defender_renderer.animate_generic_hit()
-	if dialogue:
-		var menu = Dialogues.create_generic_dialogue()
-		menu.text = &"造成伤害:" + str(damage)
-		await menu.pressed
-		menu.queue_free()
+		await dodge.call()
