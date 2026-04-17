@@ -7,7 +7,7 @@ func _init(chr: Character) -> void:
 	super(chr)
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
-	var dmg = damage.sum
+	var dmg = get_damage().sum
 	var weight = pow(1 - get_dodge_chance(from_body, to_body) * dmg, 2)
 	var bonus = 1
 	# 如果这一击能把部位打烂，权重应该翻倍
@@ -62,7 +62,7 @@ func get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
 			return 0.9
 	return 0
 
-func _get_damage() -> Damage:
+func get_damage() -> Damage:
 	return _damage
 
 func _get_name() -> StringName:

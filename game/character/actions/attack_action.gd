@@ -5,9 +5,6 @@ class_name AttackAction
 var block_cost: float = 2
 var dodge_cost: float = 4
 
-var damage: Damage:
-	get: return _get_damage()
-
 func get_dodge_chance(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	push_error("override me")
 	return 0
@@ -23,12 +20,12 @@ func execute(from_body: BodyPart, to_body: BodyPart) -> void:
 	await attacker_renderer.animate_generic_attack()
 	await _react(from_body, to_body)
 
-func _get_damage() -> Damage:
+func get_damage() -> Damage:
 	push_error("override me")
 	return Damage.new(0, 0, 0)
 
 func _get_description() -> String:
-	return super._get_description() + &"\n伤害:" + str(damage)
+	return super._get_description() + &"\n伤害:" + str(get_damage())
 
 func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 	Engine.time_scale = 0
@@ -39,13 +36,13 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 	var deliver_damage = func(show_dialogue: bool) -> void:
 		await combat.get_tree().create_timer(0.3, true, false, true).timeout
 		Engine.time_scale = 1
-		var damage_total = damage.sum
+		var damage_total = get_damage().sum
 		to_body.hp.value -= damage_total
 		AudioManager.play_hit()
 		defender_renderer.animate_generic_hit()
 		if show_dialogue:
 			var menu = Dialogues.create_generic_dialogue()
-			menu.text = &"造成伤害:" + str(damage)
+			menu.text = &"造成伤害:" + str(get_damage())
 			await menu.pressed
 			menu.queue_free()
 
@@ -60,7 +57,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 			menu.queue_free()
 		else:
 			await deliver_damage.call(false)
-			menu.text = to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(damage)
+			menu.text = to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(get_damage())
 			await menu.pressed
 			menu.queue_free()
 
