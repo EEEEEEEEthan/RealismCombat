@@ -1,6 +1,14 @@
 [gd_scene format=3 uid="uid://bxrjbw2c0famg"]
 
 [ext_resource type="Script" uid="uid://ck1nic6mkisma" path="res://components/retro_progress_bar.gd" id="1_syuel"]
+[ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="2_8a8pi"]
+
+[sub_resource type="Texture2D" id="Texture2D_65205"]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("2_8a8pi")
+_base64_data = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAB1JREFUOI1j/P///38GCgATJZpHDRg1YNSAwWQAAGvKBByn4XVTAAAAAElFTkSuQmCC"
+metadata/_custom_type_script = "uid://xqi7kv2y70eo"
 
 [node name="Test" type="Control" unique_id=1614603787]
 layout_mode = 3
@@ -92,3 +100,9 @@ allow_lesser = false
 script = ExtResource("1_syuel")
 color_family = 12
 metadata/_custom_type_script = "uid://ck1nic6mkisma"
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=106879420]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = SubResource("Texture2D_65205")
