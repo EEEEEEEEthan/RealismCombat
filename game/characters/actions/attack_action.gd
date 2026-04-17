@@ -32,6 +32,8 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 	var combat := to_body.character.game.combat
 	var dodge_chance = get_dodge_chance(from_body, to_body)
 	var defender_renderer := combat.get_character_renderer(to_body.character)
+	var defender_sm := to_body.character.state_machine
+	var dodge_busy := defender_sm.current_state is CharacterStateMachineActionState
 
 	var deliver_damage = func(show_dialogue: bool) -> void:
 		await combat.get_tree().create_timer(0.3, true, false, true).timeout  # 根据伤害要有一个顿帧
@@ -47,7 +49,6 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 			menu.queue_free()
 
 	var dodge = func() -> void:
-		var defender_sm := to_body.character.state_machine
 		defender_sm.action_points.value = maxf(
 			0.0,
 			defender_sm.action_points.value - dodge_cost,
@@ -70,8 +71,6 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		var execution_text = get_execution_text(from_body, to_body)
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
-		var defender_sm := to_body.character.state_machine
-		var dodge_busy := defender_sm.current_state is CharacterStateMachineActionState
 		var busy_name := (
 			(defender_sm.current_state as CharacterStateMachineActionState).action_name
 			if dodge_busy
@@ -102,7 +101,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		else:
 			await deliver_damage.call(true)
 	else:  # ai
-		if to_body.character.state_machine.action_points.value < dodge_cost:
+		if not dodge_busy and to_body.character.state_machine.action_points.value < dodge_cost:
 			await deliver_damage.call(false)
 		else:
 			await dodge.call()
