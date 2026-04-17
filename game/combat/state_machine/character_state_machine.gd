@@ -7,24 +7,19 @@ var idle_state
 var current_state
 
 var game: Game:
-	get:
-		return character.game
+	get: return character.game
 
 var combat: Combat:
-	get:
-		return game.combat
+	get: return game.combat
 
 var character_renderer: CharacterRenderer:
-	get:
-		return combat.get_character_renderer(character)
+	get: return combat.get_character_renderer(character)
 
 var is_player: bool:
-	get:
-		return combat.is_player_character(character)
+	get: return combat.is_player_character(character)
 
 var action_points_per_tick: float:
-	get:
-		return character.speed * 0.05
+	get: return character.speed * 0.05
 
 func _init(p_character: Character) -> void:
 	character = p_character
