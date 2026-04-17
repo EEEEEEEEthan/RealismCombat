@@ -8,8 +8,9 @@
 [sub_resource type="Shader" id="Shader_idsq7"]
 code = "shader_type canvas_item;
 
-uniform vec4 color_fill : source_color = vec4(0.35, 0.78, 0.38, 1.0);
-uniform vec4 color_bg : source_color = vec4(0.14, 0.14, 0.16, 1.0);
+// instance uniform：2D 下 source_color hint 目前有 bug，改由脚本传 Vector4
+instance uniform vec4 color_fill;
+instance uniform vec4 color_bg;
 uniform float repick_seconds : hint_range(0.05, 2.0) = 0.3;
 
 varying float local_vertex_x;
@@ -43,9 +44,7 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cybvm"]
 shader = SubResource("Shader_idsq7")
-shader_parameter/color_fill = Color(1, 1, 1, 1)
-shader_parameter/color_bg = Color(0.4745098, 0.4745098, 0.4745098, 1)
-shader_parameter/repick_seconds = 0.10000000312006
+shader_parameter/repick_seconds = 0.3
 
 [sub_resource type="Texture2D" id="Texture2D_cybvm"]
 resource_local_to_scene = false
@@ -55,9 +54,18 @@ _base64_data = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAAXNSR0IArs4c6QAA
 metadata/_custom_type_script = "uid://xqi7kv2y70eo"
 
 [sub_resource type="GDScript" id="GDScript_idsq7"]
-script/source = "extends TextureRect
+script/source = "@tool
+extends TextureRect
+
+@export var color_family: Defs.ColorFamily:
+	set(v):
+		color_family = v
+		_refresh_color_family()
 
 var _action_points: Property
+
+func _ready() -> void:
+	_refresh_color_family()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_LAYOUT_DIRECTION_CHANGED:
@@ -77,6 +85,11 @@ func _refresh_action_points_modulate() -> void:
 	var layout_r := 1.0 if is_layout_rtl() else 0.0
 	var progress := _action_points.value / _action_points.max_value
 	self_modulate = Color(layout_r, 1.0, 1.0, progress)
+
+func _refresh_color_family() -> void:
+	var bg := Defs.get_family_color(color_family, Defs.ColorShade.LIGHT)
+	set_instance_shader_parameter(&\"color_fill\", Vector4(1, 1, 1, 1))
+	set_instance_shader_parameter(&\"color_bg\", Vector4(bg.r, bg.g, bg.b, bg.a))
 "
 
 [sub_resource type="GDScript" id="GDScript_cybvm"]
@@ -312,11 +325,15 @@ theme_override_constants/margin_bottom = 1
 
 [node name="ActionPoints" type="TextureRect" parent="Mirror/Container/MarginContainer/VBoxContainer/MarginContainer" unique_id=951438353]
 unique_name_in_owner = true
+self_modulate = Color(0, 1, 1, 0.5019608)
 material = SubResource("ShaderMaterial_cybvm")
+instance_shader_parameters/color_bg = Vector4(0.57254905, 0.827451, 1, 1)
+instance_shader_parameters/color_fill = Vector4(1, 1, 1, 1)
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 texture = SubResource("Texture2D_cybvm")
 script = SubResource("GDScript_idsq7")
+color_family = 12
 
 [node name="Head" type="HBoxContainer" parent="Mirror/Container/MarginContainer/VBoxContainer" unique_id=869673898]
 unique_name_in_owner = true

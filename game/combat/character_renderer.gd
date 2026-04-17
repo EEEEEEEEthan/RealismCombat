@@ -92,6 +92,7 @@ func _refresh_color() -> void:
 	else:
 		color = Defs.ColorFamily.NEUTRAL
 	%Container.fill_color_family = color
+	%ActionPoints.color_family = color
 	for part: BodyPartRenderer in body_parts:
 		part.color_family = color
 
