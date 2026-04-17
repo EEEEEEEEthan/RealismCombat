@@ -23,9 +23,9 @@ func reduced_by(protection: Protection) -> Damage:
 func _to_string() -> String:
 	if not _string:
 		if slash > 0:
-			_string += str(slash) + &"砍"
+			_string += str(slash) + &"劈"
 		if pierce > 0:
-			_string += str(pierce) + &"刺"
+			_string += str(pierce) + &"穿"
 		if blunt > 0:
 			_string += str(blunt) + &"钝"
 		if not _string:

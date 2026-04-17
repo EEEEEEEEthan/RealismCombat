@@ -2,41 +2,41 @@
 extends Item
 class_name Weapon
 
-var slash_damage: Damage:
+var swing_damage: Damage:
 	get:
-		if not slash_damage:
+		if not swing_damage:
 			var rate = quality.rate
-			slash_damage = Damage.new(
-				round(_base_slash_damage.slash * rate),
-				round(_base_slash_damage.pierce * rate),
-				round(_base_slash_damage.blunt * rate),
+			swing_damage = Damage.new(
+				round(_base_swing_damage.slash * rate),
+				round(_base_swing_damage.pierce * rate),
+				round(_base_swing_damage.blunt * rate),
 			)
-		return slash_damage
+		return swing_damage
 
-var pierce_damage: Damage:
+var stab_damage: Damage:
 	get:
-		if not pierce_damage:
+		if not stab_damage:
 			var rate = quality.rate
-			pierce_damage = Damage.new(
-				round(_base_pierce_damage.slash * rate),
-				round(_base_pierce_damage.pierce * rate),
-				round(_base_pierce_damage.blunt * rate),
+			stab_damage = Damage.new(
+				round(_base_stab_damage.slash * rate),
+				round(_base_stab_damage.pierce * rate),
+				round(_base_stab_damage.blunt * rate),
 			)
-		return pierce_damage
+		return stab_damage
 
-var _base_slash_damage: Damage:
+var _base_swing_damage: Damage:
 	get:
-		if not _base_slash_damage:
+		if not _base_swing_damage:
 			push_error("待初始化")
-			_base_slash_damage = Damage.new(1, 1, 1)
-		return _base_slash_damage
+			_base_swing_damage = Damage.new(1, 1, 1)
+		return _base_swing_damage
 
-var _base_pierce_damage: Damage:
+var _base_stab_damage: Damage:
 	get:
-		if not _base_pierce_damage:
+		if not _base_stab_damage:
 			push_error("待初始化")
-			_base_pierce_damage = Damage.new(1, 1, 1)
-		return _base_pierce_damage
+			_base_stab_damage = Damage.new(1, 1, 1)
+		return _base_stab_damage
 
 func get_name() -> StringName:
 	return &"武器"
@@ -52,7 +52,7 @@ func get_title() -> StringName:
 		return &"平衡的"
 
 func get_description() -> String:
-	return "挥砍:%s\n戳刺:%s" % [slash_damage, pierce_damage]
+	return "挥砍:%s\n戳刺:%s" % [swing_damage, stab_damage]
 
 func _init() -> void:
 	super._init()
