@@ -13,6 +13,13 @@ func _init(s: int, p: int, b: int) -> void:
 	pierce = p
 	blunt = b
 
+func reduced_by(protection: Protection) -> Damage:
+	return Damage.new(
+		maxi(slash - protection.slash, 0),
+		maxi(pierce - protection.pierce, 0),
+		maxi(blunt - protection.blunt, 0),
+	)
+
 func _to_string() -> String:
 	if not _string:
 		if slash > 0:
