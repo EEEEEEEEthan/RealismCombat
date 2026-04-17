@@ -66,7 +66,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 			await menu.pressed
 			menu.queue_free()
 
-	if combat.characters[to_body.character] == 0:
+	if combat.characters[to_body.character] == 0:  # player
 		var execution_text = get_execution_text(from_body, to_body)
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
@@ -101,7 +101,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 			await dodge.call()
 		else:
 			await deliver_damage.call(true)
-	else:
+	else:  # ai
 		if to_body.character.state_machine.action_points.value < dodge_cost:
 			await deliver_damage.call(false)
 		else:

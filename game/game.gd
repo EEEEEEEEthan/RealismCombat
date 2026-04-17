@@ -8,6 +8,7 @@ func _create_character(character_name: String) -> Character:
 	return Character.new(self, character_name)
 
 func _ready() -> void:
+	AudioManager.play_menu_bgm()
 	character_ethan = Character.new(self, "Ethan")
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "Realism Combat"
@@ -30,3 +31,6 @@ func _ready() -> void:
 		combat.run()
 	elif index == 6:
 		queue_free()
+
+func _exit_tree() -> void:
+	AudioManager.stop_bgm()
