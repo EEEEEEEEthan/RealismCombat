@@ -25,6 +25,9 @@ func play_dodge():
 func play_menu_bgm():
 	__play_bgm(Resources.audio_stream_menu_music)
 
+func play_battle_bgm():
+	__play_bgm(Resources.audio_stream_battle_music)
+
 func stop_bgm():
 	__bgm_player.stream = null
 

@@ -16,11 +16,13 @@ func _ready() -> void:
 	%PlayerReference.visible = false
 	%EnemyReference.visible = false
 	%EnemyFoldedReference.visible = false
+	AudioManager.play_battle_bgm()
 
 func _exit_tree() -> void:
 	for character in characters.keys():
 		if is_instance_valid(character.state_machine):
 			character.on_exit_combat()
+	AudioManager.play_menu_bgm()
 
 func add_character(character: Character, side: int) -> void:
 	character.on_enter_combat()
