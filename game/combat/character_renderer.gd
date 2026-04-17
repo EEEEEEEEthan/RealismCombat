@@ -83,6 +83,7 @@ func _refresh_layout_direction() -> void:
 	%Container.scale = s
 
 func _refresh_color() -> void:
+	if not character: return
 	var color: Defs.ColorFamily
 	if character.alive:
 		if is_layout_rtl():
