@@ -38,5 +38,21 @@ var _base_pierce_damage: Damage:
 			_base_pierce_damage = Damage.new(1, 1, 1)
 		return _base_pierce_damage
 
+func get_name() -> StringName:
+	return &"武器"
+
+func get_title() -> StringName:
+	if quality.value == 0:
+		return &"裂开的"
+	elif quality.value == 1:
+		return &"弯曲的"
+	elif quality.value == 2:
+		return &""
+	else:
+		return &"平衡的"
+
+func get_description() -> String:
+	return "挥砍:%s\n戳刺:%s" % [slash_damage, pierce_damage]
+
 func _init() -> void:
 	super._init()

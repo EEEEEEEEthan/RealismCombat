@@ -1,6 +1,8 @@
 @abstract
 class_name Item
 
+var quality: PropertyInt = PropertyInt.new(4, 4)
+
 var protection: Protection:
 	get:
 		if not protection:
@@ -19,7 +21,17 @@ var _base_protection: Protection:  # 每受到1伤害会有10%的概率品质下
 			_base_protection = Protection.new(1, 1, 1)
 		return _base_protection
 
-var quality: PropertyInt = PropertyInt.new(4, 4)
+func get_name() -> StringName:
+	return &"道具"
+
+func get_title() -> StringName:
+	return &"一种"
+
+func get_description() -> String:
+	return &"一种道具"
+
+func _to_string() -> String:
+	return get_title() + get_name()
 
 func _init() -> void:
 	quality.changed.connect(_on_quality_changed)
