@@ -3,11 +3,11 @@ class_name BodyPart
 
 var character: Character
 var items: Array[Item] = []
-var hp: Property
+var hp: PropertyInt
 
-func _init(p_character: Character, hp_current: float, hp_max: float) -> void:
+func _init(p_character: Character, hp_current: int, hp_max: int) -> void:
 	character = p_character
-	hp = Property.new(hp_current, hp_max)
+	hp = PropertyInt.new(hp_current, hp_max)
 
 
 func part_name() -> StringName:

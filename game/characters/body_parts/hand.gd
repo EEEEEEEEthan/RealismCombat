@@ -4,7 +4,7 @@ class_name Hand
 var _side: Defs.Side
 
 
-func _init(p_character: Character, hp_current: float, hp_max: float, side: Defs.Side) -> void:
+func _init(p_character: Character, hp_current: int, hp_max: int, side: Defs.Side) -> void:
 	super(p_character, hp_current, hp_max)
 	_side = side
 
