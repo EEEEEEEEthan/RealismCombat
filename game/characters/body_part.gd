@@ -7,6 +7,7 @@ static var _feet = [Defs.BodyPart.LEFT_FOOT, Defs.BodyPart.RIGHT_FOOT]
 var character: Character
 var part: Defs.BodyPart
 var hp: Property = Property.new(0, 0)
+var items: Array[Item]
 
 func _init(p_character: Character, p_part: Defs.BodyPart, hp_current: float, hp_max: float) -> void:
 	character = p_character

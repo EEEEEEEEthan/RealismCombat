@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bgu8rncknhalj"]
 
-[ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combat/character_renderer.gd" id="1_jenu5"]
+[ext_resource type="Script" uid="uid://cu82turdnaty2" path="res://game/combats/character_renderer.gd" id="1_jenu5"]
 [ext_resource type="Script" uid="uid://gu4lxcimog2h" path="res://components/retro_panel_container.gd" id="2_1ydc4"]
 [ext_resource type="Script" uid="uid://xqi7kv2y70eo" path="res://addons/editable_texture/editable_texture.gd" id="2_cybvm"]
-[ext_resource type="Script" uid="uid://bncf5716crnvr" path="res://game/combat/body_part_renderer.gd" id="2_jenu5"]
+[ext_resource type="Script" uid="uid://bncf5716crnvr" path="res://game/combats/body_part_renderer.gd" id="2_jenu5"]
 
 [sub_resource type="Shader" id="Shader_idsq7"]
 code = "shader_type canvas_item;
