@@ -51,15 +51,14 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		else:
 			await _deliver_damage(from_body, to_body)
 	else:
-		await combat.get_tree().create_timer(0.3, true, false, true).timeout
-		Engine.time_scale = 1
-		await _deliver_damage(from_body, to_body)
+		await _dodge(from_body, to_body)
 
 func _dodge(from_body: BodyPart, to_body: BodyPart) -> void:
 	var dodge_chance = get_dodge_chance(from_body, to_body)
 	var menu = Dialogues.create_generic_dialogue()
+	var combat := to_body.character.game.combat
 	if randf() < dodge_chance:
-		var combat := to_body.character.game.combat
+		Engine.time_scale = 1
 		var defender_renderer := combat.get_character_renderer(to_body.character)
 		defender_renderer.animate_generic_dodge()
 		menu.text = to_body.character.character_name + &"轻巧地闪开了"
@@ -67,6 +66,8 @@ func _dodge(from_body: BodyPart, to_body: BodyPart) -> void:
 		await menu.pressed
 		menu.queue_free()
 	else:
+		await combat.get_tree().create_timer(0.3, true, false, true).timeout
+		Engine.time_scale = 1
 		await _deliver_damage(from_body, to_body, false)
 		menu.text = to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(damage)
 		await menu.pressed
