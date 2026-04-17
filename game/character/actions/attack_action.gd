@@ -65,8 +65,20 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		var execution_text = get_execution_text(from_body, to_body)
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
+		var defender_sm := to_body.character.state_machine
+		var dodge_busy := defender_sm.current_state is CharacterStateMachineActionState
+		var busy_name := (
+			(defender_sm.current_state as CharacterStateMachineActionState).action_name
+			if dodge_busy
+			else &""
+		)
+		if dodge_busy and busy_name.is_empty():
+			busy_name = "动作"
+		var dodge_desc := &"成功率" + str(int(dodge_chance * 100)) + &"%"
+		if dodge_busy:
+			dodge_desc = &"当前正在" + busy_name + &",不可闪避"
 		menu.options = [
-			MenuItemData.new(&"闪避", false, &"成功率" + str(int(dodge_chance * 100)) + &"%"),
+			MenuItemData.new(&"闪避", dodge_busy, dodge_desc),
 			MenuItemData.new(&"硬抗"),
 		] as Array[MenuItemData]
 		var option = await menu.pressed

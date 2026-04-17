@@ -7,17 +7,23 @@ var _action: Action
 var _from_body: BodyPart
 var _to_body: BodyPart
 
-func _init(p_machine: CharacterStateMachine) -> void:
-	machine = p_machine
+var action_name: StringName:
+	get:
+		if _action == null:
+			return &""
+		return _action.action_name
 
-func set_action(action: Action, from_body: BodyPart, to_body: BodyPart) -> void:
+func _init(
+	p_machine: CharacterStateMachine,
+	action: Action,
+	from_body: BodyPart,
+	to_body: BodyPart,
+) -> void:
+	machine = p_machine
 	_action = action
 	_from_body = from_body
 	_to_body = to_body
 	_windup = action.windup_action_points
-	await action.prepare(from_body, to_body)
-	machine.character_renderer.expanded = false
-	machine.character_renderer.centered = false
 
 func new_tick() -> void:
 	_windup -= machine.action_points_per_tick

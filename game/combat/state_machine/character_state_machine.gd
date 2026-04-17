@@ -41,7 +41,8 @@ func set_idle() -> void:
 	current_state = idle_state
 
 func _set_action(action: Action, from_body: BodyPart, to_body: BodyPart) -> void:
-	var action_state = CharacterStateMachineActionState.new(self)
+	var action_state := CharacterStateMachineActionState.new(self, action, from_body, to_body)
 	current_state = action_state
-	await action_state.set_action(action, from_body, to_body)
-	action_state = null
+	await action.prepare(from_body, to_body)
+	character_renderer.expanded = false
+	character_renderer.centered = false
