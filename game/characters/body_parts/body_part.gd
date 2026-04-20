@@ -13,3 +13,7 @@ func _init(p_character: Character, hp_current: int, hp_max: int) -> void:
 func part_name() -> StringName:
 	push_error(&"子类需实现 part_name()")
 	return &""
+
+
+func get_item_slots() -> Array[ItemSlot]:
+	return []

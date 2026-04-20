@@ -38,3 +38,7 @@ func _init() -> void:
 
 func _on_quality_changed() -> void:
 	protection = null
+
+
+func get_item_slots() -> Array[ItemSlot]:
+	return []

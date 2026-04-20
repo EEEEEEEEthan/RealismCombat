@@ -11,6 +11,10 @@ func _init(p_character: Character, hp_current: int, hp_max: int, side: Defs.Side
 	weapon_slot = ItemSlot.new([Weapon])
 
 
+func get_item_slots() -> Array[ItemSlot]:
+	return [weapon_slot]
+
+
 func part_name() -> StringName:
 	match _side:
 		Defs.Side.RIGHT:

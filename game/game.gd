@@ -24,6 +24,7 @@ func _ready() -> void:
 		menu.title = "Realism Combat"
 		menu.options = [
 			MenuItemData.new("测试项..", false, "测试项"),
+			MenuItemData.new("装备..", false, "为角色装备或卸下物品"),
 			MenuItemData.new("物品栏..", false, "查看持有的道具"),
 			MenuItemData.new(),
 			MenuItemData.new(),
@@ -36,8 +37,11 @@ func _ready() -> void:
 		if main_menu_choice == 6:
 			queue_free()
 			return
-		if main_menu_choice == 1:
+		if main_menu_choice == 2:
 			await _run_inventory_menu()
+			continue
+		if main_menu_choice == 1:
+			_run_equipment_menu()
 			continue
 		if main_menu_choice == 0:
 			break
@@ -47,6 +51,12 @@ func _ready() -> void:
 	var dove: Character = Character.new(self, "Dove")
 	combat.add_character(dove, 1)
 	combat.run()
+
+
+func _run_equipment_menu() -> void:
+	# 架构占位：装备流程见 EquipmentMenuFlow；此处仅接入主菜单项
+	var flow := EquipmentMenuFlow.new()
+	flow.enter(self)
 
 
 func _run_inventory_menu() -> void:
