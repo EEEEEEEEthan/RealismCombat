@@ -12,7 +12,7 @@ var active_position: Vector2 = Vector2.ZERO
 var body_parts: Array[BodyPartRenderer]:
 	get:
 		if not body_parts:
-			body_parts = [ %Head, %Chest, %RightHand, %LeftHand, %RightFoot, %LeftFoot, ]
+			body_parts = [ %Head, %Body, %RightHand, %LeftHand, %RightFoot, %LeftFoot, ]
 		return body_parts
 
 var centered: bool = false:

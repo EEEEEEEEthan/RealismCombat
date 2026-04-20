@@ -8,6 +8,12 @@ func add_item(item: Item) -> void:
 	items.append(item)
 
 
+func remove_item(item: Item) -> void:
+	var index := items.find(item)
+	if index >= 0:
+		items.remove_at(index)
+
+
 func to_menu_options() -> Array[MenuItemData]:
 	var options: Array[MenuItemData] = []
 	for inventory_item in items:

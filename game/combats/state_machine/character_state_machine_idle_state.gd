@@ -32,7 +32,7 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	var options: Array[MenuItemData] = [
 		MenuItemData.new(&"头部..", false, &"头部状态"),
-		MenuItemData.new(&"胸部..", false, &"胸部状态"),
+		MenuItemData.new(&"身体..", false, &"身体状态"),
 		MenuItemData.new(&"右手..", false, &"右手状态"),
 		MenuItemData.new(&"左手..", false, &"左手状态"),
 		MenuItemData.new(&"右腿..", false, &"右腿状态"),

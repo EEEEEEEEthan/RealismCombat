@@ -42,7 +42,7 @@ func dynamic_valid_to_character(to_character: Character) -> Outcome:
 func get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
 	if to_body is Head:
 		return 0.9
-	if to_body is Chest:
+	if to_body is Body:
 		return 0.4
 	if to_body is Hand:
 		return 0.7

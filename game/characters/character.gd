@@ -4,7 +4,7 @@ class_name Character
 var game: Game
 var character_name: String
 var head: Head
-var chest: Chest
+var body: Body
 var right_hand: Hand
 var left_hand: Hand
 var right_foot: Foot
@@ -17,7 +17,7 @@ var actions: Array[Action]:
 	get: return _actions
 
 var alive: bool:
-	get: return head.hp.value > 0 and chest.hp.value > 0
+	get: return head.hp.value > 0 and body.hp.value > 0
 
 var speed: float:
 	get: return 10
@@ -26,12 +26,12 @@ func _init(p_game: Game, p_name: String) -> void:
 	game = p_game
 	character_name = p_name
 	head = Head.new(self, 3, 3)
-	chest = Chest.new(self, 10, 10)
+	body = Body.new(self, 10, 10)
 	right_hand = Hand.new(self, 6, 6, Defs.Side.RIGHT)
 	left_hand = Hand.new(self, 6, 6, Defs.Side.LEFT)
 	right_foot = Foot.new(self, 7, 7, Defs.Side.RIGHT)
 	left_foot = Foot.new(self, 7, 7, Defs.Side.LEFT)
-	all_body_parts = [ head, chest, right_hand, left_hand, right_foot, left_foot, ]
+	all_body_parts = [ head, body, right_hand, left_hand, right_foot, left_foot, ]
 	add_action(AttackActionPunch.new(self))
 
 func add_action(action: Action) -> void:

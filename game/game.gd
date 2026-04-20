@@ -18,6 +18,9 @@ func _ready() -> void:
 	var starting_sword := ShortSword.new()
 	starting_sword.quality = PropertyInt.new(4, 4)
 	inventory.add_item(starting_sword)
+	var starting_belt := LeatherBelt.new()
+	starting_belt.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_belt)
 	var main_menu_choice := -1
 	while true:
 		var menu = Dialogues.create_menu_dialogue()
@@ -41,7 +44,7 @@ func _ready() -> void:
 			await _run_inventory_menu()
 			continue
 		if main_menu_choice == 1:
-			_run_equipment_menu()
+			await _run_equipment_menu()
 			continue
 		if main_menu_choice == 0:
 			break
@@ -54,9 +57,8 @@ func _ready() -> void:
 
 
 func _run_equipment_menu() -> void:
-	# 架构占位：装备流程见 EquipmentMenuFlow；此处仅接入主菜单项
 	var flow := EquipmentMenuFlow.new()
-	flow.enter(self)
+	await flow.enter(self)
 
 
 func _run_inventory_menu() -> void:
