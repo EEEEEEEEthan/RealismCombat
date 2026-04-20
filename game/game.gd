@@ -23,8 +23,8 @@ func _ready() -> void:
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = "Realism Combat"
 		menu.options = [
-			MenuItemData.new("测试项", false, "测试项"),
-			MenuItemData.new("物品栏", false, "查看持有的道具"),
+			MenuItemData.new("测试项..", false, "测试项"),
+			MenuItemData.new("物品栏..", false, "查看持有的道具"),
 			MenuItemData.new(),
 			MenuItemData.new(),
 			MenuItemData.new(),

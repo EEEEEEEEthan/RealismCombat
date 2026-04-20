@@ -6,7 +6,7 @@ func _ready() -> void:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "Realism Combat"
 	menu.options = [
-		MenuItemData.new("新游戏", false, "开启一段新的故事"),
+		MenuItemData.new("新游戏..", false, "开启一段新的故事"),
 		MenuItemData.new(),
 		MenuItemData.new(),
 		MenuItemData.new(),

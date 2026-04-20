@@ -31,12 +31,12 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 	dialogue.queue_free()
 	var menu = Dialogues.create_menu_dialogue()
 	var options: Array[MenuItemData] = [
-		MenuItemData.new(&"头部", false, &"头部状态"),
-		MenuItemData.new(&"胸部", false, &"胸部状态"),
-		MenuItemData.new(&"右手", false, &"右手状态"),
-		MenuItemData.new(&"左手", false, &"左手状态"),
-		MenuItemData.new(&"右腿", false, &"右腿状态"),
-		MenuItemData.new(&"左腿", false, &"左腿状态"),
+		MenuItemData.new(&"头部..", false, &"头部状态"),
+		MenuItemData.new(&"胸部..", false, &"胸部状态"),
+		MenuItemData.new(&"右手..", false, &"右手状态"),
+		MenuItemData.new(&"左手..", false, &"左手状态"),
+		MenuItemData.new(&"右腿..", false, &"右腿状态"),
+		MenuItemData.new(&"左腿..", false, &"左腿状态"),
 	]
 	menu.title = machine.character.character_name + &"的回合"
 	menu.options = options
@@ -58,7 +58,7 @@ func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 		if not action.static_valid_from_body(from_body).success:
 			continue
 		var outcome = action.static_valid_to_body(from_body)
-		var data = MenuItemData.new(action.action_name)
+		var data = MenuItemData.new(str(action.action_name) + "..")
 		if not outcome.success:
 			data.disabled = true
 			data.description = outcome.error_message
@@ -96,7 +96,7 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionPar
 	for chr in machine.combat.characters:
 		if not action.static_valid_to_character(chr).success:
 			continue
-		var data = MenuItemData.new(chr.character_name)
+		var data = MenuItemData.new(str(chr.character_name) + "..")
 		var outcome = action.dynamic_valid_to_character(chr)
 		if outcome.success:
 			data.description = &"选择" + chr.character_name + &"为目标"
