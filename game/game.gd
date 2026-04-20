@@ -21,6 +21,18 @@ func _ready() -> void:
 	var starting_belt := LeatherBelt.new()
 	starting_belt.quality = PropertyInt.new(4, 4)
 	inventory.add_item(starting_belt)
+	var starting_inner := GambesonInner.new()
+	starting_inner.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_inner)
+	var starting_chain := ChainMailHauberk.new()
+	starting_chain.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_chain)
+	var starting_plate := PlateArmorSuit.new()
+	starting_plate.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_plate)
+	var starting_surcoat := SurcoatTabard.new()
+	starting_surcoat.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_surcoat)
 	var main_menu_choice := -1
 	while true:
 		var menu = Dialogues.create_menu_dialogue()
