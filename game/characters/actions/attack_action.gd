@@ -24,6 +24,14 @@ func get_damage() -> Damage:
 	push_error(&"override me")
 	return Damage.new(0, 0, 0)
 
+func static_valid_to_character(to_character: Character) -> Outcome:
+	var combat := character.game.combat
+	if combat.is_player_character(character) == combat.is_player_character(to_character):
+		return Outcome.from_failure(&"不能选择友方")
+	if not to_character.alive:
+		return Outcome.from_failure()
+	return Outcome.from_success()
+
 func _get_description() -> String:
 	return super._get_description() + &"\n伤害:" + str(get_damage())
 

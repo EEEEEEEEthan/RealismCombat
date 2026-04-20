@@ -3,16 +3,17 @@ class_name Game
 
 var combat: Combat
 var character_ethan: Character
+var character_rowan: Character
+## 当前玩家方参战角色（顺序即编队顺序）
+var player_side_characters: Array[Character] = []
 var inventory: Inventory
-
-
-func _create_character(character_name: String) -> Character:
-	return Character.new(self, character_name)
 
 
 func _ready() -> void:
 	AudioManager.play_menu_bgm()
 	character_ethan = Character.new(self, "Ethan")
+	character_rowan = Character.new(self, "Rowan")
+	player_side_characters = [character_ethan, character_rowan]
 	inventory = Inventory.new()
 	var starting_sword := ShortSword.new()
 	starting_sword.quality = PropertyInt.new(4, 4)
@@ -41,8 +42,9 @@ func _ready() -> void:
 		if main_menu_choice == 0:
 			break
 	combat = %Combat.create_instance()
-	combat.add_character(character_ethan, 0)
-	var dove: Character = _create_character("Dove")
+	for player_character in player_side_characters:
+		combat.add_character(player_character, Combat.PLAYER_SIDE)
+	var dove: Character = Character.new(self, "Dove")
 	combat.add_character(dove, 1)
 	combat.run()
 

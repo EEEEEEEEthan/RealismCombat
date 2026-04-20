@@ -34,13 +34,6 @@ func dynamic_valid_to_body(to_body: BodyPart) -> Outcome:
 		return Outcome.from_failure(to_body.part_name() + &"早已无法行动")
 	return Outcome.from_success()
 
-func static_valid_to_character(to_character: Character) -> Outcome:
-	if to_character == character:
-		return Outcome.from_failure(&"不能选择自己")
-	if not to_character.alive:
-		return Outcome.from_failure()
-	return Outcome.from_success()
-
 func dynamic_valid_to_character(to_character: Character) -> Outcome:
 	if not to_character.alive:
 		return Outcome.from_failure()
