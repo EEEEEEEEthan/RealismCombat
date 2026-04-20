@@ -85,7 +85,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 			else &""
 		)
 		if dodge_busy and busy_name.is_empty():
-			busy_name = "动作"
+			busy_name = &"动作"
 		var dodge_insufficient_action_points := defender_sm.action_points.value < dodge_cost
 		var dodge_disabled := dodge_busy or dodge_insufficient_action_points
 		var dodge_desc := (
@@ -109,7 +109,7 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		else:
 			await deliver_damage.call(true)
 	else:  # ai
-		if not dodge_busy and to_body.character.state_machine.action_points.value < dodge_cost:
+		if dodge_busy or to_body.character.state_machine.action_points.value < dodge_cost:
 			await deliver_damage.call(false)
 		else:
 			await dodge.call()
