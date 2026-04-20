@@ -14,7 +14,7 @@ func get_name() -> StringName:
 
 
 func get_title() -> StringName:
-	return &"一种"
+	return &""
 
 
 func get_description() -> String:
