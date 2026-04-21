@@ -14,6 +14,14 @@ description: >-
 
 [详情](./details/percent-node-needs-unique-name.md)
 
+复古像素菜单逻辑禁用勿用引擎disabled挡焦点
+
+[详情](./details/menu-logical-disabled-needs-focus.md)
+
+界面色除白黑透明外须从Defs取勿手写RGB
+
+[详情](./details/ui-modulate-colors-from-defs.md)
+
 ## 维护错题集
 
 1. **新增一条**：在上方「错题集」中追加两行——第一行错误简述（**不超过 30 个字符**）；第二行一个链接，指向本 skill 目录下 `details/` 文件夹里的独立 Markdown 文件（相对路径从 `SKILL.md` 出发，如 `./details/xxx.md`）。
