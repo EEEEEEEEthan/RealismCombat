@@ -10,7 +10,7 @@ var idle_state
 var current_state
 
 var character: Character:
-	get: return battler.raw_character
+	get: return battler.character
 
 var game: Game:
 	get: return character.game
