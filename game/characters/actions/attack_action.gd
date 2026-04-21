@@ -78,14 +78,11 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
 	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
 
-	# 单元素容器：lambda 内对外层 String 赋值不会写回，用数组传递重击播报后缀
-	var heavy_suffix_box: Array[String] = [""]
-
-	var deliver_damage = func(show_dialogue: bool) -> void:
+	var deliver_damage = func() -> void:
 		await combat.get_tree().create_timer(0.3, true, false, true).timeout  # 根据伤害要有一个顿帧
 		Engine.time_scale = 1
 		var damage_total := get_damage().sum
-		heavy_suffix_box[0] = ""
+		var heavy_suffix := ""
 		var was_in_action := defender_sm.current_state is CharacterStateMachineActionState
 		var interrupted_label := ""
 		if was_in_action:
@@ -93,10 +90,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			interrupted_label = String(interrupted_name)
 		to_body.hp.value -= damage_total
 		AudioManager.play_hit()
-		var hp_heavy := to_body.hp.value < 3
-		var proc_heavy := randf() < float(damage_total) / HEAVY_PROC_DAMAGE_DIVISOR
-		var is_heavy := hp_heavy or proc_heavy
-		if is_heavy:
+		if to_body.hp.value < 3 or randf() < float(damage_total) / HEAVY_PROC_DAMAGE_DIVISOR:
 			if was_in_action:
 				defender_sm.set_idle()
 			defender_sm.action_points.value = maxf(
@@ -108,24 +102,22 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 				var action_label := interrupted_label
 				if action_label.is_empty():
 					action_label = "动作"
-				heavy_suffix_box[0] = "重击！%s的%s被打断了！%s行动力-%d" % [
+				heavy_suffix = "重击！%s的%s被打断了！%s行动力-%d" % [
 					defender_bbcode,
 					action_label,
 					defender_bbcode,
 					int(HEAVY_HIT_AP_LOSS),
 				]
 			else:
-				heavy_suffix_box[0] = "重击！%s行动力-%d" % [defender_bbcode, int(HEAVY_HIT_AP_LOSS)]
-		if is_heavy:
+				heavy_suffix = "重击！%s行动力-%d" % [defender_bbcode, int(HEAVY_HIT_AP_LOSS)]
 			defender_renderer.animate_heavy_hit()
 		else:
 			defender_renderer.animate_generic_hit()
-		if show_dialogue:
-			var defender_bbcode_damage := combat.bbcode_character_name(defender_battler)
-			if not heavy_suffix_box[0].is_empty():
-				dialogue.text += "\n%s" % heavy_suffix_box[0]
-			dialogue.text += "\n%s受到%s伤害" % [defender_bbcode_damage, get_damage()]
-			await dialogue.pressed
+		var defender_bbcode_damage := combat.bbcode_character_name(defender_battler)
+		dialogue.text += "\n%s受到%s伤害" % [defender_bbcode_damage, get_damage()]
+		if not heavy_suffix.is_empty():
+			dialogue.text += "\n%s" % heavy_suffix
+		await dialogue.pressed
 
 	var dodge = func() -> void:
 		defender_sm.action_points.value = maxf(
@@ -139,16 +131,9 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			AudioManager.play_dodge()
 			await dialogue.pressed
 		else:
-			await deliver_damage.call(false)
 			var defender_bbcode_dodge := combat.bbcode_character_name(defender_battler)
-			dialogue.text += "\n%s尝试闪避但是失败了。%s受到%s伤害" % [
-				defender_bbcode_dodge,
-				defender_bbcode_dodge,
-				get_damage(),
-			]
-			if not heavy_suffix_box[0].is_empty():
-				dialogue.text += "\n%s" % heavy_suffix_box[0]
-			await dialogue.pressed
+			dialogue.text += "\n%s尝试闪避但是失败了" % defender_bbcode_dodge
+			await deliver_damage.call()
 
 	if combat.characters[defender_battler] == 0:  # player
 		var execution_text = get_execution_text(from_body, to_body)
@@ -177,14 +162,9 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		if option == 0:
 			await dodge.call()
 		else:
-			await deliver_damage.call(true)
+			await deliver_damage.call()
 	else:  # ai
 		if cannot_dodge or defender_battler.state_machine.action_points.value < dodge_cost:
-			await deliver_damage.call(false)
-			var defender_bbcode_ai := combat.bbcode_character_name(defender_battler)
-			if not heavy_suffix_box[0].is_empty():
-				dialogue.text += "\n%s" % heavy_suffix_box[0]
-			dialogue.text += "\n%s受到%s伤害" % [defender_bbcode_ai, get_damage()]
-			await dialogue.pressed
+			await deliver_damage.call()
 		else:
 			await dodge.call()
