@@ -140,6 +140,15 @@ func _refresh_active() -> void:
 	if active and visible:
 		_restore_focus.call_deferred()
 
+
+func _emit_option_pressed(option_index: int) -> void:
+	if option_index < 0 or option_index >= options.size():
+		return
+	if (options[option_index] as MenuItemData).disabled:
+		return
+	pressed.emit(option_index)
+
+
 func _rebuild_option_buttons() -> void:
 	for child_node in options_container.get_children():
 		if child_node == continue_button:
@@ -150,9 +159,14 @@ func _rebuild_option_buttons() -> void:
 		var option_button := RetroButton.new()
 		var option: MenuItemData = options[option_index]
 		option_button.text = option.text
-		option_button.disabled = option.disabled
+		option_button.disabled = false
+		option_button.modulate = (
+			Defs.get_menu_option_disabled_modulate()
+			if option.disabled
+			else Color.WHITE
+		)
 		option_button.focus_entered.connect(func(): _last_selected_index = idx)
-		option_button.pressed.connect(func(): pressed.emit(idx))
+		option_button.pressed.connect(_emit_option_pressed.bind(idx))
 		options_container.add_child(option_button)
 
 func _refresh_button_states() -> void:
@@ -166,7 +180,11 @@ func _refresh_button_states() -> void:
 	for option_index in range(options.size()):
 		var option_button := _get_option_button(option_index)
 		var option: MenuItemData = options[option_index]
-		var can_focus: bool = active and option_button.visible and not option.text.is_empty()
+		var can_focus: bool = (
+			active
+			and option_button.visible
+			and not option.text.is_empty()
+		)
 		option_button.mouse_filter = Control.MOUSE_FILTER_STOP if can_focus else Control.MOUSE_FILTER_IGNORE
 		option_button.focus_mode = Control.FOCUS_ALL if can_focus else Control.FOCUS_NONE
 

@@ -74,7 +74,7 @@ func _menu_slots_on_body_part(character: Character, body_part: BodyPart) -> void
 		if picked_slot.item:
 			await _menu_host_item(character, picked_slot.item, picked_slot)
 		else:
-			await _menu_pick_from_inventory(picked_slot)
+			await _menu_pick_from_inventory(picked_slot, body_part)
 
 
 func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlot) -> void:
@@ -106,12 +106,16 @@ func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlo
 			await _menu_pick_from_inventory(child_slot)
 
 
-func _menu_pick_from_inventory(slot: ItemSlot) -> void:
+func _menu_pick_from_inventory(slot: ItemSlot, lateral_body_part: BodyPart = null) -> void:
 	while true:
 		var matches := slot.matching_inventory_items(_game.inventory)
 		var options: Array[MenuItemData] = []
 		for candidate in matches:
-			options.append(MenuItemData.new(str(candidate) + "..", false, candidate.get_description()))
+			var side_mismatch := (
+				lateral_body_part != null
+				and not _item_side_matches_body_part(lateral_body_part, candidate)
+			)
+			options.append(MenuItemData.new(str(candidate) + "..", side_mismatch, candidate.get_description()))
 		var back_index := options.size()
 		options.append(MenuItemData.new("返回", false, "取消"))
 		var menu := Dialogues.create_menu_dialogue()
@@ -125,6 +129,14 @@ func _menu_pick_from_inventory(slot: ItemSlot) -> void:
 		slot.item = picked_item
 		_game.inventory.remove_item(picked_item)
 		return
+
+
+func _item_side_matches_body_part(body_part: BodyPart, item: Item) -> bool:
+	if body_part is Foot and item is Footwear:
+		return (body_part as Foot).side == (item as Footwear).side
+	if body_part is Hand and item is Glove:
+		return (body_part as Hand).side == (item as Glove).side
+	return true
 
 
 func _slot_line(slot: ItemSlot) -> String:

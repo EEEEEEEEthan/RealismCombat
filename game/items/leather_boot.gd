@@ -2,13 +2,17 @@ extends Footwear
 class_name LeatherBoot
 
 
-func _init() -> void:
-	super._init()
+func _init(p_side: Defs.Side) -> void:
+	super(p_side)
 	_base_protection = Protection.new(3, 2, 3)
 
 
 func get_name() -> StringName:
-	return &"皮靴"
+	match side:
+		Defs.Side.LEFT:
+			return &"皮鞋(左)"
+		_:
+			return &"皮鞋(右)"
 
 
 func get_title() -> StringName:

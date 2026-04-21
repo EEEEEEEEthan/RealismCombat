@@ -54,3 +54,8 @@ static var _FAMILY_COLORS: PackedColorArray = PackedColorArray([
 
 static func get_family_color(family: ColorFamily, shade: ColorShade) -> Color:
 	return _FAMILY_COLORS[(family as int) * _SHADES_PER_FAMILY + (shade as int)]
+
+
+## 菜单项「禁用但可见」时的整体色调（非白/黑/透明须走色阶）
+static func get_menu_option_disabled_modulate() -> Color:
+	return get_family_color(ColorFamily.NEUTRAL, ColorShade.MID)

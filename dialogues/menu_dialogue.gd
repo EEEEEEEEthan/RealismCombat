@@ -62,7 +62,12 @@ func _refresh_options() -> void:
 		var option: MenuItemData = options[option_index]
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.text = option.text
-		button.disabled = option.disabled
+		button.disabled = false
+		button.modulate = (
+			Defs.get_menu_option_disabled_modulate()
+			if option.disabled
+			else Color.WHITE
+		)
 	_refresh_button_states()
 	_refresh_description()
 
@@ -82,7 +87,12 @@ func _on_focus_button(button: RetroButton) -> void:
 	rich_text_label.text = options[option_index].description
 
 func _on_press_button(button: RetroButton) -> void:
-	pressed.emit(button.get_index())
+	var option_index := button.get_index()
+	if option_index < 0 or option_index >= options.size():
+		return
+	if options[option_index].disabled:
+		return
+	pressed.emit(option_index)
 
 func _refresh_button_states() -> void:
 	for option_index in range(options.size()):
@@ -119,4 +129,8 @@ func _get_preferred_option_index() -> int:
 	return -1
 
 func _can_focus_option(option_index: int) -> bool:
-	return option_index >= 0 and option_index < options.size() and not options[option_index].text.is_empty()
+	return (
+		option_index >= 0
+		and option_index < options.size()
+		and not options[option_index].text.is_empty()
+	)

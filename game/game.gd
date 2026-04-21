@@ -33,12 +33,12 @@ func _ready() -> void:
 	var starting_surcoat := SurcoatTabard.new()
 	starting_surcoat.quality = PropertyInt.new(4, 4)
 	inventory.add_item(starting_surcoat)
-	for duplicate_index in range(2):
-		var glove := LeatherGlove.new()
+	for starting_side in [Defs.Side.LEFT, Defs.Side.RIGHT]:
+		var glove := LeatherGlove.new(starting_side)
 		glove.quality = PropertyInt.new(4, 4)
 		inventory.add_item(glove)
-	for duplicate_index in range(2):
-		var boot := LeatherBoot.new()
+	for starting_side in [Defs.Side.LEFT, Defs.Side.RIGHT]:
+		var boot := LeatherBoot.new(starting_side)
 		boot.quality = PropertyInt.new(4, 4)
 		inventory.add_item(boot)
 	var main_menu_choice := -1
