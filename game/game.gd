@@ -11,36 +11,10 @@ var inventory: Inventory
 
 func _ready() -> void:
 	AudioManager.play_menu_bgm()
-	character_ethan = Character.new(self, "Ethan")
-	character_rowan = Character.new(self, "Rowan")
+	character_ethan = Character.create_default(self, "Ethan")
+	character_rowan = Character.create_default(self, "Rowan")
 	player_side_characters = [character_ethan, character_rowan]
 	inventory = Inventory.new()
-	var starting_sword := ShortSword.new()
-	starting_sword.quality = PropertyInt.new(4, 4)
-	inventory.add_item(starting_sword)
-	var starting_belt := LeatherBelt.new()
-	starting_belt.quality = PropertyInt.new(4, 4)
-	inventory.add_item(starting_belt)
-	var starting_inner := GambesonInner.new()
-	starting_inner.quality = PropertyInt.new(4, 4)
-	inventory.add_item(starting_inner)
-	var starting_chain := ChainMailHauberk.new()
-	starting_chain.quality = PropertyInt.new(4, 4)
-	inventory.add_item(starting_chain)
-	var starting_plate := PlateArmorSuit.new()
-	starting_plate.quality = PropertyInt.new(4, 4)
-	inventory.add_item(starting_plate)
-	var starting_surcoat := SurcoatTabard.new()
-	starting_surcoat.quality = PropertyInt.new(4, 4)
-	inventory.add_item(starting_surcoat)
-	for starting_side in [Defs.Side.LEFT, Defs.Side.RIGHT]:
-		var glove := LeatherGlove.new(starting_side)
-		glove.quality = PropertyInt.new(4, 4)
-		inventory.add_item(glove)
-	for starting_side in [Defs.Side.LEFT, Defs.Side.RIGHT]:
-		var boot := LeatherBoot.new(starting_side)
-		boot.quality = PropertyInt.new(4, 4)
-		inventory.add_item(boot)
 	var main_menu_choice := -1
 	while true:
 		var menu = Dialogues.create_menu_dialogue()

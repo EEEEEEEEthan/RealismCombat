@@ -22,6 +22,16 @@ var alive: bool:
 var speed: float:
 	get: return 10
 
+## 默认装备：罩袍外套、左右皮鞋与皮手套。
+static func create_default(p_game: Game, p_name: String) -> Character:
+	var c := Character.new(p_game, p_name)
+	c.body.torso_slot.item = SurcoatTabard.new()
+	c.right_hand.glove_slot.item = LeatherGlove.new(Defs.Side.RIGHT)
+	c.left_hand.glove_slot.item = LeatherGlove.new(Defs.Side.LEFT)
+	c.right_foot.footwear_slot.item = LeatherBoot.new(Defs.Side.RIGHT)
+	c.left_foot.footwear_slot.item = LeatherBoot.new(Defs.Side.LEFT)
+	return c
+
 func _init(p_game: Game, p_name: String) -> void:
 	game = p_game
 	character_name = p_name

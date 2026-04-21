@@ -1,7 +1,7 @@
 extends BodyPart
 class_name Body
 
-## 身体：可穿内衬、罩袍或仅系腰带；中层/外层护甲须从内衬起向上逐层叠穿。
+## 身体：可直接穿外套、内衬或仅系腰带；中层/外层护甲叠穿须从内衬起向上逐层穿。
 var torso_slot: ItemSlot
 
 
