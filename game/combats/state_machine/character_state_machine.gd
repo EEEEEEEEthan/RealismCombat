@@ -1,6 +1,9 @@
 extends RefCounted
 class_name CharacterStateMachine
 
+## 每 tick 行动力 = speed * 此系数；与攻击前摇折算 tick 共用
+const ACTION_POINTS_PER_SPEED_UNIT_PER_TICK := 0.05
+
 var action_points := Property.new(0, 10)
 var character: Character
 var idle_state
@@ -19,7 +22,13 @@ var is_player: bool:
 	get: return combat.is_player_character(character)
 
 var action_points_per_tick: float:
-	get: return character.speed * 0.05
+	get: return character.speed * ACTION_POINTS_PER_SPEED_UNIT_PER_TICK
+
+var remaining_windup_ticks: int:
+	get:
+		if not (current_state is CharacterStateMachineActionState):
+			return 0
+		return (current_state as CharacterStateMachineActionState).remaining_windup_ticks
 
 func _init(p_character: Character) -> void:
 	character = p_character

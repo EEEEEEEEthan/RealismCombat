@@ -13,6 +13,15 @@ var action_name: StringName:
 			return &""
 		return _action.get_name()
 
+var remaining_windup_ticks: int:
+	get:
+		if _windup <= 0.0:
+			return 0
+		var per_tick: float = machine.action_points_per_tick
+		if per_tick <= 0.0:
+			return 0
+		return ceili(_windup / per_tick)
+
 func _init(
 	p_machine: CharacterStateMachine,
 	action: Action,

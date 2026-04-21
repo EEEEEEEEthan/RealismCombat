@@ -5,6 +5,13 @@ class_name AttackAction
 var block_cost: float = 2
 var dodge_cost: float = 4
 
+var windup_ticks: float:
+	get:
+		var per_tick: float = character.state_machine.action_points_per_tick
+		if per_tick <= 0.0:
+			return 0.0
+		return float(get_windup_action_points()) / per_tick
+
 func get_dodge_chance(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	push_error(&"override me")
 	return 0
@@ -26,13 +33,17 @@ func get_damage() -> Damage:
 	return Damage.new(0, 0, 0)
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
-	var dmg = get_damage().sum
-	var weight = pow(1 - get_dodge_chance(from_body, to_body) * dmg, 2)
-	var bonus = 1
-	# 如果这一击能把部位打烂，权重应该翻倍
-	if dmg >= to_body.hp.value:
-		bonus += 1
-	return weight * bonus
+	var damage_total := get_damage().sum
+	var weight := damage_total
+	var defender_sm := to_body.character.state_machine
+	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
+	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
+	if not cannot_dodge:
+		var dodge_chance := get_dodge_chance(from_body, to_body)
+		weight *= pow(1.0 - dodge_chance, 2.0)
+	if damage_total >= to_body.hp.value:
+		weight *= 2.0
+	return weight
 
 func static_valid_to_character(to_character: Character) -> Outcome:
 	var combat := character.game.combat
@@ -51,7 +62,8 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 	var dodge_chance = get_dodge_chance(from_body, to_body)
 	var defender_renderer := combat.get_character_renderer(to_body.character)
 	var defender_sm := to_body.character.state_machine
-	var dodge_busy := defender_sm.current_state is CharacterStateMachineActionState
+	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
+	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
 
 	var deliver_damage = func(show_dialogue: bool) -> void:
 		await combat.get_tree().create_timer(0.3, true, false, true).timeout  # 根据伤害要有一个顿帧
@@ -92,15 +104,15 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		menu.title = execution_text
 		var busy_name := (
 			(defender_sm.current_state as CharacterStateMachineActionState).action_name
-			if dodge_busy
+			if defender_in_action
 			else &""
 		)
-		if dodge_busy and busy_name.is_empty():
+		if defender_in_action and busy_name.is_empty():
 			busy_name = &"动作"
 		var dodge_insufficient_action_points := defender_sm.action_points.value < dodge_cost
-		var dodge_disabled := dodge_busy or dodge_insufficient_action_points
+		var dodge_disabled := cannot_dodge or dodge_insufficient_action_points
 		var dodge_desc := "成功率%d%% 消耗行动力:%s" % [int(dodge_chance * 100), dodge_cost]
-		if dodge_busy:
+		if cannot_dodge:
 			dodge_desc = "当前正在%s,不可闪避" % busy_name
 		elif dodge_insufficient_action_points:
 			dodge_desc = "行动力不足(需要%s)" % dodge_cost
@@ -115,7 +127,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		else:
 			await deliver_damage.call(true)
 	else:  # ai
-		if dodge_busy or to_body.character.state_machine.action_points.value < dodge_cost:
+		if cannot_dodge or to_body.character.state_machine.action_points.value < dodge_cost:
 			await deliver_damage.call(false)
 		else:
 			await dodge.call()
