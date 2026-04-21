@@ -62,10 +62,7 @@ func get_description() -> String:
 	return "%s\n伤害:%s" % [super.get_description(), get_damage()]
 
 func _defender_cannot_dodge(defender_sm: CharacterStateMachine) -> bool:
-	return (
-		defender_sm.current_state is CharacterStateMachineActionState
-		and windup_ticks > float(defender_sm.remaining_windup_ticks)
-	)
+	return defender_sm.current_state != null
 
 func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -> void:
 	Engine.time_scale = 0
