@@ -13,12 +13,13 @@ func preview(from_body: BodyPart, to_body: BodyPart) -> String:
 	var dodge_chance = get_dodge_chance(from_body, to_body)
 	return &"闪避成功率" + str(int(dodge_chance * 100)) + &"%"
 
-func execute(from_body: BodyPart, to_body: BodyPart) -> void:
-	await super.execute(from_body, to_body)
+func execute(from_body: BodyPart, to_body: BodyPart) -> GenericDialogue:
+	var dialogue = await super.execute(from_body, to_body)
 	var combat := from_body.character.game.combat
 	var attacker_renderer := combat.get_character_renderer(from_body.character)
 	await attacker_renderer.animate_generic_attack()
-	await _react(from_body, to_body)
+	await _react(from_body, to_body, dialogue)
+	return dialogue
 
 func get_damage() -> Damage:
 	push_error(&"override me")
@@ -35,7 +36,7 @@ func static_valid_to_character(to_character: Character) -> Outcome:
 func _get_description() -> String:
 	return super._get_description() + &"\n伤害:" + str(get_damage())
 
-func _react(from_body: BodyPart, to_body: BodyPart) -> void:
+func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -> void:
 	Engine.time_scale = 0
 	var combat := to_body.character.game.combat
 	var dodge_chance = get_dodge_chance(from_body, to_body)
@@ -51,29 +52,24 @@ func _react(from_body: BodyPart, to_body: BodyPart) -> void:
 		AudioManager.play_hit()
 		defender_renderer.animate_generic_hit()
 		if show_dialogue:
-			var menu = Dialogues.create_generic_dialogue()
-			menu.text = &"造成伤害:" + str(get_damage())
-			await menu.pressed
-			menu.queue_free()
+			dialogue.text += &"\n造成伤害:" + str(get_damage())
+			await dialogue.pressed
 
 	var dodge = func() -> void:
 		defender_sm.action_points.value = maxf(
 			0.0,
 			defender_sm.action_points.value - dodge_cost,
 		)
-		var menu = Dialogues.create_generic_dialogue()
 		if randf() < get_dodge_chance(from_body, to_body):
 			Engine.time_scale = 1
 			defender_renderer.animate_generic_dodge()
-			menu.text = to_body.character.character_name + &"轻巧地闪开了"
+			dialogue.text += &"\n" + to_body.character.character_name + &"轻巧地闪开了"
 			AudioManager.play_dodge()
-			await menu.pressed
-			menu.queue_free()
+			await dialogue.pressed
 		else:
 			await deliver_damage.call(false)
-			menu.text = to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(get_damage())
-			await menu.pressed
-			menu.queue_free()
+			dialogue.text += &"\n" + to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(get_damage())
+			await dialogue.pressed
 
 	if combat.characters[to_body.character] == 0:  # player
 		var execution_text = get_execution_text(from_body, to_body)

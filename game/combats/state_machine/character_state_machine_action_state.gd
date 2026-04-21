@@ -37,7 +37,7 @@ func new_tick() -> void:
 			character_renderer.centered = true
 		for character_renderer in participating_renderers:
 			character_renderer.expanded = true
-		await _action.execute(_from_body, _to_body)
+		(await _action.execute(_from_body, _to_body)).queue_free()
 		for character_renderer in participating_renderers:
 			character_renderer.expanded = false
 			character_renderer.centered = false

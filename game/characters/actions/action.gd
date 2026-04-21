@@ -32,11 +32,11 @@ func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 func get_execution_text(from_body: BodyPart, to_body: BodyPart) -> String:
 	return from_body.character.character_name + "的" + from_body.part_name() + "对" + to_body.character.character_name + "的" + to_body.part_name() + "发动" + action_name
 
-func execute(from_body: BodyPart, to_body: BodyPart) -> void:
-	var menu = Dialogues.create_generic_dialogue()
-	menu.text = get_execution_text(from_body, to_body)
-	await menu.pressed
-	menu.queue_free()
+func execute(from_body: BodyPart, to_body: BodyPart) -> GenericDialogue:
+	var dialogue = Dialogues.create_generic_dialogue()
+	dialogue.text = get_execution_text(from_body, to_body)
+	await dialogue.pressed
+	return dialogue
 
 func preview(_from_body: BodyPart, _to_body: BodyPart) -> String:
 	push_error("override me")

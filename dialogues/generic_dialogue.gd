@@ -5,7 +5,7 @@ class_name GenericDialogue
 signal pressed(index: int)
 
 
-var _presentation_token: int = 0
+var _tw_gen: int = 0
 var _last_selected_index: int = -1
 
 var active: bool = true:
@@ -19,14 +19,21 @@ var active: bool = true:
 var text: String = "":
 	set(value):
 		text = value
-		if is_node_ready():
-			_refresh_text()
+		if not is_node_ready():
+			return
+		var old_total := rich_text_label.get_total_character_count()
+		var old_vis := rich_text_label.visible_characters
+		rich_text_label.text = value
+		_apply_preserved_visible(old_total, old_vis)
+		_update_chrome_visibility()
 
 var options: Array = []:
 	set(value):
 		options = value
-		if is_node_ready():
-			_refresh_options()
+		if not is_node_ready():
+			return
+		_rebuild_option_buttons()
+		_update_chrome_visibility()
 
 @onready var continue_button: TextureButton = %Continue
 @onready var options_container: HBoxContainer = %Options
@@ -36,9 +43,19 @@ var options: Array = []:
 func _ready() -> void:
 	continue_button.pressed.connect(func(): pressed.emit(0))
 	continue_button.focus_entered.connect(func(): _last_selected_index = -1)
-	_refresh_options()
-	_refresh_text()
+	_rebuild_option_buttons()
+	var old_total := rich_text_label.get_total_character_count()
+	var old_vis := rich_text_label.visible_characters
+	rich_text_label.text = text
+	_apply_preserved_visible(old_total, old_vis)
+	_update_chrome_visibility()
 	_refresh_active()
+	_typewriter_loop.call_deferred()
+
+func clear() -> void:
+	_tw_gen += 1
+	text = ""
+	options = []
 
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_VISIBILITY_CHANGED:
@@ -48,43 +65,80 @@ func _notification(what: int) -> void:
 	if visible and active:
 		_refresh_active()
 
-func _refresh_text() -> void:
-	rich_text_label.text = text
-	_restart_presentation()
+func _apply_preserved_visible(old_total: int, old_visible: int) -> void:
+	var new_total := rich_text_label.get_total_character_count()
+	if new_total <= 0:
+		rich_text_label.visible_characters = -1
+		return
+	var shown: int
+	if old_total <= 0:
+		shown = 0
+	elif old_visible < 0 or old_visible >= old_total:
+		shown = old_total
+	else:
+		shown = old_visible
+	rich_text_label.visible_characters = mini(shown, new_total)
 
-func _refresh_options() -> void:
-	_rebuild_option_buttons()
-	_restart_presentation()
+func _update_chrome_visibility() -> void:
+	var revealed := _fully_revealed()
+	continue_button.visible = revealed and options.is_empty()
+	for option_index in range(options.size()):
+		_get_option_button(option_index).visible = revealed
+	_refresh_button_states()
+	if revealed and active and visible:
+		_restore_focus.call_deferred()
+
+func _fully_revealed() -> bool:
+	var total := rich_text_label.get_total_character_count()
+	if total <= 0:
+		return true
+	var vis := rich_text_label.visible_characters
+	return vis < 0 or vis >= total
+
+func _typewriter_loop() -> void:
+	await get_tree().process_frame
+	while is_inside_tree():
+		var gen := _tw_gen
+		var total := rich_text_label.get_total_character_count()
+
+		if total <= 0:
+			rich_text_label.visible_characters = -1
+			if gen == _tw_gen:
+				_update_chrome_visibility()
+			while gen == _tw_gen and rich_text_label.get_total_character_count() <= 0:
+				await get_tree().process_frame
+			continue
+
+		var vis: int = rich_text_label.visible_characters
+		if vis < 0:
+			vis = total
+		vis = clampi(vis, 0, total)
+
+		if vis < total:
+			while vis < total and gen == _tw_gen:
+				vis += 1
+				rich_text_label.visible_characters = vis
+				typewriter_timer.start(0.02)
+				await typewriter_timer.timeout
+			if gen != _tw_gen:
+				continue
+			_update_chrome_visibility()
+
+		while gen == _tw_gen:
+			var t2 := rich_text_label.get_total_character_count()
+			if t2 <= 0:
+				break
+			var v2: int = rich_text_label.visible_characters
+			if v2 < 0:
+				v2 = t2
+			if v2 < t2:
+				break
+			await get_tree().process_frame
 
 func _refresh_active() -> void:
 	_refresh_button_states()
 	if active and visible:
 		_restore_focus.call_deferred()
-
-func _run_presentation(presentation_token: int) -> void:
-	await _play_typewriter(presentation_token)
-	if presentation_token != _presentation_token:
-		return
-	if options.is_empty():
-		continue_button.visible = true
-	else:
-		for option_index in range(options.size()):
-			_get_option_button(option_index).visible = true
-	_refresh_button_states()
-	if active and visible:
-		_restore_focus.call_deferred()
-
-func _play_typewriter(presentation_token: int) -> void:
-	var visible_character_count: int = rich_text_label.get_total_character_count()
-	if visible_character_count <= 0:
-		rich_text_label.visible_characters = -1
-		return
-	for visible_character_index in range(visible_character_count):
-		if presentation_token != _presentation_token:
-			return
-		rich_text_label.visible_characters = visible_character_index + 1
-		typewriter_timer.start(0.02)
-		await typewriter_timer.timeout
 
 func _rebuild_option_buttons() -> void:
 	for child_node in options_container.get_children():
@@ -100,18 +154,6 @@ func _rebuild_option_buttons() -> void:
 		option_button.focus_entered.connect(func(): _last_selected_index = idx)
 		option_button.pressed.connect(func(): pressed.emit(idx))
 		options_container.add_child(option_button)
-
-func _restart_presentation() -> void:
-	if not is_node_ready():
-		return
-	_presentation_token += 1
-	var presentation_token := _presentation_token
-	rich_text_label.visible_characters = 0
-	continue_button.visible = false
-	for option_index in range(options.size()):
-		_get_option_button(option_index).visible = false
-	_refresh_button_states()
-	_run_presentation.call_deferred(presentation_token)
 
 func _refresh_button_states() -> void:
 	var continue_can_focus := active and continue_button.visible
