@@ -1,7 +1,7 @@
 extends RefCounted
-class_name CombatCharacter
-# 战斗角色。生命周期是战斗开始add_character到战斗结束。
-# 胶水代码，属性数据转发给角色。战斗特有的数据(buff,状态机等,自己处理)
+class_name Battler
+# 战斗中的参战单位。生命周期：Combat.add_character 至战斗结束。
+# 胶水：属性转发 raw_character；状态机等战斗特有数据在此处理。
 
 var raw_character: Character
 var state_machine: CharacterStateMachine

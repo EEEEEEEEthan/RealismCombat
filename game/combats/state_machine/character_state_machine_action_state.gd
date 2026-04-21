@@ -39,8 +39,8 @@ func new_tick() -> void:
 	if _windup <= 0:
 		var participating_renderers: Array[CharacterRenderer] = []
 		for participant_raw in [_from_body.character, _to_body.character]:
-			var participant_combat := machine.combat.get_combat_character(participant_raw)
-			var character_renderer := machine.combat.get_character_renderer(participant_combat)
+			var participant_battler := machine.combat.get_battler(participant_raw)
+			var character_renderer := machine.combat.get_character_renderer(participant_battler)
 			if participating_renderers.has(character_renderer):
 				continue
 			participating_renderers.append(character_renderer)

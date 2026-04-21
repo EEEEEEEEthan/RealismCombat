@@ -5,12 +5,12 @@ class_name CharacterStateMachine
 const ACTION_POINTS_PER_SPEED_UNIT_PER_TICK := 0.05
 
 var action_points := Property.new(0, 10)
-var combat_character: CombatCharacter
+var battler: Battler
 var idle_state
 var current_state
 
 var character: Character:
-	get: return combat_character.raw_character
+	get: return battler.raw_character
 
 var game: Game:
 	get: return character.game
@@ -19,10 +19,10 @@ var combat: Combat:
 	get: return game.combat
 
 var character_renderer: CharacterRenderer:
-	get: return combat.get_character_renderer(combat_character)
+	get: return combat.get_character_renderer(battler)
 
 var is_player: bool:
-	get: return combat.is_player_character(combat_character)
+	get: return combat.is_player_character(battler)
 
 var action_points_per_tick: float:
 	get: return character.speed * ACTION_POINTS_PER_SPEED_UNIT_PER_TICK
@@ -33,8 +33,8 @@ var remaining_windup_ticks: int:
 			return 0
 		return (current_state as CharacterStateMachineActionState).remaining_windup_ticks
 
-func _init(p_combat_character: CombatCharacter) -> void:
-	combat_character = p_combat_character
+func _init(p_battler: Battler) -> void:
+	battler = p_battler
 	idle_state = CharacterStateMachineIdleState.new(self)
 	current_state = idle_state
 

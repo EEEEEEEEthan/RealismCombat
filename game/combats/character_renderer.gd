@@ -27,7 +27,7 @@ var centered: bool = false:
 		if is_node_ready():
 			_expanded.expanded = expanded
 
-var combat_character: CombatCharacter
+var battler: Battler
 
 var _override_color: Defs.ColorFamily = Defs.ColorFamily.NONE
 
@@ -35,9 +35,9 @@ var _color: Defs.ColorFamily:
 	get:
 		if _override_color != Defs.ColorFamily.NONE:
 			return _override_color
-		if not combat_character:
+		if not battler:
 			return Defs.ColorFamily.NEUTRAL
-		if combat_character.alive:
+		if battler.alive:
 			if is_layout_rtl():
 				return Defs.ColorFamily.FORGE_EMBER
 			else:
@@ -70,13 +70,13 @@ func _process(delta: float) -> void:
 		clampf(POSITION_LERP_SPEED * delta, 0.0, 1.0),
 	)
 
-func bind(combat_char: CombatCharacter) -> void:
-	combat_character = combat_char
-	%Name.text = combat_character.character_name
+func bind(p_battler: Battler) -> void:
+	battler = p_battler
+	%Name.text = battler.character_name
 	assert(len(body_parts) > 0)
 	for index in body_parts.size():
-		body_parts[index].setup(combat_character.all_body_parts[index])
-	%ActionPoints.bind(combat_character.state_machine.action_points)
+		body_parts[index].setup(battler.all_body_parts[index])
+	%ActionPoints.bind(battler.state_machine.action_points)
 	_refresh_renderer_size()
 
 func _notification(what: int) -> void:
@@ -98,7 +98,7 @@ func _refresh_layout_direction() -> void:
 	%Container.scale = s
 
 func _refresh_color() -> void:
-	if not combat_character: return
+	if not battler: return
 	var color := _color
 	%Container.fill_color_family = color
 	%ActionPoints.color_family = color

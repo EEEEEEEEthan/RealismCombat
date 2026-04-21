@@ -26,8 +26,8 @@ func dynamic_valid_to_body(to_body: BodyPart) -> Outcome:
 		return Outcome.from_failure("%s早已无法行动" % to_body.part_name())
 	return Outcome.from_success()
 
-func dynamic_valid_to_character(to_combat: CombatCharacter) -> Outcome:
-	if not to_combat.alive:
+func dynamic_valid_to_character(to_battler: Battler) -> Outcome:
+	if not to_battler.alive:
 		return Outcome.from_failure()
 	return Outcome.from_success()
 

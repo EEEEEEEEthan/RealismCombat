@@ -8,7 +8,7 @@ var dodge_cost: float = 4
 var windup_ticks: float:
 	get:
 		var combat := character.game.combat
-		var per_tick: float = combat.get_combat_character(character).state_machine.action_points_per_tick
+		var per_tick: float = combat.get_battler(character).state_machine.action_points_per_tick
 		if per_tick <= 0.0:
 			return 0.0
 		return float(get_windup_action_points()) / per_tick
@@ -24,7 +24,7 @@ func preview(from_body: BodyPart, to_body: BodyPart) -> String:
 func execute(from_body: BodyPart, to_body: BodyPart) -> GenericDialogue:
 	var dialogue = await super.execute(from_body, to_body)
 	var combat := from_body.character.game.combat
-	var attacker_renderer := combat.get_character_renderer(combat.get_combat_character(from_body.character))
+	var attacker_renderer := combat.get_character_renderer(combat.get_battler(from_body.character))
 	await attacker_renderer.animate_generic_attack()
 	await _react(from_body, to_body, dialogue)
 	return dialogue
@@ -37,7 +37,7 @@ func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var damage_total := get_damage().sum
 	var weight := damage_total
 	var combat_ctx := character.game.combat
-	var defender_sm: CharacterStateMachine = combat_ctx.get_combat_character(to_body.character).state_machine
+	var defender_sm: CharacterStateMachine = combat_ctx.get_battler(to_body.character).state_machine
 	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
 	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
 	if not cannot_dodge:
@@ -47,12 +47,12 @@ func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 		weight *= 2.0
 	return weight
 
-func static_valid_to_character(to_combat: CombatCharacter) -> Outcome:
+func static_valid_to_character(to_battler: Battler) -> Outcome:
 	var combat := character.game.combat
-	var attacker_combat: CombatCharacter = combat.get_combat_character(character)
-	if combat.is_player_character(attacker_combat) == combat.is_player_character(to_combat):
+	var attacker_battler: Battler = combat.get_battler(character)
+	if combat.is_player_character(attacker_battler) == combat.is_player_character(to_battler):
 		return Outcome.from_failure(&"不能选择友方")
-	if not to_combat.alive:
+	if not to_battler.alive:
 		return Outcome.from_failure()
 	return Outcome.from_success()
 
@@ -62,10 +62,10 @@ func get_description() -> String:
 func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -> void:
 	Engine.time_scale = 0
 	var combat := to_body.character.game.combat
-	var defender_combat: CombatCharacter = combat.get_combat_character(to_body.character)
+	var defender_battler: Battler = combat.get_battler(to_body.character)
 	var dodge_chance = get_dodge_chance(from_body, to_body)
-	var defender_renderer := combat.get_character_renderer(defender_combat)
-	var defender_sm: CharacterStateMachine = defender_combat.state_machine
+	var defender_renderer := combat.get_character_renderer(defender_battler)
+	var defender_sm: CharacterStateMachine = defender_battler.state_machine
 	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
 	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
 
@@ -91,18 +91,18 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		if randf() < get_dodge_chance(from_body, to_body):
 			Engine.time_scale = 1
 			defender_renderer.animate_generic_dodge()
-			dialogue.text += "\n%s轻巧地闪开了" % combat.bbcode_character_name(defender_combat)
+			dialogue.text += "\n%s轻巧地闪开了" % combat.bbcode_character_name(defender_battler)
 			AudioManager.play_dodge()
 			await dialogue.pressed
 		else:
 			await deliver_damage.call(false)
 			dialogue.text += "\n%s尝试闪避但是失败了.造成伤害:%s" % [
-				combat.bbcode_character_name(defender_combat),
+				combat.bbcode_character_name(defender_battler),
 				get_damage(),
 			]
 			await dialogue.pressed
 
-	if combat.characters[defender_combat] == 0:  # player
+	if combat.characters[defender_battler] == 0:  # player
 		var execution_text = get_execution_text(from_body, to_body)
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
@@ -131,7 +131,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		else:
 			await deliver_damage.call(true)
 	else:  # ai
-		if cannot_dodge or defender_combat.state_machine.action_points.value < dodge_cost:
+		if cannot_dodge or defender_battler.state_machine.action_points.value < dodge_cost:
 			await deliver_damage.call(false)
 		else:
 			await dodge.call()

@@ -10,9 +10,9 @@ func _init(chr: Character) -> void:
 func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	var menu = Dialogues.create_generic_dialogue()
 	var combat := from_body.character.game.combat
-	var attacker_combat: CombatCharacter = combat.get_combat_character(from_body.character)
+	var attacker_battler: Battler = combat.get_battler(from_body.character)
 	menu.text = "%s的%s开始蓄力..." % [
-		combat.bbcode_character_name(attacker_combat),
+		combat.bbcode_character_name(attacker_battler),
 		from_body.part_name(),
 	]
 	await menu.pressed
@@ -21,9 +21,9 @@ func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 func get_execution_text(from_body: BodyPart, to_body: BodyPart) -> String:
 	var combat := from_body.character.game.combat
 	return "%s的%s对%s的%s发动%s" % [
-		combat.bbcode_character_name(combat.get_combat_character(from_body.character)),
+		combat.bbcode_character_name(combat.get_battler(from_body.character)),
 		from_body.part_name(),
-		combat.bbcode_character_name(combat.get_combat_character(to_body.character)),
+		combat.bbcode_character_name(combat.get_battler(to_body.character)),
 		to_body.part_name(),
 		get_name(),
 	]
@@ -47,14 +47,14 @@ func dynamic_valid_from_body(_from_body: BodyPart) -> Outcome:
 func valid_from_body(from_body: BodyPart) -> bool:
 	return static_valid_from_body(from_body).success and dynamic_valid_from_body(from_body).success
 
-func static_valid_to_character(_to_combat: CombatCharacter) -> Outcome:
+func static_valid_to_character(_to_battler: Battler) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
-func dynamic_valid_to_character(_to_combat: CombatCharacter) -> Outcome:
+func dynamic_valid_to_character(_to_battler: Battler) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
 
-func valid_to_character(to_combat: CombatCharacter) -> bool:
-	return static_valid_to_character(to_combat).success and dynamic_valid_to_character(to_combat).success
+func valid_to_character(to_battler: Battler) -> bool:
+	return static_valid_to_character(to_battler).success and dynamic_valid_to_character(to_battler).success
 
 func static_valid_to_body(_to_body: BodyPart) -> Outcome:
 	return Outcome.from_failure("抽象基类禁止")
