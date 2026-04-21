@@ -57,9 +57,8 @@ func _menu_slots_on_body_part(character: Character, body_part: BodyPart) -> void
 	var slots := body_part.get_item_slots()
 	while true:
 		var options: Array[MenuItemData] = []
-		for slot_index in range(slots.size()):
-			var slot: ItemSlot = slots[slot_index]
-			var line := "%d. %s" % [slot_index + 1, _slot_line(slot)]
+		for slot in slots:
+			var line := _slot_line(slot)
 			var desc := slot.item.get_description() if slot.item else "空槽"
 			options.append(MenuItemData.new(line + "..", false, desc))
 		var back_index := options.size()
@@ -82,9 +81,8 @@ func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlo
 	var slots := host_item.get_item_slots()
 	while true:
 		var options: Array[MenuItemData] = []
-		for slot_index in range(slots.size()):
-			var slot: ItemSlot = slots[slot_index]
-			var line := "%d. %s" % [slot_index + 1, _slot_line(slot)]
+		for slot in slots:
+			var line := _slot_line(slot)
 			var desc := slot.item.get_description() if slot.item else "空槽"
 			options.append(MenuItemData.new(line + "..", false, desc))
 		var unequip_index := options.size()

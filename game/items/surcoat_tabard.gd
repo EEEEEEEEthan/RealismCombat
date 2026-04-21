@@ -1,16 +1,16 @@
-extends Belt
-class_name LeatherBelt
+extends OuterwearCoat
+class_name SurcoatTabard
 
-## 皮带：4 格武器槽。
+## 罩袍式外套。
 
 
 func _init() -> void:
-	super(4)
+	super._init()
 	_base_protection = Protection.new(2, 2, 2)
 
 
 func get_name() -> StringName:
-	return &"皮带"
+	return &"罩袍"
 
 
 func get_title() -> StringName:
@@ -18,4 +18,4 @@ func get_title() -> StringName:
 
 
 func get_description() -> String:
-	return "可挂载 4 把武器的腰带。"
+	return "罩在铠甲外的布面外套，其上仅可系腰带。"

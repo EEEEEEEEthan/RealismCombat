@@ -21,6 +21,26 @@ func _ready() -> void:
 	var starting_belt := LeatherBelt.new()
 	starting_belt.quality = PropertyInt.new(4, 4)
 	inventory.add_item(starting_belt)
+	var starting_inner := GambesonInner.new()
+	starting_inner.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_inner)
+	var starting_chain := ChainMailHauberk.new()
+	starting_chain.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_chain)
+	var starting_plate := PlateArmorSuit.new()
+	starting_plate.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_plate)
+	var starting_surcoat := SurcoatTabard.new()
+	starting_surcoat.quality = PropertyInt.new(4, 4)
+	inventory.add_item(starting_surcoat)
+	for duplicate_index in range(2):
+		var glove := LeatherGlove.new()
+		glove.quality = PropertyInt.new(4, 4)
+		inventory.add_item(glove)
+	for duplicate_index in range(2):
+		var boot := LeatherBoot.new()
+		boot.quality = PropertyInt.new(4, 4)
+		inventory.add_item(boot)
 	var main_menu_choice := -1
 	while true:
 		var menu = Dialogues.create_menu_dialogue()
@@ -29,7 +49,6 @@ func _ready() -> void:
 			MenuItemData.new("测试项..", false, "测试项"),
 			MenuItemData.new("装备..", false, "为角色装备或卸下物品"),
 			MenuItemData.new("物品栏..", false, "查看持有的道具"),
-			MenuItemData.new(),
 			MenuItemData.new(),
 			MenuItemData.new(),
 			MenuItemData.new(),

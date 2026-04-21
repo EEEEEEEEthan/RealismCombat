@@ -1,16 +1,14 @@
-extends Belt
-class_name LeatherBelt
-
-## 皮带：4 格武器槽。
+extends Glove
+class_name LeatherGlove
 
 
 func _init() -> void:
-	super(4)
+	super._init()
 	_base_protection = Protection.new(2, 2, 2)
 
 
 func get_name() -> StringName:
-	return &"皮带"
+	return &"皮手套"
 
 
 func get_title() -> StringName:
@@ -18,4 +16,4 @@ func get_title() -> StringName:
 
 
 func get_description() -> String:
-	return "可挂载 4 把武器的腰带。"
+	return "鞣制皮手套，分左右手各穿一只。"
