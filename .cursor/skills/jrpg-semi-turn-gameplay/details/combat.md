@@ -33,6 +33,7 @@
 ## 设计约束（给 AI / 新功能）
 
 - **半回合制**：多单位 AP 并行增长，不要求「我方全员动完敌方再动」的纯回合顺序。
+- **受击闪避**：防守方仅在**非行动状态**（Idle，未处于 `CharacterStateMachineActionState`）时可闪避（玩家选单或 AI 自动掷骰）；一旦进入行动状态（含前摇、执行、后摇所在阶段），**不可闪避**。实现上见 `attack_action.gd` 的 `_defender_cannot_dodge`，勿用「`current_state != null`」这类误判——`idle_state` 始终占用 `current_state`。
 - **前摇与后摇都用「行动力单位」计量**，并与 `action_points_per_tick` 换算成 tick（见状态机注释），避免混用「秒」与「格」导致口径不一。
 - 扩展新行动时：在对应 `Action` 子类实现 `get_windup_action_points()` / `get_recovery_action_points()`，保持与 UI 中「前后摇」展示一致。
 
