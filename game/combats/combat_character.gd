@@ -35,3 +35,4 @@ var speed: float:
 func _init(p_combat: Combat, character: Character) -> void:
 	raw_character = character
 	combat = p_combat
+	state_machine = CharacterStateMachine.new(self)

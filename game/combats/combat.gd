@@ -4,10 +4,11 @@ class_name Combat
 const PLAYER_SIDE := 0
 const ENEMY_SIDE := 1
 
-var characters: Dictionary[Character, int] = {}
-var character_renderers: Dictionary[Character, CharacterRenderer] = {}
-var player_characters: Array[Character] = []
-var enemy_characters: Array[Character] = []
+var characters: Dictionary[CombatCharacter, int] = {}
+var character_renderers: Dictionary[CombatCharacter, CharacterRenderer] = {}
+var player_characters: Array[CombatCharacter] = []
+var enemy_characters: Array[CombatCharacter] = []
+var _raw_to_combat: Dictionary[Character, CombatCharacter] = {}
 
 func _ready() -> void:
 	%CharacterLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -19,16 +20,17 @@ func _ready() -> void:
 	AudioManager.play_battle_bgm()
 
 func _exit_tree() -> void:
-	for character in characters.keys():
-		if is_instance_valid(character.state_machine):
-			character.on_exit_combat()
+	for combat_char: CombatCharacter in characters.keys():
+		combat_char.state_machine = null
+	_raw_to_combat.clear()
 	AudioManager.play_menu_bgm()
 
 func add_character(character: Character, side: int) -> void:
-	character.on_enter_combat()
+	var combat_char := CombatCharacter.new(self, character)
+	_raw_to_combat[character] = combat_char
 	var character_renderer_scene := load(%CharacterPlaceHolder.get_instance_path()) as PackedScene
 	var character_renderer := character_renderer_scene.instantiate() as CharacterRenderer
-	character_renderer.bind(character)
+	character_renderer.bind(combat_char)
 	character_renderer.expanded = false
 	if side == PLAYER_SIDE:
 		character_renderer.layout_direction = Control.LAYOUT_DIRECTION_LTR
@@ -54,37 +56,40 @@ func add_character(character: Character, side: int) -> void:
 	character_renderer.original_position = original_position
 	character_renderer.active_position = active_reference_position
 	%CharacterLayer.add_child(character_renderer)
-	characters[character] = side
-	character_renderers[character] = character_renderer
+	characters[combat_char] = side
+	character_renderers[combat_char] = character_renderer
 	if side == PLAYER_SIDE:
-		player_characters.append(character)
+		player_characters.append(combat_char)
 	else:
-		enemy_characters.append(character)
+		enemy_characters.append(combat_char)
 
 func run() -> void:
 	while true:
-		for character: Character in characters.keys():
-			if not character.alive:
+		for combat_char: CombatCharacter in characters.keys():
+			if not combat_char.alive:
 				continue
-			await character.state_machine.new_tick()
+			await combat_char.state_machine.new_tick()
 		%Timer.start(0.1)
 		await %Timer.timeout
 
-func is_player_character(character: Character) -> bool:
-	return characters[character] == PLAYER_SIDE
+func is_player_character(combat_character: CombatCharacter) -> bool:
+	return characters[combat_character] == PLAYER_SIDE
+
+func get_combat_character(raw: Character) -> CombatCharacter:
+	return _raw_to_combat[raw]
 
 ## 战斗播报里角色名着色（最浅色档）；配色须与 CharacterRenderer 阵营一致。
-func bbcode_character_name(chr: Character) -> String:
+func bbcode_character_name(combat_character: CombatCharacter) -> String:
 	var family := (
 		Defs.ColorFamily.OCEAN_BLUE
-		if is_player_character(chr)
+		if is_player_character(combat_character)
 		else Defs.ColorFamily.FORGE_EMBER
 	)
 	var light_color := Defs.get_family_color(family, Defs.ColorShade.LIGHT)
-	return "[color=#%s]%s[/color]" % [light_color.to_html(false), chr.character_name]
+	return "[color=#%s]%s[/color]" % [light_color.to_html(false), combat_character.character_name]
 
-func get_character_renderer(character: Character) -> CharacterRenderer:
-	return character_renderers[character]
+func get_character_renderer(combat_character: CombatCharacter) -> CharacterRenderer:
+	return character_renderers[combat_character]
 
 func _get_reference_rect_in_character_layer(reference: Control) -> Rect2:
 	var reference_global_rect := reference.get_global_rect()

@@ -10,7 +10,6 @@ var left_hand: Hand
 var right_foot: Foot
 var left_foot: Foot
 var all_body_parts: Array[BodyPart]
-var state_machine: CharacterStateMachine
 var _actions: Array[Action] = []
 
 var actions: Array[Action]:
@@ -47,9 +46,3 @@ func _init(p_game: Game, p_name: String) -> void:
 
 func add_action(action: Action) -> void:
 	_actions.append(action)
-
-func on_enter_combat() -> void:
-	state_machine = CharacterStateMachine.new(self)
-
-func on_exit_combat() -> void:
-	state_machine = null

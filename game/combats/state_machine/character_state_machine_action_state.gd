@@ -38,8 +38,9 @@ func new_tick() -> void:
 	_windup -= machine.action_points_per_tick
 	if _windup <= 0:
 		var participating_renderers: Array[CharacterRenderer] = []
-		for participant_character in [_from_body.character, _to_body.character]:
-			var character_renderer := machine.combat.get_character_renderer(participant_character)
+		for participant_raw in [_from_body.character, _to_body.character]:
+			var participant_combat := machine.combat.get_combat_character(participant_raw)
+			var character_renderer := machine.combat.get_character_renderer(participant_combat)
 			if participating_renderers.has(character_renderer):
 				continue
 			participating_renderers.append(character_renderer)

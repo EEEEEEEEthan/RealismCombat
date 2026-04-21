@@ -26,7 +26,7 @@ func new_tick() -> void:
 
 func player_turn_choose_from_body_part() -> ActionParameter:
 	var dialogue := Dialogues.create_generic_dialogue()
-	dialogue.text = "%s的回合!" % machine.combat.bbcode_character_name(machine.character)
+	dialogue.text = "%s的回合!" % machine.combat.bbcode_character_name(machine.combat_character)
 	await dialogue.pressed
 	dialogue.queue_free()
 	var menu = Dialogues.create_menu_dialogue()
@@ -38,7 +38,7 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 		MenuItemData.new(&"右腿..", false, &"右腿状态"),
 		MenuItemData.new(&"左腿..", false, &"左腿状态"),
 	]
-	menu.title = "%s的回合" % machine.combat.bbcode_character_name(machine.character)
+	menu.title = "%s的回合" % machine.combat.bbcode_character_name(machine.combat_character)
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
@@ -52,7 +52,7 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "%s的回合>%s" % [
-		machine.combat.bbcode_character_name(machine.character),
+		machine.combat.bbcode_character_name(machine.combat_character),
 		from_body.part_name(),
 	]
 	var options: Array[MenuItemData]
@@ -88,29 +88,29 @@ func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "%s的回合>%s>%s" % [
-		machine.combat.bbcode_character_name(machine.character),
+		machine.combat.bbcode_character_name(machine.combat_character),
 		from_body.part_name(),
 		action.get_name(),
 	]
 	var options: Array[MenuItemData]
-	var characters: Array[Character]
-	for chr in machine.combat.characters:
-		if not action.static_valid_to_character(chr).success:
+	var targets: Array[CombatCharacter] = []
+	for target_combat in machine.combat.characters:
+		if not action.static_valid_to_character(target_combat).success:
 			continue
-		var data = MenuItemData.new("%s.." % chr.character_name)
-		var outcome = action.dynamic_valid_to_character(chr)
+		var data = MenuItemData.new("%s.." % target_combat.character_name)
+		var outcome = action.dynamic_valid_to_character(target_combat)
 		if outcome.success:
-			data.description = "选择%s为目标" % machine.combat.bbcode_character_name(chr)
+			data.description = "选择%s为目标" % machine.combat.bbcode_character_name(target_combat)
 		options.append(data)
-		characters.append(chr)
+		targets.append(target_combat)
 	options.append(MenuItemData.new(&"返回", false, &"返回上一级"))
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
-		if choice >= len(characters):
+		if choice >= len(targets):
 			break
-		var chr = characters[choice]
-		var parameter = await player_turn_choose_target_body(action, from_body, chr)
+		var target_combat = targets[choice]
+		var parameter = await player_turn_choose_target_body(action, from_body, target_combat)
 		if parameter:
 			menu.queue_free()
 			return parameter
@@ -121,18 +121,18 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionPar
 func player_turn_choose_target_body(
 	action: Action,
 	from_body: BodyPart,
-	to_character: Character,
+	to_combat: CombatCharacter,
 ) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "%s的回合>%s>%s>%s" % [
-		machine.combat.bbcode_character_name(machine.character),
+		machine.combat.bbcode_character_name(machine.combat_character),
 		from_body.part_name(),
 		action.get_name(),
-		machine.combat.bbcode_character_name(to_character),
+		machine.combat.bbcode_character_name(to_combat),
 	]
 	var options: Array[MenuItemData]
 	var body_list: Array[BodyPart]
-	for to_body in to_character.all_body_parts:
+	for to_body in to_combat.all_body_parts:
 		if not action.static_valid_to_body(to_body).success:
 			continue
 		var data = MenuItemData.new(str(to_body.part_name()))
@@ -167,10 +167,10 @@ func ai() -> ActionParameter:
 		for from_body: BodyPart in from.all_body_parts:
 			if not action.valid_from_body(from_body):
 				continue
-			for to_character: Character in machine.combat.characters:
-				if not action.valid_to_character(to_character):
+			for to_combat: CombatCharacter in machine.combat.characters:
+				if not action.valid_to_character(to_combat):
 					continue
-				for to_body: BodyPart in to_character.all_body_parts:
+				for to_body: BodyPart in to_combat.all_body_parts:
 					if not action.valid_to_body(to_body):
 						continue
 					var weight = action.get_weight(from_body, to_body)
