@@ -29,6 +29,21 @@ var centered: bool = false:
 
 var character: Character
 
+var _override_color: Defs.ColorFamily = Defs.ColorFamily.NONE
+
+var _color: Defs.ColorFamily:
+	get:
+		if _override_color != Defs.ColorFamily.NONE:
+			return _override_color
+		if not character:
+			return Defs.ColorFamily.NEUTRAL
+		if character.alive:
+			if is_layout_rtl():
+				return Defs.ColorFamily.FORGE_EMBER
+			else:
+				return Defs.ColorFamily.OCEAN_BLUE
+		return Defs.ColorFamily.NEUTRAL
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	anchor_left = 0.0
@@ -84,14 +99,7 @@ func _refresh_layout_direction() -> void:
 
 func _refresh_color() -> void:
 	if not character: return
-	var color: Defs.ColorFamily
-	if character.alive:
-		if is_layout_rtl():
-			color = Defs.ColorFamily.FORGE_EMBER
-		else:
-			color = Defs.ColorFamily.OCEAN_BLUE
-	else:
-		color = Defs.ColorFamily.NEUTRAL
+	var color := _color
 	%Container.fill_color_family = color
 	%ActionPoints.color_family = color
 	for part: BodyPartRenderer in body_parts:
@@ -108,6 +116,15 @@ func animate_generic_attack() -> void:
 
 func animate_generic_hit() -> void:
 	%AnimationPlayer.play(&"general_hit")
+
+func animate_heavy_hit() -> void:
+	_override_color = Defs.ColorFamily.ROSE_PINK
+	_refresh_color()
+	var ap := %AnimationPlayer
+	ap.play(&"general_hit")
+	await ap.animation_finished
+	_override_color = Defs.ColorFamily.NONE
+	_refresh_color()
 
 func animate_generic_dodge() -> void:
 	%AnimationPlayer.play(&"generic_dodge")

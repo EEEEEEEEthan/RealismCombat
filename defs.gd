@@ -10,19 +10,21 @@ enum Side
 ## 四档色阶的色系；成员顺序须与 _FAMILY_COLORS 每连续四项（一族）一致。NEUTRAL 为黑与三级灰。
 enum ColorFamily
 {
-	NEUTRAL,
-	SLATE_CYAN,
-	PINE_MINT,
-	LEAF_GREEN,
-	SPRING_LIME,
-	FIELD_GOLD,
-	TORCH_AMBER,
-	FORGE_EMBER,
-	ROSE_PINK,
-	WILD_MAGENTA,
-	TWILIGHT_VIOLET,
-	SAPPHIRE,
-	OCEAN_BLUE,
+	## 无覆盖等占位，禁止传入 get_family_color
+	NONE = -1,
+	NEUTRAL = 0,
+	SLATE_CYAN = 1,
+	PINE_MINT = 2,
+	LEAF_GREEN = 3,
+	SPRING_LIME = 4,
+	FIELD_GOLD = 5,
+	TORCH_AMBER = 6,
+	FORGE_EMBER = 7,
+	ROSE_PINK = 8,
+	WILD_MAGENTA = 9,
+	TWILIGHT_VIOLET = 10,
+	SAPPHIRE = 11,
+	OCEAN_BLUE = 12,
 }
 
 enum ColorShade
@@ -53,7 +55,9 @@ static var _FAMILY_COLORS: PackedColorArray = PackedColorArray([
 ])
 
 static func get_family_color(family: ColorFamily, shade: ColorShade) -> Color:
-	return _FAMILY_COLORS[(family as int) * _SHADES_PER_FAMILY + (shade as int)]
+	var fi := family as int
+	assert(fi >= 0, "ColorFamily.NONE 无调色板")
+	return _FAMILY_COLORS[fi * _SHADES_PER_FAMILY + (shade as int)]
 
 
 ## 菜单项「禁用但可见」时的整体色调（非白/黑/透明须走色阶）

@@ -50,7 +50,10 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		var damage_total = get_damage().sum
 		to_body.hp.value -= damage_total
 		AudioManager.play_hit()
-		defender_renderer.animate_generic_hit()
+		if to_body.hp.value < 3:
+			defender_renderer.animate_heavy_hit()
+		else:
+			defender_renderer.animate_generic_hit()
 		if show_dialogue:
 			dialogue.text += "\n造成伤害:%s" % get_damage()
 			await dialogue.pressed
