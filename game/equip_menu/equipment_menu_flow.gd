@@ -4,7 +4,8 @@ class_name EquipmentMenuFlow
 ## 主菜单「装备」：角色 → 身体部位 → 槽位列表 →（有物则）嵌套槽 / 卸下 / 返回；（空槽则）从背包匹配装上。
 
 var _game: Game
-var _nav := EquipmentNavigationStack.new()
+## 向下进入子菜单时 append，返回时 pop_back（预留调试用）
+var _nav: Array[RefCounted] = []
 
 
 func enter(game: Game) -> void:
@@ -28,9 +29,9 @@ func _menu_characters() -> void:
 		if choice == back_index:
 			return
 		var character := _game.player_side_characters[choice]
-		_nav.push(character)
+		_nav.append(character)
 		await _menu_body_parts(character)
-		_nav.pop()
+		_nav.pop_back()
 
 
 func _menu_body_parts(character: Character) -> void:
@@ -48,9 +49,9 @@ func _menu_body_parts(character: Character) -> void:
 		if choice == back_index:
 			return
 		var body_part := character.all_body_parts[choice]
-		_nav.push(body_part)
+		_nav.append(body_part)
 		await _menu_slots_on_body_part(character, body_part)
-		_nav.pop()
+		_nav.pop_back()
 
 
 func _menu_slots_on_body_part(character: Character, body_part: BodyPart) -> void:
