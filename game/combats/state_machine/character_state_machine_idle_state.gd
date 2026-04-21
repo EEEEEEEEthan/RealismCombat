@@ -26,7 +26,7 @@ func new_tick() -> void:
 
 func player_turn_choose_from_body_part() -> ActionParameter:
 	var dialogue := Dialogues.create_generic_dialogue()
-	dialogue.text = machine.character.character_name + "的回合!"
+	dialogue.text = "%s的回合!" % machine.character.character_name
 	await dialogue.pressed
 	dialogue.queue_free()
 	var menu = Dialogues.create_menu_dialogue()
@@ -38,7 +38,7 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 		MenuItemData.new(&"右腿..", false, &"右腿状态"),
 		MenuItemData.new(&"左腿..", false, &"左腿状态"),
 	]
-	menu.title = machine.character.character_name + &"的回合"
+	menu.title = "%s的回合" % machine.character.character_name
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
@@ -51,14 +51,14 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 
 func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
-	menu.title = machine.character.character_name + &"的回合>" + from_body.part_name()
+	menu.title = "%s的回合>%s" % [machine.character.character_name, from_body.part_name()]
 	var options: Array[MenuItemData]
 	var action_list: Array[Action]
 	for action in machine.character.actions:
 		if not action.static_valid_from_body(from_body).success:
 			continue
 		var outcome = action.static_valid_to_body(from_body)
-		var data = MenuItemData.new(str(action.get_name()) + "..")
+		var data = MenuItemData.new("%s.." % action.get_name())
 		if not outcome.success:
 			data.disabled = true
 			data.description = outcome.error_message
@@ -84,22 +84,20 @@ func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 
 func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
-	menu.title = (
-		machine.character.character_name
-		+ &"的回合>"
-		+ from_body.part_name()
-		+ &">"
-		+ action.get_name()
-	)
+	menu.title = "%s的回合>%s>%s" % [
+		machine.character.character_name,
+		from_body.part_name(),
+		action.get_name(),
+	]
 	var options: Array[MenuItemData]
 	var characters: Array[Character]
 	for chr in machine.combat.characters:
 		if not action.static_valid_to_character(chr).success:
 			continue
-		var data = MenuItemData.new(str(chr.character_name) + "..")
+		var data = MenuItemData.new("%s.." % chr.character_name)
 		var outcome = action.dynamic_valid_to_character(chr)
 		if outcome.success:
-			data.description = &"选择" + chr.character_name + &"为目标"
+			data.description = "选择%s为目标" % chr.character_name
 		options.append(data)
 		characters.append(chr)
 	options.append(MenuItemData.new(&"返回", false, &"返回上一级"))
@@ -123,15 +121,12 @@ func player_turn_choose_target_body(
 	to_character: Character,
 ) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
-	menu.title = (
-		machine.character.character_name
-		+ &"的回合>"
-		+ from_body.part_name()
-		+ &">"
-		+ action.get_name()
-		+ &">"
-		+ to_character.character_name
-	)
+	menu.title = "%s的回合>%s>%s>%s" % [
+		machine.character.character_name,
+		from_body.part_name(),
+		action.get_name(),
+		to_character.character_name,
+	]
 	var options: Array[MenuItemData]
 	var body_list: Array[BodyPart]
 	for to_body in to_character.all_body_parts:
@@ -141,7 +136,7 @@ func player_turn_choose_target_body(
 		var dynamic_outcome = action.dynamic_valid_to_body(to_body)
 		if dynamic_outcome.success:
 			data.disabled = false
-			data.description = &"选择" + str(to_body.part_name()) + &"为目标\n" + action.preview(from_body, to_body)
+			data.description = "选择%s为目标\n%s" % [to_body.part_name(), action.preview(from_body, to_body)]
 		else:
 			data.disabled = true
 			data.description = dynamic_outcome.error_message

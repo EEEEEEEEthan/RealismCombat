@@ -22,12 +22,12 @@ func reduced_by(protection: Protection) -> Damage:
 
 func _to_string() -> String:
 	if not _string:
+		var parts: PackedStringArray = []
 		if slash > 0:
-			_string += str(slash) + &"劈"
+			parts.append("%d劈" % slash)
 		if pierce > 0:
-			_string += str(pierce) + &"穿"
+			parts.append("%d穿" % pierce)
 		if blunt > 0:
-			_string += str(blunt) + &"钝"
-		if not _string:
-			_string = "0"
+			parts.append("%d钝" % blunt)
+		_string = "".join(parts) if parts.size() else "0"
 	return _string

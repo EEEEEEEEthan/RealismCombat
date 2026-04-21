@@ -11,7 +11,7 @@ func get_dodge_chance(_from_body: BodyPart, _to_body: BodyPart) -> float:
 
 func preview(from_body: BodyPart, to_body: BodyPart) -> String:
 	var dodge_chance = get_dodge_chance(from_body, to_body)
-	return &"闪避成功率" + str(int(dodge_chance * 100)) + &"%"
+	return "闪避成功率%d%%" % int(dodge_chance * 100)
 
 func execute(from_body: BodyPart, to_body: BodyPart) -> GenericDialogue:
 	var dialogue = await super.execute(from_body, to_body)
@@ -34,7 +34,7 @@ func static_valid_to_character(to_character: Character) -> Outcome:
 	return Outcome.from_success()
 
 func get_description() -> String:
-	return super.get_description() + &"\n伤害:" + str(get_damage())
+	return "%s\n伤害:%s" % [super.get_description(), get_damage()]
 
 func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -> void:
 	Engine.time_scale = 0
@@ -52,7 +52,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		AudioManager.play_hit()
 		defender_renderer.animate_generic_hit()
 		if show_dialogue:
-			dialogue.text += &"\n造成伤害:" + str(get_damage())
+			dialogue.text += "\n造成伤害:%s" % get_damage()
 			await dialogue.pressed
 
 	var dodge = func() -> void:
@@ -63,12 +63,15 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		if randf() < get_dodge_chance(from_body, to_body):
 			Engine.time_scale = 1
 			defender_renderer.animate_generic_dodge()
-			dialogue.text += &"\n" + to_body.character.character_name + &"轻巧地闪开了"
+			dialogue.text += "\n%s轻巧地闪开了" % to_body.character.character_name
 			AudioManager.play_dodge()
 			await dialogue.pressed
 		else:
 			await deliver_damage.call(false)
-			dialogue.text += &"\n" + to_body.character.character_name + &"尝试闪避但是失败了.造成伤害:" + str(get_damage())
+			dialogue.text += "\n%s尝试闪避但是失败了.造成伤害:%s" % [
+				to_body.character.character_name,
+				get_damage(),
+			]
 			await dialogue.pressed
 
 	if combat.characters[to_body.character] == 0:  # player
@@ -84,16 +87,11 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			busy_name = &"动作"
 		var dodge_insufficient_action_points := defender_sm.action_points.value < dodge_cost
 		var dodge_disabled := dodge_busy or dodge_insufficient_action_points
-		var dodge_desc := (
-			&"成功率"
-			+ str(int(dodge_chance * 100))
-			+ &"% 消耗行动力:"
-			+ str(dodge_cost)
-		)
+		var dodge_desc := "成功率%d%% 消耗行动力:%s" % [int(dodge_chance * 100), dodge_cost]
 		if dodge_busy:
-			dodge_desc = &"当前正在" + busy_name + &",不可闪避"
+			dodge_desc = "当前正在%s,不可闪避" % busy_name
 		elif dodge_insufficient_action_points:
-			dodge_desc = &"行动力不足(需要" + str(dodge_cost) + &")"
+			dodge_desc = "行动力不足(需要%s)" % dodge_cost
 		menu.options = [
 			MenuItemData.new(&"闪避", dodge_disabled, dodge_desc),
 			MenuItemData.new(&"硬抗"),

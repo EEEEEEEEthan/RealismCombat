@@ -31,7 +31,7 @@ func get_description() -> String:
 	return &"一种道具"
 
 func _to_string() -> String:
-	return get_title() + get_name()
+	return "%s%s" % [get_title(), get_name()]
 
 func _init() -> void:
 	quality.changed.connect(_on_quality_changed)

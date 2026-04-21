@@ -17,7 +17,7 @@ func _menu_characters() -> void:
 	while true:
 		var options: Array[MenuItemData] = []
 		for player_character in _game.player_side_characters:
-			options.append(MenuItemData.new(str(player_character.character_name) + "..", false, "查看该角色装备"))
+			options.append(MenuItemData.new("%s.." % player_character.character_name, false, "查看该角色装备"))
 		var back_index := options.size()
 		options.append(MenuItemData.new("返回", false, "回到主菜单"))
 		var menu := Dialogues.create_menu_dialogue()
@@ -37,11 +37,11 @@ func _menu_body_parts(character: Character) -> void:
 	while true:
 		var options: Array[MenuItemData] = []
 		for body_part in character.all_body_parts:
-			options.append(MenuItemData.new(str(body_part.part_name()) + "..", false, ""))
+			options.append(MenuItemData.new("%s.." % body_part.part_name(), false, ""))
 		var back_index := options.size()
 		options.append(MenuItemData.new("返回", false, "角色列表"))
 		var menu := Dialogues.create_menu_dialogue()
-		menu.title = "装备>" + character.character_name
+		menu.title = "装备>%s" % character.character_name
 		menu.options = options
 		var choice = await menu.pressed
 		menu.queue_free()
@@ -60,7 +60,7 @@ func _menu_slots_on_body_part(character: Character, body_part: BodyPart) -> void
 		for slot in slots:
 			var line := _slot_line(slot)
 			var desc := slot.item.get_description() if slot.item else "空槽"
-			options.append(MenuItemData.new(line + "..", false, desc))
+			options.append(MenuItemData.new("%s.." % line, false, desc))
 		var back_index := options.size()
 		options.append(MenuItemData.new("返回", false, "部位列表"))
 		var menu := Dialogues.create_menu_dialogue()
@@ -84,7 +84,7 @@ func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlo
 		for slot in slots:
 			var line := _slot_line(slot)
 			var desc := slot.item.get_description() if slot.item else "空槽"
-			options.append(MenuItemData.new(line + "..", false, desc))
+			options.append(MenuItemData.new("%s.." % line, false, desc))
 		var unequip_index := options.size()
 		options.append(MenuItemData.new("卸下", false, "将该物品放回背包"))
 		var back_index := options.size()
@@ -115,7 +115,7 @@ func _menu_pick_from_inventory(slot: ItemSlot, lateral_body_part: BodyPart = nul
 				lateral_body_part != null
 				and not _item_side_matches_body_part(lateral_body_part, candidate)
 			)
-			options.append(MenuItemData.new(str(candidate) + "..", side_mismatch, candidate.get_description()))
+			options.append(MenuItemData.new("%s.." % candidate, side_mismatch, candidate.get_description()))
 		var back_index := options.size()
 		options.append(MenuItemData.new("返回", false, "取消"))
 		var menu := Dialogues.create_menu_dialogue()

@@ -66,12 +66,12 @@ static func _load_audio_stream(path: StringName) -> AudioStream:
 	var stream: AudioStream = ResourceLoader.load(path)
 	if not stream:
 		stream = ResourceLoader.load(&"res://audios/beep.mp3")
-		push_error(path + " missing")
+		push_error("%s missing" % path)
 	return stream
 
 static func _load_texture2d(path: StringName) -> Texture2D:
 	var texture: Texture2D = ResourceLoader.load(path)
 	if not texture:
 		texture = ResourceLoader.load(&"res://theme_atlas.png")
-		push_error(path + " missing")
+		push_error("%s missing" % path)
 	return texture
