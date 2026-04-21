@@ -35,7 +35,7 @@ func get_damage() -> Damage:
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var damage_total := get_damage().sum
-	var weight := damage_total
+	var weight :float = damage_total
 	var combat_ctx := character.game.combat
 	var defender_sm: CharacterStateMachine = combat_ctx.get_battler(to_body.character).state_machine
 	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
