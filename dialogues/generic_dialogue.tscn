@@ -44,6 +44,7 @@ scroll_active = false
 scroll_following = true
 scroll_following_visible_characters = true
 autowrap_mode = 1
+bbcode_enabled = true
 
 [node name="Options" type="HBoxContainer" parent="." unique_id=2071214715]
 unique_name_in_owner = true

@@ -9,15 +9,20 @@ func _init(chr: Character) -> void:
 
 func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	var menu = Dialogues.create_generic_dialogue()
-	menu.text = "%s的%s开始蓄力..." % [from_body.character.character_name, from_body.part_name()]
+	var combat := from_body.character.game.combat
+	menu.text = "%s的%s开始蓄力..." % [
+		combat.bbcode_character_name(from_body.character),
+		from_body.part_name(),
+	]
 	await menu.pressed
 	menu.queue_free()
 
 func get_execution_text(from_body: BodyPart, to_body: BodyPart) -> String:
+	var combat := from_body.character.game.combat
 	return "%s的%s对%s的%s发动%s" % [
-		from_body.character.character_name,
+		combat.bbcode_character_name(from_body.character),
 		from_body.part_name(),
-		to_body.character.character_name,
+		combat.bbcode_character_name(to_body.character),
 		to_body.part_name(),
 		get_name(),
 	]

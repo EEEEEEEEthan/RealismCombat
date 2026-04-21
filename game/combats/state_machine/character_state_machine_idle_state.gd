@@ -26,7 +26,7 @@ func new_tick() -> void:
 
 func player_turn_choose_from_body_part() -> ActionParameter:
 	var dialogue := Dialogues.create_generic_dialogue()
-	dialogue.text = "%s的回合!" % machine.character.character_name
+	dialogue.text = "%s的回合!" % machine.combat.bbcode_character_name(machine.character)
 	await dialogue.pressed
 	dialogue.queue_free()
 	var menu = Dialogues.create_menu_dialogue()
@@ -38,7 +38,7 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 		MenuItemData.new(&"右腿..", false, &"右腿状态"),
 		MenuItemData.new(&"左腿..", false, &"左腿状态"),
 	]
-	menu.title = "%s的回合" % machine.character.character_name
+	menu.title = "%s的回合" % machine.combat.bbcode_character_name(machine.character)
 	menu.options = options
 	while true:
 		var choice = await menu.pressed
@@ -51,7 +51,10 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 
 func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
-	menu.title = "%s的回合>%s" % [machine.character.character_name, from_body.part_name()]
+	menu.title = "%s的回合>%s" % [
+		machine.combat.bbcode_character_name(machine.character),
+		from_body.part_name(),
+	]
 	var options: Array[MenuItemData]
 	var action_list: Array[Action]
 	for action in machine.character.actions:
@@ -85,7 +88,7 @@ func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "%s的回合>%s>%s" % [
-		machine.character.character_name,
+		machine.combat.bbcode_character_name(machine.character),
 		from_body.part_name(),
 		action.get_name(),
 	]
@@ -97,7 +100,7 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionPar
 		var data = MenuItemData.new("%s.." % chr.character_name)
 		var outcome = action.dynamic_valid_to_character(chr)
 		if outcome.success:
-			data.description = "选择%s为目标" % chr.character_name
+			data.description = "选择%s为目标" % machine.combat.bbcode_character_name(chr)
 		options.append(data)
 		characters.append(chr)
 	options.append(MenuItemData.new(&"返回", false, &"返回上一级"))
@@ -122,10 +125,10 @@ func player_turn_choose_target_body(
 ) -> ActionParameter:
 	var menu = Dialogues.create_menu_dialogue()
 	menu.title = "%s的回合>%s>%s>%s" % [
-		machine.character.character_name,
+		machine.combat.bbcode_character_name(machine.character),
 		from_body.part_name(),
 		action.get_name(),
-		to_character.character_name,
+		machine.combat.bbcode_character_name(to_character),
 	]
 	var options: Array[MenuItemData]
 	var body_list: Array[BodyPart]

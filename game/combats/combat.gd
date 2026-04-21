@@ -73,6 +73,16 @@ func run() -> void:
 func is_player_character(character: Character) -> bool:
 	return characters[character] == PLAYER_SIDE
 
+## 战斗播报里角色名着色（最浅色档）；配色须与 CharacterRenderer 阵营一致。
+func bbcode_character_name(chr: Character) -> String:
+	var family := (
+		Defs.ColorFamily.OCEAN_BLUE
+		if is_player_character(chr)
+		else Defs.ColorFamily.FORGE_EMBER
+	)
+	var light_color := Defs.get_family_color(family, Defs.ColorShade.LIGHT)
+	return "[color=#%s]%s[/color]" % [light_color.to_html(false), chr.character_name]
+
 func get_character_renderer(character: Character) -> CharacterRenderer:
 	return character_renderers[character]
 

@@ -63,13 +63,13 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		if randf() < get_dodge_chance(from_body, to_body):
 			Engine.time_scale = 1
 			defender_renderer.animate_generic_dodge()
-			dialogue.text += "\n%s轻巧地闪开了" % to_body.character.character_name
+			dialogue.text += "\n%s轻巧地闪开了" % combat.bbcode_character_name(to_body.character)
 			AudioManager.play_dodge()
 			await dialogue.pressed
 		else:
 			await deliver_damage.call(false)
 			dialogue.text += "\n%s尝试闪避但是失败了.造成伤害:%s" % [
-				to_body.character.character_name,
+				combat.bbcode_character_name(to_body.character),
 				get_damage(),
 			]
 			await dialogue.pressed
