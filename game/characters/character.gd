@@ -1,5 +1,7 @@
 extends RefCounted
 class_name Character
+# 角色数据模型：身体部位、HP、动作列表、存活与速度等聚合。
+# 不与战斗耦合
 
 var game: Game
 var character_name: String
