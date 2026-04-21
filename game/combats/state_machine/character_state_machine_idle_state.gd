@@ -58,13 +58,13 @@ func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 		if not action.static_valid_from_body(from_body).success:
 			continue
 		var outcome = action.static_valid_to_body(from_body)
-		var data = MenuItemData.new(str(action.action_name) + "..")
+		var data = MenuItemData.new(str(action.get_name()) + "..")
 		if not outcome.success:
 			data.disabled = true
 			data.description = outcome.error_message
 		else:
 			data.disabled = false
-			data.description = action.description
+			data.description = action.get_description()
 		options.append(data)
 		action_list.append(action)
 	options.append(MenuItemData.new(&"返回", false, &"返回上一级"))
@@ -89,7 +89,7 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionPar
 		+ &"的回合>"
 		+ from_body.part_name()
 		+ &">"
-		+ action.action_name
+		+ action.get_name()
 	)
 	var options: Array[MenuItemData]
 	var characters: Array[Character]
@@ -128,7 +128,7 @@ func player_turn_choose_target_body(
 		+ &"的回合>"
 		+ from_body.part_name()
 		+ &">"
-		+ action.action_name
+		+ action.get_name()
 		+ &">"
 		+ to_character.character_name
 	)

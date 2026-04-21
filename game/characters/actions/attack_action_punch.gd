@@ -53,14 +53,14 @@ func get_dodge_chance(_from_body: BodyPart, to_body: BodyPart) -> float:
 func get_damage() -> Damage:
 	return _damage
 
-func _get_name() -> StringName:
+func get_name() -> StringName:
 	return &"直拳"
 
-func _get_description() -> String:
-	return &"一种几乎本能的徒手攻击\n" + super._get_description()
+func get_description() -> String:
+	return &"一种几乎本能的徒手攻击\n" + super.get_description()
 
-func _get_windup_action_points() -> int:
+func get_windup_action_points() -> int:
 	return 2
 
-func _get_recovery_action_points() -> int:
+func get_recovery_action_points() -> int:
 	return 3

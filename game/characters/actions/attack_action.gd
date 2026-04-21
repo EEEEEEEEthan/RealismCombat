@@ -33,8 +33,8 @@ func static_valid_to_character(to_character: Character) -> Outcome:
 		return Outcome.from_failure()
 	return Outcome.from_success()
 
-func _get_description() -> String:
-	return super._get_description() + &"\n伤害:" + str(get_damage())
+func get_description() -> String:
+	return super.get_description() + &"\n伤害:" + str(get_damage())
 
 func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -> void:
 	Engine.time_scale = 0

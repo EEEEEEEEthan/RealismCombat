@@ -7,22 +7,6 @@ var character: Character
 func _init(chr: Character) -> void:
 	character = chr
 
-var action_name: StringName:
-	get:
-		return _get_name()
-
-var description: String:
-	get:
-		return _get_description()
-
-var windup_action_points: int:
-	get:
-		return _get_windup_action_points()
-
-var recovery_action_points: int:
-	get:
-		return _get_recovery_action_points()
-
 func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	var menu = Dialogues.create_generic_dialogue()
 	menu.text = from_body.character.character_name + "的" + from_body.part_name() + "开始蓄力..."
@@ -30,7 +14,7 @@ func prepare(from_body: BodyPart, _to_body: BodyPart) -> void:
 	menu.queue_free()
 
 func get_execution_text(from_body: BodyPart, to_body: BodyPart) -> String:
-	return from_body.character.character_name + "的" + from_body.part_name() + "对" + to_body.character.character_name + "的" + to_body.part_name() + "发动" + action_name
+	return from_body.character.character_name + "的" + from_body.part_name() + "对" + to_body.character.character_name + "的" + to_body.part_name() + "发动" + get_name()
 
 func execute(from_body: BodyPart, to_body: BodyPart) -> GenericDialogue:
 	var dialogue = Dialogues.create_generic_dialogue()
@@ -73,14 +57,14 @@ func get_weight(_from_body: BodyPart, _to_body: BodyPart) -> float:
 	push_error("抽象基类禁止")
 	return 1
 
-func _get_description() -> String:
-	return &"前后摇:" + str(windup_action_points) + &"/" + str(recovery_action_points)
+func get_description() -> String:
+	return &"前后摇:" + str(get_windup_action_points()) + &"/" + str(get_recovery_action_points())
 
-func _get_name() -> StringName:
+func get_name() -> StringName:
 	return &"unknown"
 
-func _get_windup_action_points() -> int:
+func get_windup_action_points() -> int:
 	return 0
 
-func _get_recovery_action_points() -> int:
+func get_recovery_action_points() -> int:
 	return 0

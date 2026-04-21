@@ -11,7 +11,7 @@ var action_name: StringName:
 	get:
 		if _action == null:
 			return &""
-		return _action.action_name
+		return _action.get_name()
 
 func _init(
 	p_machine: CharacterStateMachine,
@@ -23,7 +23,7 @@ func _init(
 	_action = action
 	_from_body = from_body
 	_to_body = to_body
-	_windup = action.windup_action_points
+	_windup = action.get_windup_action_points()
 
 func new_tick() -> void:
 	_windup -= machine.action_points_per_tick
@@ -42,7 +42,7 @@ func new_tick() -> void:
 			character_renderer.expanded = false
 			character_renderer.centered = false
 		machine.set_idle()
-		machine.action_points.value -= _action.recovery_action_points
+		machine.action_points.value -= _action.get_recovery_action_points()
 		_action = null
 		_from_body = null
 		_to_body = null
