@@ -5,35 +5,26 @@ class_name GenericDialogue
 signal pressed(index: int)
 
 
-var _active: bool = true
-var _text: String = ""
-var _options: Array = []
 var _presentation_token: int = 0
 var _last_selected_index: int = -1
 
-var active: bool:
-	get:
-		return _active
+var active: bool = true:
 	set(value):
-		if _active == value:
+		if active == value:
 			return
-		_active = value
+		active = value
 		if is_node_ready():
 			_refresh_active()
 
-var text: String:
-	get:
-		return _text
+var text: String = "":
 	set(value):
-		_text = value
+		text = value
 		if is_node_ready():
 			_refresh_text()
 
-var options: Array:
-	get:
-		return _options
+var options: Array = []:
 	set(value):
-		_options = value
+		options = value
 		if is_node_ready():
 			_refresh_options()
 
@@ -83,9 +74,6 @@ func _run_presentation(presentation_token: int) -> void:
 	if active and visible:
 		_restore_focus.call_deferred()
 
-func _on_option_button_pressed(option_index: int) -> void:
-	pressed.emit(option_index)
-
 func _play_typewriter(presentation_token: int) -> void:
 	var visible_character_count: int = rich_text_label.get_total_character_count()
 	if visible_character_count <= 0:
@@ -104,12 +92,13 @@ func _rebuild_option_buttons() -> void:
 			continue
 		child_node.free()
 	for option_index in range(options.size()):
+		var idx := option_index
 		var option_button := RetroButton.new()
 		var option: MenuItemData = options[option_index]
 		option_button.text = option.text
 		option_button.disabled = option.disabled
-		option_button.focus_entered.connect(_on_option_focus_entered.bind(option_index))
-		option_button.pressed.connect(_on_option_button_pressed.bind(option_index))
+		option_button.focus_entered.connect(func(): _last_selected_index = idx)
+		option_button.pressed.connect(func(): pressed.emit(idx))
 		options_container.add_child(option_button)
 
 func _restart_presentation() -> void:
@@ -146,19 +135,18 @@ func _restore_focus() -> void:
 		if continue_button.visible:
 			continue_button.grab_focus()
 		return
-	var option_index := _get_preferred_option_index()
+	var option_index := -1
+	if _can_focus_option(_last_selected_index):
+		option_index = _last_selected_index
+	else:
+		for i in range(options.size()):
+			if _can_focus_option(i):
+				option_index = i
+				break
 	if option_index < 0:
 		return
 	_last_selected_index = option_index
 	_get_option_button(option_index).grab_focus()
-
-func _get_preferred_option_index() -> int:
-	if _can_focus_option(_last_selected_index):
-		return _last_selected_index
-	for option_index in range(options.size()):
-		if _can_focus_option(option_index):
-			return option_index
-	return -1
 
 func _can_focus_option(option_index: int) -> bool:
 	if option_index < 0 or option_index >= options.size():
@@ -169,6 +157,3 @@ func _can_focus_option(option_index: int) -> bool:
 
 func _get_option_button(option_index: int) -> RetroButton:
 	return options_container.get_child(option_index + 1) as RetroButton
-
-func _on_option_focus_entered(option_index: int) -> void:
-	_last_selected_index = option_index

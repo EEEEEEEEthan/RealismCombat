@@ -5,33 +5,23 @@ class_name MenuDialogue
 signal pressed(index: int)
 
 
-var _active: bool = true
-var _title: String = ""
-var _options: Array[MenuItemData] = []
-
-var active: bool:
-	get:
-		return _active
+var active: bool = true:
 	set(value):
-		if _active == value:
+		if active == value:
 			return
-		_active = value
+		active = value
 		if is_node_ready():
 			_refresh_active()
 
-var title: String:
-	get:
-		return _title
+var title: String = "":
 	set(value):
-		_title = value
+		title = value
 		if is_node_ready():
 			_refresh_title()
 
-var options: Array[MenuItemData]:
-	get:
-		return _options
+var options: Array[MenuItemData] = []:
 	set(value):
-		_options = value
+		options = value
 		_refresh_options()
 
 @onready var rich_text_label: RichTextLabel = %RichTextLabel
