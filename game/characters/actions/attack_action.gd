@@ -6,12 +6,6 @@ class_name AttackAction
 ## 与闪避消耗等独立结算，结果会经 maxf 夹到 0，不会扣成负数。
 const HEAVY_HIT_AP_LOSS := 4.0
 
-## 重击「按伤害触发」判定中的除数：判定式为 randf() < 伤害总和 / 本常数。
-## 例如除数为 3 时，伤害 3 对应 100% 追加重击判定通过；伤害 1 对应约 33.3% 概率。
-## 与「受击后该部位 HP < 3」的判定为或关系，满足其一即重击。
-const HEAVY_PROC_DAMAGE_DIVISOR := 3.0
-
-var block_cost: float = 2
 var dodge_cost: float = 4
 
 var windup_ticks: float:
@@ -44,11 +38,10 @@ func get_damage() -> Damage:
 
 func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
 	var damage_total := get_damage().sum
-	var weight :float = damage_total
+	var weight: float = damage_total
 	var combat_ctx := character.game.combat
 	var defender_sm: CharacterStateMachine = combat_ctx.get_battler(to_body.character).state_machine
-	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
-	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
+	var cannot_dodge := _defender_cannot_dodge(defender_sm)
 	if not cannot_dodge:
 		var dodge_chance := get_dodge_chance(from_body, to_body)
 		weight *= pow(1.0 - dodge_chance, 2.0)
@@ -68,6 +61,12 @@ func static_valid_to_character(to_battler: Battler) -> Outcome:
 func get_description() -> String:
 	return "%s\n伤害:%s" % [super.get_description(), get_damage()]
 
+func _defender_cannot_dodge(defender_sm: CharacterStateMachine) -> bool:
+	return (
+		defender_sm.current_state is CharacterStateMachineActionState
+		and windup_ticks > float(defender_sm.remaining_windup_ticks)
+	)
+
 func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -> void:
 	Engine.time_scale = 0
 	var combat := to_body.character.game.combat
@@ -76,10 +75,10 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 	var defender_renderer := combat.get_character_renderer(defender_battler)
 	var defender_sm: CharacterStateMachine = defender_battler.state_machine
 	var defender_in_action := defender_sm.current_state is CharacterStateMachineActionState
-	var cannot_dodge := defender_in_action and windup_ticks > float(defender_sm.remaining_windup_ticks)
+	var cannot_dodge := _defender_cannot_dodge(defender_sm)
 
 	var deliver_damage = func() -> void:
-		await combat.get_tree().create_timer(0.3, true, false, true).timeout  # 根据伤害要有一个顿帧
+		await combat.get_tree().create_timer(0.3, true, false, true).timeout
 		Engine.time_scale = 1
 		var damage_total := get_damage().sum
 		var heavy_suffix := ""
@@ -90,7 +89,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			interrupted_label = String(interrupted_name)
 		to_body.hp.value -= damage_total
 		AudioManager.play_hit()
-		if to_body.hp.value < 3 or randf() < float(damage_total) / HEAVY_PROC_DAMAGE_DIVISOR:
+		if to_body.hp.value < 3 or randf() < float(damage_total) / 3.0:
 			if was_in_action:
 				defender_sm.set_idle()
 			defender_sm.action_points.value = maxf(
@@ -124,7 +123,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			0.0,
 			defender_sm.action_points.value - dodge_cost,
 		)
-		if randf() < get_dodge_chance(from_body, to_body):
+		if randf() < dodge_chance:
 			Engine.time_scale = 1
 			defender_renderer.animate_generic_dodge()
 			dialogue.text += "\n%s轻巧地闪开了" % combat.bbcode_character_name(defender_battler)
@@ -135,7 +134,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			dialogue.text += "\n%s尝试闪避但是失败了" % defender_bbcode_dodge
 			await deliver_damage.call()
 
-	if combat.characters[defender_battler] == 0:  # player
+	if combat.characters[defender_battler] == 0:
 		var execution_text = get_execution_text(from_body, to_body)
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
@@ -163,7 +162,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			await dodge.call()
 		else:
 			await deliver_damage.call()
-	else:  # ai
+	else:
 		if cannot_dodge or defender_battler.state_machine.action_points.value < dodge_cost:
 			await deliver_damage.call()
 		else:
