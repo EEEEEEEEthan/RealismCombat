@@ -43,6 +43,7 @@ func _init(p_game: Game, p_name: String) -> void:
 	left_foot = Foot.new(self, 7, 7, Defs.Side.LEFT)
 	all_body_parts = [ head, body, right_hand, left_hand, right_foot, left_foot, ]
 	add_action(AttackActionPunch.new(self))
+	add_action(AttackActionKick.new(self))
 
 func add_action(action: Action) -> void:
 	_actions.append(action)

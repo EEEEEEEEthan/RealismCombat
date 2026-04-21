@@ -25,6 +25,15 @@ func get_damage() -> Damage:
 	push_error(&"override me")
 	return Damage.new(0, 0, 0)
 
+func get_weight(from_body: BodyPart, to_body: BodyPart) -> float:
+	var dmg = get_damage().sum
+	var weight = pow(1 - get_dodge_chance(from_body, to_body) * dmg, 2)
+	var bonus = 1
+	# 如果这一击能把部位打烂，权重应该翻倍
+	if dmg >= to_body.hp.value:
+		bonus += 1
+	return weight * bonus
+
 func static_valid_to_character(to_character: Character) -> Outcome:
 	var combat := character.game.combat
 	if combat.is_player_character(character) == combat.is_player_character(to_character):

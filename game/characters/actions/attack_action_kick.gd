@@ -1,13 +1,13 @@
 extends AttackAction
-class_name AttackActionPunch
+class_name AttackActionKick
 
-var _damage: Damage = Damage.new(0, 0, 1)
+var _damage: Damage = Damage.new(0, 0, 2)
 
 func _init(chr: Character) -> void:
 	super(chr)
 
 func static_valid_from_body(from_body: BodyPart) -> Outcome:
-	if not (from_body is Hand):
+	if not (from_body is Foot):
 		return Outcome.from_failure()
 	return Outcome.from_success()
 
@@ -46,10 +46,10 @@ func get_damage() -> Damage:
 	return _damage
 
 func get_name() -> StringName:
-	return &"直拳"
+	return &"踢"
 
 func get_description() -> String:
-	return "一种几乎本能的徒手攻击\n%s" % super.get_description()
+	return "用脚踢击\n%s" % super.get_description()
 
 func get_windup_action_points() -> int:
 	return 2
