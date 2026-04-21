@@ -72,12 +72,18 @@ func _menu_slots_on_body_part(character: Character, body_part: BodyPart) -> void
 			return
 		var picked_slot: ItemSlot = slots[choice]
 		if picked_slot.item:
-			await _menu_host_item(character, picked_slot.item, picked_slot)
+			await _menu_host_item(character, picked_slot.item, picked_slot, body_part)
 		else:
 			await _menu_pick_from_inventory(picked_slot, body_part)
 
 
-func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlot) -> void:
+func _menu_host_item(
+	character: Character,
+	host_item: Item,
+	parent_slot: ItemSlot,
+	body_part: BodyPart,
+	ancestor_item_labels: Array[String] = [],
+) -> void:
 	var slots := host_item.get_item_slots()
 	while true:
 		var options: Array[MenuItemData] = []
@@ -90,7 +96,7 @@ func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlo
 		var back_index := options.size()
 		options.append(MenuItemData.new("返回", false, "上一级"))
 		var menu := Dialogues.create_menu_dialogue()
-		menu.title = "装备>%s>%s" % [character.character_name, str(host_item)]
+		menu.title = _equipment_host_breadcrumb(character, body_part, ancestor_item_labels, str(host_item))
 		menu.options = options
 		var choice = await menu.pressed
 		menu.queue_free()
@@ -101,7 +107,9 @@ func _menu_host_item(character: Character, host_item: Item, parent_slot: ItemSlo
 			return
 		var child_slot: ItemSlot = slots[choice]
 		if child_slot.item:
-			await _menu_host_item(character, child_slot.item, child_slot)
+			var deeper: Array[String] = ancestor_item_labels.duplicate()
+			deeper.append(str(host_item))
+			await _menu_host_item(character, child_slot.item, child_slot, body_part, deeper)
 		else:
 			await _menu_pick_from_inventory(child_slot)
 
@@ -137,6 +145,18 @@ func _item_side_matches_body_part(body_part: BodyPart, item: Item) -> bool:
 	if body_part is Hand and item is Glove:
 		return (body_part as Hand).side == (item as Glove).side
 	return true
+
+
+func _equipment_host_breadcrumb(
+	character: Character,
+	body_part: BodyPart,
+	ancestor_item_labels: Array[String],
+	current_item_label: String,
+) -> String:
+	var parts: Array[String] = ["装备", character.character_name, body_part.part_name()]
+	parts.append_array(ancestor_item_labels)
+	parts.append(current_item_label)
+	return ">".join(PackedStringArray(parts))
 
 
 func _slot_line(slot: ItemSlot) -> String:
