@@ -53,12 +53,7 @@ func _refresh_options() -> void:
 		var option: MenuItemData = options[option_index]
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.text = option.text
-		button.disabled = false
-		button.modulate = (
-			Defs.get_menu_option_disabled_modulate()
-			if option.disabled
-			else Color.WHITE
-		)
+		button.disabled = option.disabled
 	_refresh_button_states()
 	_refresh_description()
 
