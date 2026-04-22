@@ -5,6 +5,7 @@
 [ext_resource type="AudioStream" uid="uid://bwip0qcjd7ofg" path="res://audios/victory.ogg" id="2_wwcti"]
 [ext_resource type="AudioStream" uid="uid://bofoc3l6ngg6n" path="res://audios/hit.wav" id="4_881yp"]
 [ext_resource type="AudioStream" uid="uid://b80hossn33abq" path="res://audios/dodge.wav" id="5_3c87q"]
+[ext_resource type="AudioStream" uid="uid://bjtb8ik4lkn5a" path="res://audios/start.wav" id="6_3c87q"]
 
 [sub_resource type="GDScript" id="GDScript_lllps"]
 script/source = "extends Node
@@ -13,6 +14,7 @@ script/source = "extends Node
 @export var audio_stream_victory: AudioStream
 @export var audio_stream_hit: AudioStream
 @export var audio_stream_dodge: AudioStream
+@export var turn_begin: AudioStream
 "
 
 [node name="Combat" type="Control" unique_id=1435013025]
@@ -123,3 +125,4 @@ audio_stream_background_music = ExtResource("2_q05mv")
 audio_stream_victory = ExtResource("2_wwcti")
 audio_stream_hit = ExtResource("4_881yp")
 audio_stream_dodge = ExtResource("5_3c87q")
+turn_begin = ExtResource("6_3c87q")

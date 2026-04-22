@@ -16,6 +16,9 @@ var audio_stream_hit: AudioStream:
 var audio_stream_dodge: AudioStream:
 	get: return %Audios.audio_stream_dodge
 
+var audio_stream_turn_begin: AudioStream:
+	get: return %Audios.turn_begin
+
 func _ready() -> void:
 	%CharacterLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$DialogueArea.visible = false

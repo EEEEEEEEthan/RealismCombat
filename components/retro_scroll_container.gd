@@ -32,19 +32,33 @@ var _hover_scroll_accum_sec: float = 0.0
 
 const _HOVER_SCROLL_INTERVAL_SEC := 0.5
 
+static var _theme_up_texture: Texture2D:
+	get:
+		if not _theme_up_texture:
+			var bytes = Marshalls.base64_to_raw("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAAXNSR0IArs4c6QAAAC1JREFUCJljZECA/wyogBFOwCT//4eoYWRkhCtiRJdEyEAUMWGTRDENi90oAAArCQ//DXtKaQAAAABJRU5ErkJggg==")
+			var image = Image.new()
+			var error = image.load_png_from_buffer(bytes)
+			var tex = ImageTexture.new()
+			if error == OK:
+				tex.set_image(image)
+			else:
+				push_error(error)
+			_theme_up_texture = tex
+		return _theme_up_texture
+
 func _init() -> void:
 	child_entered_tree.connect(_on_child_entered_tree)
 	child_exiting_tree.connect(_on_child_exiting_tree)
 
 func _ready() -> void:
 	_up = TextureRect.new()
-	_up.texture = Resources.atlas_texture_theme_up
+	_up.texture = _theme_up_texture
 	_up.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_up.mouse_entered.connect(_on_hover_up_entered)
 	_up.mouse_exited.connect(_on_hover_up_exited)
 	_down = TextureRect.new()
 	_down.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	_down.texture = Resources.atlas_texture_theme_up
+	_down.texture = _theme_up_texture
 	_down.flip_v = true
 	_down.mouse_entered.connect(_on_hover_down_entered)
 	_down.mouse_exited.connect(_on_hover_down_exited)

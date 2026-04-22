@@ -13,7 +13,7 @@ func new_tick() -> void:
 		action_points.max_value,
 	)
 	if action_points.value >= action_points.max_value:
-		AudioManager.play_turn_begin()
+		AudioManager.play_sound_effect(machine.combat.audio_stream_turn_begin)
 		var character_renderer := machine.character_renderer
 		character_renderer.centered = true
 		character_renderer.expanded = true
