@@ -35,7 +35,9 @@ func load_game(p_path) -> void:
 		)
 	file_access.close()
 
-func save_game() -> void:
+func _save_game() -> void:
+	var dialogue = Dialogues.create_generic_dialogue()
+	dialogue.text = "游戏已保存"
 	var written: SaveSnapshot = snapshot
 	var file_access: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file_access == null:
@@ -44,6 +46,8 @@ func save_game() -> void:
 	file_access.store_8(len(player_side_characters))
 	for character in player_side_characters:
 		character.serialize(file_access)
+	await dialogue.pressed
+	dialogue.queue_free()
 
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)
@@ -64,22 +68,24 @@ func _ready() -> void:
 		var main_menu_choice: int = await menu.pressed
 		menu.visible = false
 		match main_menu_choice:
-			0:
-				combat = %Combat.create_instance()
-				for player_character in player_side_characters:
-					combat.add_character(player_character, Combat.PLAYER_SIDE)
-				var dove: Character = Character.create_default(self, "Dove")
-				combat.add_character(dove, Combat.ENEMY_SIDE)
-				await combat.run()
-				AudioManager.play_background_music(%Audios.menu_music)
-				combat = null
+			0: await _run_test_combat()
 			1: await _run_equipment_menu()
 			2: await _run_inventory_menu()
-			3: save_game()
+			3: await _save_game()
 			6:
 				menu.queue_free()
 				queue_free()
 				return
+
+func _run_test_combat() -> void:
+	combat = %Combat.create_instance()
+	for player_character in player_side_characters:
+		combat.add_character(player_character, Combat.PLAYER_SIDE)
+	var dove: Character = Character.create_default(self, "Dove")
+	combat.add_character(dove, Combat.ENEMY_SIDE)
+	await combat.run()
+	AudioManager.play_background_music(%Audios.menu_music)
+	combat = null
 
 func _run_equipment_menu() -> void:
 	var flow := EquipmentMenuFlow.new()
