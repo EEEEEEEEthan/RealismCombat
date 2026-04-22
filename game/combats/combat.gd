@@ -66,12 +66,40 @@ func add_character(character: Character, side: int) -> void:
 
 func run() -> void:
 	while true:
+		if await _try_finish_battle():
+			return
 		for battler: Battler in characters.keys():
 			if not battler.alive:
 				continue
 			await battler.state_machine.new_tick()
 		%Timer.start(0.1)
 		await %Timer.timeout
+
+
+## 若任一阵营全灭则弹出结算对话并结束本战斗节点（由 Game 再开新实例）。
+func _try_finish_battle() -> bool:
+	if _side_has_alive_battler(player_characters):
+		if _side_has_alive_battler(enemy_characters):
+			return false
+		await _show_battle_result_dialogue(true)
+	else:
+		await _show_battle_result_dialogue(false)
+	queue_free()
+	return true
+
+
+func _side_has_alive_battler(side_list: Array[Battler]) -> bool:
+	for b: Battler in side_list:
+		if b.alive:
+			return true
+	return false
+
+
+func _show_battle_result_dialogue(player_victory: bool) -> void:
+	var dialogue := Dialogues.create_generic_dialogue()
+	dialogue.text = "战斗胜利！" if player_victory else "战斗失败…"
+	await dialogue.pressed
+	dialogue.queue_free()
 
 func is_player_character(battler: Battler) -> bool:
 	return characters[battler] == PLAYER_SIDE

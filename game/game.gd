@@ -15,7 +15,6 @@ func _ready() -> void:
 	character_rowan = Character.create_default(self, "Rowan")
 	player_side_characters = [character_ethan, character_rowan]
 	inventory = Inventory.new()
-	var main_menu_choice := -1
 	while true:
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = "Realism Combat"
@@ -28,7 +27,7 @@ func _ready() -> void:
 			MenuItemData.new(),
 			MenuItemData.new("返回菜单", false, "离开"),
 		] as Array[MenuItemData]
-		main_menu_choice = await menu.pressed
+		var main_menu_choice: int = await menu.pressed
 		menu.queue_free()
 		if main_menu_choice == 6:
 			queue_free()
@@ -40,13 +39,14 @@ func _ready() -> void:
 			await _run_equipment_menu()
 			continue
 		if main_menu_choice == 0:
-			break
-	combat = %Combat.create_instance()
-	for player_character in player_side_characters:
-		combat.add_character(player_character, Combat.PLAYER_SIDE)
-	var dove: Character = Character.new(self, "Dove")
-	combat.add_character(dove, 1)
-	combat.run()
+			combat = %Combat.create_instance()
+			for player_character in player_side_characters:
+				combat.add_character(player_character, Combat.PLAYER_SIDE)
+			var dove: Character = Character.new(self, "Dove")
+			combat.add_character(dove, Combat.ENEMY_SIDE)
+			await combat.run()
+			combat = null
+			continue
 
 
 func _run_equipment_menu() -> void:
