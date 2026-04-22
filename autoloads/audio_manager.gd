@@ -7,12 +7,6 @@ var _bgm_player: AudioStreamPlayer:
 			add_child(_bgm_player)
 		return _bgm_player
 
-func play_button_hover():
-	play_sound_effect(Resources.audio_stream_beep)
-
-func play_button_press():
-	play_sound_effect(Resources.audio_stream_selection)
-
 func play_turn_begin():
 	play_sound_effect(Resources.audio_stream_start)
 

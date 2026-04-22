@@ -48,7 +48,6 @@ func _on_focus_exited() -> void:
 	_update_icon()
 
 func _on_pressed() -> void:
-	AudioManager.play_button_press()
 	_update_icon()
 
 func _on_button_down() -> void:

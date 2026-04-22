@@ -2,6 +2,15 @@
 
 [ext_resource type="Script" uid="uid://dolbksu3b7efb" path="res://components/retro_scroll_container.gd" id="1_w4tth"]
 [ext_resource type="Script" uid="uid://t3ao6s2gx8wk" path="res://dialogues/menu_dialogue.gd" id="1_yjxsp"]
+[ext_resource type="AudioStream" uid="uid://djmqfpbkfcr65" path="res://audios/beep.wav" id="3_teogu"]
+[ext_resource type="AudioStream" uid="uid://bcgvtwn5rt0u1" path="res://audios/selection.wav" id="4_teogu"]
+
+[sub_resource type="GDScript" id="GDScript_pog8u"]
+script/source = "extends Node
+
+@export var audio_stream_hover: AudioStream
+@export var audio_stream_press: AudioStream
+"
 
 [node name="MenuDialogue" type="PanelContainer" unique_id=1569972301]
 anchors_preset = 15
@@ -69,3 +78,9 @@ bbcode_enabled = true
 text = "Title"
 fit_content = true
 autowrap_mode = 0
+
+[node name="Audios" type="Node" parent="." unique_id=1987648441]
+unique_name_in_owner = true
+script = SubResource("GDScript_pog8u")
+audio_stream_hover = ExtResource("3_teogu")
+audio_stream_press = ExtResource("4_teogu")

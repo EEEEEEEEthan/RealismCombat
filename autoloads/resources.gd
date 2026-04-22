@@ -1,16 +1,6 @@
 extends Node
 class_name Resources
 
-static var audio_stream_beep: AudioStream:
-	get:
-		if not audio_stream_beep: audio_stream_beep = _load_audio_stream(&"res://audios/beep.wav")
-		return audio_stream_beep
-
-static var audio_stream_double_beep: AudioStream:
-	get:
-		if not audio_stream_double_beep: audio_stream_double_beep = _load_audio_stream(&"res://audios/double_beep.wav")
-		return audio_stream_double_beep
-
 static var audio_stream_selection: AudioStream:
 	get:
 		if not audio_stream_selection: audio_stream_selection = _load_audio_stream(&"res://audios/selection.wav")

@@ -29,7 +29,7 @@ var options: Array[MenuItemData] = []:
 @onready var title_label: RichTextLabel = %Title
 
 func _ready() -> void:
-	retro_scroll_container.navigation_selection_changed.connect(func(_i): AudioManager.play_button_hover())
+	retro_scroll_container.navigation_selection_changed.connect(func(_i): AudioManager.play_sound_effect(%Audios.audio_stream_hover))
 	_refresh_title()
 	_refresh_options()
 	_refresh_active()
@@ -87,6 +87,7 @@ func _on_focus_button(button: RetroButton) -> void:
 	rich_text_label.text = options[option_index].description
 
 func _on_press_button(button: RetroButton) -> void:
+	AudioManager.play_sound_effect(%Audios.audio_stream_press)
 	var option_index := button.get_index()
 	if option_index < 0 or option_index >= options.size():
 		return
