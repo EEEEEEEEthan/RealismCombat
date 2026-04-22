@@ -2,18 +2,31 @@ extends Node
 class_name Game
 
 var combat: Combat
-var character_ethan: Character
-var character_rowan: Character
 ## 当前玩家方参战角色（顺序即编队顺序）
 var player_side_characters: Array[Character] = []
 var inventory: Inventory
+var path: String
 
+func new_game() -> void:
+	var ethan = Character.create_default(self, "Ethan")
+	var rowan = Character.create_default(self, "Rowan")
+	player_side_characters = [ethan, rowan]
+
+func load_game(p_path) -> void:
+	path = p_path
+	var file_access := FileAccess.open(path, FileAccess.READ)
+	var size = file_access.get_8()
+	for i in size:
+		player_side_characters.append(Character.create_deserialize(self, file_access))
+
+func save_game() -> void:
+	var file_access := FileAccess.open(path, FileAccess.WRITE)
+	file_access.store_8(len(player_side_characters))
+	for character in player_side_characters:
+		character.serialize(file_access)
 
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)
-	character_ethan = Character.create_default(self, "Ethan")
-	character_rowan = Character.create_default(self, "Rowan")
-	player_side_characters = [character_ethan, character_rowan]
 	inventory = Inventory.new()
 	while true:
 		var menu = Dialogues.create_menu_dialogue()
@@ -42,7 +55,7 @@ func _ready() -> void:
 			combat = %Combat.create_instance()
 			for player_character in player_side_characters:
 				combat.add_character(player_character, Combat.PLAYER_SIDE)
-			var dove: Character = Character.new(self, "Dove")
+			var dove: Character = Character.create_default(self, "Dove")
 			combat.add_character(dove, Combat.ENEMY_SIDE)
 			await combat.run()
 			combat = null

@@ -23,9 +23,15 @@ var alive: bool:
 var speed: float:
 	get: return 10
 
+static func create_deserialize(p_game: Game, file_access: FileAccess) -> Character:
+	var c = Character.new(p_game)
+	c._deserialize(file_access)
+	return c
+
 ## 默认装备：罩袍外套、左右皮鞋与皮手套。
 static func create_default(p_game: Game, p_name: String) -> Character:
-	var c := Character.new(p_game, p_name)
+	var c := Character.new(p_game)
+	c.character_name = p_name
 	c.body.torso_slot.item = SurcoatTabard.new()
 	c.right_hand.glove_slot.item = LeatherGlove.new(Defs.Side.RIGHT)
 	c.left_hand.glove_slot.item = LeatherGlove.new(Defs.Side.LEFT)
@@ -33,9 +39,8 @@ static func create_default(p_game: Game, p_name: String) -> Character:
 	c.left_foot.footwear_slot.item = LeatherBoot.new(Defs.Side.LEFT)
 	return c
 
-func _init(p_game: Game, p_name: String) -> void:
+func _init(p_game: Game) -> void:
 	game = p_game
-	character_name = p_name
 	head = Head.new(self, 3, 3)
 	body = Body.new(self, 10, 10)
 	right_hand = Hand.new(self, 6, 6, Defs.Side.RIGHT)
@@ -48,3 +53,9 @@ func _init(p_game: Game, p_name: String) -> void:
 
 func add_action(action: Action) -> void:
 	_actions.append(action)
+
+func serialize(file_access: FileAccess) -> void:
+	file_access.store_pascal_string(character_name)
+
+func _deserialize(file_access: FileAccess) -> void:
+	character_name = file_access.get_pascal_string()
