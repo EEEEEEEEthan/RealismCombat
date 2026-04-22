@@ -37,4 +37,4 @@ static func read_from_file(file_access: FileAccess) -> GameVersion:
 	)
 
 func to_display_string() -> String:
-	return "%d.%d.%d" % [major, minor, patch] + " build %d" % build
+	return "%d.%d.%d.%d" % [major, minor, patch, build]
