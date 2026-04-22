@@ -133,6 +133,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 
 	if combat.characters[defender_battler] == 0:
 		var execution_text = get_execution_text(from_body, to_body)
+		dialogue.visible = false
 		var menu = Dialogues.create_menu_dialogue()
 		menu.title = execution_text
 		var busy_name := (
@@ -155,6 +156,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 		] as Array[MenuItemData]
 		var option = await menu.pressed
 		menu.queue_free()
+		dialogue.visible = true
 		if option == 0:
 			await dodge.call()
 		else:

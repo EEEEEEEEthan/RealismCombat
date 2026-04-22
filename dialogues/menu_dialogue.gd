@@ -5,14 +5,6 @@ class_name MenuDialogue
 signal pressed(index: int)
 
 
-var active: bool = true:
-	set(value):
-		if active == value:
-			return
-		active = value
-		if is_node_ready():
-			_refresh_active()
-
 var title: String = "":
 	set(value):
 		title = value
@@ -32,15 +24,14 @@ func _ready() -> void:
 	retro_scroll_container.navigation_selection_changed.connect(func(_i): AudioManager.play_sound_effect(%Audios.audio_stream_hover))
 	_refresh_title()
 	_refresh_options()
-	_refresh_active()
+	_refresh_interaction()
 
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_VISIBILITY_CHANGED:
 		return
 	if not is_node_ready():
 		return
-	if visible and active:
-		_refresh_active()
+	_refresh_interaction()
 
 func _refresh_title() -> void:
 	title_label.text = title
@@ -71,9 +62,9 @@ func _refresh_options() -> void:
 	_refresh_button_states()
 	_refresh_description()
 
-func _refresh_active() -> void:
+func _refresh_interaction() -> void:
 	_refresh_button_states()
-	if active and visible:
+	if visible:
 		_restore_focus.call_deferred()
 
 func _connect_button(button: RetroButton) -> void:
@@ -99,7 +90,7 @@ func _refresh_button_states() -> void:
 	for option_index in range(options.size()):
 		var button: RetroButton = retro_scroll_container.get_child(option_index)
 		var option: MenuItemData = options[option_index]
-		var can_focus := active and not option.text.is_empty()
+		var can_focus := visible and not option.text.is_empty()
 		button.mouse_filter = Control.MOUSE_FILTER_STOP if can_focus else Control.MOUSE_FILTER_IGNORE
 		button.focus_mode = Control.FOCUS_ALL if can_focus else Control.FOCUS_NONE
 
@@ -111,7 +102,7 @@ func _refresh_description() -> void:
 	rich_text_label.text = options[option_index].description
 
 func _restore_focus() -> void:
-	if not active or not visible:
+	if not visible:
 		return
 	var option_index := _get_preferred_option_index()
 	if option_index < 0:

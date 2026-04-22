@@ -43,7 +43,9 @@ func player_turn_choose_from_body_part() -> ActionParameter:
 	while true:
 		var choice = await menu.pressed
 		var from_body := machine.character.all_body_parts[choice]
+		menu.visible = false
 		var parameter = await player_turn_choose_action(from_body)
+		menu.visible = true
 		if parameter:
 			menu.queue_free()
 			return parameter
@@ -77,7 +79,9 @@ func player_turn_choose_action(from_body: BodyPart) -> ActionParameter:
 		if choice >= len(action_list):
 			break
 		var action = action_list[choice]
+		menu.visible = false
 		var parameter = await player_turn_choose_target(action, from_body)
+		menu.visible = true
 		if parameter:
 			menu.queue_free()
 			return parameter
@@ -110,7 +114,9 @@ func player_turn_choose_target(action: Action, from_body: BodyPart) -> ActionPar
 		if choice >= len(targets):
 			break
 		var target_battler = targets[choice]
+		menu.visible = false
 		var parameter = await player_turn_choose_target_body(action, from_body, target_battler)
+		menu.visible = true
 		if parameter:
 			menu.queue_free()
 			return parameter

@@ -8,14 +8,6 @@ signal pressed(index: int)
 var _tw_gen: int = 0
 var _last_selected_index: int = -1
 
-var active: bool = true:
-	set(value):
-		if active == value:
-			return
-		active = value
-		if is_node_ready():
-			_refresh_active()
-
 var text: String = "":
 	set(value):
 		text = value
@@ -49,7 +41,7 @@ func _ready() -> void:
 	rich_text_label.text = text
 	_apply_preserved_visible(old_total, old_vis)
 	_update_chrome_visibility()
-	_refresh_active()
+	_refresh_interaction()
 	_typewriter_loop.call_deferred()
 
 func clear() -> void:
@@ -62,8 +54,7 @@ func _notification(what: int) -> void:
 		return
 	if not is_node_ready():
 		return
-	if visible and active:
-		_refresh_active()
+	_refresh_interaction()
 
 func _apply_preserved_visible(old_total: int, old_visible: int) -> void:
 	var new_total := rich_text_label.get_total_character_count()
@@ -85,7 +76,7 @@ func _update_chrome_visibility() -> void:
 	for option_index in range(options.size()):
 		_get_option_button(option_index).visible = revealed
 	_refresh_button_states()
-	if revealed and active and visible:
+	if revealed and visible:
 		_restore_focus.call_deferred()
 
 func _fully_revealed() -> bool:
@@ -135,9 +126,9 @@ func _typewriter_loop() -> void:
 				break
 			await get_tree().process_frame
 
-func _refresh_active() -> void:
+func _refresh_interaction() -> void:
 	_refresh_button_states()
-	if active and visible:
+	if visible:
 		_restore_focus.call_deferred()
 
 
@@ -170,7 +161,7 @@ func _rebuild_option_buttons() -> void:
 		options_container.add_child(option_button)
 
 func _refresh_button_states() -> void:
-	var continue_can_focus := active and continue_button.visible
+	var continue_can_focus := visible and continue_button.visible
 	continue_button.mouse_filter = (
 		Control.MOUSE_FILTER_STOP
 		if continue_can_focus
@@ -181,7 +172,7 @@ func _refresh_button_states() -> void:
 		var option_button := _get_option_button(option_index)
 		var option: MenuItemData = options[option_index]
 		var can_focus: bool = (
-			active
+			visible
 			and option_button.visible
 			and not option.text.is_empty()
 		)
@@ -189,7 +180,7 @@ func _refresh_button_states() -> void:
 		option_button.focus_mode = Control.FOCUS_ALL if can_focus else Control.FOCUS_NONE
 
 func _restore_focus() -> void:
-	if not active or not visible:
+	if not visible:
 		return
 	if options.is_empty():
 		if continue_button.visible:

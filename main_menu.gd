@@ -40,7 +40,9 @@ func _run_new_game_slots(program: Program) -> void:
 		if choice == SaveSlots.SLOT_COUNT:
 			return
 		if SaveSlots.file_exists(choice):
+			slot_menu.visible = false
 			if not await _confirm_overwrite(choice):
+				slot_menu.visible = true
 				continue
 		var game := program.begin_new_game(choice)
 		await game.tree_exiting
