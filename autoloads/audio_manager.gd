@@ -10,9 +10,6 @@ var _bgm_player: AudioStreamPlayer:
 func play_turn_begin():
 	play_sound_effect(Resources.audio_stream_start)
 
-func play_menu_bgm():
-	_play_bgm(Resources.audio_stream_menu_music)
-
 func stop_bgm():
 	_bgm_player.stream = null
 

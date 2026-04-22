@@ -2,8 +2,18 @@
 
 [ext_resource type="Script" uid="uid://dapr8ca26q2mv" path="res://game/game.gd" id="1_80nbo"]
 
+[sub_resource type="GDScript" id="GDScript_l1rk1"]
+script/source = "extends Node
+
+@export var menu_music: AudioStream
+"
+
 [node name="Game" type="Node" unique_id=782850094]
 script = ExtResource("1_80nbo")
 
-[node name="Combat" parent="." instance_placeholder="res://game/combats/combat.tscn"]
+[node name="Combat" parent="." unique_id=188726563 instance_placeholder="res://game/combats/combat.tscn"]
 unique_name_in_owner = true
+
+[node name="Audios" type="Node" parent="." unique_id=99080319]
+unique_name_in_owner = true
+script = SubResource("GDScript_l1rk1")

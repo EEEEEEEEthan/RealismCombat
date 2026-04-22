@@ -10,7 +10,7 @@ var inventory: Inventory
 
 
 func _ready() -> void:
-	AudioManager.play_menu_bgm()
+	AudioManager.play_background_music(%Audios.menu_music)
 	character_ethan = Character.create_default(self, "Ethan")
 	character_rowan = Character.create_default(self, "Rowan")
 	player_side_characters = [character_ethan, character_rowan]
