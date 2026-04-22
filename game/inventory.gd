@@ -4,6 +4,14 @@ class_name Inventory
 var items: Array[Item] = []
 
 
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_PREDELETE:
+		return
+	for inventory_item in items.duplicate():
+		inventory_item.release_signal_bindings()
+	items.clear()
+
+
 func add_item(item: Item) -> void:
 	items.append(item)
 
@@ -11,6 +19,7 @@ func add_item(item: Item) -> void:
 func remove_item(item: Item) -> void:
 	var index := items.find(item)
 	if index >= 0:
+		item.release_signal_bindings()
 		items.remove_at(index)
 
 

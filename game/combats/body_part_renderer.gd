@@ -31,12 +31,25 @@ func _ready() -> void:
 	_update_color()
 
 func setup(part: BodyPart) -> void:
+	_unbind_part()
 	_part = part
 	_label.text = part.part_name()
 	_progress_bar.custom_minimum_size.x = part.hp.max_value * 2 - 1
 	_progress_bar.max_value = part.hp.max_value
 	_progress_bar.value = part.hp.value
 	part.hp.changed.connect(_on_hp_changed)
+
+
+func _exit_tree() -> void:
+	_unbind_part()
+
+
+func _unbind_part() -> void:
+	if _part == null:
+		return
+	if _part.hp.changed.is_connected(_on_hp_changed):
+		_part.hp.changed.disconnect(_on_hp_changed)
+	_part = null
 
 func _on_hp_changed() -> void:
 	_progress_bar.red = true

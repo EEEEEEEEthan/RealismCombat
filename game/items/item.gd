@@ -36,6 +36,13 @@ func _to_string() -> String:
 func _init() -> void:
 	quality.changed.connect(_on_quality_changed)
 
+
+## 解除对 quality 的订阅。从背包等移除引用前须调用，否则 changed 会持有本实例导致无法释放。
+func release_signal_bindings() -> void:
+	if quality.changed.is_connected(_on_quality_changed):
+		quality.changed.disconnect(_on_quality_changed)
+
+
 func _on_quality_changed() -> void:
 	protection = null
 
