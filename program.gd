@@ -12,7 +12,6 @@ func _ready() -> void:
 		MenuItemData.new(),
 		MenuItemData.new(),
 		MenuItemData.new(),
-		MenuItemData.new(),
 		MenuItemData.new("退出", false, "离开"),
 	] as Array[MenuItemData]
 	while true:
@@ -23,7 +22,7 @@ func _ready() -> void:
 				await _run_new_game_slots()
 			1:
 				await _run_load_slots()
-			7:
+			6:
 				get_tree().quit()
 		menu.visible = true
 
