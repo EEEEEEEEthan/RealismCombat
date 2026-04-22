@@ -1,9 +1,7 @@
 extends RefCounted
 class_name SaveSlotPreview
 
-## 无文件
+## 无文件；此时 snapshot 为 null
 var is_empty: bool
-## 存在但头或内容无法解析
-var is_corrupt: bool
-## 有快照且未损坏时有效
+## 有档且可解析的存档头；有档但损坏为 null。与 is_empty 区分无档/损坏
 var snapshot: SaveSnapshot

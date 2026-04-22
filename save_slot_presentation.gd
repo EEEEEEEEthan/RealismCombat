@@ -19,7 +19,7 @@ static func build_table_rows(is_load_mode: bool) -> Array[MenuItemData]:
 						"#%d 空" % (slot_index + 1), false, "在此槽开始新游戏",
 					),
 				)
-		elif preview.is_corrupt:
+		elif preview.snapshot == null:
 			if is_load_mode:
 				items.append(
 					MenuItemData.new(

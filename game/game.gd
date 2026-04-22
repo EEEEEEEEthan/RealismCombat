@@ -7,30 +7,40 @@ var player_side_characters: Array[Character] = []
 var inventory: Inventory
 var path: String
 
-## 与磁盘头一致时序的快照，读档/内存内保存与 [method save_game] 会更新
-var _snapshot: SaveSnapshot
+var _header_game_version: GameVersion = GameVersion.CURRENT
+var _display_save_name: String = ""
+## 自磁盘读入或 [method save_game] 后写入的 Unix 秒
+var _display_saved_at_unix: int = 0
 
+## 由当前头字段在访问时新构造，非缓存同一实例
 var snapshot: SaveSnapshot:
-	get: return _snapshot
+	get: return SaveSnapshot.new(
+		_header_game_version, _display_save_name, _display_saved_at_unix,
+	)
 
 func new_game() -> void:
 	var ethan = Character.create_default(self, "Ethan")
 	var rowan = Character.create_default(self, "Rowan")
 	player_side_characters = [ethan, rowan]
-	_snapshot = SaveSnapshot.for_new_game(
-		player_side_characters[0].character_name,
-	)
+	_header_game_version = GameVersion.CURRENT
+	_display_save_name = player_side_characters[0].character_name
+	_display_saved_at_unix = 0
 
 func load_game(p_path) -> void:
 	path = p_path
 	var file_access: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file_access == null:
 		return
-	_snapshot = SaveSnapshot.read_header_including_magic(file_access)
-	if _snapshot == null:
+	var header: SaveSnapshot = SaveSnapshot.read_header_including_magic(
+		file_access,
+	)
+	if header == null:
 		push_error("读档头失败: %s" % path)
 		file_access.close()
 		return
+	_header_game_version = header.game_version
+	_display_save_name = header.save_name
+	_display_saved_at_unix = header.saved_at_unix
 	var size = file_access.get_8()
 	for i in size:
 		player_side_characters.append(
@@ -39,14 +49,17 @@ func load_game(p_path) -> void:
 	file_access.close()
 
 func save_game() -> void:
-	_snapshot = _build_snapshot_for_write()
+	var written: SaveSnapshot = _build_snapshot_for_write()
 	var file_access: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file_access == null:
 		return
-	SaveSnapshot.write_to_file(file_access, _snapshot)
+	SaveSnapshot.write_to_file(file_access, written)
 	file_access.store_8(len(player_side_characters))
 	for character in player_side_characters:
 		character.serialize(file_access)
+	_header_game_version = written.game_version
+	_display_save_name = written.save_name
+	_display_saved_at_unix = written.saved_at_unix
 
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)

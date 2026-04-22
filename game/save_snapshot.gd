@@ -10,11 +10,6 @@ var save_name: String
 ## 存档时 Unix 秒
 var saved_at_unix: int
 
-static func for_new_game(leader_name: String) -> SaveSnapshot:
-	return SaveSnapshot.new(
-		GameVersion.CURRENT, leader_name, 0,
-	)
-
 static func read_header_including_magic(file_access: FileAccess) -> SaveSnapshot:
 	return _read_header_from_file(file_access, true)
 
@@ -34,14 +29,12 @@ static func preview_path(path: String) -> SaveSlotPreview:
 		return preview
 	var file_access: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file_access == null:
-		preview.is_corrupt = true
 		return preview
-	var snapshot: SaveSnapshot = read_header_including_magic(file_access)
+	var read_snapshot: SaveSnapshot = read_header_including_magic(file_access)
 	file_access.close()
-	if snapshot == null:
-		preview.is_corrupt = true
+	if read_snapshot == null:
 		return preview
-	preview.snapshot = snapshot
+	preview.snapshot = read_snapshot
 	return preview
 
 static func format_time_ago(saved_at_seconds: int) -> String:
