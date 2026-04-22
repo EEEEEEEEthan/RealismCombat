@@ -8,7 +8,7 @@ var game_version: GameVersion
 ## 主菜单/列表展示用名称（例如领队角色名）
 var save_name: String
 ## 存档时 Unix 秒
-var saved_at_unix: int
+var saved_at_unix: float
 
 static func read_header_including_magic(file_access: FileAccess) -> SaveSnapshot:
 	return _read_header_from_file(file_access, true)
@@ -38,8 +38,8 @@ static func preview_path(path: String) -> SaveSlotPreview:
 	return preview
 
 static func format_time_ago(saved_at_seconds: int) -> String:
-	var now_s: int = int(Time.get_unix_time_from_system())
-	var delta: int = now_s - saved_at_seconds
+	var now_s: float = int(Time.get_unix_time_from_system())
+	var delta: float = now_s - saved_at_seconds
 	if delta < 0:
 		return "未来"
 	if delta < 60:
@@ -76,7 +76,7 @@ static func _read_magic(file_access: FileAccess) -> bool:
 	var buffer: PackedByteArray = file_access.get_buffer(need_len)
 	return buffer.get_string_from_utf8() == _FILE_MAGIC
 
-func _init(game_v: GameVersion, name: String, at_unix: int) -> void:
+func _init(game_v: GameVersion, name: String, at_unix: float) -> void:
 	self.game_version = game_v
 	self.save_name = name
 	self.saved_at_unix = at_unix

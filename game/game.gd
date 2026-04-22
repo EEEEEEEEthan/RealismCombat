@@ -7,24 +7,16 @@ var player_side_characters: Array[Character] = []
 var inventory: Inventory
 var path: String
 
-var _header_game_version: GameVersion = GameVersion.CURRENT
-var _display_save_name: String = ""
-## 自磁盘读入或 [method save_game] 后写入的 Unix 秒
-var _display_saved_at_unix: int = 0
-
 ## 由当前头字段在访问时新构造，非缓存同一实例
 var snapshot: SaveSnapshot:
 	get: return SaveSnapshot.new(
-		_header_game_version, _display_save_name, _display_saved_at_unix,
+		GameVersion.CURRENT, "未命名", Time.get_unix_time_from_system(),
 	)
 
 func new_game() -> void:
 	var ethan = Character.create_default(self, "Ethan")
 	var rowan = Character.create_default(self, "Rowan")
 	player_side_characters = [ethan, rowan]
-	_header_game_version = GameVersion.CURRENT
-	_display_save_name = player_side_characters[0].character_name
-	_display_saved_at_unix = 0
 
 func load_game(p_path) -> void:
 	path = p_path
@@ -38,9 +30,6 @@ func load_game(p_path) -> void:
 		push_error("读档头失败: %s" % path)
 		file_access.close()
 		return
-	_header_game_version = header.game_version
-	_display_save_name = header.save_name
-	_display_saved_at_unix = header.saved_at_unix
 	var size = file_access.get_8()
 	for i in size:
 		player_side_characters.append(
@@ -57,9 +46,6 @@ func save_game() -> void:
 	file_access.store_8(len(player_side_characters))
 	for character in player_side_characters:
 		character.serialize(file_access)
-	_header_game_version = written.game_version
-	_display_save_name = written.save_name
-	_display_saved_at_unix = written.saved_at_unix
 
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)
