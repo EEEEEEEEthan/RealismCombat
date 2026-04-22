@@ -19,9 +19,6 @@ func play_dodge():
 func play_menu_bgm():
 	_play_bgm(Resources.audio_stream_menu_music)
 
-func play_battle_bgm():
-	_play_bgm(Resources.audio_stream_battle_music)
-
 func stop_bgm():
 	_bgm_player.stream = null
 
@@ -32,6 +29,10 @@ func play_sound_effect(stream: AudioStream) -> void:
 	player.play()
 	await player.finished
 	player.queue_free()
+
+func play_background_music(stream: AudioStream) -> void:
+	_bgm_player.stream = stream
+	_bgm_player.play()
 
 func _play_bgm(stream: AudioStream) -> void:
 	_bgm_player.stream = stream

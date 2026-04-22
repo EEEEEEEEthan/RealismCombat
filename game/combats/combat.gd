@@ -17,7 +17,7 @@ func _ready() -> void:
 	%PlayerReference.visible = false
 	%EnemyReference.visible = false
 	%EnemyFoldedReference.visible = false
-	AudioManager.play_battle_bgm()
+	AudioManager.play_background_music(%Audios.audio_stream_background_music)
 
 func _exit_tree() -> void:
 	for battler: Battler in characters.keys():
