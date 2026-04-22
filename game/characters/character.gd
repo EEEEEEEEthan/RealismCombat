@@ -3,6 +3,7 @@ class_name Character
 # 角色数据模型：身体部位、HP、动作列表、存活与速度等聚合。
 # 不与战斗耦合
 
+var id: int
 var game: Game
 var character_name: String
 var head: Head
@@ -16,10 +17,8 @@ var _actions: Array[Action] = []
 
 var actions: Array[Action]:
 	get: return _actions
-
 var alive: bool:
 	get: return head.hp.value > 0 and body.hp.value > 0
-
 var speed: float:
 	get: return 10
 
@@ -31,6 +30,7 @@ static func create_deserialize(p_game: Game, file_access: FileAccess) -> Charact
 ## 默认装备：罩袍外套、左右皮鞋与皮手套。
 static func create_default(p_game: Game, p_name: String) -> Character:
 	var c := Character.new(p_game)
+	c.id = p_game.next_object_id
 	c.character_name = p_name
 	c.body.torso_slot.item = SurcoatTabard.new()
 	c.right_hand.glove_slot.item = LeatherGlove.new(Defs.Side.RIGHT)
@@ -55,7 +55,15 @@ func add_action(action: Action) -> void:
 	_actions.append(action)
 
 func serialize(file_access: FileAccess) -> void:
+	file_access.store_64(id)
 	file_access.store_pascal_string(character_name)
+	for part: BodyPart in all_body_parts:
+		file_access.store_8(part.hp.max_value)
+		file_access.store_8(part.hp.value)
 
 func _deserialize(file_access: FileAccess) -> void:
+	id = file_access.get_64()
 	character_name = file_access.get_pascal_string()
+	for part: BodyPart in all_body_parts:
+		part.hp.max_value = file_access.get_8()
+		part.hp.value = file_access.get_8()

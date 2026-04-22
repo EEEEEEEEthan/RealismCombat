@@ -1,17 +1,19 @@
 extends Node
 class_name Game
 
+var _next_object_id: int
 var combat: Combat
-## 当前玩家方参战角色（顺序即编队顺序）
 var player_side_characters: Array[Character] = []
 var inventory: Inventory
 var path: String
 
-## 由当前头字段在访问时新构造，非缓存同一实例
+var next_object_id: int:
+	get:
+		_next_object_id += 1
+		return _next_object_id
+
 var snapshot: SaveSnapshot:
-	get: return SaveSnapshot.new(
-		GameVersion.CURRENT, "未命名", Time.get_unix_time_from_system(),
-	)
+	get: return SaveSnapshot.new(GameVersion.CURRENT, "未命名", Time.get_unix_time_from_system())
 
 func new_game() -> void:
 	var ethan = Character.create_default(self, "Ethan")
@@ -28,6 +30,7 @@ func load_game(p_path) -> void:
 		push_error("读档头失败: %s" % path)
 		file_access.close()
 		return
+	_next_object_id = file_access.get_64()
 	var size = file_access.get_8()
 	for i in size:
 		player_side_characters.append(
@@ -43,6 +46,7 @@ func _save_game() -> void:
 	if file_access == null:
 		return
 	SaveSnapshot.write_to_file(file_access, written)
+	file_access.store_64(_next_object_id)
 	file_access.store_8(len(player_side_characters))
 	for character in player_side_characters:
 		character.serialize(file_access)
