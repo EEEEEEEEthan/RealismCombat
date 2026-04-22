@@ -36,3 +36,18 @@ func _init(p_combat: Combat, p_character: Character) -> void:
 	character = p_character
 	combat = p_combat
 	state_machine = CharacterStateMachine.new(self)
+	character.head.hp.changed.connect(_on_vital_hp_changed)
+	character.body.hp.changed.connect(_on_vital_hp_changed)
+
+
+## 战斗结束时调用：解除与角色数据等的连接，避免长期持有回调。
+func cleanup() -> void:
+	character.head.hp.changed.disconnect(_on_vital_hp_changed)
+	character.body.hp.changed.disconnect(_on_vital_hp_changed)
+
+
+## 头或躯干 HP 变化时，若角色已死则立刻清空行动力（与存活判定一致）。
+func _on_vital_hp_changed() -> void:
+	if character.alive:
+		return
+	state_machine.action_points.value = 0

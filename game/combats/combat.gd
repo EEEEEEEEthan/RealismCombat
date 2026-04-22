@@ -21,6 +21,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	for battler: Battler in characters.keys():
+		battler.cleanup()
 		battler.state_machine = null
 	_raw_to_battler.clear()
 	AudioManager.play_menu_bgm()
