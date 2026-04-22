@@ -2,29 +2,39 @@
 extends Button
 class_name RetroButton
 
+static var _atlas: ImageTexture:
+	get:
+		if not _atlas:
+			var bytes = Marshalls.base64_to_raw("iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAAAXNSR0IArs4c6QAAAD5JREFUGJWFj0EOACAIwzbj/788DwSjQ2KPrINABMIN0QwkhUvyWSjiDqww/EQiCWe5FZ3ZBXa6it9n3PcFC5f2EBLP+MZVAAAAAElFTkSuQmCC")
+			var image = Image.new()
+			var error = image.load_png_from_buffer(bytes)
+			_atlas = ImageTexture.new()
+			if error == OK:
+				_atlas.set_image(image)
+			else:
+				push_error(error)
+		return _atlas
+
 static var _icon: AtlasTexture:
 	get:
 		if not _icon:
-			_icon = Resources.atlas_texture_theme_right.duplicate()
-			var r = _icon.region
-			_icon.region = Rect2(r.position, r.size+Vector2(1,0))
+			_icon = AtlasTexture.new()
+			_icon.atlas = _atlas
+			_icon.region = Rect2(1, 0, 9, 8)
 		return _icon
 
 static var _icon_pressed: AtlasTexture:
 	get:
 		if not _icon_pressed:
-			_icon_pressed = Resources.atlas_texture_theme_right.duplicate()
-			var r = _icon_pressed.region
-			_icon_pressed.region = Rect2(r.position+Vector2(-1, 0), r.size+Vector2(1,0))
+			_icon_pressed = AtlasTexture.new()
+			_icon_pressed.atlas = _atlas
+			_icon_pressed.region = Rect2(0, 0, 9, 8)
 		return _icon_pressed
 
 static var _icon_empty: Texture2D:
 	get:
 		if not _icon_empty:
-			var texture_size = Resources.atlas_texture_theme_right.get_size()
-			var width = texture_size.x + 1
-			var height = texture_size.y + 1
-			var image = Image.create(width, height, false, Image.FORMAT_RGBA8)
+			var image = Image.create_empty(9, 8, false, Image.FORMAT_RGBA8)
 			image.fill(Color.TRANSPARENT)
 			_icon_empty = ImageTexture.create_from_image(image)
 		return _icon_empty
