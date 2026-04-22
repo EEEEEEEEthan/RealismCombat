@@ -36,7 +36,7 @@ func load_game(p_path) -> void:
 	file_access.close()
 
 func save_game() -> void:
-	var written: SaveSnapshot = _build_snapshot_for_write()
+	var written: SaveSnapshot = snapshot
 	var file_access: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file_access == null:
 		return
@@ -73,23 +73,13 @@ func _ready() -> void:
 				await combat.run()
 				AudioManager.play_background_music(%Audios.menu_music)
 				combat = null
-			1:
-				await _run_equipment_menu()
-			2:
-				await _run_inventory_menu()
-			3:
-				save_game()
+			1: await _run_equipment_menu()
+			2: await _run_inventory_menu()
+			3: save_game()
 			6:
 				menu.queue_free()
 				queue_free()
 				return
-
-func _build_snapshot_for_write() -> SaveSnapshot:
-	return SaveSnapshot.new(
-		GameVersion.CURRENT, player_side_characters[0].character_name, int(
-			Time.get_unix_time_from_system(),
-		),
-	)
 
 func _run_equipment_menu() -> void:
 	var flow := EquipmentMenuFlow.new()
