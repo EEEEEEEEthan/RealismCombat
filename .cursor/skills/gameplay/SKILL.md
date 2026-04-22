@@ -1,5 +1,5 @@
 ---
-name: jrpg-semi-turn-gameplay
+name: gameplay
 description: >-
   开始任何与本游戏开发相关的任务前必读；先读本 SKILL 索引，再按需打开 details 下对应链接全文。
 ---
