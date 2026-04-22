@@ -38,31 +38,34 @@ func save_game() -> void:
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)
 	inventory = Inventory.new()
+	var menu = Dialogues.create_menu_dialogue()
+	menu.title = "Realism Combat"
+	menu.options = [
+		MenuItemData.new("测试项..", false, "测试项"),
+		MenuItemData.new("装备..", false, "为角色装备或卸下物品"),
+		MenuItemData.new("物品栏..", false, "查看持有的道具"),
+		MenuItemData.new("保存", false, "写入当前进度到存档文件"),
+		MenuItemData.new(),
+		MenuItemData.new(),
+		MenuItemData.new("返回菜单", false, "离开"),
+	] as Array[MenuItemData]
 	while true:
-		var menu = Dialogues.create_menu_dialogue()
-		menu.title = "Realism Combat"
-		menu.options = [
-			MenuItemData.new("测试项..", false, "测试项"),
-			MenuItemData.new("装备..", false, "为角色装备或卸下物品"),
-			MenuItemData.new("物品栏..", false, "查看持有的道具"),
-			MenuItemData.new("保存", false, "写入当前进度到存档文件"),
-			MenuItemData.new(),
-			MenuItemData.new(),
-			MenuItemData.new("返回菜单", false, "离开"),
-		] as Array[MenuItemData]
 		var main_menu_choice: int = await menu.pressed
-		menu.queue_free()
 		if main_menu_choice == 6:
+			menu.queue_free()
 			queue_free()
 			return
 		if main_menu_choice == 3:
 			save_game()
 			continue
+		menu.visible = false
 		if main_menu_choice == 2:
 			await _run_inventory_menu()
+			menu.visible = true
 			continue
 		if main_menu_choice == 1:
 			await _run_equipment_menu()
+			menu.visible = true
 			continue
 		if main_menu_choice == 0:
 			combat = %Combat.create_instance()
@@ -72,6 +75,7 @@ func _ready() -> void:
 			combat.add_character(dove, Combat.ENEMY_SIDE)
 			await combat.run()
 			combat = null
+			menu.visible = true
 			continue
 
 
