@@ -23,9 +23,7 @@ func load_game(p_path) -> void:
 	var file_access: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file_access == null:
 		return
-	var header: SaveSnapshot = SaveSnapshot.read_header_including_magic(
-		file_access,
-	)
+	var header: SaveSnapshot = SaveSnapshot.read_header_from_file(file_access)
 	if header == null:
 		push_error("读档头失败: %s" % path)
 		file_access.close()
