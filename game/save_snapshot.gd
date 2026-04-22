@@ -1,8 +1,8 @@
 extends RefCounted
 class_name SaveSnapshot
 
-## 4 字节魔数
-const _FILE_MAGIC: String = "RCV1"
+## 存档文件头魔数字符串（全 ASCII，UTF-8 字节数等于 length）
+const _FILE_MAGIC: String = "e4b8912a-7c3f-4d6e-9b21-4f8a2c1d0e5b"
 
 var game_version: GameVersion
 ## 主菜单/列表展示用名称（例如领队角色名）
@@ -70,7 +70,7 @@ static func _write_magic(file_access: FileAccess) -> void:
 	file_access.store_buffer(_FILE_MAGIC.to_utf8_buffer())
 
 static func _read_magic(file_access: FileAccess) -> bool:
-	var need_len: int = 4
+	var need_len: int = _FILE_MAGIC.length()
 	if file_access.get_length() < file_access.get_position() + need_len:
 		return false
 	var buffer: PackedByteArray = file_access.get_buffer(need_len)
