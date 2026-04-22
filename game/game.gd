@@ -7,33 +7,46 @@ var player_side_characters: Array[Character] = []
 var inventory: Inventory
 var path: String
 
+## 与磁盘头一致时序的快照，读档/内存内保存与 [method save_game] 会更新
+var _snapshot: SaveSnapshot
+
+var snapshot: SaveSnapshot:
+	get: return _snapshot
+
 func new_game() -> void:
 	var ethan = Character.create_default(self, "Ethan")
 	var rowan = Character.create_default(self, "Rowan")
 	player_side_characters = [ethan, rowan]
+	_snapshot = SaveSnapshot.for_new_game(
+		player_side_characters[0].character_name,
+	)
 
 func load_game(p_path) -> void:
 	path = p_path
-	print("[存档调试][读档] path=%s abs=%s" % [path, ProjectSettings.globalize_path(path)])
-	var file_access := FileAccess.open(path, FileAccess.READ)
+	var file_access: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file_access == null:
-		push_error("[存档调试][读档] 打开失败 err=%s" % FileAccess.get_open_error())
+		return
+	_snapshot = SaveSnapshot.read_header_including_magic(file_access)
+	if _snapshot == null:
+		push_error("读档头失败: %s" % path)
+		file_access.close()
 		return
 	var size = file_access.get_8()
 	for i in size:
-		player_side_characters.append(Character.create_deserialize(self, file_access))
+		player_side_characters.append(
+			Character.create_deserialize(self, file_access),
+		)
+	file_access.close()
 
 func save_game() -> void:
-	var abs_path := ProjectSettings.globalize_path(path) if path else ""
-	print("[存档调试][保存] path=%s abs=%s" % [path, abs_path])
-	var file_access := FileAccess.open(path, FileAccess.WRITE)
+	_snapshot = _build_snapshot_for_write()
+	var file_access: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file_access == null:
-		push_error("[存档调试][保存] 打开失败 path=%s err=%s" % [path, FileAccess.get_open_error()])
 		return
+	SaveSnapshot.write_to_file(file_access, _snapshot)
 	file_access.store_8(len(player_side_characters))
 	for character in player_side_characters:
 		character.serialize(file_access)
-	print("[存档调试][保存] 写入完成 bytes≈%d" % file_access.get_position())
 
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)
@@ -77,11 +90,16 @@ func _ready() -> void:
 			combat = null
 			continue
 
+func _build_snapshot_for_write() -> SaveSnapshot:
+	return SaveSnapshot.new(
+		GameVersion.CURRENT, player_side_characters[0].character_name, int(
+			Time.get_unix_time_from_system(),
+		),
+	)
 
 func _run_equipment_menu() -> void:
 	var flow := EquipmentMenuFlow.new()
 	await flow.enter(self)
-
 
 func _run_inventory_menu() -> void:
 	var inventory_menu = Dialogues.create_menu_dialogue()

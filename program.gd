@@ -41,21 +41,23 @@ func begin_loaded_game(slot_index: int) -> Game:
 
 
 func _run_new_game_slots() -> void:
+	SaveSlots.debug_print_slot_state("新游戏选槽")
+	var slot_menu := Dialogues.create_menu_dialogue()
+	slot_menu.title = "新游戏 — 选择槽位"
+	slot_menu.options = SaveSlotPresentation.build_table_rows(false)
 	while true:
-		SaveSlots.debug_print_slot_state("新游戏选槽")
-		var slot_menu := Dialogues.create_menu_dialogue()
-		slot_menu.title = "新游戏 — 选择槽位"
-		slot_menu.options = _make_new_game_slot_options()
 		var choice: int = await slot_menu.pressed
-		slot_menu.queue_free()
-		await slot_menu.tree_exited
 		if choice == SaveSlots.SLOT_COUNT:
+			slot_menu.queue_free()
+			await slot_menu.tree_exited
 			return
 		if SaveSlots.file_exists(choice):
 			slot_menu.visible = false
 			if not await _confirm_overwrite(choice):
 				slot_menu.visible = true
 				continue
+		slot_menu.queue_free()
+		await slot_menu.tree_exited
 		var game := begin_new_game(choice)
 		await game.tree_exiting
 		return
@@ -78,7 +80,7 @@ func _run_load_slots() -> void:
 		SaveSlots.debug_print_slot_state("读取选槽")
 		var slot_menu := Dialogues.create_menu_dialogue()
 		slot_menu.title = "读取游戏 — 选择槽位"
-		slot_menu.options = _make_load_slot_options()
+		slot_menu.options = SaveSlotPresentation.build_table_rows(true)
 		var choice: int = await slot_menu.pressed
 		slot_menu.queue_free()
 		await slot_menu.tree_exited
@@ -87,34 +89,3 @@ func _run_load_slots() -> void:
 		var game := begin_loaded_game(choice)
 		await game.tree_exiting
 		return
-
-
-func _make_new_game_slot_options() -> Array[MenuItemData]:
-	var items: Array[MenuItemData] = []
-	for slot_index in range(SaveSlots.SLOT_COUNT):
-		var occupied := SaveSlots.file_exists(slot_index)
-		var label := "#%d" % (slot_index + 1)
-		if occupied:
-			label += " 数据"
-		else:
-			label += " 空"
-		items.append(MenuItemData.new(
-			label,
-			false,
-			"覆盖并开始新游戏" if occupied else "在此槽开始新游戏",
-		))
-	items.append(MenuItemData.new("返回", false, "返回主菜单"))
-	return items
-
-
-func _make_load_slot_options() -> Array[MenuItemData]:
-	var items: Array[MenuItemData] = []
-	for slot_index in range(SaveSlots.SLOT_COUNT):
-		var readable := SaveSlots.file_exists(slot_index)
-		items.append(MenuItemData.new(
-			"#%d%s" % [slot_index + 1, " 可读取" if readable else " 空"],
-			not readable,
-			"读取此存档" if readable else "该槽没有存档",
-		))
-	items.append(MenuItemData.new("返回", false, "返回主菜单"))
-	return items
