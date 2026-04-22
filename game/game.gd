@@ -14,16 +14,26 @@ func new_game() -> void:
 
 func load_game(p_path) -> void:
 	path = p_path
+	print("[存档调试][读档] path=%s abs=%s" % [path, ProjectSettings.globalize_path(path)])
 	var file_access := FileAccess.open(path, FileAccess.READ)
+	if file_access == null:
+		push_error("[存档调试][读档] 打开失败 err=%s" % FileAccess.get_open_error())
+		return
 	var size = file_access.get_8()
 	for i in size:
 		player_side_characters.append(Character.create_deserialize(self, file_access))
 
 func save_game() -> void:
+	var abs_path := ProjectSettings.globalize_path(path) if path else ""
+	print("[存档调试][保存] path=%s abs=%s" % [path, abs_path])
 	var file_access := FileAccess.open(path, FileAccess.WRITE)
+	if file_access == null:
+		push_error("[存档调试][保存] 打开失败 path=%s err=%s" % [path, FileAccess.get_open_error()])
+		return
 	file_access.store_8(len(player_side_characters))
 	for character in player_side_characters:
 		character.serialize(file_access)
+	print("[存档调试][保存] 写入完成 bytes≈%d" % file_access.get_position())
 
 func _ready() -> void:
 	AudioManager.play_background_music(%Audios.menu_music)
@@ -35,7 +45,7 @@ func _ready() -> void:
 			MenuItemData.new("测试项..", false, "测试项"),
 			MenuItemData.new("装备..", false, "为角色装备或卸下物品"),
 			MenuItemData.new("物品栏..", false, "查看持有的道具"),
-			MenuItemData.new(),
+			MenuItemData.new("保存", false, "写入当前进度到存档文件"),
 			MenuItemData.new(),
 			MenuItemData.new(),
 			MenuItemData.new("返回菜单", false, "离开"),
@@ -45,6 +55,9 @@ func _ready() -> void:
 		if main_menu_choice == 6:
 			queue_free()
 			return
+		if main_menu_choice == 3:
+			save_game()
+			continue
 		if main_menu_choice == 2:
 			await _run_inventory_menu()
 			continue
