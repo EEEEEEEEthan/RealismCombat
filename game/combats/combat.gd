@@ -33,7 +33,6 @@ func _exit_tree() -> void:
 		battler.cleanup()
 		battler.state_machine = null
 	_raw_to_battler.clear()
-	AudioManager.play_menu_bgm()
 
 func add_character(character: Character, side: int) -> void:
 	var battler := Battler.new(self, character)

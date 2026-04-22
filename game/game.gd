@@ -60,32 +60,29 @@ func _ready() -> void:
 		MenuItemData.new("返回菜单", false, "离开"),
 	] as Array[MenuItemData]
 	while true:
+		menu.visible = true
 		var main_menu_choice: int = await menu.pressed
-		if main_menu_choice == 6:
-			menu.queue_free()
-			queue_free()
-			return
-		if main_menu_choice == 3:
-			save_game()
-			continue
 		menu.visible = false
-		if main_menu_choice == 2:
-			await _run_inventory_menu()
-			menu.visible = true
-			continue
-		if main_menu_choice == 1:
-			await _run_equipment_menu()
-			menu.visible = true
-			continue
-		if main_menu_choice == 0:
-			combat = %Combat.create_instance()
-			for player_character in player_side_characters:
-				combat.add_character(player_character, Combat.PLAYER_SIDE)
-			var dove: Character = Character.create_default(self, "Dove")
-			combat.add_character(dove, Combat.ENEMY_SIDE)
-			await combat.run()
-			combat = null
-			continue
+		match main_menu_choice:
+			0:
+				combat = %Combat.create_instance()
+				for player_character in player_side_characters:
+					combat.add_character(player_character, Combat.PLAYER_SIDE)
+				var dove: Character = Character.create_default(self, "Dove")
+				combat.add_character(dove, Combat.ENEMY_SIDE)
+				await combat.run()
+				AudioManager.play_background_music(%Audios.menu_music)
+				combat = null
+			1:
+				await _run_equipment_menu()
+			2:
+				await _run_inventory_menu()
+			3:
+				save_game()
+			6:
+				menu.queue_free()
+				queue_free()
+				return
 
 func _build_snapshot_for_write() -> SaveSnapshot:
 	return SaveSnapshot.new(
