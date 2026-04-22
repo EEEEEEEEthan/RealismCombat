@@ -78,12 +78,13 @@ func _on_focus_button(button: RetroButton) -> void:
 	rich_text_label.text = options[option_index].description
 
 func _on_press_button(button: RetroButton) -> void:
-	AudioManager.play_sound_effect(%Audios.audio_stream_press)
 	var option_index := button.get_index()
 	if option_index < 0 or option_index >= options.size():
 		return
 	if options[option_index].disabled:
+		AudioManager.play_sound_effect(%Audios.disabled_press)
 		return
+	AudioManager.play_sound_effect(%Audios.audio_stream_press)
 	pressed.emit(option_index)
 
 func _refresh_button_states() -> void:

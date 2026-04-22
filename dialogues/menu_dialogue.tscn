@@ -4,12 +4,14 @@
 [ext_resource type="Script" uid="uid://t3ao6s2gx8wk" path="res://dialogues/menu_dialogue.gd" id="1_yjxsp"]
 [ext_resource type="AudioStream" uid="uid://djmqfpbkfcr65" path="res://audios/beep.wav" id="3_teogu"]
 [ext_resource type="AudioStream" uid="uid://bcgvtwn5rt0u1" path="res://audios/selection.wav" id="4_teogu"]
+[ext_resource type="AudioStream" uid="uid://d3h4ojblpkxpa" path="res://audios/bump.wav" id="5_3gjke"]
 
 [sub_resource type="GDScript" id="GDScript_pog8u"]
 script/source = "extends Node
 
 @export var audio_stream_hover: AudioStream
 @export var audio_stream_press: AudioStream
+@export var disabled_press: AudioStream
 "
 
 [node name="MenuDialogue" type="PanelContainer" unique_id=1569972301]
@@ -84,3 +86,4 @@ unique_name_in_owner = true
 script = SubResource("GDScript_pog8u")
 audio_stream_hover = ExtResource("3_teogu")
 audio_stream_press = ExtResource("4_teogu")
+disabled_press = ExtResource("5_3gjke")

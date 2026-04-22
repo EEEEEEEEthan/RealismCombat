@@ -51,7 +51,7 @@ func _run_new_game_slots(program: Program) -> void:
 
 func _confirm_overwrite(slot_index: int) -> bool:
 	var overwrite_dialogue := Dialogues.create_generic_dialogue()
-	overwrite_dialogue.text = "槽位 %d 已有存档，是否覆盖并开始新游戏？" % (slot_index + 1)
+	overwrite_dialogue.text = "#%d 已有存档，是否覆盖并开始新游戏？" % (slot_index + 1)
 	overwrite_dialogue.options = [
 		MenuItemData.new("覆盖并开始", false, "覆盖该槽并开始新游戏"),
 		MenuItemData.new("返回选槽", false, "重新选择槽位"),
@@ -81,9 +81,11 @@ func _make_new_game_slot_options() -> Array[MenuItemData]:
 	var items: Array[MenuItemData] = []
 	for slot_index in range(SaveSlots.SLOT_COUNT):
 		var occupied := SaveSlots.file_exists(slot_index)
-		var label := "存档 %d" % (slot_index + 1)
+		var label := "#%d" % (slot_index + 1)
 		if occupied:
-			label += "（已有存档）"
+			label += " 数据"
+		else:
+			label += " 空"
 		items.append(MenuItemData.new(
 			label,
 			false,
@@ -98,7 +100,7 @@ func _make_load_slot_options() -> Array[MenuItemData]:
 	for slot_index in range(SaveSlots.SLOT_COUNT):
 		var readable := SaveSlots.file_exists(slot_index)
 		items.append(MenuItemData.new(
-			"存档 %d%s" % [slot_index + 1, " · 可读取" if readable else " · 空"],
+			"#%d%s" % [slot_index + 1, " 可读取" if readable else " 空"],
 			not readable,
 			"读取此存档" if readable else "该槽没有存档",
 		))
