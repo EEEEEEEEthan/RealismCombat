@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d4fyln5qrlp3s"]
 
 [ext_resource type="Script" uid="uid://dapr8ca26q2mv" path="res://game/game.gd" id="1_80nbo"]
+[ext_resource type="AudioStream" uid="uid://c4cb68flv4qow" path="res://audios/menu_music.wav" id="2_vasa2"]
 
 [sub_resource type="GDScript" id="GDScript_l1rk1"]
 script/source = "extends Node
@@ -17,3 +18,4 @@ unique_name_in_owner = true
 [node name="Audios" type="Node" parent="." unique_id=99080319]
 unique_name_in_owner = true
 script = SubResource("GDScript_l1rk1")
+menu_music = ExtResource("2_vasa2")
