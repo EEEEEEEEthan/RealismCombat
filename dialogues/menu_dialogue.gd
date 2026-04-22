@@ -8,8 +8,8 @@ signal pressed(index: int)
 var title: String = "":
 	set(value):
 		title = value
-		if is_node_ready():
-			_refresh_title()
+		name = "MenuDialogue:" + value
+		_refresh_title()
 
 var options: Array[MenuItemData] = []:
 	set(value):
@@ -34,6 +34,7 @@ func _notification(what: int) -> void:
 	_refresh_interaction()
 
 func _refresh_title() -> void:
+	if not is_node_ready(): return
 	title_label.text = title
 
 func _refresh_options() -> void:

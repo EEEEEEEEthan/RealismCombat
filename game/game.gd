@@ -75,7 +75,6 @@ func _ready() -> void:
 			combat.add_character(dove, Combat.ENEMY_SIDE)
 			await combat.run()
 			combat = null
-			menu.visible = true
 			continue
 
 
