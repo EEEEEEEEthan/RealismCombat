@@ -85,7 +85,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			var interrupted_name := (defender_sm.current_state as CharacterStateMachineActionState).action_name
 			interrupted_label = String(interrupted_name)
 		to_body.hp.value -= damage_total
-		AudioManager.play_hit()
+		AudioManager.play_sound_effect(combat.audio_stream_hit)
 		if to_body.hp.value < 3 or randf() < float(damage_total) / 3.0:
 			if was_in_action:
 				defender_sm.set_idle()
@@ -124,7 +124,7 @@ func _react(from_body: BodyPart, to_body: BodyPart, dialogue: GenericDialogue) -
 			Engine.time_scale = 1
 			defender_renderer.animate_generic_dodge()
 			dialogue.text += "\n%s轻巧地闪开了" % combat.bbcode_character_name(defender_battler)
-			AudioManager.play_dodge()
+			AudioManager.play_sound_effect(combat.audio_stream_dodge)
 			await dialogue.pressed
 		else:
 			var defender_bbcode_dodge := combat.bbcode_character_name(defender_battler)

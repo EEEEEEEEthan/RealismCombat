@@ -11,16 +11,6 @@ static var audio_stream_start: AudioStream:
 		if not audio_stream_start: audio_stream_start = _load_audio_stream(&"res://audios/start.wav")
 		return audio_stream_start
 
-static var audio_stream_hit: AudioStream:
-	get:
-		if not audio_stream_hit: audio_stream_hit = _load_audio_stream(&"res://audios/hit.wav")
-		return audio_stream_hit
-
-static var audio_stream_dodge: AudioStream:
-	get:
-		if not audio_stream_dodge: audio_stream_dodge = _load_audio_stream(&"res://audios/dodge.wav")
-		return audio_stream_dodge
-
 static var audio_stream_menu_music: AudioStream:
 	get:
 		if not audio_stream_menu_music: audio_stream_menu_music = _load_audio_stream(&"res://audios/menu_music.wav")

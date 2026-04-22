@@ -10,6 +10,12 @@ var player_characters: Array[Battler] = []
 var enemy_characters: Array[Battler] = []
 var _raw_to_battler: Dictionary[Character, Battler] = {}
 
+var audio_stream_hit: AudioStream:
+	get: return %Audios.audio_stream_hit
+
+var audio_stream_dodge: AudioStream:
+	get: return %Audios.audio_stream_dodge
+
 func _ready() -> void:
 	%CharacterLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$DialogueArea.visible = false
