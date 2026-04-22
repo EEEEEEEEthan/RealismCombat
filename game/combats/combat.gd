@@ -98,6 +98,8 @@ func _side_has_alive_battler(side_list: Array[Battler]) -> bool:
 func _show_battle_result_dialogue(player_victory: bool) -> void:
 	var dialogue := Dialogues.create_generic_dialogue()
 	dialogue.text = "战斗胜利！" if player_victory else "战斗失败…"
+	AudioManager.stop_bgm()
+	AudioManager.play_sound_effect(%Audios.audio_stream_victory)
 	await dialogue.pressed
 	dialogue.queue_free()
 

@@ -1,6 +1,13 @@
 [gd_scene format=3 uid="uid://elk5225c1pmo"]
 
 [ext_resource type="Script" uid="uid://b1sitjm7tvjkd" path="res://game/combats/combat.gd" id="1_puw3m"]
+[ext_resource type="AudioStream" uid="uid://bwip0qcjd7ofg" path="res://audios/victory.ogg" id="2_wwcti"]
+
+[sub_resource type="GDScript" id="GDScript_lllps"]
+script/source = "extends Node
+
+@export var audio_stream_victory: AudioStream
+"
 
 [node name="Combat" type="Control" unique_id=1435013025]
 layout_mode = 3
@@ -102,3 +109,8 @@ grow_vertical = 2
 [node name="Timer" type="Timer" parent="." unique_id=307905982]
 unique_name_in_owner = true
 wait_time = 0.2
+
+[node name="Audios" type="Node" parent="." unique_id=328627910]
+unique_name_in_owner = true
+script = SubResource("GDScript_lllps")
+audio_stream_victory = ExtResource("2_wwcti")
