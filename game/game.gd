@@ -13,7 +13,7 @@ var next_object_id: int:
 		return _next_object_id
 
 var snapshot: SaveSnapshot:
-	get: return SaveSnapshot.new(GameVersion.CURRENT, "未命名", Time.get_unix_time_from_system())
+	get: return SaveSnapshot.new(GameVersion.CURRENT, "未命名")
 
 func new_game() -> void:
 	var ethan = Character.create_default(self, "Ethan")

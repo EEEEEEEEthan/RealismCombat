@@ -17,12 +17,12 @@ static func read_header_from_file(file_access: FileAccess) -> SaveSnapshot:
 	var version: GameVersion = GameVersion.read_from_file(file_access)
 	var at_s: int = int(file_access.get_64())
 	var s_name: String = file_access.get_pascal_string()
-	return SaveSnapshot.new(version, s_name, at_s)
+	var snapshot = SaveSnapshot.new(version, s_name)
+	snapshot.saved_at_unix = at_s
+	return snapshot
 
 ## 先写快照头（固定首串 + 版本、时间、名称）；其后由 [method Game.save_game] 写角色区
-static func write_to_file(
-	file_access: FileAccess, snapshot: SaveSnapshot,
-) -> void:
+static func write_to_file(file_access: FileAccess, snapshot: SaveSnapshot) -> void:
 	_write_leading_file_string(file_access)
 	snapshot.game_version.write_to_file(file_access)
 	file_access.store_64(int(snapshot.saved_at_unix))
@@ -72,7 +72,7 @@ static func _read_leading_file_string(file_access: FileAccess) -> bool:
 	var buffer: PackedByteArray = file_access.get_buffer(need_len)
 	return buffer.get_string_from_utf8() == _FILE_MAGIC
 
-func _init(game_v: GameVersion, name: String, at_unix: float) -> void:
+func _init(game_v: GameVersion, name: String) -> void:
 	self.game_version = game_v
 	self.save_name = name
-	self.saved_at_unix = at_unix
+	self.saved_at_unix = Time.get_unix_time_from_system()
