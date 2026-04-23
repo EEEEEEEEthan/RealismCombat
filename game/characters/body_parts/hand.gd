@@ -11,10 +11,7 @@ func _init(p_character: Character, hp_current: int, hp_max: int, p_side: Defs.Si
 	side = p_side
 	glove_slot = ItemSlot.new([Glove])
 	weapon_slot = ItemSlot.new([Weapon])
-
-
-func get_item_slots() -> Array[ItemSlot]:
-	return [glove_slot, weapon_slot]
+	item_slots = [glove_slot, weapon_slot]
 
 
 func part_name() -> StringName:

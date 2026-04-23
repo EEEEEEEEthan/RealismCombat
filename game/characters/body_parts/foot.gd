@@ -9,10 +9,7 @@ func _init(p_character: Character, hp_current: int, hp_max: int, p_side: Defs.Si
 	super(p_character, hp_current, hp_max)
 	side = p_side
 	footwear_slot = ItemSlot.new([Footwear])
-
-
-func get_item_slots() -> Array[ItemSlot]:
-	return [footwear_slot]
+	item_slots = [footwear_slot]
 
 
 func part_name() -> StringName:

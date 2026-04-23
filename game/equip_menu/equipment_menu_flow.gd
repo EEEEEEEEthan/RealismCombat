@@ -55,7 +55,7 @@ func _menu_body_parts(character: Character) -> void:
 
 
 func _menu_slots_on_body_part(character: Character, body_part: BodyPart) -> void:
-	var slots := body_part.get_item_slots()
+	var slots := body_part.item_slots
 	while true:
 		var options: Array[MenuItemData] = []
 		for slot in slots:
