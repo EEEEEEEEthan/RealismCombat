@@ -58,12 +58,10 @@ func serialize(file_access: FileAccess) -> void:
 	file_access.store_64(id)
 	file_access.store_pascal_string(character_name)
 	for part: BodyPart in all_body_parts:
-		file_access.store_8(part.hp.max_value)
-		file_access.store_8(part.hp.value)
+		part.serialize(file_access)
 
 func _deserialize(file_access: FileAccess) -> void:
 	id = file_access.get_64()
 	character_name = file_access.get_pascal_string()
 	for part: BodyPart in all_body_parts:
-		part.hp.max_value = file_access.get_8()
-		part.hp.value = file_access.get_8()
+		part.deserialize(file_access)

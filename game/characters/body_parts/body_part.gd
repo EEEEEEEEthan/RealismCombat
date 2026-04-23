@@ -2,7 +2,6 @@ extends RefCounted
 class_name BodyPart
 
 var character: Character
-var items: Array[Item] = []
 var hp: PropertyInt
 
 func _init(p_character: Character, hp_current: int, hp_max: int) -> void:
@@ -17,3 +16,13 @@ func part_name() -> StringName:
 
 func get_item_slots() -> Array[ItemSlot]:
 	return []
+
+
+func serialize(file_access: FileAccess) -> void:
+	file_access.store_8(hp.max_value)
+	file_access.store_8(hp.value)
+
+
+func deserialize(file_access: FileAccess) -> void:
+	hp.max_value = file_access.get_8()
+	hp.value = file_access.get_8()
