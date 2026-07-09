@@ -1,9 +1,0 @@
-[gd_scene format=3 uid="uid://c5s6vu1i6b0q1"]
-
-[ext_resource type="Script" uid="uid://bwymqw7bicrnh" path="res://program.gd" id="1_nslm1"]
-
-[node name="Program" type="Node" unique_id=1981943603]
-script = ExtResource("1_nslm1")
-
-[node name="Game" parent="." unique_id=782850094 instance_placeholder="res://game/game.tscn"]
-unique_name_in_owner = true
