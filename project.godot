@@ -11,13 +11,13 @@ config_version=5
 [application]
 
 config/name="超写实战斗"
-run/main_scene="uid://6mmoxrtvmr2r"
+run/main_scene="res://program/program.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://program/icon.svg"
 
 [autoload]
 
-GameMcp="*uid://cifvycrd10ysd"
+GameMcp="*res://addons/godot_runtime_mcp/game_mcp.gd"
 RegressionTest="*res://tests/test_runner.gd"
 
 [display]
@@ -48,8 +48,8 @@ fonts/dynamic_fonts/use_oversampling=false
 theme/default_font_antialiasing=0
 theme/default_font_hinting=0
 theme/default_font_subpixel_positioning=0
-theme/custom="uid://d0sf100b0m4ql"
-theme/custom_font="uid://cad14ymkmupbq"
+theme/custom="res://program/theme.tres"
+theme/custom_font="res://program/fonts/font8.tres"
 
 [rendering]
 

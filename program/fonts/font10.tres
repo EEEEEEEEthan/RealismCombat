@@ -1,7 +1,7 @@
 [gd_resource type="FontVariation" format=3 uid="uid://dulxe567oc12r"]
 
-[ext_resource type="FontFile" uid="uid://bvn40g45yw2lj" path="res://program/fonts/custom_font_10.fnt" id="1_lpy05"]
-[ext_resource type="FontFile" uid="uid://coprcrk20pwv2" path="res://program/fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="2_wqncb"]
+[ext_resource type="FontFile" path="res://program/fonts/custom_font_10.fnt" id="1_lpy05"]
+[ext_resource type="FontFile" path="res://program/fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="2_wqncb"]
 
 [resource]
 fallbacks = Array[Font]([ExtResource("2_wqncb")])
