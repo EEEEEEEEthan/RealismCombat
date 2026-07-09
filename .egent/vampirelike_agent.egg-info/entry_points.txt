@@ -1,2 +1,0 @@
-[console_scripts]
-vampirelike-develop = main:run

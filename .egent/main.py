@@ -1,4 +1,4 @@
-"""VampireLike egent 开发工作流入口。
+"""RealismCombat egent 开发工作流入口。
 
 运行前请在项目根目录配置 ``.egent/.model.toml``::
 
@@ -18,7 +18,7 @@ if str(_EGENT_DIR) not in sys.path:
 import _common
 import conversation_printer
 import egent
-import egent.conversation
+import egent.agent
 import workflow_coding
 import workflow_review
 import workflow_test
@@ -32,7 +32,7 @@ async def begin_develop_workflow(
     custom_path_validator: _common.HiddenDirectoryPathValidator | _common.EgentPathValidator | None = None,
 ) -> tuple[bool, str]:
     """运行开发工作流：编码、验收、白盒测试循环，直至通过或耗尽重试。"""
-    developer = egent.conversation.Conversation(
+    developer = egent.agent.Agent(
         "gpt5-flash",
         skills=_common.discover_project_skills(),
     )
@@ -120,12 +120,12 @@ def make_delegate_develop_workflow() -> egent.tool.ToolCallable:
 
 
 async def run_turn(
-    conversation: egent.conversation.Conversation,
+    agent: egent.agent.Agent,
     printer: conversation_printer.ConversationPrinter,
 ) -> None:
     """运行一轮交互：收集用户输入并发送请求。"""
     prompt = input(">>> ").strip()
-    conversation.add_message("user", prompt)
+    agent.add_message("user", prompt)
     await printer.request(
         tools=[
             *_common.GIT_READ_TOOLS,
@@ -139,8 +139,8 @@ async def run_turn(
 
 async def async_main() -> int:
     """运行交互式聊天，返回进程退出码。"""
-    conversation = egent.conversation.Conversation("gpt5", skills=_common.discover_project_skills())
-    conversation.add_message(
+    agent = egent.agent.Agent("gpt5", skills=_common.discover_project_skills())
+    agent.add_message(
         "system",
         "你是egent.你是这个游戏项目的主程\n"
         "和你对接的人是制作人.你可能需要根据项目的实际情况揣测他背后的真实需求.你需要整理一份大致的计划.计划不要超过20行,每行不要超过160字.\n"
@@ -151,9 +151,9 @@ async def async_main() -> int:
         "如果任务失败,你需要分析为什么失败,调整任务描述后重新委派.失败时工作区会自动清理,报告末尾会说明.\n"
         "当然需求本身可能不合理.如果遇到这种情况,你认为调整任务描述也无法完成,那你就应该立即终止并且将原因反馈给我.\n"
     )
-    printer = conversation_printer.ConversationPrinter(conversation)
+    printer = conversation_printer.ConversationPrinter(agent)
     while True:
-        await run_turn(conversation, printer)
+        await run_turn(agent, printer)
 
 
 def run() -> None:

@@ -6,7 +6,7 @@ import asyncio
 
 import _common
 import conversation_printer
-import egent.conversation
+import egent.agent
 import godot_game_tools
 
 
@@ -18,7 +18,7 @@ async def test(prompt: str) -> tuple[bool, str]:
         return False, str(error)
 
     try:
-        tester = egent.conversation.Conversation("gpt5")
+        tester = egent.agent.Agent("gpt5")
         with conversation_printer.ConversationPrinter(tester):
             tester.add_message(
                 "system",
@@ -94,14 +94,12 @@ async def test(prompt: str) -> tuple[bool, str]:
                 f"\n## 需求\n{prompt}",
             )
             try:
+                tester.tools = [*_common.GIT_READ_TOOLS, godot_game_tools.run_gdscript]
                 submitted = await asyncio.wait_for(
-                    tester.request_submit(
-                        {"is_passed": (bool, "测试是否通过"), "summary": (str, "测试结果摘要")},
-                        (
-                            *_common.GIT_READ_TOOLS,
-                            godot_game_tools.run_gdscript,
-                        ),
-                    ),
+                    tester.request_submit({
+                        "is_passed": (bool, "测试是否通过"),
+                        "summary": (str, "测试结果摘要"),
+                    }),
                     timeout=600.0,
                 )
             except asyncio.TimeoutError:

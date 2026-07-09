@@ -1,0 +1,2 @@
+[console_scripts]
+realism-combat-develop = main:run

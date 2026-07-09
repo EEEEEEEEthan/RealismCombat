@@ -10,7 +10,7 @@ from pathlib import Path
 
 import _common
 import egent
-import egent.conversation
+import egent.agent
 import godot_game_tools
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -79,7 +79,7 @@ def _run_regression_batch() -> tuple[bool, str]:
 
 
 async def coding(
-    coder: egent.conversation.Conversation,
+    coder: egent.agent.Agent,
     prompt: str,
     *,
     custom_path_validator: _common.HiddenDirectoryPathValidator | _common.EgentPathValidator | None = None,
@@ -114,19 +114,18 @@ async def coding(
     last_failure_output = ""
     for _ in range(5):
         try:
-            submitted = await coder.request_submit(
-                {
-                    "success": (bool, "true表示任务完成,false表示放弃"),
-                    "reason": (str, "如果放弃，填放弃原因,例如需求不合理,或者无法实现等。否则填一个减号`-`"),
-                },
-                (
-                    *_common.FILE_READ_TOOLS,
-                    *write_tools,
-                    *egent.builtin_tools.git_tools.read_only_tools,
-                    run_regression_test,
-                    launch_game_tool,
-                    godot_game_tools.run_gdscript,
-                ))
+            coder.tools = [
+                *_common.FILE_READ_TOOLS,
+                *write_tools,
+                *egent.builtin_tools.git_tools.read_only_tools,
+                run_regression_test,
+                launch_game_tool,
+                godot_game_tools.run_gdscript,
+            ]
+            submitted = await coder.request_submit({
+                "success": (bool, "true表示任务完成,false表示放弃"),
+                "reason": (str, "如果放弃，填放弃原因,例如需求不合理,或者无法实现等。否则填一个减号`-`"),
+            })
         finally:
             _terminate_tracked_processes(tracked_processes)
             tracked_processes.clear()
@@ -138,13 +137,8 @@ async def coding(
             "system",
             "编码已完成。请使用 code-optimize技能优化代码"
         )
-        async for _event in coder.request(
-            tools=(
-                *_common.GIT_READ_TOOLS,
-                *write_tools,
-            ),
-        ):
-            pass
+        coder.tools = [*_common.GIT_READ_TOOLS, *write_tools]
+        await coder.request()
 
         passed, last_failure_output = _run_regression_batch()
         if passed:
@@ -159,8 +153,6 @@ async def coding(
         "回归测试连续失败。开发计划暂停。"
         "请总结本次开发工作遇到的问题。"
     )
-    async for _event in coder.request(
-        tools=(),
-    ):
-        pass
+    coder.tools = []
+    await coder.request()
     return False, coder.last_message
