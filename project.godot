@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 AudioManager="*uid://bocrqmmj7a43b"
 FocusLogger="*uid://c7h4n2k8qx9mw"
 Dialogues="*uid://bn7ia84i6sq77"
+GameMcp="*uid://cifvycrd10ysd"
 
 [display]
 

@@ -1,3 +1,6 @@
 [submodule "addons/editable_texture"]
 	path = addons/editable_texture
 	url = https://github.com/EEEEEEEEthan/godot_editable_texture.git
+[submodule "addons/godot_runtime_mcp"]
+	path = addons/godot_runtime_mcp
+	url = https://github.com/EEEEEEEEthan/godot_runtime_mcp.git
