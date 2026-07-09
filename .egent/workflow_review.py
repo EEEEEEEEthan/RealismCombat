@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import _common
 import conversation_printer
 import egent.agent
@@ -17,7 +15,6 @@ async def review(prompt: str) -> tuple[bool, str]:
         skills=_common.discover_project_skills(),
     )
     reviewer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        root=Path.cwd().resolve(),
         discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=("**",),
             blacklist=(

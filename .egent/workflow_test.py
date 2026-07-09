@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 
 import _common
 import conversation_printer
@@ -22,7 +21,6 @@ async def test(prompt: str) -> tuple[bool, str]:
     try:
         tester = egent.agent.Agent("gpt5")
         tester.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-            root=Path.cwd().resolve(),
             discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
                 whitelist=("**",),
                 blacklist=(

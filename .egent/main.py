@@ -38,7 +38,6 @@ async def begin_develop_workflow(
         skills=_common.discover_project_skills(),
     )
     developer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        root=Path.cwd().resolve(),
         discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=("**",),
             blacklist=(
@@ -167,7 +166,6 @@ async def run_turn(
     """运行一轮交互：收集用户输入并发送请求。"""
     prompt = input(">>> ").strip()
     agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        root=Path.cwd().resolve(),
         discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=("**",),
             blacklist=(
@@ -220,7 +218,6 @@ async def async_main() -> int:
     """运行交互式聊天，返回进程退出码。"""
     agent = egent.agent.Agent("gpt5", skills=_common.discover_project_skills())
     agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        root=Path.cwd().resolve(),
         discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=("**",),
             blacklist=(

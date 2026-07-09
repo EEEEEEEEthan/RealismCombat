@@ -101,7 +101,6 @@ async def coding(
         coder.path_permissions = custom_path_permissions
     elif coder.path_permissions is None:
         coder.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-            root=Path.cwd().resolve(),
             discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
                 whitelist=("**",),
                 blacklist=(
