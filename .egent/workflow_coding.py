@@ -100,22 +100,23 @@ async def coding(
     if custom_path_permissions is not None:
         coder.path_permissions = custom_path_permissions
     elif coder.path_permissions is None:
+        cwd = Path.cwd().resolve().as_posix()
         coder.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
             discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
                 whitelist=("**",),
                 blacklist=(
-                    "**/*.pyc",
+                    "*.pyc",
                     "**/.pytest_cache",
                     "**/.ruff_cache",
                     "**/__pycache__",
-                    ".agents",
-                    ".cursor",
-                    ".egent",
-                    ".engine",
-                    ".export",
-                    ".git",
-                    ".godot",
-                    ".logs",
+                    f"{cwd}/.agents",
+                    f"{cwd}/.cursor",
+                    f"{cwd}/.egent",
+                    f"{cwd}/.engine",
+                    f"{cwd}/.export",
+                    f"{cwd}/.git",
+                    f"{cwd}/.godot",
+                    f"{cwd}/.logs",
                 ),
             ),
             readable=egent.builtin_tools.path_validator.PathPermissionRule(
@@ -126,14 +127,14 @@ async def coding(
                 whitelist=("**",),
                 blacklist=(
                     "**/.model.toml",
-                    ".agents",
-                    ".cursor",
-                    ".egent",
-                    ".engine",
-                    ".export",
-                    ".git",
-                    ".godot",
-                    ".logs",
+                    f"{cwd}/.agents/**/*",
+                    f"{cwd}/.cursor/**/*",
+                    f"{cwd}/.egent/**/*",
+                    f"{cwd}/.engine/**/*",
+                    f"{cwd}/.export/**/*",
+                    f"{cwd}/.git/**/*",
+                    f"{cwd}/.godot/**/*",
+                    f"{cwd}/.logs/**/*",
                 ),
             ),
         )

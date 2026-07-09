@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 
 import _common
 import conversation_printer
@@ -20,22 +21,23 @@ async def test(prompt: str) -> tuple[bool, str]:
 
     try:
         tester = egent.agent.Agent("gpt5")
+        cwd = Path.cwd().resolve().as_posix()
         tester.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
             discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
                 whitelist=("**",),
                 blacklist=(
-                    "**/*.pyc",
+                    "*.pyc",
                     "**/.pytest_cache",
                     "**/.ruff_cache",
                     "**/__pycache__",
-                    ".agents",
-                    ".cursor",
-                    ".egent",
-                    ".engine",
-                    ".export",
-                    ".git",
-                    ".godot",
-                    ".logs",
+                    f"{cwd}/.agents",
+                    f"{cwd}/.cursor",
+                    f"{cwd}/.egent",
+                    f"{cwd}/.engine",
+                    f"{cwd}/.export",
+                    f"{cwd}/.git",
+                    f"{cwd}/.godot",
+                    f"{cwd}/.logs",
                 ),
             ),
             readable=egent.builtin_tools.path_validator.PathPermissionRule(
@@ -46,14 +48,14 @@ async def test(prompt: str) -> tuple[bool, str]:
                 whitelist=("**",),
                 blacklist=(
                     "**/.model.toml",
-                    ".agents",
-                    ".cursor",
-                    ".egent",
-                    ".engine",
-                    ".export",
-                    ".git",
-                    ".godot",
-                    ".logs",
+                    f"{cwd}/.agents/**/*",
+                    f"{cwd}/.cursor/**/*",
+                    f"{cwd}/.egent/**/*",
+                    f"{cwd}/.engine/**/*",
+                    f"{cwd}/.export/**/*",
+                    f"{cwd}/.git/**/*",
+                    f"{cwd}/.godot/**/*",
+                    f"{cwd}/.logs/**/*",
                 ),
             ),
         )

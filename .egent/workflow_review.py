@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import _common
 import conversation_printer
 import egent.agent
@@ -14,22 +16,23 @@ async def review(prompt: str) -> tuple[bool, str]:
         "gpt5",
         skills=_common.discover_project_skills(),
     )
+    cwd = Path.cwd().resolve().as_posix()
     reviewer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
         discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=("**",),
             blacklist=(
-                "**/*.pyc",
+                "*.pyc",
                 "**/.pytest_cache",
                 "**/.ruff_cache",
                 "**/__pycache__",
-                ".agents",
-                ".cursor",
-                ".egent",
-                ".engine",
-                ".export",
-                ".git",
-                ".godot",
-                ".logs",
+                f"{cwd}/.agents",
+                f"{cwd}/.cursor",
+                f"{cwd}/.egent",
+                f"{cwd}/.engine",
+                f"{cwd}/.export",
+                f"{cwd}/.git",
+                f"{cwd}/.godot",
+                f"{cwd}/.logs",
             ),
         ),
         readable=egent.builtin_tools.path_validator.PathPermissionRule(
