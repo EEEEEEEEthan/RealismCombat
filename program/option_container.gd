@@ -2,11 +2,6 @@
 extends VBoxContainer
 class_name OptionContainer
 
-# 箭头纹理在 Atlas 中的裁剪区域
-const _ARROW_TEX_REGION := Rect2(21, 2, 8, 5)
-# 箭头最小高度（与 Atlas 中箭头像素高度一致）
-const _ARROW_MIN_HEIGHT := 8.0
-
 var _arrow_texture: AtlasTexture:
 	get:
 		if not _arrow_texture:
@@ -14,10 +9,12 @@ var _arrow_texture: AtlasTexture:
 			assert(image, "箭头图集资源未找到")
 			_arrow_texture = AtlasTexture.new()
 			_arrow_texture.atlas = image
-			_arrow_texture.region = _ARROW_TEX_REGION
+			_arrow_texture.region = Rect2(21, 2, 8, 5)
 		return _arrow_texture
 
 @export_range(0, 32) var viewport_begin: int:
+	get:
+		return clampi(viewport_begin, 0, max(0, get_child_count(false) - 1))
 	set(value):
 		viewport_begin = value
 		_update_viewport()
@@ -43,13 +40,12 @@ func _exit_tree() -> void:
 	_up_arrow = null
 	_down_arrow = null
 
-
 static func _build_arrow(name: StringName, texture: Texture2D, flipped: bool) -> TextureButton:
 	var arrow := TextureButton.new()
 	arrow.name = name
 	arrow.texture_normal = texture
 	arrow.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
-	arrow.custom_minimum_size = Vector2(0, _ARROW_MIN_HEIGHT)
+	arrow.custom_minimum_size = Vector2(0, 8.0)
 	arrow.flip_v = flipped
 	return arrow
 
@@ -63,13 +59,8 @@ func _update_viewport() -> void:
 	if content_count <= 0:
 		return
 
-	# 将视口起始位置限制在有效范围内
-	var first_visible := clampi(viewport_begin, 0, content_count - 1)
-	# 回写 clamped 值，保持 viewport_begin 与有效状态同步
-	# 仅在值改变时回写，避免触发 setter 导致无限递归
-	if first_visible != viewport_begin:
-		viewport_begin = first_visible
-		return
+	# getter 已自动 clamp 视口起始位置
+	var first_visible := viewport_begin
 
 	# 上箭头：非起始位置时显示，占一个可见槽位
 	var show_up := first_visible > 0
