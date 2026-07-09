@@ -13,11 +13,12 @@ config_version=5
 config/name="超写实战斗"
 run/main_scene="uid://6mmoxrtvmr2r"
 config/features=PackedStringArray("4.7", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://program/icon.svg"
 
 [autoload]
 
 GameMcp="*uid://cifvycrd10ysd"
+RegressionTest="*res://tests/test_runner.gd"
 
 [display]
 
