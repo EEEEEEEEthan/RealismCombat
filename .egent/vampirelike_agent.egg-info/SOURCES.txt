@@ -1,0 +1,13 @@
+pyproject.toml
+.egent/_common.py
+.egent/conversation_printer.py
+.egent/godot_game_tools.py
+.egent/main.py
+.egent/workflow_coding.py
+.egent/workflow_review.py
+.egent/vampirelike_agent.egg-info/PKG-INFO
+.egent/vampirelike_agent.egg-info/SOURCES.txt
+.egent/vampirelike_agent.egg-info/dependency_links.txt
+.egent/vampirelike_agent.egg-info/entry_points.txt
+.egent/vampirelike_agent.egg-info/requires.txt
+.egent/vampirelike_agent.egg-info/top_level.txt

@@ -1,0 +1,4 @@
+.model.toml
+/.temp/
+/.logs/
+/__pycache__
