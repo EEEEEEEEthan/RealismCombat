@@ -11,6 +11,7 @@ from pathlib import Path
 import _common
 import egent
 import egent.agent
+import egent.builtin_tools.path_validator
 import godot_game_tools
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -82,7 +83,7 @@ async def coding(
     coder: egent.agent.Agent,
     prompt: str,
     *,
-    custom_path_validator: _common.HiddenDirectoryPathValidator | _common.EgentPathValidator | None = None,
+    custom_path_permissions: egent.builtin_tools.path_validator.PathPermissions | None = None,
 ) -> tuple[bool, str]:
     """执行开发：实现、优化、跑回归测试；最多重试直至通过。"""
     tracked_processes: list[subprocess.Popen] = []
@@ -96,11 +97,47 @@ async def coding(
         _, output = run_regression(spec)
         return output
 
-    write_tools = (
-        egent.builtin_tools.file_system_tools.get_edit_tools(custom_path_validator)
-        if custom_path_validator is not None
-        else _common.FILE_WRITE_TOOLS
-    )
+    if custom_path_permissions is not None:
+        coder.path_permissions = custom_path_permissions
+    elif coder.path_permissions is None:
+        coder.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+            root=Path.cwd().resolve(),
+            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=("**",),
+                blacklist=(
+                    "**/*.pyc",
+                    "**/.pytest_cache",
+                    "**/.ruff_cache",
+                    "**/__pycache__",
+                    "**/.agents",
+                    "**/.cursor",
+                    "**/.egent",
+                    "**/.engine",
+                    "**/.export",
+                    "**/.git",
+                    "**/.godot",
+                    "**/.logs",
+                ),
+            ),
+            readable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=("**",),
+                blacklist=("**/.model.toml",),
+            ),
+            editable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=("**",),
+                blacklist=(
+                    "**/.model.toml",
+                    "**/.agents",
+                    "**/.cursor",
+                    "**/.egent",
+                    "**/.engine",
+                    "**/.export",
+                    "**/.git",
+                    "**/.godot",
+                    "**/.logs",
+                ),
+            ),
+        )
 
     coder.add_message(
         "system",
@@ -115,9 +152,7 @@ async def coding(
     for _ in range(5):
         try:
             coder.tools = [
-                *_common.FILE_READ_TOOLS,
-                *write_tools,
-                *egent.builtin_tools.git_tools.read_only_tools,
+                *_common.GIT_READ_ONLY_TOOLS,
                 run_regression_test,
                 launch_game_tool,
                 godot_game_tools.run_gdscript,
@@ -137,7 +172,7 @@ async def coding(
             "system",
             "编码已完成。请使用 code-optimize技能优化代码"
         )
-        coder.tools = [*_common.GIT_READ_TOOLS, *write_tools]
+        coder.tools = list(_common.GIT_READ_ONLY_TOOLS)
         await coder.request()
 
         passed, last_failure_output = _run_regression_batch()

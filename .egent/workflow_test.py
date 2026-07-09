@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 
 import _common
 import conversation_printer
 import egent.agent
+import egent.builtin_tools.path_validator
 import godot_game_tools
 
 
@@ -19,6 +21,44 @@ async def test(prompt: str) -> tuple[bool, str]:
 
     try:
         tester = egent.agent.Agent("gpt5")
+        tester.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+            root=Path.cwd().resolve(),
+            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=("**",),
+                blacklist=(
+                    "**/*.pyc",
+                    "**/.pytest_cache",
+                    "**/.ruff_cache",
+                    "**/__pycache__",
+                    "**/.agents",
+                    "**/.cursor",
+                    "**/.egent",
+                    "**/.engine",
+                    "**/.export",
+                    "**/.git",
+                    "**/.godot",
+                    "**/.logs",
+                ),
+            ),
+            readable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=("**",),
+                blacklist=("**/.model.toml",),
+            ),
+            editable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=("**",),
+                blacklist=(
+                    "**/.model.toml",
+                    "**/.agents",
+                    "**/.cursor",
+                    "**/.egent",
+                    "**/.engine",
+                    "**/.export",
+                    "**/.git",
+                    "**/.godot",
+                    "**/.logs",
+                ),
+            ),
+        )
         with conversation_printer.ConversationPrinter(tester):
             tester.add_message(
                 "system",
@@ -94,7 +134,7 @@ async def test(prompt: str) -> tuple[bool, str]:
                 f"\n## 需求\n{prompt}",
             )
             try:
-                tester.tools = [*_common.GIT_READ_TOOLS, godot_game_tools.run_gdscript]
+                tester.tools = [*_common.GIT_READ_ONLY_TOOLS, godot_game_tools.run_gdscript]
                 submitted = await asyncio.wait_for(
                     tester.request_submit({
                         "is_passed": (bool, "测试是否通过"),

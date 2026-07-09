@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import _common
 import conversation_printer
 import egent.agent
+import egent.builtin_tools.path_validator
 
 
 async def review(prompt: str) -> tuple[bool, str]:
@@ -12,6 +15,34 @@ async def review(prompt: str) -> tuple[bool, str]:
     reviewer = egent.agent.Agent(
         "gpt5",
         skills=_common.discover_project_skills(),
+    )
+    reviewer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+        root=Path.cwd().resolve(),
+        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/*.pyc",
+                "**/.pytest_cache",
+                "**/.ruff_cache",
+                "**/__pycache__",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
+        readable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=("**/.model.toml",),
+        ),
+        editable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(),
+            blacklist=(),
+        ),
     )
     with conversation_printer.ConversationPrinter(reviewer):
         reviewer.add_message(
@@ -26,7 +57,7 @@ async def review(prompt: str) -> tuple[bool, str]:
             "根据 code-optimize 技能检查维护成本与结构质量\n\n"
             "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n",
         )
-        reviewer.tools = list(_common.GIT_READ_TOOLS)
+        reviewer.tools = list(_common.GIT_READ_ONLY_TOOLS)
         submitted = await reviewer.request_submit({
             "is_accepted": (bool, "是否通过验收"),
             "summary": (str, "验收意见摘要"),

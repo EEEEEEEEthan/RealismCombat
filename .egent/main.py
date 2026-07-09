@@ -19,6 +19,7 @@ import _common
 import conversation_printer
 import egent
 import egent.agent
+import egent.builtin_tools.path_validator
 import workflow_coding
 import workflow_review
 import workflow_test
@@ -29,12 +30,50 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 async def begin_develop_workflow(
     description: str,
     *,
-    custom_path_validator: _common.HiddenDirectoryPathValidator | _common.EgentPathValidator | None = None,
+    custom_path_permissions: egent.builtin_tools.path_validator.PathPermissions | None = None,
 ) -> tuple[bool, str]:
     """运行开发工作流：编码、验收、白盒测试循环，直至通过或耗尽重试。"""
     developer = egent.agent.Agent(
         "gpt5-flash",
         skills=_common.discover_project_skills(),
+    )
+    developer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+        root=Path.cwd().resolve(),
+        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/*.pyc",
+                "**/.pytest_cache",
+                "**/.ruff_cache",
+                "**/__pycache__",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
+        readable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=("**/.model.toml",),
+        ),
+        editable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/.model.toml",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
     )
     printer = conversation_printer.ConversationPrinter(developer)
     developer.add_message("system", "你是这个项目的开发工程师")
@@ -46,7 +85,9 @@ async def begin_develop_workflow(
     for _ in range(5):
         try:
             finished, coding_message = await workflow_coding.coding(
-                developer, description, custom_path_validator=custom_path_validator
+                developer,
+                description,
+                custom_path_permissions=custom_path_permissions,
             )
         except workflow_coding.CodingGaveUp as error:
             return False, f"你的手下放弃了任务。原因是: \n{error.reason}"
@@ -125,10 +166,48 @@ async def run_turn(
 ) -> None:
     """运行一轮交互：收集用户输入并发送请求。"""
     prompt = input(">>> ").strip()
+    agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+        root=Path.cwd().resolve(),
+        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/*.pyc",
+                "**/.pytest_cache",
+                "**/.ruff_cache",
+                "**/__pycache__",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
+        readable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=("**/.model.toml",),
+        ),
+        editable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/.model.toml",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
+    )
     agent.add_message("user", prompt)
     await printer.request(
         tools=[
-            *_common.GIT_READ_TOOLS,
+            *_common.GIT_READ_ONLY_TOOLS,
             make_delegate_develop_workflow(),
             egent.builtin_tools.git_tools.git_add,
             egent.builtin_tools.git_tools.git_commit,
@@ -140,6 +219,44 @@ async def run_turn(
 async def async_main() -> int:
     """运行交互式聊天，返回进程退出码。"""
     agent = egent.agent.Agent("gpt5", skills=_common.discover_project_skills())
+    agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+        root=Path.cwd().resolve(),
+        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/*.pyc",
+                "**/.pytest_cache",
+                "**/.ruff_cache",
+                "**/__pycache__",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
+        readable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=("**/.model.toml",),
+        ),
+        editable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=("**",),
+            blacklist=(
+                "**/.model.toml",
+                "**/.agents",
+                "**/.cursor",
+                "**/.egent",
+                "**/.engine",
+                "**/.export",
+                "**/.git",
+                "**/.godot",
+                "**/.logs",
+            ),
+        ),
+    )
     agent.add_message(
         "system",
         "你是egent.你是这个游戏项目的主程\n"
