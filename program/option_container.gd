@@ -18,21 +18,14 @@ var _arrow_texture: AtlasTexture:
 		return _arrow_texture
 
 @export_range(0, 32) var viewport_begin: int:
-	get:
-		return _viewport_begin
 	set(value):
-		_viewport_begin = value
+		viewport_begin = value
 		_update_viewport()
 
 @export_range(1, 8) var viewport_size: int:
-	get:
-		return _viewport_size
 	set(value):
-		_viewport_size = value
+		viewport_size = value
 		_update_viewport()
-
-var _viewport_begin: int = 0
-var _viewport_size: int = 1
 
 var _up_arrow: TextureButton
 var _down_arrow: TextureButton
@@ -71,13 +64,16 @@ func _update_viewport() -> void:
 		return
 
 	# 将视口起始位置限制在有效范围内
-	var first_visible := clampi(_viewport_begin, 0, content_count - 1)
+	var first_visible := clampi(viewport_begin, 0, content_count - 1)
 	# 回写 clamped 值，保持 viewport_begin 与有效状态同步
-	_viewport_begin = first_visible
+	# 仅在值改变时回写，避免触发 setter 导致无限递归
+	if first_visible != viewport_begin:
+		viewport_begin = first_visible
+		return
 
 	# 上箭头：非起始位置时显示，占一个可见槽位
 	var show_up := first_visible > 0
-	var content_slots := _viewport_size - (1 if show_up else 0)
+	var content_slots := viewport_size - (1 if show_up else 0)
 
 	# 下箭头：内容未到底时显示，占一个可见槽位
 	var show_down := first_visible + content_slots < content_count
