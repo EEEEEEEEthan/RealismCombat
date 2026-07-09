@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://bjtb8ik4lkn5a"
-path="res://.godot/imported/start.wav-0527c4906aa34eedc61fd919970f8380.sample"
+uid="uid://b80hossn33abq"
+path="res://.godot/imported/dodge.wav-a094ac1a65c07c98892d9ef50a94e4ae.sample"
 
 [deps]
 
-source_file="res://audios/start.wav"
-dest_files=["res://.godot/imported/start.wav-0527c4906aa34eedc61fd919970f8380.sample"]
+source_file="res://program/audios/dodge.wav"
+dest_files=["res://.godot/imported/dodge.wav-a094ac1a65c07c98892d9ef50a94e4ae.sample"]
 
 [params]
 

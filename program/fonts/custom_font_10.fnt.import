@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://bvn40g45yw2lj"
+path="res://.godot/imported/custom_font_10.fnt-e3dcda6400a95eea8b695203c1512478.fontdata"
+
+[deps]
+
+source_file="res://program/fonts/custom_font_10.fnt"
+dest_files=["res://.godot/imported/custom_font_10.fnt-e3dcda6400a95eea8b695203c1512478.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

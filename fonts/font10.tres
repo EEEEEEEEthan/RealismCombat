@@ -1,8 +1,0 @@
-[gd_resource type="FontVariation" format=3 uid="uid://dulxe567oc12r"]
-
-[ext_resource type="FontFile" uid="uid://bvn40g45yw2lj" path="res://fonts/custom_font_10.fnt" id="1_lpy05"]
-[ext_resource type="FontFile" uid="uid://coprcrk20pwv2" path="res://fonts/fusion-pixel-10px-monospaced-zh_hant.otf" id="2_wqncb"]
-
-[resource]
-fallbacks = Array[Font]([ExtResource("2_wqncb")])
-base_font = ExtResource("1_lpy05")

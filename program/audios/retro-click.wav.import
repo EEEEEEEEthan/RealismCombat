@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cexlih63ikuud"
-path="res://.godot/imported/retro-click.wav-af01821cac53037c5a5e1d5eca96e0d1.sample"
+path="res://.godot/imported/retro-click.wav-c628d16d15d784e4873c67c10817aa1a.sample"
 
 [deps]
 
-source_file="res://audios/retro-click.wav"
-dest_files=["res://.godot/imported/retro-click.wav-af01821cac53037c5a5e1d5eca96e0d1.sample"]
+source_file="res://program/audios/retro-click.wav"
+dest_files=["res://.godot/imported/retro-click.wav-c628d16d15d784e4873c67c10817aa1a.sample"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://dma65tfhrkidi"
-path="res://.godot/imported/fusion-pixel-12px-monospaced-zh_hant.otf-8c39ad630af482d735d77d950f53bffa.fontdata"
+path="res://.godot/imported/fusion-pixel-12px-monospaced-zh_hant.otf-5945cd0c5e9994162bfd9069d373c823.fontdata"
 
 [deps]
 
-source_file="res://fonts/fusion-pixel-12px-monospaced-zh_hant.otf"
-dest_files=["res://.godot/imported/fusion-pixel-12px-monospaced-zh_hant.otf-8c39ad630af482d735d77d950f53bffa.fontdata"]
+source_file="res://program/fonts/fusion-pixel-12px-monospaced-zh_hant.otf"
+dest_files=["res://.godot/imported/fusion-pixel-12px-monospaced-zh_hant.otf-5945cd0c5e9994162bfd9069d373c823.fontdata"]
 
 [params]
 

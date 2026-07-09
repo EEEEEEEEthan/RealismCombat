@@ -91,7 +91,7 @@ async def coding(
     def run_regression_test(spec: str) -> str:
         """运行指定回归测试套件并返回输出。
 
-        @param spec: 测试套件：all（全部）、maze、upgrade、upgrade.full_test
+        @param spec: 测试套件：all（全部）、smoke
         """
         _, output = run_regression(spec)
         return output
