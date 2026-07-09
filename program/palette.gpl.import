@@ -1,0 +1,14 @@
+[remap]
+
+importer="godot.gpl_color_palette"
+type="ColorPalette"
+uid="uid://crnuuc7im2w62"
+path="res://.godot/imported/palette.gpl-892eed330c18c422f05a12f03bc5ab24.tres"
+
+[deps]
+
+source_file="res://program/palette.gpl"
+dest_files=["res://.godot/imported/palette.gpl-892eed330c18c422f05a12f03bc5ab24.tres"]
+
+[params]
+

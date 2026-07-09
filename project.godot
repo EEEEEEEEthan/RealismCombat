@@ -40,7 +40,7 @@ external_editor/exec_flags="{project}"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg")
+enabled=PackedStringArray("res://addons/editable_texture/plugin.cfg", "res://addons/godot_gpl_color_palette/plugin.cfg")
 
 [gui]
 
@@ -48,6 +48,8 @@ fonts/dynamic_fonts/use_oversampling=false
 theme/default_font_antialiasing=0
 theme/default_font_hinting=0
 theme/default_font_subpixel_positioning=0
+theme/custom="uid://d0sf100b0m4ql"
+theme/custom_font="uid://cad14ymkmupbq"
 
 [rendering]
 
