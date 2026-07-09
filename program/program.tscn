@@ -1,3 +1,35 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
+[ext_resource type="Script" uid="uid://bfbbr72fifljm" path="res://program/option_container.gd" id="1_bt24b"]
+
 [node name="Program" type="Node" unique_id=248735067]
+
+[node name="OptionContainer" type="VBoxContainer" parent="." unique_id=1987656753]
+offset_right = 28.0
+offset_bottom = 57.0
+script = ExtResource("1_bt24b")
+viewport_size = 3
+metadata/_custom_type_script = "uid://bfbbr72fifljm"
+
+[node name="Label" type="Label" parent="OptionContainer" unique_id=2051583654]
+layout_mode = 2
+text = "asdfsfd"
+
+[node name="Label2" type="Label" parent="OptionContainer" unique_id=1874875529]
+layout_mode = 2
+text = "asdfsfd"
+
+[node name="Label3" type="Label" parent="OptionContainer" unique_id=140119109]
+visible = false
+layout_mode = 2
+text = "asdfsfd"
+
+[node name="Label4" type="Label" parent="OptionContainer" unique_id=994051349]
+visible = false
+layout_mode = 2
+text = "asdfsfd"
+
+[node name="Label5" type="Label" parent="OptionContainer" unique_id=1871860808]
+visible = false
+layout_mode = 2
+text = "asdfsfd"
