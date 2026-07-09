@@ -3,8 +3,8 @@ setlocal enabledelayedexpansion
 
 REM Version definition
 set "useMono=0"
-set "versionNumber=4.6.1"
-set "flavor=stable"
+set "versionNumber=4.7.1"
+set "flavor=rc1"
 set "tmpDir=.tmp"
 set "engineDir=.engine"
 set "zipFile=%tmpDir%\godot.zip"
