@@ -8,28 +8,27 @@
 offset_right = 28.0
 offset_bottom = 57.0
 script = ExtResource("1_bt24b")
-viewport_size = 3
+viewport_size = 4
 metadata/_custom_type_script = "uid://bfbbr72fifljm"
 
-[node name="Label" type="Label" parent="OptionContainer" unique_id=2051583654]
+[node name="Button" type="Button" parent="OptionContainer" unique_id=1479024622]
 layout_mode = 2
-text = "asdfsfd"
+text = "button1"
 
-[node name="Label2" type="Label" parent="OptionContainer" unique_id=1874875529]
+[node name="Button2" type="Button" parent="OptionContainer" unique_id=1864006182]
 layout_mode = 2
-text = "asdfsfd"
+text = "button2"
 
-[node name="Label3" type="Label" parent="OptionContainer" unique_id=140119109]
+[node name="Button3" type="Button" parent="OptionContainer" unique_id=1947002278]
+layout_mode = 2
+text = "button3"
+
+[node name="Button4" type="Button" parent="OptionContainer" unique_id=1220414457]
 visible = false
 layout_mode = 2
-text = "asdfsfd"
+text = "button4"
 
-[node name="Label4" type="Label" parent="OptionContainer" unique_id=994051349]
+[node name="Button5" type="Button" parent="OptionContainer" unique_id=2013241025]
 visible = false
 layout_mode = 2
-text = "asdfsfd"
-
-[node name="Label5" type="Label" parent="OptionContainer" unique_id=1871860808]
-visible = false
-layout_mode = 2
-text = "asdfsfd"
+text = "button5"
