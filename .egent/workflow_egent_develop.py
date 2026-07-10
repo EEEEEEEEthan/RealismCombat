@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import _common
@@ -13,107 +12,6 @@ import egent.agent
 import egent.builtin_tools.path_validator
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_PYTEST_TIMEOUT_SECONDS = 120.0
-
-
-class CodingGaveUp(Exception):
-    """开发者主动放弃任务。"""
-
-    def __init__(self, reason: str) -> None:
-        self.reason = reason
-        super().__init__(reason)
-
-
-def _egent_coder_path_permissions(
-    project_root: str,
-) -> egent.builtin_tools.path_validator.PathPermissions:
-    """egent 开发者路径权限：可读写 .egent，可读全项目。"""
-    return egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*.pyc",
-                "*/.pytest_cache",
-                "*/.ruff_cache",
-                "*/__pycache__",
-                f"{project_root}/.git",
-                f"{project_root}/.godot",
-                f"{project_root}/.export",
-                f"{project_root}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=("*/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(
-                f"{project_root}/.egent",
-                f"{project_root}/.egent/*",
-                f"{project_root}/pyproject.toml",
-            ),
-            blacklist=(
-                "*/.model.toml",
-                "*.pyc",
-                "*/.pytest_cache/*",
-                "*/.ruff_cache/*",
-                "*/__pycache__/*",
-                f"{project_root}/.egent/.model.toml",
-            ),
-        ),
-    )
-
-
-def _egent_reviewer_path_permissions(
-    project_root: str,
-) -> egent.builtin_tools.path_validator.PathPermissions:
-    """egent 验收员路径权限：只读，可发现 .egent 变更。"""
-    return egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*.pyc",
-                "*/.pytest_cache",
-                "*/.ruff_cache",
-                "*/__pycache__",
-                f"{project_root}/.git",
-                f"{project_root}/.godot",
-                f"{project_root}/.export",
-                f"{project_root}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=("*/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(),
-            blacklist=(),
-        ),
-    )
-
-
-def _run_pytest(spec: str = "") -> tuple[bool, str]:
-    """运行 .egent/tests 下的 pytest，返回 (是否通过, 输出)。"""
-    command = [sys.executable, "-m", "pytest"]
-    normalized_spec = spec.strip()
-    if normalized_spec and normalized_spec.lower() != "all":
-        command.append(normalized_spec)
-    try:
-        test_result = subprocess.run(
-            command,
-            cwd=_PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=_PYTEST_TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired:
-        return False, f"pytest 超时（{_PYTEST_TIMEOUT_SECONDS:.0f}s）"
-    output = f"{test_result.stdout}\n{test_result.stderr}".strip()
-    if test_result.returncode == 0:
-        return True, output or "测试通过"
-    return False, output
 
 
 async def coding(
@@ -122,7 +20,68 @@ async def coding(
 ) -> tuple[bool, str]:
     """执行 egent 开发：实现、优化、跑 pytest；最多重试直至通过。"""
     project_root = Path.cwd().resolve().as_posix()
-    coder.path_permissions = _egent_coder_path_permissions(project_root)
+
+    def _egent_coder_permissions() -> egent.builtin_tools.path_validator.PathPermissions:
+        """egent 开发者路径权限：可读写 .egent，可读全项目。"""
+        return egent.builtin_tools.path_validator.PathPermissions(
+            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=(project_root, f"{project_root}/*"),
+                blacklist=(
+                    "*.pyc",
+                    "*/.pytest_cache",
+                    "*/.ruff_cache",
+                    "*/__pycache__",
+                    f"{project_root}/.git",
+                    f"{project_root}/.godot",
+                    f"{project_root}/.export",
+                    f"{project_root}/.logs",
+                ),
+            ),
+            readable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=(project_root, f"{project_root}/*"),
+                blacklist=("*/.model.toml",),
+            ),
+            editable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=(
+                    f"{project_root}/.egent",
+                    f"{project_root}/.egent/*",
+                    f"{project_root}/pyproject.toml",
+                ),
+                blacklist=(
+                    "*/.model.toml",
+                    "*.pyc",
+                    "*/.pytest_cache/*",
+                    "*/.ruff_cache/*",
+                    "*/__pycache__/*",
+                    f"{project_root}/.egent/.model.toml",
+                ),
+            ),
+        )
+
+    coder.path_permissions = _egent_coder_permissions()
+
+    def _run_pytest(spec: str = "") -> tuple[bool, str]:
+        """运行 .egent/tests 下的 pytest，返回 (是否通过, 输出)。"""
+        command = [sys.executable, "-m", "pytest"]
+        normalized_spec = spec.strip()
+        if normalized_spec and normalized_spec.lower() != "all":
+            command.append(normalized_spec)
+        timeout = 120.0
+        try:
+            test_result = subprocess.run(
+                command,
+                cwd=_PROJECT_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            return False, f"pytest 超时（{timeout:.0f}s）"
+        output = f"{test_result.stdout}\n{test_result.stderr}".strip()
+        if test_result.returncode == 0:
+            return True, output or "测试通过"
+        return False, output
 
     def run_pytest_test(spec: str = "all") -> str:
         """运行 .egent 目录下的 pytest 测试并返回输出。
@@ -132,17 +91,7 @@ async def coding(
         _, output = _run_pytest(spec)
         return output
 
-    def fuck(msg: str) -> str:
-        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
-
-        @param msg: 吐槽内容
-        """
-        fuck_path = _PROJECT_ROOT / ".egent" / ".fuck.txt"
-        fuck_path.parent.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(fuck_path, "a", encoding="utf-8") as _f:
-            _f.write(f"[egent开发 {timestamp}] {msg}\n")
-        return "吐槽已记录。感谢反馈！"
+    fuck = _common.make_fuck("[egent开发")
 
     coder.add_message(
         "system",
@@ -167,7 +116,7 @@ async def coding(
         })
 
         if not submitted["success"]:
-            raise CodingGaveUp(submitted["reason"])
+            raise RuntimeError(submitted["reason"])
 
         coder.add_message(
             "system",
@@ -202,18 +151,35 @@ async def review(prompt: str) -> tuple[bool, str]:
         skills=_common.discover_project_skills(),
     )
     project_root = Path.cwd().resolve().as_posix()
-    reviewer.path_permissions = _egent_reviewer_path_permissions(project_root)
-    def fuck(msg: str) -> str:
-        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
 
-        @param msg: 吐槽内容
-        """
-        fuck_path = Path(__file__).resolve().parent / ".fuck.txt"
-        fuck_path.parent.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(fuck_path, "a", encoding="utf-8") as _f:
-            _f.write(f"[egent审查 {timestamp}] {msg}\n")
-        return "吐槽已记录。感谢反馈！"
+    def _egent_reviewer_permissions() -> egent.builtin_tools.path_validator.PathPermissions:
+        """egent 验收员路径权限：只读，可发现 .egent 变更。"""
+        return egent.builtin_tools.path_validator.PathPermissions(
+            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=(project_root, f"{project_root}/*"),
+                blacklist=(
+                    "*.pyc",
+                    "*/.pytest_cache",
+                    "*/.ruff_cache",
+                    "*/__pycache__",
+                    f"{project_root}/.git",
+                    f"{project_root}/.godot",
+                    f"{project_root}/.export",
+                    f"{project_root}/.logs",
+                ),
+            ),
+            readable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=(project_root, f"{project_root}/*"),
+                blacklist=("*/.model.toml",),
+            ),
+            editable=egent.builtin_tools.path_validator.PathPermissionRule(
+                whitelist=(),
+                blacklist=(),
+            ),
+        )
+
+    reviewer.path_permissions = _egent_reviewer_permissions()
+    fuck = _common.make_fuck("[egent审查")
 
     with conversation_printer.ConversationPrinter(reviewer, indent=2):
         reviewer.add_message(
@@ -254,8 +220,8 @@ async def begin_egent_develop_workflow(description: str) -> tuple[bool, str]:
     for _ in range(5):
         try:
             finished, coding_message = await coding(developer, description)
-        except CodingGaveUp as error:
-            return False, f"你的手下放弃了任务。原因是: \n{error.reason}"
+        except RuntimeError as error:
+            return False, f"你的手下放弃了任务。原因是: \n{error}"
 
         if not finished:
             developer.add_message("system", "你的工作无法顺利完成。请总结本次工作")
@@ -267,26 +233,13 @@ async def begin_egent_develop_workflow(description: str) -> tuple[bool, str]:
                 + f"❌ 未通过（已重试 5 次）\n\n{coding_message}"
             )
 
-        passed, accept_message = await review(description)
+        passed, review_message = await review(description)
         if passed:
-            developer.add_message(
-                "system",
-                "审查通过！请总结本次工作。",
-            )
-            await printer.request()
-            return True, (
-                "工作顺利完成\n\n"
-                + developer.last_message
-                + "\n\n---\n验收结果:\n"
-                + f"✅ 验收通过\n\n{accept_message}\n\n当前状态:等待提交"
-            )
+            return True, "全部通过"
 
-        await developer.summarize()
         developer.add_message(
             "system",
-            f"验收未通过，请根据验收意见修复:\n\n{accept_message}",
+            f"验收未通过:\n\n{review_message}\n\n请仔细查看需求:\n\n{description}",
         )
 
-    developer.add_message("system", "你的工作无法顺利完成。请总结本次工作")
-    await printer.request()
-    return False, "工作无法顺利完成\n\n" + developer.last_message
+    return False, "验收连续失败，流程中止"

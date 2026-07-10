@@ -7,11 +7,11 @@ from __future__ import annotations
 import ast
 import inspect
 import re
-from datetime import datetime
 from pathlib import Path
 
 import pytest
 
+import _common
 import workflow_gameplay_develop
 
 
@@ -48,11 +48,24 @@ def _get_test_source() -> ast.AsyncFunctionDef:
 def _find_local_function_def(
     function_name: str,
     parent_node: ast.AST,
-) -> ast.FunctionDef | None:
-    """在指定 AST 节点内部查找指定名称的内部函数定义。"""
+) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
+    """在指定 AST 节点内部查找指定名称的内部函数/协程定义。"""
     for node in ast.walk(parent_node):
-        if isinstance(node, ast.FunctionDef) and node.name == function_name:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name:
             return node
+    return None
+
+
+def _find_local_assign(
+    target_name: str,
+    parent_node: ast.AST,
+) -> ast.Assign | None:
+    """在指定 AST 节点内部查找对指定变量名的赋值。"""
+    for node in ast.walk(parent_node):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == target_name:
+                    return node
     return None
 
 
@@ -90,74 +103,59 @@ def _get_names_from_list(list_node: ast.List) -> set[str]:
 # ── coding() 内部 fuck 测试 ──────────────────────────────────────────────────
 
 
-def test_coding_fuck_defined() -> None:
-    """coding() 内部应定义 fuck 函数。"""
+def test_coding_fuck_from_make_fuck() -> None:
+    """coding 的 fuck 应通过 _common.make_fuck 赋值。"""
     coding_node = _get_coding_source()
     func_node = _find_local_function_def("fuck", coding_node)
-    assert func_node is not None, "coding() 内部未找到 fuck 函数定义"
+    assert func_node is None, "fuck 不应是 coding() 的内部函数定义"
 
-
-def test_coding_fuck_correct_signature() -> None:
-    """coding 的 fuck 函数应接受一个 str 参数并返回 str。"""
-    coding_node = _get_coding_source()
-    func_node = _find_local_function_def("fuck", coding_node)
-    assert func_node is not None
-    args = func_node.args.args
-    assert len(args) == 1, f"fuck 应只有 1 个参数 msg，实际有 {len(args)}"
-    assert args[0].arg == "msg", f"参数名应为 msg，实际为 {args[0].arg}"
-    if func_node.returns:
-        assert isinstance(func_node.returns, ast.Name) and func_node.returns.id == "str", (
-            f"返回值标注应为 str，实际为 {ast.dump(func_node.returns)}"
-        )
+    assign_node = _find_local_assign("fuck", coding_node)
+    assert assign_node is not None, "coding() 内部未找到 fuck 赋值"
+    assert isinstance(assign_node.value, ast.Call), "fuck 应为函数调用结果"
+    call = assign_node.value
+    assert isinstance(call.func, ast.Attribute) and call.func.attr == "make_fuck", (
+        "fuck 应来自 _common.make_fuck"
+    )
 
 
 def test_coding_fuck_uses_gameplay_develop_prefix() -> None:
     """coding 的 fuck 应使用 [gameplay开发 前缀。"""
     coding_node = _get_coding_source()
-    func_node = _find_local_function_def("fuck", coding_node)
-    assert func_node is not None
+    assign_node = _find_local_assign("fuck", coding_node)
+    assert assign_node is not None
 
-    has_prefix = any(
-        isinstance(node, ast.JoinedStr)
-        and any(
-            isinstance(v, ast.Constant) and "[gameplay开发" in str(v.value)
-            for v in node.values
-        )
-        for node in ast.walk(func_node)
-    )
-    assert has_prefix, "fuck 函数应写入 [gameplay开发 ...] 前缀"
-
-
-def test_coding_fuck_uses_datetime_now() -> None:
-    """coding 中 fuck 函数体内应包含 datetime.now() 调用。"""
-    coding_node = _get_coding_source()
-    func_node = _find_local_function_def("fuck", coding_node)
-    assert func_node is not None
-
-    has_datetime_now = any(
-        isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and node.func.attr == "now"
-        and isinstance(node.func.value, ast.Name)
-        and node.func.value.id == "datetime"
-        for node in ast.walk(func_node)
-    )
-    assert has_datetime_now, "fuck 函数体内应调用 datetime.now()"
+    # make_fuck 的参数应包含 [gameplay开发
+    call = assign_node.value
+    assert isinstance(call, ast.Call)
+    if call.args:
+        first_arg = call.args[0]
+        if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
+            assert "[gameplay开发" in first_arg.value, (
+                f"make_fuck 参数应包含 [gameplay开发，实际为 {first_arg.value!r}"
+            )
 
 
-def test_coding_fuck_uses_strftime() -> None:
-    """coding 中 fuck 函数体内应包含 strftime 调用。"""
-    coding_node = _get_coding_source()
-    func_node = _find_local_function_def("fuck", coding_node)
-    assert func_node is not None
+def test_coding_fuck_writes_with_gameplay_develop_prefix() -> None:
+    """coding 的 fuck 函数应写入带 [gameplay开发 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
+    egent_dir = Path(__file__).resolve().parent.parent
+    fuck_path = egent_dir / ".fuck.txt"
+    if fuck_path.exists():
+        fuck_path.unlink()
 
-    has_strftime = any(
-        isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and node.func.attr == "strftime"
-        for node in ast.walk(func_node)
-    )
-    assert has_strftime, "fuck 函数体内应调用 strftime"
+    try:
+        fuck_fn = _common.make_fuck("[gameplay开发")
+        result = fuck_fn("测试消息")
+        assert result == "吐槽已记录。感谢反馈！"
+
+        assert fuck_path.exists(), ".fuck.txt 文件应被创建"
+        content = fuck_path.read_text(encoding="utf-8")
+        assert re.search(
+            r"\[gameplay开发 \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] 测试消息\n",
+            content,
+        ), f"内容格式错误: {content!r}"
+    finally:
+        if fuck_path.exists():
+            fuck_path.unlink()
 
 
 def test_coding_fuck_in_both_tools_assignments() -> None:
@@ -169,7 +167,6 @@ def test_coding_fuck_in_both_tools_assignments() -> None:
         f"coding 函数中至少应有 2 处 tools 赋值，实际找到 {len(tools_assignments)}"
     )
 
-    # 只检查有内容的列表赋值（跳过空列表 coder.tools = []）
     non_empty = [
         a for a in tools_assignments
         if isinstance(a.value, ast.List) and a.value.elts
@@ -184,81 +181,60 @@ def test_coding_fuck_in_both_tools_assignments() -> None:
         )
 
 
-def test_coding_fuck_writes_with_gameplay_develop_prefix() -> None:
-    """coding 的 fuck 函数应写入带 [gameplay开发 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
+# ── review() 内部 fuck 测试 ──────────────────────────────────────────────────
+
+
+def test_review_fuck_from_make_fuck() -> None:
+    """review 的 fuck 应通过 _common.make_fuck 赋值。"""
+    review_node = _get_review_source()
+    func_node = _find_local_function_def("fuck", review_node)
+    assert func_node is None, "fuck 不应是 review() 的内部函数定义"
+
+    assign_node = _find_local_assign("fuck", review_node)
+    assert assign_node is not None, "review() 内部未找到 fuck 赋值"
+    assert isinstance(assign_node.value, ast.Call), "fuck 应为函数调用结果"
+    call = assign_node.value
+    assert isinstance(call.func, ast.Attribute) and call.func.attr == "make_fuck", (
+        "fuck 应来自 _common.make_fuck"
+    )
+
+
+def test_review_fuck_uses_gameplay_review_prefix() -> None:
+    """review 的 fuck 应使用 [gameplay审查 前缀。"""
+    review_node = _get_review_source()
+    assign_node = _find_local_assign("fuck", review_node)
+    assert assign_node is not None
+
+    call = assign_node.value
+    assert isinstance(call, ast.Call)
+    if call.args:
+        first_arg = call.args[0]
+        if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
+            assert "[gameplay审查" in first_arg.value, (
+                f"make_fuck 参数应包含 [gameplay审查，实际为 {first_arg.value!r}"
+            )
+
+
+def test_review_fuck_writes_with_gameplay_review_prefix() -> None:
+    """review 的 fuck 函数应写入带 [gameplay审查 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
     egent_dir = Path(__file__).resolve().parent.parent
     fuck_path = egent_dir / ".fuck.txt"
     if fuck_path.exists():
         fuck_path.unlink()
 
     try:
-        project_root = egent_dir.parent
-
-        def _fuck(msg: str) -> str:
-            """模拟 gameplay coding 中的 fuck。"""
-            _fuck_path = project_root / ".egent" / ".fuck.txt"
-            _fuck_path.parent.mkdir(parents=True, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(_fuck_path, "a", encoding="utf-8") as f:
-                f.write(f"[gameplay开发 {timestamp}] {msg}\n")
-            return "吐槽已记录。感谢反馈！"
-
-        result = _fuck("开发吐槽")
+        fuck_fn = _common.make_fuck("[gameplay审查")
+        result = fuck_fn("消息")
         assert result == "吐槽已记录。感谢反馈！"
-
         assert fuck_path.exists(), ".fuck.txt 文件应被创建"
         content = fuck_path.read_text(encoding="utf-8")
         assert re.search(
-            r"\[gameplay开发 \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] 开发吐槽\n",
+            r"\[gameplay审查 \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] 消息\n",
             content,
         ), f"内容格式错误: {content!r}"
     finally:
         if fuck_path.exists():
             fuck_path.unlink()
-
-
-# ── review() 内部 fuck 测试 ──────────────────────────────────────────────────
-
-
-def test_review_fuck_defined() -> None:
-    """review() 内部应定义 fuck 函数。"""
-    review_node = _get_review_source()
-    func_node = _find_local_function_def("fuck", review_node)
-    assert func_node is not None, "review() 内部未找到 fuck 函数定义"
-
-
-def test_review_fuck_uses_gameplay_review_prefix() -> None:
-    """review 的 fuck 应使用 [gameplay审查 前缀。"""
-    review_node = _get_review_source()
-    func_node = _find_local_function_def("fuck", review_node)
-    assert func_node is not None
-
-    has_prefix = any(
-        isinstance(node, ast.JoinedStr)
-        and any(
-            isinstance(v, ast.Constant) and "[gameplay审查" in str(v.value)
-            for v in node.values
-        )
-        for node in ast.walk(func_node)
-    )
-    assert has_prefix, "fuck 函数应写入 [gameplay审查 ...] 前缀"
-
-
-def test_review_fuck_uses_datetime_now() -> None:
-    """review 中 fuck 函数体内应包含 datetime.now() 调用。"""
-    review_node = _get_review_source()
-    func_node = _find_local_function_def("fuck", review_node)
-    assert func_node is not None
-
-    has_datetime_now = any(
-        isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and node.func.attr == "now"
-        and isinstance(node.func.value, ast.Name)
-        and node.func.value.id == "datetime"
-        for node in ast.walk(func_node)
-    )
-    assert has_datetime_now, "fuck 函数体内应调用 datetime.now()"
 
 
 def test_review_fuck_in_tools() -> None:
@@ -276,122 +252,27 @@ def test_review_fuck_in_tools() -> None:
     pytest.fail("review 的 tools 赋值中未找到 fuck")
 
 
-def test_review_fuck_writes_with_gameplay_review_prefix() -> None:
-    """review 的 fuck 函数应写入带 [gameplay审查 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
-    egent_dir = Path(__file__).resolve().parent.parent
-    fuck_path = egent_dir / ".fuck.txt"
-    if fuck_path.exists():
-        fuck_path.unlink()
-
-    try:
-        def _fuck(msg: str) -> str:
-            """模拟 review 中的 fuck。"""
-            _fuck_path = egent_dir / ".fuck.txt"
-            _fuck_path.parent.mkdir(parents=True, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(_fuck_path, "a", encoding="utf-8") as f:
-                f.write(f"[gameplay审查 {timestamp}] {msg}\n")
-            return "吐槽已记录。感谢反馈！"
-
-        result = _fuck("审查吐槽")
-        assert result == "吐槽已记录。感谢反馈！"
-
-        assert fuck_path.exists(), ".fuck.txt 文件应被创建"
-        content = fuck_path.read_text(encoding="utf-8")
-        assert re.search(
-            r"\[gameplay审查 \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] 审查吐槽\n",
-            content,
-        ), f"内容格式错误: {content!r}"
-    finally:
-        if fuck_path.exists():
-            fuck_path.unlink()
+# ── test() 内部 ──────────────────────────────────────────────────────────────
 
 
-# ── test() 内部 fuck 测试 ────────────────────────────────────────────────────
-
-
-def test_test_fuck_defined() -> None:
-    """test() 内部应定义 fuck 函数。"""
+def test_test_launch_game_called() -> None:
+    """test 函数体内应调用 godot_game_tools.launch_game_session。"""
     test_node = _get_test_source()
-    func_node = _find_local_function_def("fuck", test_node)
-    assert func_node is not None, "test() 内部未找到 fuck 函数定义"
 
-
-def test_test_fuck_uses_gameplay_test_prefix() -> None:
-    """test 的 fuck 应使用 [gameplay测试 前缀。"""
-    test_node = _get_test_source()
-    func_node = _find_local_function_def("fuck", test_node)
-    assert func_node is not None
-
-    has_prefix = any(
-        isinstance(node, ast.JoinedStr)
-        and any(
-            isinstance(v, ast.Constant) and "[gameplay测试" in str(v.value)
-            for v in node.values
-        )
-        for node in ast.walk(func_node)
-    )
-    assert has_prefix, "fuck 函数应写入 [gameplay测试 ...] 前缀"
-
-
-def test_test_fuck_uses_datetime_now() -> None:
-    """test 中 fuck 函数体内应包含 datetime.now() 调用。"""
-    test_node = _get_test_source()
-    func_node = _find_local_function_def("fuck", test_node)
-    assert func_node is not None
-
-    has_datetime_now = any(
+    has_launch_call = any(
         isinstance(node, ast.Call)
         and isinstance(node.func, ast.Attribute)
-        and node.func.attr == "now"
-        and isinstance(node.func.value, ast.Name)
-        and node.func.value.id == "datetime"
-        for node in ast.walk(func_node)
+        and node.func.attr == "launch_game_session"
+        for node in ast.walk(test_node)
     )
-    assert has_datetime_now, "fuck 函数体内应调用 datetime.now()"
+    assert has_launch_call, "test 函数体内应调用 launch_game_session"
 
 
-def test_test_fuck_in_tools() -> None:
-    """test 的 tools 赋值中应包含 fuck。"""
-    test_node = _get_test_source()
-    tools_assignments = _collect_tools_assignments(test_node)
-
-    assert len(tools_assignments) >= 1, "test 函数中应有 tools 赋值"
-    for assign in tools_assignments:
-        if isinstance(assign.value, ast.List):
-            names = _get_names_from_list(assign.value)
-            if "fuck" in names:
-                return
-
-    pytest.fail("test 的 tools 赋值中未找到 fuck")
+# ── 模块级 ────────────────────────────────────────────────────────────────────
 
 
-def test_test_fuck_writes_with_gameplay_test_prefix() -> None:
-    """test 的 fuck 函数应写入带 [gameplay测试 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
-    egent_dir = Path(__file__).resolve().parent.parent
-    fuck_path = egent_dir / ".fuck.txt"
-    if fuck_path.exists():
-        fuck_path.unlink()
-
-    try:
-        def _fuck(msg: str) -> str:
-            """模拟 test 中的 fuck。"""
-            _fuck_path = egent_dir / ".fuck.txt"
-            _fuck_path.parent.mkdir(parents=True, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(_fuck_path, "a", encoding="utf-8") as f:
-                f.write(f"[gameplay测试 {timestamp}] {msg}\n")
-            return "吐槽已记录。感谢反馈！"
-
-        result = _fuck("测试吐槽")
-        assert result == "吐槽已记录。感谢反馈！"
-
-        assert fuck_path.exists(), ".fuck.txt 文件应被创建"
-        content = fuck_path.read_text(encoding="utf-8")
-        assert re.search(
-            r"\[gameplay测试 \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] 测试吐槽\n",
-            content,
-        ), f"内容格式错误: {content!r}"
-    finally:
-        if fuck_path.exists():
-            fuck_path.unlink()
+def test_coding_gave_up_replaced_by_runtime_error() -> None:
+    """CodingGaveUp 异常类已移除，改用内置 RuntimeError。"""
+    assert not hasattr(workflow_gameplay_develop, "CodingGaveUp"), (
+        "CodingGaveUp 应已被移除"
+    )

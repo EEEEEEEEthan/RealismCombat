@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import importlib
 import sys
 from pathlib import Path
@@ -164,7 +165,7 @@ async def async_main() -> int:
 
 def run() -> None:
     """CLI 入口。"""
-    _common.run_cli(async_main)
+    raise SystemExit(asyncio.run(async_main()))
 
 
 if __name__ == "__main__":

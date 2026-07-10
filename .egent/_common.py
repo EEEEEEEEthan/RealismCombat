@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
-from collections.abc import Awaitable, Callable
+from datetime import datetime
 from pathlib import Path
 
 import egent.builtin_tools.git_tools
 
+_PROJECT_ROOT = Path(__file__).resolve().parent
 _PROJECT_SKILLS_ROOT = Path(".agents/skills")
 
 GIT_READ_ONLY_TOOLS = egent.builtin_tools.git_tools.read_only_tools
@@ -22,6 +22,21 @@ def discover_project_skills() -> tuple[Path, ...]:
     )
 
 
-def run_cli(async_main: Callable[[], Awaitable[int]]) -> None:
-    """运行 async_main 并以其返回值作为进程退出码。"""
-    raise SystemExit(asyncio.run(async_main()))
+def make_fuck(prefix: str) -> callable:
+    """创建向 .egent/.fuck.txt 追加吐槽的闭包。
+
+    @param prefix: 前缀标签，如 '[egent开发'
+    """
+    def fuck(msg: str) -> str:
+        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
+
+        @param msg: 吐槽内容
+        """
+        fuck_path = _PROJECT_ROOT / ".fuck.txt"
+        fuck_path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(fuck_path, "a", encoding="utf-8") as _f:
+            _f.write(f"{prefix} {timestamp}] {msg}\n")
+        return "吐槽已记录。感谢反馈！"
+
+    return fuck

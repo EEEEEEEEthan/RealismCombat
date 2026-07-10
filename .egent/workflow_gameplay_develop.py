@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
-import asyncio
 import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
+
 import _common
 import conversation_printer
 import egent.agent
 import egent.builtin_tools.path_validator
 import godot_game_tools
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from tests.run_tests import run_regression  # pylint: disable=wrong-import-position
 
 
 async def review(prompt: str) -> tuple[bool, str]:
@@ -48,17 +53,7 @@ async def review(prompt: str) -> tuple[bool, str]:
             blacklist=(),
         ),
     )
-    def fuck(msg: str) -> str:
-        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
-
-        @param msg: 吐槽内容
-        """
-        fuck_path = Path(__file__).resolve().parent / ".fuck.txt"
-        fuck_path.parent.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(fuck_path, "a", encoding="utf-8") as _f:
-            _f.write(f"[gameplay审查 {timestamp}] {msg}\n")
-        return "吐槽已记录。感谢反馈！"
+    fuck = _common.make_fuck("[gameplay审查")
 
     with conversation_printer.ConversationPrinter(reviewer, indent=2):
         reviewer.add_message(
@@ -79,21 +74,6 @@ async def review(prompt: str) -> tuple[bool, str]:
             "summary": (str, "验收意见摘要"),
         })
     return submitted["is_accepted"], submitted["summary"]
-
-
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
-
-from tests.run_tests import run_regression  # pylint: disable=wrong-import-position
-
-
-class CodingGaveUp(Exception):
-    """开发者主动放弃任务。"""
-
-    def __init__(self, reason: str) -> None:
-        self.reason = reason
-        super().__init__(reason)
 
 
 async def coding(
@@ -143,16 +123,6 @@ async def coding(
             ),
         ),
     )
-    tracked_processes: list[subprocess.Popen] = []
-
-    def _terminate_tracked() -> None:
-        for process in tracked_processes:
-            if process.poll() is None:
-                process.kill()
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    pass
 
     def _run_batch() -> tuple[bool, str]:
         """运行回归测试批处理，返回 (是否通过, 输出)。"""
@@ -183,17 +153,7 @@ async def coding(
             raise RuntimeError(output.removeprefix("error:").strip())
         return output
 
-    def fuck(msg: str) -> str:
-        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
-
-        @param msg: 吐槽内容
-        """
-        fuck_path = _PROJECT_ROOT / ".egent" / ".fuck.txt"
-        fuck_path.parent.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(fuck_path, "a", encoding="utf-8") as _f:
-            _f.write(f"[gameplay开发 {timestamp}] {msg}\n")
-        return "吐槽已记录。感谢反馈！"
+    fuck = _common.make_fuck("[gameplay开发")
 
     coder.add_message(
         "system",
@@ -206,23 +166,19 @@ async def coding(
 
     last_failure_output = ""
     for _ in range(5):
-        try:
-            coder.tools = [
-                *_common.GIT_READ_ONLY_TOOLS,
-                run_regression_test,
-                godot_game_tools.run_gdscript,
-                fuck,
-            ]
-            submitted = await coder.request_submit({
-                "success": (bool, "true表示任务完成,false表示放弃"),
-                "reason": (str, "如果放弃，填放弃原因,例如需求不合理,或者无法实现等。否则填一个减号`-`"),
-            })
-        finally:
-            _terminate_tracked()
-            tracked_processes.clear()
+        coder.tools = [
+            *_common.GIT_READ_ONLY_TOOLS,
+            run_regression_test,
+            godot_game_tools.run_gdscript,
+            fuck,
+        ]
+        submitted = await coder.request_submit({
+            "success": (bool, "true表示任务完成,false表示放弃"),
+            "reason": (str, "如果放弃，填放弃原因,例如需求不合理,或者无法实现等。否则填一个减号`-`"),
+        })
 
         if not submitted["success"]:
-            raise CodingGaveUp(submitted["reason"])
+            raise RuntimeError(submitted["reason"])
 
         coder.add_message(
             "system",
@@ -239,6 +195,7 @@ async def coding(
             "system",
             f"回归测试失败。请修复:\n\n{last_failure_output}\n\n请仔细查看需求:\n\n{prompt}",
         )
+
     coder.add_message(
         "system",
         "回归测试连续失败。开发计划暂停。"
@@ -249,7 +206,7 @@ async def coding(
     return False, coder.last_message
 
 
-async def test(prompt: str) -> tuple[bool, str]:
+async def test(_prompt: str) -> tuple[bool, str]:
     """通过 run_white_test 白盒校验游戏是否满足需求。"""
     try:
         game_port, game_process, game_log_path = godot_game_tools.launch_game_session()
@@ -371,59 +328,46 @@ async def test(prompt: str) -> tuple[bool, str]:
                 "\n"
                 "	return {\n"
                 '		"ok": elapsed_sec >= 0.99,\n'
-                '		"elapsed_sec": elapsed_sec,\n'
+                '		"elapsed_sec": elapsed_sec,'
                 "	}\n"
-                "```\n"
-                f"\n## 需求\n{prompt}",
+                "```\n",
             )
-            def fuck(msg: str) -> str:
-                """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
-
-                @param msg: 吐槽内容
-                """
-                fuck_path = Path(__file__).resolve().parent / ".fuck.txt"
-                fuck_path.parent.mkdir(parents=True, exist_ok=True)
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                with open(fuck_path, "a", encoding="utf-8") as _f:
-                    _f.write(f"[gameplay测试 {timestamp}] {msg}\n")
-                return "吐槽已记录。感谢反馈！"
-
-            try:
-                tester.tools = [*_common.GIT_READ_ONLY_TOOLS, godot_game_tools.run_white_test, fuck]
-                submitted = await asyncio.wait_for(
-                    tester.request_submit({
-                        "is_passed": (bool, "测试是否通过"),
-                        "summary": (str, "测试结果摘要"),
-                    }),
-                    timeout=600.0,
-                )
-            except asyncio.TimeoutError:
-                return False, "白盒测试超时（600s）"
-            return submitted["is_passed"], submitted["summary"]
+            tester.tools = [
+                *_common.GIT_READ_ONLY_TOOLS,
+                godot_game_tools.run_white_test,
+                godot_game_tools.run_gdscript,
+                godot_game_tools.launch_game,
+            ]
+            submitted = await tester.request_submit({
+                "success": (bool, "true表示所有用例通过"),
+                "summary": (str, "测试摘要"),
+            })
+        return submitted["success"], submitted["summary"]
     finally:
         if game_process.poll() is None:
             game_process.kill()
-            game_process.wait(timeout=5)
 
 
 async def begin_develop_workflow(description: str) -> tuple[bool, str]:
-    """运行开发工作流：编码、验收、白盒测试循环，直至通过或耗尽重试。"""
+    """运行游戏玩法开发工作流：编码、验收、白盒测试循环，直至通过或耗尽重试。"""
     developer = egent.agent.Agent(
         "gpt5-flash",
         skills=_common.discover_project_skills(),
     )
     printer = conversation_printer.ConversationPrinter(developer, indent=1)
-    developer.add_message("system", "你是这个项目的开发工程师")
+    developer.add_message("system", "你是这个项目的游戏玩法开发工程师")
     developer.add_message(
         "system",
-        "你收到了新的需求.请做完这个需求并更新回归测试代码.如果任务无法完成,请说明原因并放弃任务.",
+        "你收到了新的需求：\n"
+        f"{description}\n\n"
+        "如果任务无法完成，请说明原因并放弃任务。",
     )
 
     for _ in range(5):
         try:
             finished, coding_message = await coding(developer, description)
-        except CodingGaveUp as error:
-            return False, f"你的手下放弃了任务。原因是: \n{error.reason}"
+        except RuntimeError as error:
+            return False, f"你的手下放弃了任务。原因是: \n{error}"
 
         if not finished:
             developer.add_message("system", "你的工作无法顺利完成。请总结本次工作")
@@ -435,37 +379,21 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
                 + f"❌ 未通过（已重试 5 次）\n\n{coding_message}"
             )
 
-        passed, accept_message = await review(description)
-        if passed:
-            test_passed, test_message = await test(description)
-            if test_passed:
-                developer.add_message(
-                    "system",
-                    "审查与白盒测试均通过！请总结本次工作。",
-                )
-                await printer.request()
-                return True, (
-                    "工作顺利完成\n\n"
-                    + developer.last_message
-                    + "\n\n---\n验收结果:\n"
-                    + f"✅ 验收通过\n\n{accept_message}\n\n"
-                    + "---\n白盒测试:\n"
-                    + f"✅ 通过\n\n{test_message}\n\n当前状态:等待提交"
-                )
-
-            await developer.summarize()
+        passed, review_message = await review(description)
+        if not passed:
             developer.add_message(
                 "system",
-                f"白盒测试未通过，请修复:\n\n{test_message}",
+                f"验收未通过:\n\n{review_message}\n\n请仔细查看需求:\n\n{description}",
             )
             continue
 
-        await developer.summarize()
+        passed, test_message = await test(description)
+        if passed:
+            return True, "全部通过"
+
         developer.add_message(
             "system",
-            f"验收未通过，请根据验收意见修复:\n\n{accept_message}",
+            f"白盒测试未通过:\n\n{test_message}\n\n请仔细查看需求:\n\n{description}",
         )
 
-    developer.add_message("system", "你的工作无法顺利完成。请总结本次工作")
-    await printer.request()
-    return False, "工作无法顺利完成\n\n" + developer.last_message
+    return False, "白盒测试连续失败，流程中止"
