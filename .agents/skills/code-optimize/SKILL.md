@@ -14,6 +14,9 @@ description: 代码优化以减少维护成本，重点减少类成员。在代�
 C# 特定规则
 [entries/csharp.md](entries/csharp.md)
 
+GDScript 特定规则
+[entries/gdscript.md](entries/gdscript.md)
+
 ## 优化检查清单
 
 执行代码优化时，按以下清单逐项检查：
