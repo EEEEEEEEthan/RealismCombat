@@ -57,6 +57,18 @@ def _first_content_line(text: str) -> str:
     return ""
 
 
+def _has_more_content(text: str) -> bool:
+    """检查 text 中是否存在第二个非空行。"""
+    found_first = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped:
+            if found_first:
+                return True
+            found_first = True
+    return False
+
+
 class ConversationPrinter:
     """监听 Agent 事件并打印到终端。"""
 
@@ -100,6 +112,7 @@ class ConversationPrinter:
         elif isinstance(event, egent.agent.ToolCallExecuted):
             first_line = _first_content_line(event.result)
             if first_line:
-                print(f"  => {_truncate(first_line, 200)}", flush=True)
+                suffix = "..." if _has_more_content(event.result) else ""
+                print(f"  => {_truncate(first_line, 200)}{suffix}", flush=True)
         elif isinstance(event, egent.agent.TurnCompleted):
             print(flush=True)

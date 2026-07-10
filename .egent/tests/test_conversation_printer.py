@@ -12,6 +12,7 @@ from conversation_printer import (
     ConversationPrinter,
     _first_content_line,
     _format_arguments,
+    _has_more_content,
     _truncate,
 )
 
@@ -58,6 +59,38 @@ class TestFirstContentLine:
     def test_empty_string(self) -> None:
         """Empty string should return empty string."""
         assert _first_content_line("") == ""
+
+
+class TestHasMoreContent:
+    """Tests for _has_more_content helper."""
+
+    def test_single_line(self) -> None:
+        """Single non-empty line should return False."""
+        assert _has_more_content("hello") is False
+
+    def test_multiple_lines(self) -> None:
+        """Multiple non-empty lines should return True."""
+        assert _has_more_content("line1\nline2") is True
+
+    def test_with_blank_lines(self) -> None:
+        """Blank lines between non-empty lines should still detect more."""
+        assert _has_more_content("line1\n\n\nline2") is True
+
+    def test_only_blank_after_first(self) -> None:
+        """Blank lines after first non-empty should return False."""
+        assert _has_more_content("content\n  \n  ") is False
+
+    def test_empty_string(self) -> None:
+        """Empty string should return False."""
+        assert _has_more_content("") is False
+
+    def test_all_blank(self) -> None:
+        """All-blank input should return False."""
+        assert _has_more_content("  \n\n  ") is False
+
+    def test_trailing_newline_single_line(self) -> None:
+        """Single line with trailing newline should return False."""
+        assert _has_more_content("hello\n") is False
 
 
 class TestFormatArguments:
@@ -164,7 +197,7 @@ class TestConversationPrinterIntegration:
         printer.close()
 
     def test_handle_tool_call_executed(self, mock_agent, capsys):
-        """ToolCallExecuted should print first content line of result."""
+        """ToolCallExecuted should print first content line with ... if more lines."""
         printer = ConversationPrinter(mock_agent)
         handler = mock_agent.add_listener.call_args[0][0]
 
@@ -174,7 +207,52 @@ class TestConversationPrinterIntegration:
             result="Sunny, 25\u00b0C\nMore details here",
         ))
         captured = capsys.readouterr()
+        assert captured.out == "  => Sunny, 25\u00b0C...\n"
+
+        printer.close()
+
+    def test_handle_tool_call_executed_single_line(self, mock_agent, capsys):
+        """ToolCallExecuted with single line result should NOT add ..."""
+        printer = ConversationPrinter(mock_agent)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="get_weather",
+            arguments="{}",
+            result="Sunny, 25\u00b0C",
+        ))
+        captured = capsys.readouterr()
         assert captured.out == "  => Sunny, 25\u00b0C\n"
+
+        printer.close()
+
+    def test_handle_tool_call_executed_blank_then_line(self, mock_agent, capsys):
+        """Leading blank lines before second non-empty line should still add ..."""
+        printer = ConversationPrinter(mock_agent)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="test",
+            arguments="{}",
+            result="first\n\n  \nsecond",
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == "  => first...\n"
+
+        printer.close()
+
+    def test_handle_tool_call_executed_trailing_newline(self, mock_agent, capsys):
+        """Trailing newline without a second non-empty line should NOT add ..."""
+        printer = ConversationPrinter(mock_agent)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="test",
+            arguments="{}",
+            result="only line\n",
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == "  => only line\n"
 
         printer.close()
 
