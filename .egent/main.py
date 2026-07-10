@@ -25,6 +25,7 @@ import egent.agent
 import egent.builtin_tools.path_validator
 import workflow_egent_develop
 import workflow_gameplay_develop
+import workflow_info_collect
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -104,6 +105,24 @@ def make_delegate_egent_develop_workflow() -> egent.tool.ToolCallable:
     return delegate_egent_develop_workflow
 
 
+def make_delegate_info_collect_workflow() -> egent.tool.ToolCallable:
+    """生成可供 agent 调用的信息采集委派工具。"""
+
+    async def delegate_info_collect_workflow(description: str) -> str:
+        """委派信息采集/代码分析任务：纯只读 Agent 分析项目并返回报告。
+
+        本工具不会修改工作区，失败时无需清理。
+
+        @param description 信息采集需求描述
+        """
+        success, summary = await workflow_info_collect.begin_info_collect_workflow(description)
+        if success:
+            return summary
+        return f"信息采集失败:\n{summary}"
+
+    return delegate_info_collect_workflow
+
+
 async def run_turn(
     agent: egent.agent.Agent,
     printer: conversation_printer.ConversationPrinter,
@@ -116,6 +135,7 @@ async def run_turn(
             *_common.GIT_READ_ONLY_TOOLS,
             make_delegate_develop_workflow(),
             make_delegate_egent_develop_workflow(),
+            make_delegate_info_collect_workflow(),
             egent.builtin_tools.git_tools.git_add,
             egent.builtin_tools.git_tools.git_commit,
             egent.builtin_tools.git_tools.git_push,
@@ -151,6 +171,7 @@ async def async_main() -> int:
         "你是egent.你是这个游戏项目的主程\n"
         "和你对接的人是制作人.你可能需要根据项目的实际情况揣测他背后的真实需求.你需要整理一份大致的计划.计划不要超过20行,每行不要超过160字.\n"
         "在制作人明确表达让你开始执行之前,不要执行.\n"
+        "信息采集/代码分析优先使用 delegate_info_collect_workflow， 而不是亲自查看\n"
         ".agents/目录的修改你得亲自完成,不要委派任务.\n"
         "除此之外执行过程你需要尽可能分步骤委派任务,每个任务尽可能小,独立,可验收.任务提交后要阅读报告.\n"
         "游戏玩法相关用 delegate_develop_workflow；egent 工作流/工具相关用 delegate_egent_develop_workflow。\n"
