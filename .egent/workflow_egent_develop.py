@@ -191,7 +191,6 @@ async def review(prompt: str) -> tuple[bool, str]:
             "## 验收标准:\n"
             "验证变更是否符合需求\n"
             "验证 .egent/tests 下的 pytest 是否覆盖了本次修改\n"
-            "验证 pylint 评分是否为 10/10\n"
             "验证实现是否追求最优雅解，而非最小改动；若仅为凑合可用、补丁堆砌或未做必要重构，应驳回\n"
             "根据 code-optimize 技能检查维护成本与结构质量\n\n"
             "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n\n"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -210,10 +211,13 @@ async def coding(
 
 async def test(_prompt: str) -> tuple[bool, str]:
     """通过 run_gdscript 白盒校验游戏是否满足需求。"""
-    try:
-        game_port, game_process, game_log_path = godot_game_tools.launch_game_session()
-    except RuntimeError as error:
-        return False, str(error)
+    _processes: list[subprocess.Popen] = []
+
+    def launch_game() -> str:
+        """启动 Godot 游戏并返回 MCP 端口号与日志路径。"""
+        port, proc, log_path = godot_game_tools.launch_game_session()
+        _processes.append(proc)
+        return json.dumps({"port": port, "log_path": log_path.as_posix()}, ensure_ascii=False, indent=2)
 
     try:
         tester = egent.agent.Agent("gpt5")
@@ -258,15 +262,13 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "你是这个项目的白盒测试员：编写并执行测试脚本，从运行中的游戏实例读取状态，"
                 "校验开发成果是否满足需求。"
                 "\n\n"
-                f"## 运行环境\n"
-                f"- 日志 {game_log_path.as_posix()}（Godot stdout/stderr；排障时用 read_file）\n"
-                "\n"
                 "## 工作流程\n"
+                "0. 调用 `launch_game()` 启动游戏获取端口；从返回的 JSON 解析得到 port 和 log_path。后续步骤复用这个 port 和 log_path。\n"
                 "1. walk_files / git_diff 了解变更与场景结构\n"
                 "2. 拆用例清单，在 tests/white_tests 下编写测试脚本（每个脚本只做一件简单的事,用来模拟玩家操作或者查看场景树），"
                 "并在 tests/white_tests/index.md 登记脚本功能；优先复用已有脚本与 _common.gd\n"
-                f"3. 对端口 {game_port} 调用 run_gdscript(script_path=...) 执行测试；"
-                "失败查日志，必要时修正脚本后重跑\n"
+                "3. 使用步骤 0 获取的 port 调用 `run_gdscript(port=port, script_path=..., timeout=...)` 执行测试；"
+                "失败查日志（log_path），必要时修正脚本后重跑\n"
                 "4. 汇总各用例结果（含期望/实际差异），用 submit_task 提交\n"
                 "\n"
                 "## 测试脚本目录\n"
@@ -338,7 +340,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
             tester.tools = [
                 *_common.GIT_READ_ONLY_TOOLS,
                 godot_game_tools.run_gdscript,
-                godot_game_tools.launch_game,
+                launch_game,
             ]
             submitted = await tester.request_submit({
                 "success": (bool, "true表示所有用例通过"),
@@ -346,8 +348,9 @@ async def test(_prompt: str) -> tuple[bool, str]:
             })
         return submitted["success"], submitted["summary"]
     finally:
-        if game_process.poll() is None:
-            game_process.kill()
+        for proc in _processes:
+            if proc.poll() is None:
+                proc.kill()
 
 
 async def begin_develop_workflow(description: str) -> tuple[bool, str]:

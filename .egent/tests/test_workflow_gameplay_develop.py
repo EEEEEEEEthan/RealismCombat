@@ -269,17 +269,76 @@ def test_review_fuck_in_tools() -> None:
 # ── test() 内部 ──────────────────────────────────────────────────────────────
 
 
-def test_test_launch_game_called() -> None:
-    """test 函数体内应调用 godot_game_tools.launch_game_session。"""
+def test_test_launch_game_session_in_closure() -> None:
+    """test 函数的 launch_game 闭包内应调用 godot_game_tools.launch_game_session。"""
     test_node = _get_test_source()
 
-    has_launch_call = any(
+    launch_game_func = _find_local_function_def("launch_game", test_node)
+    assert launch_game_func is not None, "test 函数体内应定义 launch_game 闭包"
+
+    has_session_call = any(
         isinstance(node, ast.Call)
         and isinstance(node.func, ast.Attribute)
         and node.func.attr == "launch_game_session"
+        for node in ast.walk(launch_game_func)
+    )
+    assert has_session_call, "launch_game 闭包内应调用 godot_game_tools.launch_game_session"
+
+
+def test_test_launch_game_used_in_tools() -> None:
+    """test 函数的 tools 列表应使用本地 launch_game 闭包而非 godot_game_tools.launch_game。"""
+    test_node = _get_test_source()
+
+    tools_assignments = _collect_tools_assignments(test_node)
+    assert len(tools_assignments) >= 1, "test 函数中应有 tools 赋值"
+
+    for assign in tools_assignments:
+        if isinstance(assign.value, ast.List):
+            names = _get_names_from_list(assign.value)
+            assert "launch_game" in names, "tools 列表中应包含 launch_game 闭包"
+            assert "godot_game_tools.launch_game" not in names, (
+                "tools 列表中不应包含 godot_game_tools.launch_game，应使用本地闭包"
+            )
+
+
+def test_test_has_processes_list() -> None:
+    """test 函数体内应定义 _processes 列表变量。"""
+    test_node = _get_test_source()
+
+    has_var = any(
+        (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "_processes"
+                for target in node.targets
+            )
+        )
+        or (
+            isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "_processes"
+        )
         for node in ast.walk(test_node)
     )
-    assert has_launch_call, "test 函数体内应调用 launch_game_session"
+    assert has_var, "test 函数体内应定义 _processes 列表"
+
+
+def test_test_finally_kills_processes() -> None:
+    """test 函数的 finally 块应遍历 _processes 逐个 kill。"""
+    test_node = _get_test_source()
+    # 找到 test 函数中 finally 语句
+    for node in ast.walk(test_node):
+        if isinstance(node, ast.Try):
+            for handler in node.handlers:
+                if handler.type is None:  # bare except
+                    break
+            else:
+                # 检查 finally 块中是否有遍历 _processes
+                if node.finalbody:
+                    source = ast.unparse(node.finalbody)  # type: ignore[arg-type]
+                    assert "_processes" in source, (
+                        "finally 块中应引用 _processes"
+                    )
 
 
 # ── 模块级 ────────────────────────────────────────────────────────────────────
