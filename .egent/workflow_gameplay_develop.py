@@ -6,32 +6,75 @@ import asyncio
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import _common
 import conversation_printer
 import egent.agent
 import egent.builtin_tools.path_validator
 import godot_game_tools
-import workflow_review
+
+
+async def review(prompt: str) -> tuple[bool, str]:
+    """验收开发成果是否满足需求。"""
+    reviewer = egent.agent.Agent(
+        "gpt5",
+        skills=_common.discover_project_skills(),
+    )
+    project_root = Path.cwd().resolve().as_posix()
+    reviewer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=(
+                "*.pyc",
+                "*/.pytest_cache",
+                "*/.ruff_cache",
+                "*/__pycache__",
+                f"{project_root}/.agents",
+                f"{project_root}/.cursor",
+                f"{project_root}/.egent",
+                f"{project_root}/.engine",
+                f"{project_root}/.export",
+                f"{project_root}/.git",
+                f"{project_root}/.godot",
+                f"{project_root}/.logs",
+            ),
+        ),
+        readable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=("*/.model.toml",),
+        ),
+        editable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(),
+            blacklist=(),
+        ),
+    )
+    with conversation_printer.ConversationPrinter(reviewer):
+        reviewer.add_message(
+            "system",
+            "你是这个项目的验收员。你需要验收开发成果是否满足需求。"
+            "使用 git_diff 查看代码变更，结合当前项目结构和需求文档进行验收。"
+            f"\n\n## 需求:\n{prompt}\n\n"
+            "## 验收标准:\n"
+            "验证变更是否符合需求\n"
+            "验证回归测试是否覆盖了本次修改\n"
+            "验证实现是否追求最优雅解，而非最小改动；若仅为凑合可用、补丁堆砌或未做必要重构，应驳回\n"
+            "根据 code-optimize 技能检查维护成本与结构质量\n\n"
+            "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n",
+        )
+        reviewer.tools = list[Any](_common.GIT_READ_ONLY_TOOLS)
+        submitted = await reviewer.request_submit({
+            "is_accepted": (bool, "是否通过验收"),
+            "summary": (str, "验收意见摘要"),
+        })
+    return submitted["is_accepted"], submitted["summary"]
+
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from tests.run_tests import run_regression  # pylint: disable=wrong-import-position
-
-_RUN_REGRESSION_BAT = _PROJECT_ROOT / "run-regression.bat"
-_REGRESSION_BAT_TIMEOUT_SECONDS = 120.0
-
-
-def _terminate_tracked_processes(processes: list[subprocess.Popen]) -> None:
-    for process in processes:
-        if process.poll() is None:
-            process.kill()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                pass
 
 
 class CodingGaveUp(Exception):
@@ -40,24 +83,6 @@ class CodingGaveUp(Exception):
     def __init__(self, reason: str) -> None:
         self.reason = reason
         super().__init__(reason)
-
-
-def _run_regression_batch() -> tuple[bool, str]:
-    """运行回归测试批处理，返回 (是否通过, 输出)。"""
-    try:
-        test_result = subprocess.run(
-            ["cmd", "/c", str(_RUN_REGRESSION_BAT)],
-            cwd=_PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=_REGRESSION_BAT_TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired:
-        return False, f"回归测试超时（{_REGRESSION_BAT_TIMEOUT_SECONDS:.0f}s）"
-    if test_result.returncode == 0:
-        return True, "测试通过"
-    return False, f"{test_result.stdout}\n{test_result.stderr}".strip()
 
 
 async def coding(
@@ -109,6 +134,34 @@ async def coding(
     )
     tracked_processes: list[subprocess.Popen] = []
 
+    def _terminate_tracked() -> None:
+        for process in tracked_processes:
+            if process.poll() is None:
+                process.kill()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    pass
+
+    def _run_batch() -> tuple[bool, str]:
+        """运行回归测试批处理，返回 (是否通过, 输出)。"""
+        regression_bat = _PROJECT_ROOT / "run-regression.bat"
+        timeout_seconds = 120.0
+        try:
+            test_result = subprocess.run(
+                ["cmd", "/c", str(regression_bat)],
+                cwd=_PROJECT_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=timeout_seconds,
+            )
+        except subprocess.TimeoutExpired:
+            return False, f"回归测试超时（{timeout_seconds:.0f}s）"
+        if test_result.returncode == 0:
+            return True, "测试通过"
+        return False, f"{test_result.stdout}\n{test_result.stderr}".strip()
+
     def run_regression_test(spec: str) -> str:
         """运行指定回归测试套件并返回输出。
 
@@ -139,7 +192,7 @@ async def coding(
                 "reason": (str, "如果放弃，填放弃原因,例如需求不合理,或者无法实现等。否则填一个减号`-`"),
             })
         finally:
-            _terminate_tracked_processes(tracked_processes)
+            _terminate_tracked()
             tracked_processes.clear()
 
         if not submitted["success"]:
@@ -152,7 +205,7 @@ async def coding(
         coder.tools = list(_common.GIT_READ_ONLY_TOOLS)
         await coder.request()
 
-        passed, last_failure_output = _run_regression_batch()
+        passed, last_failure_output = _run_batch()
         if passed:
             return True, ""
 
@@ -344,7 +397,7 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
                 + f"❌ 未通过（已重试 5 次）\n\n{coding_message}"
             )
 
-        passed, accept_message = await workflow_review.review(description)
+        passed, accept_message = await review(description)
         if passed:
             test_passed, test_message = await test(description)
             if test_passed:

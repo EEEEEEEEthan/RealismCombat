@@ -31,7 +31,6 @@ py-modules = [
     "main",
     "workflow_egent_develop",
     "workflow_gameplay_develop",
-    "workflow_review",
 ]
 
 [tool.pytest.ini_options]
