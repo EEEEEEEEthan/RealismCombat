@@ -10,6 +10,9 @@ goto run
 git submodule update --init addons/godot_runtime_mcp
 if errorlevel 1 exit /b 1
 
+python -m pip install --force-reinstall "egent @ git+https://github.com/EEEEEEEEthan/egent.git"
+if errorlevel 1 exit /b 1
+
 python -m pip install -e ".[dev]" --upgrade
 if errorlevel 1 exit /b 1
 
