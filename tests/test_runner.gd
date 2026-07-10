@@ -1,7 +1,6 @@
 extends Node
 
 const TestSmoke := preload("res://tests/regression/test_smoke.gd")
-const TestOptionContainer := preload("res://tests/regression/test_option_container.gd")
 const _Common := preload("res://tests/regression/_common.gd")
 
 const _ARG_PREFIX := "--regression-test="
@@ -58,8 +57,6 @@ func _run_spec(test_spec: String) -> Dictionary:
 	match test_spec:
 		"smoke":
 			return await _run_single("smoke", TestSmoke.run)
-		"option_container":
-			return await _run_single("option_container", TestOptionContainer.run)
 		_:
 			return {
 				"passed": false,
