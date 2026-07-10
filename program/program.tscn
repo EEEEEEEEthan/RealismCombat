@@ -1,35 +1,77 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
-[ext_resource type="Script" uid="uid://bfbbr72fifljm" path="res://program/option_container.gd" id="1_bt24b"]
+[ext_resource type="Script" uid="uid://fya68eii6sm1" path="res://program/paged_vbox_container.gd" id="1_bt24b"]
+[ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="2_yrscs"]
+[ext_resource type="Script" uid="uid://rm2as8tg2rcq" path="res://program/game_button.gd" id="3_6efdo"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6efdo"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nspkn"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jot8w"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7nhsc"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_an84y"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 8, 8)
 
 [node name="Program" type="Node" unique_id=248735067]
 
-[node name="PagedVBoxContainer" type="VBoxContainer" parent="." unique_id=1987656753]
-offset_right = 36.0
+[node name="PagedVBoxContainer" type="VBoxContainer" parent="." unique_id=697717502]
+offset_right = 48.0
 offset_bottom = 48.0
 script = ExtResource("1_bt24b")
 viewport_size = 3
-metadata/_custom_type_script = "uid://bfbbr72fifljm"
+metadata/_custom_type_script = "uid://fya68eii6sm1"
 
-[node name="Button" type="Button" parent="PagedVBoxContainer" unique_id=1479024622]
+[node name="Button" type="Button" parent="PagedVBoxContainer" unique_id=1412484322]
 layout_mode = 2
+theme_type_variation = &"FlatButton"
 text = "button1"
+icon = SubResource("AtlasTexture_6efdo")
+script = ExtResource("3_6efdo")
+metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="Button2" type="Button" parent="PagedVBoxContainer" unique_id=1864006182]
+[node name="Button2" type="Button" parent="PagedVBoxContainer" unique_id=2005962679]
 layout_mode = 2
+theme_type_variation = &"FlatButton"
 text = "button2"
+icon = SubResource("AtlasTexture_nspkn")
+script = ExtResource("3_6efdo")
+metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="Button3" type="Button" parent="PagedVBoxContainer" unique_id=1947002278]
+[node name="Button3" type="Button" parent="PagedVBoxContainer" unique_id=1668476019]
 visible = false
 layout_mode = 2
+theme_type_variation = &"FlatButton"
 text = "button3"
+icon = SubResource("AtlasTexture_jot8w")
+script = ExtResource("3_6efdo")
+metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="Button4" type="Button" parent="PagedVBoxContainer" unique_id=1220414457]
+[node name="Button4" type="Button" parent="PagedVBoxContainer" unique_id=544150400]
 visible = false
 layout_mode = 2
+theme_type_variation = &"FlatButton"
 text = "button4"
+icon = SubResource("AtlasTexture_7nhsc")
+script = ExtResource("3_6efdo")
+metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="Button5" type="Button" parent="PagedVBoxContainer" unique_id=2013241025]
+[node name="Button5" type="Button" parent="PagedVBoxContainer" unique_id=1906965799]
 visible = false
 layout_mode = 2
+theme_type_variation = &"FlatButton"
 text = "button5"
+icon = SubResource("AtlasTexture_an84y")
+script = ExtResource("3_6efdo")
+metadata/_custom_type_script = "uid://rm2as8tg2rcq"

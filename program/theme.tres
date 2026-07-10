@@ -1,4 +1,11 @@
 [gd_resource type="Theme" format=3 uid="uid://d0sf100b0m4ql"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_86vsg"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
 [resource]
 default_font_size = 8
+FlatButton/styles/focus = SubResource("StyleBoxEmpty_86vsg")
