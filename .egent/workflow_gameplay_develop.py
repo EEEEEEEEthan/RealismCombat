@@ -49,7 +49,7 @@ async def review(prompt: str) -> tuple[bool, str]:
             blacklist=(),
         ),
     )
-    with conversation_printer.ConversationPrinter(reviewer):
+    with conversation_printer.ConversationPrinter(reviewer, indent=2):
         reviewer.add_message(
             "system",
             "你是这个项目的验收员。你需要验收开发成果是否满足需求。"
@@ -269,7 +269,7 @@ async def test(prompt: str) -> tuple[bool, str]:
                 ),
             ),
         )
-        with conversation_printer.ConversationPrinter(tester):
+        with conversation_printer.ConversationPrinter(tester, indent=3):
             tester.add_message(
                 "system",
                 "你是这个项目的白盒测试员：编写并执行测试脚本，从运行中的游戏实例读取状态，"
@@ -376,7 +376,7 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
         "gpt5-flash",
         skills=_common.discover_project_skills(),
     )
-    printer = conversation_printer.ConversationPrinter(developer)
+    printer = conversation_printer.ConversationPrinter(developer, indent=1)
     developer.add_message("system", "你是这个项目的开发工程师")
     developer.add_message(
         "system",

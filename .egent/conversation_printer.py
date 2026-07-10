@@ -104,14 +104,13 @@ class ConversationPrinter:
             print(event.text, end="", flush=True)
         elif isinstance(event, egent.agent.ToolCallStarted):
             formatted = _format_arguments(event.arguments)
-            if formatted:
-                print(f"\n{self._indent_str}[tool_call: {event.name}({formatted})]", flush=True)
-            else:
-                print(f"\n{self._indent_str}[tool_call: {event.name}]", flush=True)
+            args_suffix = f"({formatted})" if formatted else ""
+            print(f"\n{self._indent_str}[tool_call: {event.name}{args_suffix}]", flush=True)
         elif isinstance(event, egent.agent.ToolCallExecuted):
             first_line, has_more = _first_line_and_has_more(event.result)
             if first_line:
                 suffix = "..." if has_more else ""
                 print(f"{self._indent_str}=> {_truncate(first_line, 200)}{suffix}", flush=True)
         elif isinstance(event, egent.agent.TurnCompleted):
+            print()
             self._indent_printed = False

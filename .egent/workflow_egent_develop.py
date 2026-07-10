@@ -11,8 +11,7 @@ import conversation_printer
 import egent.agent
 import egent.builtin_tools.path_validator
 
-_EGENT_DIR = Path(__file__).resolve().parent
-_PROJECT_ROOT = _EGENT_DIR.parent
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _PYTEST_TIMEOUT_SECONDS = 120.0
 
 
@@ -190,7 +189,7 @@ async def review(prompt: str) -> tuple[bool, str]:
     )
     project_root = Path.cwd().resolve().as_posix()
     reviewer.path_permissions = _egent_reviewer_path_permissions(project_root)
-    with conversation_printer.ConversationPrinter(reviewer):
+    with conversation_printer.ConversationPrinter(reviewer, indent=2):
         reviewer.add_message(
             "system",
             "你是这个项目的 egent 工作流验收员。你需要验收 .egent 目录下的开发成果是否满足需求。"
@@ -218,7 +217,7 @@ async def begin_egent_develop_workflow(description: str) -> tuple[bool, str]:
         "gpt5-flash",
         skills=_common.discover_project_skills(),
     )
-    printer = conversation_printer.ConversationPrinter(developer)
+    printer = conversation_printer.ConversationPrinter(developer, indent=1)
     developer.add_message("system", "你是这个项目的 egent 工作流开发工程师")
     developer.add_message(
         "system",
