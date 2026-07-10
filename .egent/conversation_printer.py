@@ -111,7 +111,7 @@ class ConversationPrinter:
             first_line, has_more = _first_line_and_has_more(event.result)
             if first_line:
                 suffix = "..." if has_more else ""
-                print(f"{self._indent_str}=> {_truncate(first_line, 200)}{suffix}", flush=True)
+                print(f"{self._indent_str}=> {_truncate(first_line.strip(), 200)}{suffix}", flush=True)
         elif isinstance(event, egent.agent.TurnCompleted):
             print()
             self._indent_printed = False
