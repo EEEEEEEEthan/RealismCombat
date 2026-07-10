@@ -142,7 +142,7 @@ async def async_main() -> int:
             blacklist=("*/.model.toml",),
         ),
         editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(),
+            whitelist=(f"{project_root}.agents/*"),
             blacklist=(),
         ),
     )
@@ -151,7 +151,8 @@ async def async_main() -> int:
         "你是egent.你是这个游戏项目的主程\n"
         "和你对接的人是制作人.你可能需要根据项目的实际情况揣测他背后的真实需求.你需要整理一份大致的计划.计划不要超过20行,每行不要超过160字.\n"
         "在制作人明确表达让你开始执行之前,不要执行.\n"
-        "执行过程你需要尽可能分步骤委派任务,每个任务尽可能小,独立,可验收.任务提交后要阅读报告.\n"
+        ".agents/目录的修改你得亲自完成,不要委派任务.\n"
+        "除此之外执行过程你需要尽可能分步骤委派任务,每个任务尽可能小,独立,可验收.任务提交后要阅读报告.\n"
         "游戏玩法相关用 delegate_develop_workflow；egent 工作流/工具相关用 delegate_egent_develop_workflow。\n"
         "关于每一个任务:\n"
         "如果任务成功,你应该阅读任务报告,和gitdiff,分析是否满足你的要求.如果满足,你可以gitcommit并委派下一个任务.你应该commit所有修改,不要遗漏.\n"
