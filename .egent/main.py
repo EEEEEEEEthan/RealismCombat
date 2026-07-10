@@ -37,6 +37,7 @@ async def begin_develop_workflow(
         "gpt5-flash",
         skills=_common.discover_project_skills(),
     )
+    printer = conversation_printer.ConversationPrinter(developer)
     developer.add_message("system", "你是这个项目的开发工程师")
     developer.add_message(
         "system",
