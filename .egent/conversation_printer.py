@@ -2,11 +2,59 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from types import TracebackType
 
 import egent.agent
 import egent.tool
+
+
+def _truncate(text: str, max_chars: int) -> str:
+    """如果 text 超过 max_chars 则截断并附加 ``...``。"""
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars] + "..."
+
+
+def _format_arguments(arguments_json: str) -> str:
+    """将 JSON 参数字符串格式化为 ``key=val, ...`` 形式。
+
+    总额度约 ``PARAM_BUDGET`` 字符（不含两端空格），多参数平分，超出部分截断。
+    """
+    try:
+        args = json.loads(arguments_json)
+    except (json.JSONDecodeError, TypeError):
+        return arguments_json
+
+    if not isinstance(args, dict):
+        return str(args)
+
+    parts: list[str] = []
+    n = len(args)
+    if n == 0:
+        return ""
+
+    per_budget = max(120 // n, 10)
+
+    for key in args:
+        value = args[key]
+        value_str = str(value)
+        prefix_len = len(key) + 1  # "key="
+        val_budget = max(per_budget - prefix_len, 3)
+        truncated_val = _truncate(value_str, val_budget)
+        parts.append(f"{key}={truncated_val}")
+
+    return ", ".join(parts)
+
+
+def _first_content_line(text: str) -> str:
+    """返回 text 中第一个非空行。"""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped:
+            return stripped
+    return ""
 
 
 class ConversationPrinter:
@@ -44,6 +92,14 @@ class ConversationPrinter:
         if isinstance(event, egent.agent.TextDelta):
             print(event.text, end="", flush=True)
         elif isinstance(event, egent.agent.ToolCallStarted):
-            print(f"\n[tool_call: {event.name}]", flush=True)
+            formatted = _format_arguments(event.arguments)
+            if formatted:
+                print(f"\n[tool_call: {event.name}({formatted})]", flush=True)
+            else:
+                print(f"\n[tool_call: {event.name}]", flush=True)
+        elif isinstance(event, egent.agent.ToolCallExecuted):
+            first_line = _first_content_line(event.result)
+            if first_line:
+                print(f"  => {_truncate(first_line, 200)}", flush=True)
         elif isinstance(event, egent.agent.TurnCompleted):
             print(flush=True)
