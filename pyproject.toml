@@ -28,7 +28,6 @@ py-modules = [
     "conversation_printer",
     "godot_game_tools",
     "main",
-    "workflow_coding",
+    "workflow_gameplay_develop",
     "workflow_review",
-    "workflow_test",
 ]
