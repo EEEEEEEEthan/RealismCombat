@@ -137,7 +137,7 @@ async def async_main() -> int:
             ),
         ),
         readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
+            whitelist=("**",),
             blacklist=("*/.model.toml",),
         ),
         editable=egent.builtin_tools.path_validator.PathPermissionRule(
