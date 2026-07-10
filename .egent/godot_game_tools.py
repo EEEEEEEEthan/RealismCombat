@@ -20,7 +20,7 @@ _PORT_PATTERN = re.compile(r"<<<GAME_MCP::PORT=(\d+)>>>")
 if str(_IDE_MCP_DIR) not in sys.path:
     sys.path.insert(0, str(_IDE_MCP_DIR))
 
-from agent_mcp import GameCommandError, send_http  # pylint: disable=import-error,wrong-import-position
+from agent_mcp import send_http  # pylint: disable=import-error,wrong-import-position
 
 
 def launch_game_session() -> tuple[int, subprocess.Popen, Path]:
@@ -106,10 +106,7 @@ def launch_game_session() -> tuple[int, subprocess.Popen, Path]:
 
 def launch_game() -> str:
     """启动 Godot 游戏并返回 MCP 端口号与日志路径。"""
-    try:
-        port, _process, log_path = launch_game_session()
-    except RuntimeError as error:
-        return f"error: {error}"
+    port, _process, log_path = launch_game_session()
     return json.dumps(
         {"port": port, "log_path": log_path.as_posix()},
         ensure_ascii=False,
@@ -120,11 +117,11 @@ def launch_game() -> str:
 _WHITE_TESTS_DIR = _PROJECT_ROOT / "tests" / "white_tests"
 
 
-def _read_white_test_script(script_path: str) -> str | None:
-    """读取 white_tests 下的 .gd 脚本；路径非法或文件不存在时返回 None。"""
+def _require_white_test_script(script_path: str) -> str:
+    """读取 white_tests 下的 .gd 脚本；路径非法或文件不存在时抛异常。"""
     normalized_path = script_path.strip().replace("\\", "/")
     if not normalized_path:
-        return None
+        raise ValueError("脚本路径不能为空")
     candidate = Path(normalized_path)
     if not candidate.is_absolute():
         candidate = _PROJECT_ROOT / candidate
@@ -132,11 +129,18 @@ def _read_white_test_script(script_path: str) -> str | None:
     white_tests_resolved = _WHITE_TESTS_DIR.resolve()
     try:
         resolved.relative_to(white_tests_resolved)
-    except ValueError:
-        return None
+    except ValueError as path_error:
+        raise ValueError(
+            f"脚本路径无效或不存在，须为 tests/white_tests 下的 .gd 文件: {script_path}"
+        ) from path_error
     if resolved.suffix != ".gd" or not resolved.is_file():
-        return None
-    return resolved.read_text(encoding="utf-8")
+        raise FileNotFoundError(
+            f"脚本路径无效或不存在，须为 tests/white_tests 下的 .gd 文件: {script_path}"
+        )
+    script_source = resolved.read_text(encoding="utf-8")
+    if not script_source.strip():
+        raise ValueError(f"脚本为空: {script_path}")
+    return script_source
 
 
 def run_gdscript(port: int, script: str, *, timeout: float) -> str:
@@ -147,12 +151,8 @@ def run_gdscript(port: int, script: str, *, timeout: float) -> str:
     """
     script_source = script.strip()
     if not script_source:
-        return "error: 脚本源码为空"
-
-    try:
-        result = send_http(port, script_source, timeout_seconds=timeout)
-    except GameCommandError as error:
-        return f"error: {error}"
+        raise ValueError("脚本源码为空")
+    result = send_http(port, script_source, timeout_seconds=timeout)
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
@@ -162,16 +162,6 @@ def run_white_test(port: int, script_path: str, *, timeout: float) -> str:
     @param script_path: tests/white_tests 下的 .gd 路径，如 tests/white_tests/test_pause.gd
     @param timeout HTTP 请求超时秒数，调用方必须显式指定。
     """
-    script_source = _read_white_test_script(script_path)
-    if script_source is None:
-        return (
-            f"error: 脚本路径无效或不存在，须为 tests/white_tests 下的 .gd 文件: {script_path}"
-        )
-    if not script_source.strip():
-        return f"error: 脚本为空: {script_path}"
-
-    try:
-        result = send_http(port, script_source, timeout_seconds=timeout)
-    except GameCommandError as error:
-        return f"error: {error}"
+    script_source = _require_white_test_script(script_path)
+    result = send_http(port, script_source, timeout_seconds=timeout)
     return json.dumps(result, ensure_ascii=False, indent=2)

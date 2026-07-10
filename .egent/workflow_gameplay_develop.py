@@ -168,6 +168,8 @@ async def coding(
         @param spec: 测试套件：all（全部）、smoke
         """
         _, output = run_regression(spec)
+        if output.startswith("error:"):
+            raise RuntimeError(output.removeprefix("error:").strip())
         return output
 
     coder.add_message(
