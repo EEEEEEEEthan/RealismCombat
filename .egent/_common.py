@@ -10,13 +10,37 @@ from egent.builtin_tools import git_tools
 GIT_READ_ONLY_TOOLS = git_tools.read_only_tools
 
 
-def discover_project_skills() -> tuple[Path, ...]:
-    """返回项目 ``.agents/skills`` 下所有含 SKILL.md 的技能目录。"""
+def _scan_skills(root: Path) -> tuple[Path, ...]:
+    """扫描指定根目录下所有含 ``SKILL.md`` 的子目录。
+
+    @param root: 要扫描的根目录
+    @return: 排序后的技能目录元组
+    """
+    if not root.is_dir():
+        return ()
+
     return tuple(
-        skill_directory
-        for skill_directory in sorted(Path(".agents/skills").iterdir())
-        if skill_directory.is_dir() and (skill_directory / "SKILL.md").is_file()
+        skill_dir
+        for skill_dir in sorted(root.iterdir())
+        if skill_dir.is_dir() and (skill_dir / "SKILL.md").is_file()
     )
+
+
+def discover_project_skills() -> tuple[Path, ...]:
+    """返回项目内及全局用户技能目录下所有含 ``SKILL.md`` 的技能目录。
+
+    扫描路径（按优先级排序，同名目录去重保留先出现的）：
+      1. ``.agents/skills``（项目内技能）
+      2. ``C:\\Users\\tyx19\\.cursor\\skills``（全局用户技能）
+
+    若某路径不存在则静默跳过。
+    """
+    seen: dict[Path, Path] = {}
+    for root in (Path(".agents/skills"), Path(r"C:\Users\tyx19\.cursor\skills")):
+        for skill_dir in _scan_skills(root):
+            seen.setdefault(skill_dir.resolve(), skill_dir)
+
+    return tuple(seen.values())
 
 
 def make_fuck(prefix: str) -> callable:
