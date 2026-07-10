@@ -83,7 +83,7 @@ async def coding(
     coder: egent.agent.Agent,
     prompt: str,
     *,
-    custom_path_permissions: egent.builtin_tools.path_validator.PathPermissions | None = None,
+    custom_path_permissions: egent.builtin_tools.path_validator.PathPermissions,
 ) -> tuple[bool, str]:
     """执行开发：实现、优化、跑回归测试；最多重试直至通过。"""
     tracked_processes: list[subprocess.Popen] = []
@@ -97,47 +97,7 @@ async def coding(
         _, output = run_regression(spec)
         return output
 
-    if custom_path_permissions is not None:
-        coder.path_permissions = custom_path_permissions
-    elif coder.path_permissions is None:
-        cwd = Path.cwd().resolve().as_posix()
-        coder.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=("**",),
-                blacklist=(
-                    "*.pyc",
-                    "**/.pytest_cache",
-                    "**/.ruff_cache",
-                    "**/__pycache__",
-                    f"{cwd}/.agents",
-                    f"{cwd}/.cursor",
-                    f"{cwd}/.egent",
-                    f"{cwd}/.engine",
-                    f"{cwd}/.export",
-                    f"{cwd}/.git",
-                    f"{cwd}/.godot",
-                    f"{cwd}/.logs",
-                ),
-            ),
-            readable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=("**",),
-                blacklist=("**/.model.toml",),
-            ),
-            editable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=("**",),
-                blacklist=(
-                    "**/.model.toml",
-                    f"{cwd}/.agents/**/*",
-                    f"{cwd}/.cursor/**/*",
-                    f"{cwd}/.egent/**/*",
-                    f"{cwd}/.engine/**/*",
-                    f"{cwd}/.export/**/*",
-                    f"{cwd}/.git/**/*",
-                    f"{cwd}/.godot/**/*",
-                    f"{cwd}/.logs/**/*",
-                ),
-            ),
-        )
+    coder.path_permissions = custom_path_permissions
 
     coder.add_message(
         "system",
