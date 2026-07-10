@@ -9,6 +9,51 @@ import pytest
 import _common
 
 
+class TestMakeFuck:
+    """``make_fuck`` 闭包创建与行为测试。"""
+
+    def test_returns_callable(self) -> None:
+        """make_fuck 应返回一个可调用对象。"""
+        fuck_fn = _common.make_fuck("[test]")
+        assert callable(fuck_fn)
+
+    def test_fuck_docstring_contains_optimization_signal_phrasing(self) -> None:
+        """fuck 闭包的文档字符串应包含优化信号相关的措辞。"""
+        fuck_fn = _common.make_fuck("[test]")
+        doc = fuck_fn.__doc__
+        assert doc is not None
+        assert "提交工具/API/架构的改进反馈" in doc
+        assert "优化信号" in doc
+        assert "影响范围" in doc
+        assert "期望的改进方向" in doc
+        assert "这不是抱怨" in doc
+
+    def test_fuck_writes_to_fuck_txt(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """调用 fuck 闭包应将反馈写入 .fuck.txt。"""
+        fake_egent_dir = tmp_path / "egent"
+        fake_egent_dir.mkdir()
+        fake_file = fake_egent_dir / "_common.py"
+        monkeypatch.setattr(_common, "__file__", str(fake_file))
+
+        fuck_fn = _common.make_fuck("[test]")
+        result = fuck_fn("单元测试反馈消息")
+        assert "反馈已记录" in result
+
+        fuck_path = fake_egent_dir / ".fuck.txt"
+        assert fuck_path.exists()
+        content = fuck_path.read_text(encoding="utf-8")
+        assert "[test]" in content
+        assert "单元测试反馈消息" in content
+
+    def test_fuck_docstring_parameter_format(self) -> None:
+        """fuck 闭包的 @param msg 应包含具体问题描述/影响/期望方向。"""
+        fuck_fn = _common.make_fuck("[test]")
+        doc = fuck_fn.__doc__
+        assert doc is not None
+        assert "@param msg:" in doc
+        assert "具体问题描述" in doc
+
+
 class TestScanSkills:
     """``_scan_skills`` 扫描逻辑测试。"""
 

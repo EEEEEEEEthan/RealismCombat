@@ -127,22 +127,32 @@ async def test_run_turn_includes_fuck_tool() -> None:
     fuck_tools = [t for t in captured_tools if hasattr(t, "__name__") and t.__name__ == "fuck"]  # pylint: disable=not-an-iterable
     assert len(fuck_tools) == 1, f"期望恰好一个名为 'fuck' 的工具，实际找到 {len(fuck_tools)} 个"
 
-    # 验证该工具确实能写入吐槽
-    result = fuck_tools[0]("test吐槽消息")
-    assert "吐槽已记录" in result
+    # 验证该工具确实能写入反馈
+    result = fuck_tools[0]("test反馈消息")
+    assert "反馈已记录" in result
 
-    # 清理测试写入的吐槽
+    # 清理测试写入的反馈
     fuck_path = Path(__file__).resolve().parent.parent / ".fuck.txt"
     if fuck_path.exists():
         content = fuck_path.read_text(encoding="utf-8")
-        remaining = [l for l in content.splitlines(keepends=True) if "test吐槽消息" not in l]
+        remaining = [l for l in content.splitlines(keepends=True) if "test反馈消息" not in l]
         fuck_path.write_text("".join(remaining), encoding="utf-8")
 
 
-def test_async_main_system_prompt_includes_fuck_instruction() -> None:
-    """async_main 的 system prompt 应包含使用 fuck 工具的说明。"""
+def test_async_main_system_prompt_includes_improvement_feedback_phrasing() -> None:
+    """async_main 的 system prompt 应包含新版改进反馈措辞。
+
+    验证关键词：优化信号、工具链、运行环境、不要沉默绕行。
+    """
     import main  # pylint: disable=import-outside-toplevel
 
     source = inspect.getsource(main.async_main)
     assert "fuck" in source, "async_main 源码中应包含 'fuck' 相关代码"
-    assert "吐槽反馈" in source, "async_main 源码中应包含 '吐槽反馈'"
+    assert "提交改进反馈" in source, "async_main 源码中应包含 '提交改进反馈'"
+    assert "优化信号" in source, "async_main 源码中应包含 '优化信号'"
+    assert "工具链" in source, "async_main 源码中应包含 '工具链'"
+    assert "运行环境" in source, "async_main 源码中应包含 '运行环境'"
+    assert "不要沉默绕行" in source, "async_main 源码中应包含 '不要沉默绕行'"
+    assert "沉默等于放弃改善的机会" in source, (
+        "async_main 源码中应包含 '沉默等于放弃改善的机会'"
+    )

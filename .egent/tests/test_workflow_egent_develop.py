@@ -147,7 +147,7 @@ def test_coding_fuck_writes_with_timestamp_prefix() -> None:
     try:
         fuck_fn = _common.make_fuck("[egent开发")
         result = fuck_fn("测试消息")
-        assert result == "吐槽已记录。感谢反馈！"
+        assert result == "反馈已记录。感谢贡献！"
         assert fuck_path.exists(), ".fuck.txt 文件应被创建"
         content = fuck_path.read_text(encoding="utf-8")
         assert re.search(
@@ -233,7 +233,7 @@ def test_review_fuck_writes_with_egent_review_prefix() -> None:
     try:
         fuck_fn = _common.make_fuck("[egent审查")
         result = fuck_fn("审查消息")
-        assert result == "吐槽已记录。感谢反馈！"
+        assert result == "反馈已记录。感谢贡献！"
         assert fuck_path.exists(), ".fuck.txt 文件应被创建"
         content = fuck_path.read_text(encoding="utf-8")
         assert re.search(
