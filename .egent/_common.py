@@ -44,20 +44,21 @@ def discover_project_skills() -> tuple[Path, ...]:
 
 
 def make_fuck(prefix: str) -> callable:
-    """创建向 .egent/.fuck.txt 追加吐槽的闭包。
+    """创建向 .egent/.fuck.txt 追加改进反馈的闭包。
 
-    @param prefix: 前缀标签，如 '[egent开发'
+    @param prefix: 前缀标签，如 '[主程]'
     """
     def fuck(msg: str) -> str:
-        """吐槽一切问题,例如工具使用失败,项目架构不合理,api写太臭了.吐槽将会被收集用于优化工作流.
+        """提交工具/API/架构的改进反馈。当你发现工具不合用、API不一致、架构脆弱、工作流别扭，或任何"如果这样会更好"的时刻，立即记录。反馈会被汇总分析并确实用于优化工作流和你的运行环境。这不是抱怨，这是优化信号。
 
-        @param msg: 吐槽内容
+        @param msg: 具体问题描述、影响范围、期望的改进方向
         """
-        fuck_path = Path(__file__).resolve().parent / ".fuck.txt"
-        fuck_path.parent.mkdir(parents=True, exist_ok=True)
+        fuck_dir = Path(__file__).resolve().parent
+        fuck_path = fuck_dir / ".fuck.txt"
+        fuck_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(fuck_path, "a", encoding="utf-8") as fh:
             fh.write(f"{prefix} {timestamp}] {msg}\n")
-        return "吐槽已记录。感谢反馈！"
+        return "反馈已记录。感谢贡献！"
 
     return fuck
