@@ -100,6 +100,24 @@ def _get_names_from_list(list_node: ast.List) -> set[str]:
     return names
 
 
+def _restore_fuck_file(
+    fuck_path: Path,
+    original: str,
+    msg_identifier: str,
+) -> None:
+    """移除 .fuck.txt 中包含 msg_identifier 的行，恢复文件到测试前状态。"""
+    if not fuck_path.exists():
+        return
+    remaining = [
+        l for l in fuck_path.read_text(encoding="utf-8").splitlines(keepends=True)
+        if msg_identifier not in l
+    ]
+    if not original and not remaining:
+        fuck_path.unlink()
+    else:
+        fuck_path.write_text("".join(remaining), encoding="utf-8")
+
+
 # ── coding() 内部 fuck 测试 ──────────────────────────────────────────────────
 
 
@@ -139,8 +157,7 @@ def test_coding_fuck_writes_with_gameplay_develop_prefix() -> None:
     """coding 的 fuck 函数应写入带 [gameplay开发 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
     egent_dir = Path(__file__).resolve().parent.parent
     fuck_path = egent_dir / ".fuck.txt"
-    if fuck_path.exists():
-        fuck_path.unlink()
+    original = fuck_path.read_text(encoding="utf-8") if fuck_path.exists() else ""
 
     try:
         fuck_fn = _common.make_fuck("[gameplay开发")
@@ -154,8 +171,7 @@ def test_coding_fuck_writes_with_gameplay_develop_prefix() -> None:
             content,
         ), f"内容格式错误: {content!r}"
     finally:
-        if fuck_path.exists():
-            fuck_path.unlink()
+        _restore_fuck_file(fuck_path, original, "测试消息")
 
 
 def test_coding_fuck_in_both_tools_assignments() -> None:
@@ -219,8 +235,7 @@ def test_review_fuck_writes_with_gameplay_review_prefix() -> None:
     """review 的 fuck 函数应写入带 [gameplay审查 YYYY-MM-DD HH:MM:SS] 前缀的内容。"""
     egent_dir = Path(__file__).resolve().parent.parent
     fuck_path = egent_dir / ".fuck.txt"
-    if fuck_path.exists():
-        fuck_path.unlink()
+    original = fuck_path.read_text(encoding="utf-8") if fuck_path.exists() else ""
 
     try:
         fuck_fn = _common.make_fuck("[gameplay审查")
@@ -233,8 +248,7 @@ def test_review_fuck_writes_with_gameplay_review_prefix() -> None:
             content,
         ), f"内容格式错误: {content!r}"
     finally:
-        if fuck_path.exists():
-            fuck_path.unlink()
+        _restore_fuck_file(fuck_path, original, "消息")
 
 
 def test_review_fuck_in_tools() -> None:
