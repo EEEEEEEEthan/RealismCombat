@@ -191,17 +191,7 @@ async def run_turn(
         ),
         editable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=("**",),
-            blacklist=(
-                "**/.model.toml",
-                f"{cwd}/.agents/**/*",
-                f"{cwd}/.cursor/**/*",
-                f"{cwd}/.egent/**/*",
-                f"{cwd}/.engine/**/*",
-                f"{cwd}/.export/**/*",
-                f"{cwd}/.git/**/*",
-                f"{cwd}/.godot/**/*",
-                f"{cwd}/.logs/**/*",
-            ),
+            blacklist=("**",),
         ),
     )
     agent.add_message("user", prompt)
