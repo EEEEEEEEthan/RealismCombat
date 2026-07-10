@@ -10,6 +10,9 @@ import pytest
 import egent.agent
 from conversation_printer import (
     ConversationPrinter,
+    _DIM_GRAY,
+    _DIM_RED,
+    _RESET,
     _first_line_and_has_more,
     _format_arguments,
     _truncate,
@@ -176,10 +179,10 @@ class TestConversationPrinterIntegration:
         ))
         captured = capsys.readouterr()
         output = captured.out
-        assert output.startswith("\n[tool_call: get_weather(")
+        assert output.startswith(f"{_DIM_GRAY}\n[tool_call: get_weather(")
         assert "city=Beijing" in output
         assert "units=metric" in output
-        assert output.rstrip().endswith(")]")
+        assert output.rstrip().endswith(f")]{_RESET}")
 
         printer.close()
 
@@ -193,7 +196,7 @@ class TestConversationPrinterIntegration:
             arguments="{}",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "\n[tool_call: list_files]\n"
+        assert captured.out == f"{_DIM_GRAY}\n[tool_call: list_files]{_RESET}\n"
 
         printer.close()
 
@@ -208,7 +211,7 @@ class TestConversationPrinterIntegration:
             result="Sunny, 25\u00b0C\nMore details here",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "=> Sunny, 25\u00b0C...\n"
+        assert captured.out == f"{_DIM_GRAY}=> Sunny, 25\u00b0C...{_RESET}\n"
 
         printer.close()
 
@@ -223,7 +226,7 @@ class TestConversationPrinterIntegration:
             result="Sunny, 25\u00b0C",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "=> Sunny, 25\u00b0C\n"
+        assert captured.out == f"{_DIM_GRAY}=> Sunny, 25\u00b0C{_RESET}\n"
 
         printer.close()
 
@@ -238,7 +241,7 @@ class TestConversationPrinterIntegration:
             result="first\n\n  \nsecond",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "=> first...\n"
+        assert captured.out == f"{_DIM_GRAY}=> first...{_RESET}\n"
 
         printer.close()
 
@@ -253,7 +256,7 @@ class TestConversationPrinterIntegration:
             result="only line\n",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "=> only line\n"
+        assert captured.out == f"{_DIM_GRAY}=> only line{_RESET}\n"
 
         printer.close()
 
@@ -270,8 +273,8 @@ class TestConversationPrinterIntegration:
         ))
         captured = capsys.readouterr()
         output = captured.out
-        assert output.startswith("=> ")
-        assert output.rstrip().endswith("...")
+        assert output.startswith(f"{_DIM_GRAY}=> ")
+        assert output.rstrip().endswith(f"...{_RESET}")
 
         printer.close()
 
@@ -284,6 +287,54 @@ class TestConversationPrinterIntegration:
             name="test",
             arguments="{}",
             result="",
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == ""
+
+        printer.close()
+
+    def test_handle_tool_call_executed_with_exception(self, mock_agent, capsys):
+        """ToolCallExecuted with is_exception=True should use dim red color."""
+        printer = ConversationPrinter(mock_agent)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="failing_tool",
+            arguments="{}",
+            result="Error: something went wrong",
+            is_exception=True,
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == f"{_DIM_RED}=> Error: something went wrong{_RESET}\n"
+
+        printer.close()
+
+    def test_handle_tool_call_executed_with_exception_multiline(self, mock_agent, capsys):
+        """ToolCallExecuted with is_exception=True and multiline result should dim red with ..."""
+        printer = ConversationPrinter(mock_agent)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="failing_tool",
+            arguments="{}",
+            result="Error: something went wrong\nTraceback ...",
+            is_exception=True,
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == f"{_DIM_RED}=> Error: something went wrong...{_RESET}\n"
+
+        printer.close()
+
+    def test_handle_tool_call_executed_with_exception_empty_result(self, mock_agent, capsys):
+        """ToolCallExecuted with is_exception=True and empty result should print nothing."""
+        printer = ConversationPrinter(mock_agent)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="failing_tool",
+            arguments="{}",
+            result="",
+            is_exception=True,
         ))
         captured = capsys.readouterr()
         assert captured.out == ""
@@ -322,8 +373,8 @@ class TestConversationPrinterIntegration:
         captured = capsys.readouterr()
         output = captured.out
         assert "Let me check the weather." in output
-        assert "[tool_call: get_weather(city=Beijing)]" in output
-        assert "=> Sunny, 25\u00b0C" in output
+        assert f"{_DIM_GRAY}\n[tool_call: get_weather(city=Beijing)]{_RESET}" in output
+        assert f"{_DIM_GRAY}=> Sunny, 25\u00b0C{_RESET}" in output
         assert output.endswith("\n")
 
         printer.close()
@@ -394,7 +445,7 @@ class TestConversationPrinterIndent:
             arguments=json.dumps({"arg": "val"}),
         ))
         captured = capsys.readouterr()
-        assert captured.out == "\n    [tool_call: test_func(arg=val)]\n"
+        assert captured.out == f"{_DIM_GRAY}\n    [tool_call: test_func(arg=val)]{_RESET}\n"
 
         printer.close()
 
@@ -408,7 +459,7 @@ class TestConversationPrinterIndent:
             arguments="{}",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "\n    [tool_call: list_files]\n"
+        assert captured.out == f"{_DIM_GRAY}\n    [tool_call: list_files]{_RESET}\n"
 
         printer.close()
 
@@ -423,7 +474,23 @@ class TestConversationPrinterIndent:
             result="Result line",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "    => Result line\n"
+        assert captured.out == f"{_DIM_GRAY}    => Result line{_RESET}\n"
+
+        printer.close()
+
+    def test_indent_one_tool_call_executed_with_exception(self, mock_agent, capsys):
+        """ToolCallExecuted with is_exception=True should use dim red with indent."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="failing_tool",
+            arguments="{}",
+            result="Error occurred",
+            is_exception=True,
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == f"{_DIM_RED}    => Error occurred{_RESET}\n"
 
         printer.close()
 
@@ -461,14 +528,43 @@ class TestConversationPrinterIndent:
             arguments=json.dumps({"city": "Beijing"}),
             result="Sunny, 25\u00b0C",
         ))
+        handler(egent.agent.TextDelta(text="Done."))
         handler(egent.agent.TurnCompleted(text="Done"))
 
         captured = capsys.readouterr()
         output = captured.out
         assert output.startswith("    Let me check.")
-        assert "\n    [tool_call: get_weather(city=Beijing)]" in output
-        assert "\n    => Sunny, 25\u00b0C" in output
+        assert f"{_DIM_GRAY}\n    [tool_call: get_weather(city=Beijing)]{_RESET}" in output
+        assert f"{_DIM_GRAY}    => Sunny, 25\u00b0C{_RESET}" in output
+        assert "    Done." in output
         assert output.endswith("\n")
+
+        printer.close()
+
+    def test_indent_one_text_delta_after_tool_call(self, mock_agent, capsys):
+        """TextDelta after ToolCallExecuted should re-apply indent on first line."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallStarted(
+            name="run_test",
+            arguments="{}",
+        ))
+        handler(egent.agent.ToolCallExecuted(
+            name="run_test",
+            arguments="{}",
+            result="ok",
+        ))
+        handler(egent.agent.TextDelta(text="Now I have the result.\n\n    Next paragraph."))
+
+        captured = capsys.readouterr()
+        assert captured.out == (
+            f"{_DIM_GRAY}\n    [tool_call: run_test]{_RESET}\n"
+            f"{_DIM_GRAY}    => ok{_RESET}\n"
+            "    Now I have the result.\n"
+            "    \n"
+            "        Next paragraph."
+        )
 
         printer.close()
 

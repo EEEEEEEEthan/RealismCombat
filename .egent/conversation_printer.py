@@ -9,6 +9,10 @@ from types import TracebackType
 import egent.agent
 import egent.tool
 
+_DIM_GRAY = "\033[2;90m"
+_DIM_RED = "\033[2;31m"
+_RESET = "\033[0m"
+
 
 def _truncate(text: str, max_chars: int) -> str:
     """如果 text 超过 max_chars 则截断并附加 ``...``。"""
@@ -106,12 +110,14 @@ class ConversationPrinter:
         elif isinstance(event, egent.agent.ToolCallStarted):
             formatted = _format_arguments(event.arguments)
             args_suffix = f"({formatted})" if formatted else ""
-            print(f"\n{self._indent_str}[tool_call: {event.name}{args_suffix}]", flush=True)
+            print(f"{_DIM_GRAY}\n{self._indent_str}[tool_call: {event.name}{args_suffix}]{_RESET}", flush=True)
         elif isinstance(event, egent.agent.ToolCallExecuted):
             first_line, has_more = _first_line_and_has_more(event.result)
             if first_line:
+                color = _DIM_RED if event.is_exception else _DIM_GRAY
                 suffix = "..." if has_more else ""
-                print(f"{self._indent_str}=> {_truncate(first_line.strip(), 200)}{suffix}", flush=True)
+                print(f"{color}{self._indent_str}=> {_truncate(first_line.strip(), 200)}{suffix}{_RESET}", flush=True)
+            self._indent_printed = False
         elif isinstance(event, egent.agent.TurnCompleted):
             print()
             self._indent_printed = False
