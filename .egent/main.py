@@ -133,6 +133,7 @@ async def run_turn(
     await printer.request(
         tools=[
             *_common.GIT_READ_ONLY_TOOLS,
+            _common.make_fuck("[主程]"),
             make_delegate_develop_workflow(),
             make_delegate_egent_develop_workflow(),
             make_delegate_info_collect_workflow(),
@@ -179,6 +180,7 @@ async def async_main() -> int:
         "如果任务成功,你应该阅读任务报告,和gitdiff,分析是否满足你的要求.如果满足,你可以gitcommit并委派下一个任务.你应该commit所有修改,不要遗漏.\n"
         "如果任务失败,你需要分析为什么失败,调整任务描述后重新委派.失败时工作区会自动清理,报告末尾会说明.\n"
         "当然需求本身可能不合理.如果遇到这种情况,你认为调整任务描述也无法完成,那你就应该立即终止并且将原因反馈给我.\n"
+        "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。\n"
     )
     printer = conversation_printer.ConversationPrinter(agent)
     while True:

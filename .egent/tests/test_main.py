@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 import importlib
+import inspect
 import sys
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -98,3 +100,49 @@ async def test_reload_modules_skips_missing_modules() -> None:
             assert module.__name__ in sys.modules, (
                 f"reload 了不在 sys.modules 中的模块: {module.__name__}"
             )
+
+
+@pytest.mark.asyncio
+async def test_run_turn_includes_fuck_tool() -> None:
+    """run_turn 的 tools 列表应包含 _common.make_fuck("[主程]") 创建的吐槽工具。"""
+    import main  # pylint: disable=import-outside-toplevel
+
+    captured_tools: list | None = None
+
+    async def fake_request(*, tools: object, **_kwargs: object) -> None:
+        nonlocal captured_tools
+        captured_tools = list(tools)  # type: ignore[arg-type]
+
+    with (
+        patch("builtins.input", return_value="test prompt"),
+        patch.object(main.conversation_printer.ConversationPrinter, "request", side_effect=fake_request),
+    ):
+        agent = main.egent.agent.Agent("gpt5", skills=())
+        printer = main.conversation_printer.ConversationPrinter(agent)
+        await main.run_turn(agent, printer)
+
+    assert captured_tools is not None, "printer.request 未被调用"
+
+    # 验证存在一个可调用的吐槽工具（make_fuck("[主程]") 返回的闭包）
+    fuck_tools = [t for t in captured_tools if hasattr(t, "__name__") and t.__name__ == "fuck"]  # pylint: disable=not-an-iterable
+    assert len(fuck_tools) == 1, f"期望恰好一个名为 'fuck' 的工具，实际找到 {len(fuck_tools)} 个"
+
+    # 验证该工具确实能写入吐槽
+    result = fuck_tools[0]("test吐槽消息")
+    assert "吐槽已记录" in result
+
+    # 清理测试写入的吐槽
+    fuck_path = Path(__file__).resolve().parent.parent / ".fuck.txt"
+    if fuck_path.exists():
+        content = fuck_path.read_text(encoding="utf-8")
+        remaining = [l for l in content.splitlines(keepends=True) if "test吐槽消息" not in l]
+        fuck_path.write_text("".join(remaining), encoding="utf-8")
+
+
+def test_async_main_system_prompt_includes_fuck_instruction() -> None:
+    """async_main 的 system prompt 应包含使用 fuck 工具的说明。"""
+    import main  # pylint: disable=import-outside-toplevel
+
+    source = inspect.getsource(main.async_main)
+    assert "fuck" in source, "async_main 源码中应包含 'fuck' 相关代码"
+    assert "吐槽反馈" in source, "async_main 源码中应包含 '吐槽反馈'"
