@@ -114,9 +114,6 @@ def launch_game() -> str:
     )
 
 
-_WHITE_TESTS_DIR = _PROJECT_ROOT / "tests" / "white_tests"
-
-
 def _require_white_test_script(script_path: str) -> str:
     """读取 white_tests 下的 .gd 脚本；路径非法或文件不存在时抛异常。"""
     normalized_path = script_path.strip().replace("\\", "/")
@@ -126,7 +123,7 @@ def _require_white_test_script(script_path: str) -> str:
     if not candidate.is_absolute():
         candidate = _PROJECT_ROOT / candidate
     resolved = candidate.resolve()
-    white_tests_resolved = _WHITE_TESTS_DIR.resolve()
+    white_tests_resolved = (_PROJECT_ROOT / "tests" / "white_tests").resolve()
     try:
         resolved.relative_to(white_tests_resolved)
     except ValueError as path_error:
@@ -143,20 +140,7 @@ def _require_white_test_script(script_path: str) -> str:
     return script_source
 
 
-def run_gdscript(port: int, script: str, *, timeout: float) -> str:
-    """在运行中的 Godot 实例里执行 GDScript 测试代码。
-
-    @param script: 完整 GDScript 源码，须定义 static func run(scene_tree: SceneTree) -> Variant
-    @param timeout HTTP 请求超时秒数，调用方必须显式指定。
-    """
-    script_source = script.strip()
-    if not script_source:
-        raise ValueError("脚本源码为空")
-    result = send_http(port, script_source, timeout_seconds=timeout)
-    return json.dumps(result, ensure_ascii=False, indent=2)
-
-
-def run_white_test(port: int, script_path: str, *, timeout: float) -> str:
+def run_gdscript(port: int, script_path: str, *, timeout: float) -> str:
     """在运行中的 Godot 实例里执行 tests/white_tests 下的白盒测试脚本。
 
     @param script_path: tests/white_tests 下的 .gd 路径，如 tests/white_tests/test_pause.gd
