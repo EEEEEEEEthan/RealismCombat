@@ -18,7 +18,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from tests.run_tests import run_regression
+from tests.run_tests import run_regression  # pylint: disable=wrong-import-position
 
 _RUN_REGRESSION_BAT = _PROJECT_ROOT / "run-regression.bat"
 _REGRESSION_BAT_TIMEOUT_SECONDS = 120.0

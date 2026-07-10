@@ -15,6 +15,7 @@ _EGENT_DIR = Path(__file__).resolve().parent
 if str(_EGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_EGENT_DIR))
 
+# pylint: disable=wrong-import-position
 import _common
 import conversation_printer
 import egent

@@ -139,7 +139,7 @@ async def coding(
         "不要追求最小 diff，应追求最优雅、最易维护的实现。\n"
         "若现有结构阻碍正确性、可读性或可扩展性，主动重构相关代码；宁可多做一步，也不留补丁式或凑合式修改。"
         "编码完整后使用 run_pytest_test 进行你的专项测试（不需要全跑，跑你相关的专项测试即可；你提交之后会有专门的流程跑测试）。"
-        "测试代码写在 .egent/tests/ 下。",
+        "测试代码写在 .egent/tests/ 下；pylint 评分必须 10/10（tests 目录允许 duplicate-code ignore）。",
     )
 
     last_failure_output = ""
@@ -199,6 +199,7 @@ async def review(prompt: str) -> tuple[bool, str]:
             "## 验收标准:\n"
             "验证变更是否符合需求\n"
             "验证 .egent/tests 下的 pytest 是否覆盖了本次修改\n"
+            "验证 pylint 评分是否为 10/10\n"
             "验证实现是否追求最优雅解，而非最小改动；若仅为凑合可用、补丁堆砌或未做必要重构，应驳回\n"
             "根据 code-optimize 技能检查维护成本与结构质量\n\n"
             "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n",

@@ -20,7 +20,7 @@ _PORT_PATTERN = re.compile(r"<<<GAME_MCP::PORT=(\d+)>>>")
 if str(_IDE_MCP_DIR) not in sys.path:
     sys.path.insert(0, str(_IDE_MCP_DIR))
 
-from agent_mcp import GameCommandError, send_http  # noqa: E402
+from agent_mcp import GameCommandError, send_http  # pylint: disable=import-error,wrong-import-position
 
 
 def launch_game_session() -> tuple[int, subprocess.Popen, Path]:
@@ -50,7 +50,7 @@ def launch_game_session() -> tuple[int, subprocess.Popen, Path]:
     _LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_path = _LOG_DIR / f"godot_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
 
-    process = subprocess.Popen(
+    process = subprocess.Popen(  # pylint: disable=consider-using-with
         [str(_GODOT_EXE), "--path", str(_PROJECT_ROOT)],
         cwd=_PROJECT_ROOT,
         stdout=subprocess.PIPE,

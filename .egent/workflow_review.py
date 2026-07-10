@@ -1,11 +1,9 @@
 """开发成果验收工作流。"""
 
-from typing import Any
-
-
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import _common
 import conversation_printer
