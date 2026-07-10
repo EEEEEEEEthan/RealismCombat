@@ -131,6 +131,17 @@ async def coding(
         _, output = _run_pytest(spec)
         return output
 
+    def fuck(msg: str) -> str:
+        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
+
+        @param msg: 吐槽内容
+        """
+        fuck_path = _PROJECT_ROOT / ".egent" / ".fuck.txt"
+        fuck_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(fuck_path, "a", encoding="utf-8") as _f:
+            _f.write(f"[egent开发]{msg}\n")
+        return "吐槽已记录。感谢反馈！"
+
     coder.add_message(
         "system",
         f"{prompt}"
@@ -146,6 +157,7 @@ async def coding(
         coder.tools = [
             *_common.GIT_READ_ONLY_TOOLS,
             run_pytest_test,
+            fuck,
         ]
         submitted = await coder.request_submit({
             "success": (bool, "true表示任务完成,false表示放弃"),
@@ -159,7 +171,7 @@ async def coding(
             "system",
             "编码已完成。请使用 code-optimize技能优化代码",
         )
-        coder.tools = list(_common.GIT_READ_ONLY_TOOLS)
+        coder.tools = [*_common.GIT_READ_ONLY_TOOLS, fuck]
         await coder.request()
 
         passed, last_failure_output = _run_pytest()
