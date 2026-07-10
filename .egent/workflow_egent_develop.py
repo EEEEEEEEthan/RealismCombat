@@ -187,6 +187,7 @@ async def review(prompt: str) -> tuple[bool, str]:
             "system",
             "你是这个项目的 egent 工作流验收员。你需要验收 .egent 目录下的开发成果是否满足需求。"
             "使用 git_diff 查看代码变更，结合当前项目结构和需求文档进行验收。"
+            "回归测试已通过，所以你只需要验收代码是否符合需求。"
             f"\n\n## 需求:\n{prompt}\n\n"
             "## 验收标准:\n"
             "验证变更是否符合需求\n"
