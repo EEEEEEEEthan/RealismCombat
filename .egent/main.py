@@ -53,42 +53,6 @@ async def run_turn(
 ) -> None:
     """运行一轮交互：收集用户输入并发送请求。"""
     prompt = input(">>> ").strip()
-    project_root = Path.cwd().resolve().as_posix()
-    agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*.pyc",
-                "*/.pytest_cache",
-                "*/.ruff_cache",
-                "*/__pycache__",
-                f"{project_root}/.agents",
-                f"{project_root}/.agents/*",
-                f"{project_root}/.cursor",
-                f"{project_root}/.cursor/*",
-                f"{project_root}/.egent",
-                f"{project_root}/.egent/*",
-                f"{project_root}/.engine",
-                f"{project_root}/.engine/*",
-                f"{project_root}/.export",
-                f"{project_root}/.export/*",
-                f"{project_root}/.git",
-                f"{project_root}/.git/*",
-                f"{project_root}/.godot",
-                f"{project_root}/.godot/*",
-                f"{project_root}/.logs",
-                f"{project_root}/.logs/*",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=("*/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(),
-            blacklist=(),
-        ),
-    )
     agent.add_message("user", prompt)
     await printer.request(
         tools=[
@@ -113,22 +77,6 @@ async def async_main() -> int:
                 "*/.pytest_cache",
                 "*/.ruff_cache",
                 "*/__pycache__",
-                f"{project_root}/.agents",
-                f"{project_root}/.agents/*",
-                f"{project_root}/.cursor",
-                f"{project_root}/.cursor/*",
-                f"{project_root}/.egent",
-                f"{project_root}/.egent/*",
-                f"{project_root}/.engine",
-                f"{project_root}/.engine/*",
-                f"{project_root}/.export",
-                f"{project_root}/.export/*",
-                f"{project_root}/.git",
-                f"{project_root}/.git/*",
-                f"{project_root}/.godot",
-                f"{project_root}/.godot/*",
-                f"{project_root}/.logs",
-                f"{project_root}/.logs/*",
             ),
         ),
         readable=egent.builtin_tools.path_validator.PathPermissionRule(
@@ -136,26 +84,8 @@ async def async_main() -> int:
             blacklist=("*/.model.toml",),
         ),
         editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*/.model.toml",
-                f"{project_root}/.agents",
-                f"{project_root}/.agents/*",
-                f"{project_root}/.cursor",
-                f"{project_root}/.cursor/*",
-                f"{project_root}/.egent",
-                f"{project_root}/.egent/*",
-                f"{project_root}/.engine",
-                f"{project_root}/.engine/*",
-                f"{project_root}/.export",
-                f"{project_root}/.export/*",
-                f"{project_root}/.git",
-                f"{project_root}/.git/*",
-                f"{project_root}/.godot",
-                f"{project_root}/.godot/*",
-                f"{project_root}/.logs",
-                f"{project_root}/.logs/*",
-            ),
+            whitelist=(),
+            blacklist=(),
         ),
     )
     agent.add_message(
