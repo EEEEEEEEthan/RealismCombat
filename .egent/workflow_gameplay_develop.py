@@ -66,7 +66,8 @@ async def review(prompt: str) -> tuple[bool, str]:
             "验证回归测试是否覆盖了本次修改\n"
             "验证实现是否追求最优雅解，而非最小改动；若仅为凑合可用、补丁堆砌或未做必要重构，应驳回\n"
             "根据 code-optimize 技能检查维护成本与结构质量\n\n"
-            "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n",
+            "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n\n"
+            "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。\n",
         )
         reviewer.tools = [*_common.GIT_READ_ONLY_TOOLS, fuck]
         submitted = await reviewer.request_submit({
@@ -161,7 +162,8 @@ async def coding(
         "## 实现原则\n"
         "不要追求最小 diff，应追求最优雅、最易维护的实现。\n"
         "若现有结构阻碍正确性、可读性或可扩展性，主动重构相关代码；宁可多做一步，也不留补丁式或凑合式修改。"
-        "编码完整后使用run_regression_test进行你的专项测试(不需要全跑.跑你相关的专项测试即可.你提交之后会有专门的流程跑测试)",
+        "编码完整后使用run_regression_test进行你的专项测试(不需要全跑.跑你相关的专项测试即可.你提交之后会有专门的流程跑测试)。\n\n"
+        "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。",
     )
 
     last_failure_output = ""
@@ -330,7 +332,8 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 '		"ok": elapsed_sec >= 0.99,\n'
                 '		"elapsed_sec": elapsed_sec,'
                 "	}\n"
-                "```\n",
+                "```\n\n"
+                "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。\n",
             )
             tester.tools = [
                 *_common.GIT_READ_ONLY_TOOLS,
@@ -360,7 +363,8 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
         "system",
         "你收到了新的需求：\n"
         f"{description}\n\n"
-        "如果任务无法完成，请说明原因并放弃任务。",
+        "如果任务无法完成，请说明原因并放弃任务。\n\n"
+        "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。",
     )
 
     for _ in range(5):
