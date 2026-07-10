@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import _common
 import conversation_printer
 import egent.agent
-import egent.builtin_tools.path_validator
 
 
 async def review(prompt: str) -> tuple[bool, str]:
@@ -16,34 +13,7 @@ async def review(prompt: str) -> tuple[bool, str]:
         "gpt5",
         skills=_common.discover_project_skills(),
     )
-    cwd = Path.cwd().resolve().as_posix()
-    reviewer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=(
-                "*.pyc",
-                "**/.pytest_cache",
-                "**/.ruff_cache",
-                "**/__pycache__",
-                f"{cwd}/.agents",
-                f"{cwd}/.cursor",
-                f"{cwd}/.egent",
-                f"{cwd}/.engine",
-                f"{cwd}/.export",
-                f"{cwd}/.git",
-                f"{cwd}/.godot",
-                f"{cwd}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=("**/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(),
-            blacklist=(),
-        ),
-    )
+    reviewer.path_permissions = _common.create_read_only_project_path_permissions()
     with conversation_printer.ConversationPrinter(reviewer):
         reviewer.add_message(
             "system",

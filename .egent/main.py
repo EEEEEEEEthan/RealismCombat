@@ -19,7 +19,6 @@ import _common
 import conversation_printer
 import egent
 import egent.agent
-import egent.builtin_tools.path_validator
 import workflow_gameplay_develop
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -53,34 +52,7 @@ async def run_turn(
 ) -> None:
     """运行一轮交互：收集用户输入并发送请求。"""
     prompt = input(">>> ").strip()
-    cwd = Path.cwd().resolve().as_posix()
-    agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=(
-                "*.pyc",
-                "**/.pytest_cache",
-                "**/.ruff_cache",
-                "**/__pycache__",
-                f"{cwd}/.agents",
-                f"{cwd}/.cursor",
-                f"{cwd}/.egent",
-                f"{cwd}/.engine",
-                f"{cwd}/.export",
-                f"{cwd}/.git",
-                f"{cwd}/.godot",
-                f"{cwd}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=("**/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=("**",),
-        ),
-    )
+    agent.path_permissions = _common.create_read_only_project_path_permissions()
     agent.add_message("user", prompt)
     await printer.request(
         tools=[
@@ -96,44 +68,7 @@ async def run_turn(
 async def async_main() -> int:
     """运行交互式聊天，返回进程退出码。"""
     agent = egent.agent.Agent("gpt5", skills=_common.discover_project_skills())
-    cwd = Path.cwd().resolve().as_posix()
-    agent.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=(
-                "*.pyc",
-                "**/.pytest_cache",
-                "**/.ruff_cache",
-                "**/__pycache__",
-                f"{cwd}/.agents",
-                f"{cwd}/.cursor",
-                f"{cwd}/.egent",
-                f"{cwd}/.engine",
-                f"{cwd}/.export",
-                f"{cwd}/.git",
-                f"{cwd}/.godot",
-                f"{cwd}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=("**/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=(
-                "**/.model.toml",
-                f"{cwd}/.agents/**/*",
-                f"{cwd}/.cursor/**/*",
-                f"{cwd}/.egent/**/*",
-                f"{cwd}/.engine/**/*",
-                f"{cwd}/.export/**/*",
-                f"{cwd}/.git/**/*",
-                f"{cwd}/.godot/**/*",
-                f"{cwd}/.logs/**/*",
-            ),
-        ),
-    )
+    agent.path_permissions = _common.create_project_path_permissions()
     agent.add_message(
         "system",
         "你是egent.你是这个游戏项目的主程\n"

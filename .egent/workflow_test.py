@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 
 import _common
 import conversation_printer
 import egent.agent
-import egent.builtin_tools.path_validator
 import godot_game_tools
 
 
@@ -21,44 +19,7 @@ async def test(prompt: str) -> tuple[bool, str]:
 
     try:
         tester = egent.agent.Agent("gpt5")
-        cwd = Path.cwd().resolve().as_posix()
-        tester.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=("**",),
-                blacklist=(
-                    "*.pyc",
-                    "**/.pytest_cache",
-                    "**/.ruff_cache",
-                    "**/__pycache__",
-                    f"{cwd}/.agents",
-                    f"{cwd}/.cursor",
-                    f"{cwd}/.egent",
-                    f"{cwd}/.engine",
-                    f"{cwd}/.export",
-                    f"{cwd}/.git",
-                    f"{cwd}/.godot",
-                    f"{cwd}/.logs",
-                ),
-            ),
-            readable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=("**",),
-                blacklist=("**/.model.toml",),
-            ),
-            editable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=("**",),
-                blacklist=(
-                    "**/.model.toml",
-                    f"{cwd}/.agents/**/*",
-                    f"{cwd}/.cursor/**/*",
-                    f"{cwd}/.egent/**/*",
-                    f"{cwd}/.engine/**/*",
-                    f"{cwd}/.export/**/*",
-                    f"{cwd}/.git/**/*",
-                    f"{cwd}/.godot/**/*",
-                    f"{cwd}/.logs/**/*",
-                ),
-            ),
-        )
+        tester.path_permissions = _common.create_project_path_permissions()
         with conversation_printer.ConversationPrinter(tester):
             tester.add_message(
                 "system",
