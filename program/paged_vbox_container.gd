@@ -1,6 +1,6 @@
 @tool
 extends VBoxContainer
-class_name OptionContainer
+class_name PagedVBoxContainer
 
 var _arrow_texture: AtlasTexture:
 	get:

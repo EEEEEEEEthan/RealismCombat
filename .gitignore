@@ -15,3 +15,4 @@
 /save.dat
 /.release.7z
 /.engine/
+*/__pycache__/
