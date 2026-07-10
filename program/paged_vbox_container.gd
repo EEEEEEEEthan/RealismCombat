@@ -16,26 +16,19 @@ const ARROW_REGION_BASE_Y: float = 2.0
 		viewport_size = value
 		_update_viewport()
 
-var _true_viewport_begin: int:
-	get:
-		return 0 if viewport_begin == 0 else viewport_begin + 1
-
-var _true_viewport_size: int:
-	get:
-		var child_count = get_child_count()
-		var offset := 0
-		if viewport_begin == 0:
-			offset -= 1
-		if viewport_begin + viewport_size > child_count:
-			offset -= 1
-		return viewport_size + offset
-
 func _update_viewport() -> void:
 	if not is_node_ready(): await ready
 	var child_count := get_child_count()
-	var viewport_end = _true_viewport_begin + _true_viewport_size
+	var true_begin := 0 if viewport_begin == 0 else viewport_begin + 1
+	var offset := 0
+	if viewport_begin == 0:
+		offset -= 1
+	if viewport_begin + viewport_size > child_count:
+		offset -= 1
+	var true_size := viewport_size + offset
+	var viewport_end := true_begin + true_size
 	for i in child_count:
-		get_child(i).visible = i >= _true_viewport_begin and i < viewport_end
+		get_child(i).visible = i >= true_begin and i < viewport_end
 	_up_arrow.visible = viewport_begin > 0
 	_down_arrow.visible = viewport_end < child_count
 	print(viewport_end, "/", child_count)
@@ -63,6 +56,7 @@ func _init() -> void:
 	_up_arrow.custom_minimum_size = Vector2(0, 8)
 	_up_arrow.button_down.connect(shift_arrow.bind(_up_arrow, ARROW_REGION_BASE_Y - 1))
 	_up_arrow.button_up.connect(shift_arrow.bind(_up_arrow, ARROW_REGION_BASE_Y))
+	_up_arrow.pressed.connect(func(): viewport_begin = max(0, viewport_begin - 1))
 	add_child(_up_arrow, false, Node.INTERNAL_MODE_FRONT)
 	_down_arrow = TextureButton.new()
 	_down_arrow.name = &"DownArrow"
@@ -72,6 +66,7 @@ func _init() -> void:
 	_down_arrow.flip_v = true
 	_down_arrow.button_down.connect(shift_arrow.bind(_down_arrow, ARROW_REGION_BASE_Y + 1))
 	_down_arrow.button_up.connect(shift_arrow.bind(_down_arrow, ARROW_REGION_BASE_Y))
+	_down_arrow.pressed.connect(func(): viewport_begin += 1)
 	add_child(_down_arrow, false, Node.INTERNAL_MODE_BACK)
 
 func _exit_tree() -> void:
