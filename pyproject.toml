@@ -28,6 +28,12 @@ py-modules = [
     "conversation_printer",
     "godot_game_tools",
     "main",
+    "workflow_egent_develop",
     "workflow_gameplay_develop",
     "workflow_review",
 ]
+
+[tool.pytest.ini_options]
+testpaths = [".egent/tests"]
+asyncio_mode = "auto"
+pythonpath = [".egent"]

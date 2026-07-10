@@ -20,6 +20,7 @@ import conversation_printer
 import egent
 import egent.agent
 import egent.builtin_tools.path_validator
+import workflow_egent_develop
 import workflow_gameplay_develop
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -47,6 +48,28 @@ def make_delegate_develop_workflow() -> egent.tool.ToolCallable:
     return delegate_develop_workflow
 
 
+def make_delegate_egent_develop_workflow() -> egent.tool.ToolCallable:
+    """生成可供 agent 调用的 egent 开发委派工具。"""
+
+    async def delegate_egent_develop_workflow(description: str) -> str:
+        """委派 egent 开发工作：编码、验收、pytest 回归循环，直至通过或耗尽重试。
+
+        @param description 开发需求描述（作用于 .egent 目录）
+        """
+        success, summary = await workflow_egent_develop.begin_egent_develop_workflow(description)
+        if success:
+            return summary
+        repo = str(_PROJECT_ROOT)
+        reset_result = egent.builtin_tools.git_tools.git_reset(hard=True, path=repo)
+        clean_result = egent.builtin_tools.git_tools.git_clean(path=repo)
+        return (
+            f"{summary}\n\n---\n工作区已自动清理（git reset --hard + git clean -fd）:\n"
+            f"{reset_result}\n{clean_result}"
+        )
+
+    return delegate_egent_develop_workflow
+
+
 async def run_turn(
     agent: egent.agent.Agent,
     printer: conversation_printer.ConversationPrinter,
@@ -58,6 +81,7 @@ async def run_turn(
         tools=[
             *_common.GIT_READ_ONLY_TOOLS,
             make_delegate_develop_workflow(),
+            make_delegate_egent_develop_workflow(),
             egent.builtin_tools.git_tools.git_add,
             egent.builtin_tools.git_tools.git_commit,
             egent.builtin_tools.git_tools.git_push,
@@ -93,7 +117,8 @@ async def async_main() -> int:
         "你是egent.你是这个游戏项目的主程\n"
         "和你对接的人是制作人.你可能需要根据项目的实际情况揣测他背后的真实需求.你需要整理一份大致的计划.计划不要超过20行,每行不要超过160字.\n"
         "在制作人明确表达让你开始执行之前,不要执行.\n"
-        "执行过程你需要尽可能分步骤使用delegate_develop_workflow委派任务,每个任务尽可能小,独立,可验收.任务提交后要阅读报告.\n"
+        "执行过程你需要尽可能分步骤委派任务,每个任务尽可能小,独立,可验收.任务提交后要阅读报告.\n"
+        "游戏玩法相关用 delegate_develop_workflow；egent 工作流/工具相关用 delegate_egent_develop_workflow。\n"
         "关于每一个任务:\n"
         "如果任务成功,你应该阅读任务报告,和gitdiff,分析是否满足你的要求.如果满足,你可以gitcommit并委派下一个任务.你应该commit所有修改,不要遗漏.\n"
         "如果任务失败,你需要分析为什么失败,调整任务描述后重新委派.失败时工作区会自动清理,报告末尾会说明.\n"
