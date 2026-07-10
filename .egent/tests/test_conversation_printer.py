@@ -10,9 +10,8 @@ import pytest
 import egent.agent
 from conversation_printer import (
     ConversationPrinter,
-    _first_content_line,
+    _first_line_and_has_more,
     _format_arguments,
-    _has_more_content,
     _truncate,
 )
 
@@ -37,60 +36,62 @@ class TestTruncate:
         assert _truncate("", 10) == ""
 
 
-class TestFirstContentLine:
-    """Tests for _first_content_line helper."""
+class TestFirstLineAndHasMore:
+    """Tests for _first_line_and_has_more helper."""
 
-    def test_single_line(self) -> None:
-        """Single line should be returned as-is."""
-        assert _first_content_line("hello") == "hello"
+    # --- first line ---
 
-    def test_multiline(self) -> None:
+    def test_single_line_first(self) -> None:
+        """Single line should return the line and has_more=False."""
+        first, has_more = _first_line_and_has_more("hello")
+        assert first == "hello"
+        assert has_more is False
+
+    def test_multiline_first(self) -> None:
         """First line of multiline text should be returned."""
-        assert _first_content_line("line1\nline2\nline3") == "line1"
+        first, has_more = _first_line_and_has_more("line1\nline2\nline3")
+        assert first == "line1"
+        assert has_more is True
 
-    def test_leading_blank_lines(self) -> None:
+    def test_leading_blank_lines_first(self) -> None:
         """Leading blank lines should be skipped."""
-        assert _first_content_line("\n\n  \ncontent") == "content"
+        first, has_more = _first_line_and_has_more("\n\n  \ncontent")
+        assert first == "content"
+        assert has_more is False
 
-    def test_all_blank(self) -> None:
-        """All-blank input should return empty string."""
-        assert _first_content_line("  \n\n  ") == ""
+    def test_all_blank_first(self) -> None:
+        """All-blank input should return empty string and has_more=False."""
+        first, has_more = _first_line_and_has_more("  \n\n  ")
+        assert first == ""
+        assert has_more is False
 
-    def test_empty_string(self) -> None:
-        """Empty string should return empty string."""
-        assert _first_content_line("") == ""
+    def test_empty_string_first(self) -> None:
+        """Empty string should return empty string and has_more=False."""
+        first, has_more = _first_line_and_has_more("")
+        assert first == ""
+        assert has_more is False
 
+    # --- has_more ---
 
-class TestHasMoreContent:
-    """Tests for _has_more_content helper."""
+    def test_multiple_lines_has_more(self) -> None:
+        """Multiple non-empty lines should return has_more=True."""
+        _, has_more = _first_line_and_has_more("line1\nline2")
+        assert has_more is True
 
-    def test_single_line(self) -> None:
-        """Single non-empty line should return False."""
-        assert _has_more_content("hello") is False
-
-    def test_multiple_lines(self) -> None:
-        """Multiple non-empty lines should return True."""
-        assert _has_more_content("line1\nline2") is True
-
-    def test_with_blank_lines(self) -> None:
+    def test_with_blank_lines_has_more(self) -> None:
         """Blank lines between non-empty lines should still detect more."""
-        assert _has_more_content("line1\n\n\nline2") is True
+        _, has_more = _first_line_and_has_more("line1\n\n\nline2")
+        assert has_more is True
 
-    def test_only_blank_after_first(self) -> None:
-        """Blank lines after first non-empty should return False."""
-        assert _has_more_content("content\n  \n  ") is False
+    def test_only_blank_after_first_has_more(self) -> None:
+        """Blank lines after first non-empty should return has_more=False."""
+        _, has_more = _first_line_and_has_more("content\n  \n  ")
+        assert has_more is False
 
-    def test_empty_string(self) -> None:
-        """Empty string should return False."""
-        assert _has_more_content("") is False
-
-    def test_all_blank(self) -> None:
-        """All-blank input should return False."""
-        assert _has_more_content("  \n\n  ") is False
-
-    def test_trailing_newline_single_line(self) -> None:
-        """Single line with trailing newline should return False."""
-        assert _has_more_content("hello\n") is False
+    def test_trailing_newline_single_line_has_more(self) -> None:
+        """Single line with trailing newline should return has_more=False."""
+        _, has_more = _first_line_and_has_more("hello\n")
+        assert has_more is False
 
 
 class TestFormatArguments:

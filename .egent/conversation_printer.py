@@ -48,25 +48,19 @@ def _format_arguments(arguments_json: str) -> str:
     return ", ".join(parts)
 
 
-def _first_content_line(text: str) -> str:
-    """返回 text 中第一个非空行。"""
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped:
-            return stripped
-    return ""
-
-
-def _has_more_content(text: str) -> bool:
-    """检查 text 中是否存在第二个非空行。"""
+def _first_line_and_has_more(text: str) -> tuple[str, bool]:
+    """返回 (第一个非空行, 是否存在第二个非空行)。"""
+    first = ""
     found_first = False
     for line in text.splitlines():
         stripped = line.strip()
         if stripped:
-            if found_first:
-                return True
-            found_first = True
-    return False
+            if not found_first:
+                first = stripped
+                found_first = True
+            else:
+                return first, True
+    return first, False
 
 
 class ConversationPrinter:
@@ -110,9 +104,9 @@ class ConversationPrinter:
             else:
                 print(f"\n[tool_call: {event.name}]", flush=True)
         elif isinstance(event, egent.agent.ToolCallExecuted):
-            first_line = _first_content_line(event.result)
+            first_line, has_more = _first_line_and_has_more(event.result)
             if first_line:
-                suffix = "..." if _has_more_content(event.result) else ""
+                suffix = "..." if has_more else ""
                 print(f"  => {_truncate(first_line, 200)}{suffix}", flush=True)
         elif isinstance(event, egent.agent.TurnCompleted):
             print(flush=True)
