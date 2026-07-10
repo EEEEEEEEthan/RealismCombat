@@ -471,3 +471,82 @@ class TestConversationPrinterIndent:
         assert output.endswith("\n")
 
         printer.close()
+
+    def test_indent_one_text_delta_multiline(self, mock_agent, capsys):
+        """indent=1 should indent each line of multiline TextDelta."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="line1\nline2"))
+        captured = capsys.readouterr()
+        assert captured.out == "    line1\n    line2"
+
+        printer.close()
+
+    def test_indent_one_text_delta_multiline_three_lines(self, mock_agent, capsys):
+        """indent=1 should indent all lines of multiline TextDelta."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="line1\nline2\nline3"))
+        captured = capsys.readouterr()
+        assert captured.out == "    line1\n    line2\n    line3"
+
+        printer.close()
+
+    def test_indent_two_text_delta_multiline(self, mock_agent, capsys):
+        """indent=2 should indent each line with 8 spaces."""
+        printer = ConversationPrinter(mock_agent, indent=2)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="hello\nworld"))
+        captured = capsys.readouterr()
+        assert captured.out == "        hello\n        world"
+
+        printer.close()
+
+    def test_indent_zero_text_delta_multiline(self, mock_agent, capsys):
+        """indent=0 multiline TextDelta should not add extra spaces."""
+        printer = ConversationPrinter(mock_agent, indent=0)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="hello\nworld"))
+        captured = capsys.readouterr()
+        assert captured.out == "hello\nworld"
+
+        printer.close()
+
+    def test_indent_one_text_delta_multiple_with_multiline(self, mock_agent, capsys):
+        """Multiple TextDelta events with multiline should indent correctly across events."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="first\nsecond "))
+        handler(egent.agent.TextDelta(text="third\nfourth"))
+        captured = capsys.readouterr()
+        assert captured.out == "    first\n    second third\n    fourth"
+
+        printer.close()
+
+    def test_indent_one_text_delta_leading_newline(self, mock_agent, capsys):
+        """TextDelta starting with newline should indent the continuation line."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="\nindented line"))
+        captured = capsys.readouterr()
+        assert captured.out == "    \n    indented line"
+
+        printer.close()
+
+    def test_indent_one_text_delta_trailing_newline(self, mock_agent, capsys):
+        """TextDelta ending with newline should indent the empty line."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="line1\n"))
+        captured = capsys.readouterr()
+        # The trailing newline becomes "\n    " but nothing after it, so output is "    line1\n    "
+        assert captured.out == "    line1\n    "
+
+        printer.close()

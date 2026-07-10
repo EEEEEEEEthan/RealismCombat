@@ -20,7 +20,7 @@ def _truncate(text: str, max_chars: int) -> str:
 def _format_arguments(arguments_json: str) -> str:
     """将 JSON 参数字符串格式化为 ``key=val, ...`` 形式。
 
-    总额度约 120 字符（不含两端空格），多参数平分，超出部分截断。
+    总字符预算在参数之间平分，超长的值会被截断（不含两端空格）。
     """
     try:
         args = json.loads(arguments_json)
@@ -101,7 +101,8 @@ class ConversationPrinter:
             if not self._indent_printed:
                 print(self._indent_str, end="", flush=True)
                 self._indent_printed = True
-            print(event.text, end="", flush=True)
+            text = event.text.replace("\n", f"\n{self._indent_str}")
+            print(text, end="", flush=True)
         elif isinstance(event, egent.agent.ToolCallStarted):
             formatted = _format_arguments(event.arguments)
             args_suffix = f"({formatted})" if formatted else ""
