@@ -37,45 +37,6 @@ async def begin_develop_workflow(
         "gpt5-flash",
         skills=_common.discover_project_skills(),
     )
-    cwd = Path.cwd().resolve().as_posix()
-    developer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=(
-                "*.pyc",
-                "**/.pytest_cache",
-                "**/.ruff_cache",
-                "**/__pycache__",
-                f"{cwd}/.agents",
-                f"{cwd}/.cursor",
-                f"{cwd}/.egent",
-                f"{cwd}/.engine",
-                f"{cwd}/.export",
-                f"{cwd}/.git",
-                f"{cwd}/.godot",
-                f"{cwd}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=("**/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=("**",),
-            blacklist=(
-                "**/.model.toml",
-                f"{cwd}/.agents/**/*",
-                f"{cwd}/.cursor/**/*",
-                f"{cwd}/.egent/**/*",
-                f"{cwd}/.engine/**/*",
-                f"{cwd}/.export/**/*",
-                f"{cwd}/.git/**/*",
-                f"{cwd}/.godot/**/*",
-                f"{cwd}/.logs/**/*",
-            ),
-        ),
-    )
-    printer = conversation_printer.ConversationPrinter(developer)
     developer.add_message("system", "你是这个项目的开发工程师")
     developer.add_message(
         "system",
@@ -254,7 +215,7 @@ async def async_main() -> int:
         "在制作人明确表达让你开始执行之前,不要执行.\n"
         "执行过程你需要尽可能分步骤使用delegate_develop_workflow委派任务,每个任务尽可能小,独立,可验收.任务提交后要阅读报告.\n"
         "关于每一个任务:\n"
-        "如果任务成功,你应该阅读任务报告,和gitdiff,分析是否满足你的要求.如果满足,你可以gitcommit并委派下一个任务.\n"
+        "如果任务成功,你应该阅读任务报告,和gitdiff,分析是否满足你的要求.如果满足,你可以gitcommit并委派下一个任务.你应该commit所有修改,不要遗漏.\n"
         "如果任务失败,你需要分析为什么失败,调整任务描述后重新委派.失败时工作区会自动清理,报告末尾会说明.\n"
         "当然需求本身可能不合理.如果遇到这种情况,你认为调整任务描述也无法完成,那你就应该立即终止并且将原因反馈给我.\n"
     )
