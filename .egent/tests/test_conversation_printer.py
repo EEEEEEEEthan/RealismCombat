@@ -179,7 +179,7 @@ class TestConversationPrinterIntegration:
         ))
         captured = capsys.readouterr()
         output = captured.out
-        assert output.startswith(f"{_DIM_GRAY}\n[tool_call: get_weather(")
+        assert output.startswith(f"{_DIM_GRAY}[tool_call: get_weather(")
         assert "city=Beijing" in output
         assert "units=metric" in output
         assert output.rstrip().endswith(f")]{_RESET}")
@@ -196,7 +196,7 @@ class TestConversationPrinterIntegration:
             arguments="{}",
         ))
         captured = capsys.readouterr()
-        assert captured.out == f"{_DIM_GRAY}\n[tool_call: list_files]{_RESET}\n"
+        assert captured.out == f"{_DIM_GRAY}[tool_call: list_files]{_RESET}\n"
 
         printer.close()
 
@@ -373,7 +373,7 @@ class TestConversationPrinterIntegration:
         captured = capsys.readouterr()
         output = captured.out
         assert "Let me check the weather." in output
-        assert f"{_DIM_GRAY}\n[tool_call: get_weather(city=Beijing)]{_RESET}" in output
+        assert f"{_DIM_GRAY}[tool_call: get_weather(city=Beijing)]{_RESET}" in output
         assert f"{_DIM_GRAY}=> Sunny, 25\u00b0C{_RESET}" in output
         assert output.endswith("\n")
 
@@ -445,7 +445,7 @@ class TestConversationPrinterIndent:
             arguments=json.dumps({"arg": "val"}),
         ))
         captured = capsys.readouterr()
-        assert captured.out == f"{_DIM_GRAY}\n    [tool_call: test_func(arg=val)]{_RESET}\n"
+        assert captured.out == f"{_DIM_GRAY}    [tool_call: test_func(arg=val)]{_RESET}\n"
 
         printer.close()
 
@@ -459,7 +459,7 @@ class TestConversationPrinterIndent:
             arguments="{}",
         ))
         captured = capsys.readouterr()
-        assert captured.out == f"{_DIM_GRAY}\n    [tool_call: list_files]{_RESET}\n"
+        assert captured.out == f"{_DIM_GRAY}    [tool_call: list_files]{_RESET}\n"
 
         printer.close()
 
@@ -534,7 +534,7 @@ class TestConversationPrinterIndent:
         captured = capsys.readouterr()
         output = captured.out
         assert output.startswith("    Let me check.")
-        assert f"{_DIM_GRAY}\n    [tool_call: get_weather(city=Beijing)]{_RESET}" in output
+        assert f"{_DIM_GRAY}    [tool_call: get_weather(city=Beijing)]{_RESET}" in output
         assert f"{_DIM_GRAY}    => Sunny, 25\u00b0C{_RESET}" in output
         assert "    Done." in output
         assert output.endswith("\n")
@@ -559,7 +559,7 @@ class TestConversationPrinterIndent:
 
         captured = capsys.readouterr()
         assert captured.out == (
-            f"{_DIM_GRAY}\n    [tool_call: run_test]{_RESET}\n"
+            f"{_DIM_GRAY}    [tool_call: run_test]{_RESET}\n"
             f"{_DIM_GRAY}    => ok{_RESET}\n"
             "    Now I have the result.\n"
             "    \n"
