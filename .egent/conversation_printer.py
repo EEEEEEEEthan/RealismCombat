@@ -110,7 +110,7 @@ class ConversationPrinter:
         elif isinstance(event, egent.agent.ToolCallStarted):
             formatted = _format_arguments(event.arguments)
             args_suffix = f"({formatted})" if formatted else ""
-            print(f"{_DIM_GRAY}\n{self._indent_str}[tool_call: {event.name}{args_suffix}]{_RESET}", flush=True)
+            print(f"{_DIM_GRAY}{self._indent_str}[tool_call: {event.name}{args_suffix}]{_RESET}", flush=True)
         elif isinstance(event, egent.agent.ToolCallExecuted):
             first_line, has_more = _first_line_and_has_more(event.result)
             if first_line:
