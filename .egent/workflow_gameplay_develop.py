@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import _common
 import conversation_printer
 import egent.agent
+import egent.builtin_tools.path_validator
 import workflow_coding
 import workflow_review
 import workflow_test
@@ -22,7 +25,60 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
         "system",
         "你收到了新的需求.请做完这个需求并更新回归测试代码.如果任务无法完成,请说明原因并放弃任务.",
     )
-    path_permissions = _common.create_project_path_permissions()
+    project_root = Path.cwd().resolve().as_posix()
+    path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=(
+                "*.pyc",
+                "*/.pytest_cache",
+                "*/.ruff_cache",
+                "*/__pycache__",
+                f"{project_root}/.agents",
+                f"{project_root}/.agents/*",
+                f"{project_root}/.cursor",
+                f"{project_root}/.cursor/*",
+                f"{project_root}/.egent",
+                f"{project_root}/.egent/*",
+                f"{project_root}/.engine",
+                f"{project_root}/.engine/*",
+                f"{project_root}/.export",
+                f"{project_root}/.export/*",
+                f"{project_root}/.git",
+                f"{project_root}/.git/*",
+                f"{project_root}/.godot",
+                f"{project_root}/.godot/*",
+                f"{project_root}/.logs",
+                f"{project_root}/.logs/*",
+            ),
+        ),
+        readable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=("*/.model.toml",),
+        ),
+        editable=egent.builtin_tools.path_validator.PathPermissionRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=(
+                "*/.model.toml",
+                f"{project_root}/.agents",
+                f"{project_root}/.agents/*",
+                f"{project_root}/.cursor",
+                f"{project_root}/.cursor/*",
+                f"{project_root}/.egent",
+                f"{project_root}/.egent/*",
+                f"{project_root}/.engine",
+                f"{project_root}/.engine/*",
+                f"{project_root}/.export",
+                f"{project_root}/.export/*",
+                f"{project_root}/.git",
+                f"{project_root}/.git/*",
+                f"{project_root}/.godot",
+                f"{project_root}/.godot/*",
+                f"{project_root}/.logs",
+                f"{project_root}/.logs/*",
+            ),
+        ),
+    )
 
     for _ in range(5):
         try:
