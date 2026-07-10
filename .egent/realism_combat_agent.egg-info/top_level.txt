@@ -2,5 +2,5 @@ _common
 conversation_printer
 godot_game_tools
 main
-workflow_coding
-workflow_test
+workflow_egent_develop
+workflow_gameplay_develop

@@ -3,8 +3,8 @@ pyproject.toml
 .egent/conversation_printer.py
 .egent/godot_game_tools.py
 .egent/main.py
-.egent/workflow_coding.py
-.egent/workflow_test.py
+.egent/workflow_egent_develop.py
+.egent/workflow_gameplay_develop.py
 .egent/realism_combat_agent.egg-info/PKG-INFO
 .egent/realism_combat_agent.egg-info/SOURCES.txt
 .egent/realism_combat_agent.egg-info/dependency_links.txt
