@@ -15,7 +15,6 @@
 /save.dat
 /.release.7z
 /.engine/
-*/__pycache__/
-
+**/__pycache__/
 # 白盒测试员动态编写，全部不入库
 /tests/white_tests/
