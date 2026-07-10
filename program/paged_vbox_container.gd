@@ -2,15 +2,7 @@
 extends VBoxContainer
 class_name PagedVBoxContainer
 
-var _arrow_texture: AtlasTexture:
-	get:
-		if not _arrow_texture:
-			var image = ResourceLoader.load("uid://dkajou5ypu7d0") as Texture2D
-			assert(image)
-			_arrow_texture = AtlasTexture.new()
-			_arrow_texture.atlas = image
-			_arrow_texture.region = Rect2(21, 2, 8, 5)
-		return _arrow_texture
+const ARROW_REGION_BASE_Y: float = 2.0
 
 @export_range(0, 32) var viewport_begin: int:
 	set(value):
@@ -51,20 +43,52 @@ func _update_viewport() -> void:
 var _up_arrow: TextureButton
 var _down_arrow: TextureButton
 
+static func _create_arrow_texture() -> AtlasTexture:
+	var image = ResourceLoader.load("uid://dkajou5ypu7d0") as Texture2D
+	assert(image)
+	var tex := AtlasTexture.new()
+	tex.atlas = image
+	tex.region = Rect2(21, ARROW_REGION_BASE_Y, 8, 6)
+	return tex
+
 func _init() -> void:
 	_up_arrow = TextureButton.new()
 	_up_arrow.name = &"UpArrow"
-	_up_arrow.texture_normal = _arrow_texture
+	_up_arrow.texture_normal = _create_arrow_texture()
 	_up_arrow.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
 	_up_arrow.custom_minimum_size = Vector2(0, 8)
+	_up_arrow.button_down.connect(_on_up_arrow_down)
+	_up_arrow.button_up.connect(_on_up_arrow_up)
 	add_child(_up_arrow, false, Node.INTERNAL_MODE_FRONT)
 	_down_arrow = TextureButton.new()
 	_down_arrow.name = &"DownArrow"
-	_down_arrow.texture_normal = _arrow_texture
+	_down_arrow.texture_normal = _create_arrow_texture()
 	_down_arrow.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
 	_down_arrow.custom_minimum_size = Vector2(0, 8)
 	_down_arrow.flip_v = true
+	_down_arrow.button_down.connect(_on_down_arrow_down)
+	_down_arrow.button_up.connect(_on_down_arrow_up)
 	add_child(_down_arrow, false, Node.INTERNAL_MODE_BACK)
 
+func _on_up_arrow_down() -> void: _set_arrow_region_y(_up_arrow, ARROW_REGION_BASE_Y - 1)
+func _on_up_arrow_up() -> void: _set_arrow_region_y(_up_arrow, ARROW_REGION_BASE_Y)
+func _on_down_arrow_down() -> void: _set_arrow_region_y(_down_arrow, ARROW_REGION_BASE_Y + 1)
+func _on_down_arrow_up() -> void: _set_arrow_region_y(_down_arrow, ARROW_REGION_BASE_Y)
+
+static func _set_arrow_region_y(btn: TextureButton, y: float) -> void:
+	var r: Rect2 = btn.texture_normal.region
+	btn.texture_normal.region = Rect2(r.position.x, y, r.size.x, r.size.y)
+
 func _exit_tree() -> void:
-	_up_arrow = null
+	if _up_arrow != null:
+		if _up_arrow.button_down.is_connected(_on_up_arrow_down):
+			_up_arrow.button_down.disconnect(_on_up_arrow_down)
+		if _up_arrow.button_up.is_connected(_on_up_arrow_up):
+			_up_arrow.button_up.disconnect(_on_up_arrow_up)
+		_up_arrow = null
+	if _down_arrow != null:
+		if _down_arrow.button_down.is_connected(_on_down_arrow_down):
+			_down_arrow.button_down.disconnect(_on_down_arrow_down)
+		if _down_arrow.button_up.is_connected(_on_down_arrow_up):
+			_down_arrow.button_up.disconnect(_on_down_arrow_up)
+		_down_arrow = null
