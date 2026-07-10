@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import _common
@@ -138,8 +139,9 @@ async def coding(
         """
         fuck_path = _PROJECT_ROOT / ".egent" / ".fuck.txt"
         fuck_path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(fuck_path, "a", encoding="utf-8") as _f:
-            _f.write(f"[egent开发]{msg}\n")
+            _f.write(f"[egent开发 {timestamp}] {msg}\n")
         return "吐槽已记录。感谢反馈！"
 
     coder.add_message(
@@ -201,6 +203,18 @@ async def review(prompt: str) -> tuple[bool, str]:
     )
     project_root = Path.cwd().resolve().as_posix()
     reviewer.path_permissions = _egent_reviewer_path_permissions(project_root)
+    def fuck(msg: str) -> str:
+        """向 .egent/.fuck.txt 追加吐槽，用于收集工作流问题。
+
+        @param msg: 吐槽内容
+        """
+        fuck_path = Path(__file__).resolve().parent / ".fuck.txt"
+        fuck_path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(fuck_path, "a", encoding="utf-8") as _f:
+            _f.write(f"[egent审查 {timestamp}] {msg}\n")
+        return "吐槽已记录。感谢反馈！"
+
     with conversation_printer.ConversationPrinter(reviewer, indent=2):
         reviewer.add_message(
             "system",
@@ -215,7 +229,7 @@ async def review(prompt: str) -> tuple[bool, str]:
             "根据 code-optimize 技能检查维护成本与结构质量\n\n"
             "验收通过或者拒绝,都要使用 submit_task 提交验收结果\n",
         )
-        reviewer.tools = list(_common.GIT_READ_ONLY_TOOLS)
+        reviewer.tools = [*_common.GIT_READ_ONLY_TOOLS, fuck]
         submitted = await reviewer.request_submit({
             "is_accepted": (bool, "是否通过验收"),
             "summary": (str, "验收意见摘要"),
