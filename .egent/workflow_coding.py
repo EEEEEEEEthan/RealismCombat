@@ -33,26 +33,6 @@ def _terminate_tracked_processes(processes: list[subprocess.Popen]) -> None:
             except subprocess.TimeoutExpired:
                 pass
 
-
-def _make_launch_game_tool(
-    tracked_processes: list[subprocess.Popen],
-) -> Callable[[], str]:
-    def launch_game() -> str:
-        """启动 Godot 游戏并返回 MCP 端口号与日志路径。"""
-        try:
-            port, process, log_path = godot_game_tools.launch_game_session()
-        except RuntimeError as error:
-            return f"error: {error}"
-        tracked_processes.append(process)
-        return json.dumps(
-            {"port": port, "log_path": log_path.as_posix()},
-            ensure_ascii=False,
-            indent=2,
-        )
-
-    return launch_game
-
-
 class CodingGaveUp(Exception):
     """开发者主动放弃任务。"""
 
@@ -85,7 +65,6 @@ async def coding(
 ) -> tuple[bool, str]:
     """执行开发：实现、优化、跑回归测试；最多重试直至通过。"""
     tracked_processes: list[subprocess.Popen] = []
-    launch_game_tool = _make_launch_game_tool(tracked_processes)
 
     def run_regression_test(spec: str) -> str:
         """运行指定回归测试套件并返回输出。
@@ -109,7 +88,6 @@ async def coding(
             coder.tools = [
                 *_common.GIT_READ_ONLY_TOOLS,
                 run_regression_test,
-                launch_game_tool,
                 godot_game_tools.run_gdscript,
             ]
             submitted = await coder.request_submit({
