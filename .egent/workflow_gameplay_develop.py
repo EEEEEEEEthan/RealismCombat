@@ -26,7 +26,7 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
         "你收到了新的需求.请做完这个需求并更新回归测试代码.如果任务无法完成,请说明原因并放弃任务.",
     )
     project_root = Path.cwd().resolve().as_posix()
-    path_permissions = egent.builtin_tools.path_validator.PathPermissions(
+    developer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
         discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
             whitelist=(project_root, f"{project_root}/*"),
             blacklist=(
@@ -35,21 +35,13 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
                 "*/.ruff_cache",
                 "*/__pycache__",
                 f"{project_root}/.agents",
-                f"{project_root}/.agents/*",
                 f"{project_root}/.cursor",
-                f"{project_root}/.cursor/*",
                 f"{project_root}/.egent",
-                f"{project_root}/.egent/*",
                 f"{project_root}/.engine",
-                f"{project_root}/.engine/*",
                 f"{project_root}/.export",
-                f"{project_root}/.export/*",
                 f"{project_root}/.git",
-                f"{project_root}/.git/*",
                 f"{project_root}/.godot",
-                f"{project_root}/.godot/*",
                 f"{project_root}/.logs",
-                f"{project_root}/.logs/*",
             ),
         ),
         readable=egent.builtin_tools.path_validator.PathPermissionRule(
@@ -60,21 +52,17 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
             whitelist=(project_root, f"{project_root}/*"),
             blacklist=(
                 "*/.model.toml",
-                f"{project_root}/.agents",
+                "*.pyc",
+                "*/.pytest_cache/*",
+                "*/.ruff_cache/*",
+                "*/__pycache__/*",
                 f"{project_root}/.agents/*",
-                f"{project_root}/.cursor",
                 f"{project_root}/.cursor/*",
-                f"{project_root}/.egent",
                 f"{project_root}/.egent/*",
-                f"{project_root}/.engine",
                 f"{project_root}/.engine/*",
-                f"{project_root}/.export",
                 f"{project_root}/.export/*",
-                f"{project_root}/.git",
                 f"{project_root}/.git/*",
-                f"{project_root}/.godot",
                 f"{project_root}/.godot/*",
-                f"{project_root}/.logs",
                 f"{project_root}/.logs/*",
             ),
         ),
@@ -82,11 +70,7 @@ async def begin_develop_workflow(description: str) -> tuple[bool, str]:
 
     for _ in range(5):
         try:
-            finished, coding_message = await workflow_coding.coding(
-                developer,
-                description,
-                custom_path_permissions=path_permissions,
-            )
+            finished, coding_message = await workflow_coding.coding(developer,description)
         except workflow_coding.CodingGaveUp as error:
             return False, f"你的手下放弃了任务。原因是: \n{error.reason}"
 

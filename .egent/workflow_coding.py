@@ -81,9 +81,7 @@ def _run_regression_batch() -> tuple[bool, str]:
 
 async def coding(
     coder: egent.agent.Agent,
-    prompt: str,
-    *,
-    custom_path_permissions: egent.builtin_tools.path_validator.PathPermissions,
+    prompt: str
 ) -> tuple[bool, str]:
     """执行开发：实现、优化、跑回归测试；最多重试直至通过。"""
     tracked_processes: list[subprocess.Popen] = []
@@ -96,9 +94,6 @@ async def coding(
         """
         _, output = run_regression(spec)
         return output
-
-    coder.path_permissions = custom_path_permissions
-
     coder.add_message(
         "system",
         f"{prompt}"
