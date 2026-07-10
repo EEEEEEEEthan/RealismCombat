@@ -20,7 +20,7 @@ def _truncate(text: str, max_chars: int) -> str:
 def _format_arguments(arguments_json: str) -> str:
     """将 JSON 参数字符串格式化为 ``key=val, ...`` 形式。
 
-    总额度约 ``PARAM_BUDGET`` 字符（不含两端空格），多参数平分，超出部分截断。
+    总额度约 120 字符（不含两端空格），多参数平分，超出部分截断。
     """
     try:
         args = json.loads(arguments_json)
@@ -66,8 +66,10 @@ def _first_line_and_has_more(text: str) -> tuple[str, bool]:
 class ConversationPrinter:
     """监听 Agent 事件并打印到终端。"""
 
-    def __init__(self, agent: egent.agent.Agent) -> None:
+    def __init__(self, agent: egent.agent.Agent, indent: int = 0) -> None:
         self._agent = agent
+        self._indent_str = " " * (indent * 4)
+        self._indent_printed = False
         agent.add_listener(self.__handle_event)
 
     def close(self) -> None:
@@ -96,17 +98,20 @@ class ConversationPrinter:
 
     def __handle_event(self, event: egent.agent.AgentEvent) -> None:
         if isinstance(event, egent.agent.TextDelta):
+            if not self._indent_printed:
+                print(self._indent_str, end="", flush=True)
+                self._indent_printed = True
             print(event.text, end="", flush=True)
         elif isinstance(event, egent.agent.ToolCallStarted):
             formatted = _format_arguments(event.arguments)
             if formatted:
-                print(f"\n[tool_call: {event.name}({formatted})]", flush=True)
+                print(f"\n{self._indent_str}[tool_call: {event.name}({formatted})]", flush=True)
             else:
-                print(f"\n[tool_call: {event.name}]", flush=True)
+                print(f"\n{self._indent_str}[tool_call: {event.name}]", flush=True)
         elif isinstance(event, egent.agent.ToolCallExecuted):
             first_line, has_more = _first_line_and_has_more(event.result)
             if first_line:
                 suffix = "..." if has_more else ""
-                print(f"  => {_truncate(first_line, 200)}{suffix}", flush=True)
+                print(f"{self._indent_str}=> {_truncate(first_line, 200)}{suffix}", flush=True)
         elif isinstance(event, egent.agent.TurnCompleted):
-            print(flush=True)
+            self._indent_printed = False

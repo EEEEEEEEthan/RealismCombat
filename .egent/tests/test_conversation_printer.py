@@ -208,7 +208,7 @@ class TestConversationPrinterIntegration:
             result="Sunny, 25\u00b0C\nMore details here",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "  => Sunny, 25\u00b0C...\n"
+        assert captured.out == "=> Sunny, 25\u00b0C...\n"
 
         printer.close()
 
@@ -223,7 +223,7 @@ class TestConversationPrinterIntegration:
             result="Sunny, 25\u00b0C",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "  => Sunny, 25\u00b0C\n"
+        assert captured.out == "=> Sunny, 25\u00b0C\n"
 
         printer.close()
 
@@ -238,7 +238,7 @@ class TestConversationPrinterIntegration:
             result="first\n\n  \nsecond",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "  => first...\n"
+        assert captured.out == "=> first...\n"
 
         printer.close()
 
@@ -253,7 +253,7 @@ class TestConversationPrinterIntegration:
             result="only line\n",
         ))
         captured = capsys.readouterr()
-        assert captured.out == "  => only line\n"
+        assert captured.out == "=> only line\n"
 
         printer.close()
 
@@ -270,7 +270,7 @@ class TestConversationPrinterIntegration:
         ))
         captured = capsys.readouterr()
         output = captured.out
-        assert output.startswith("  => ")
+        assert output.startswith("=> ")
         assert output.rstrip().endswith("...")
 
         printer.close()
@@ -323,7 +323,151 @@ class TestConversationPrinterIntegration:
         output = captured.out
         assert "Let me check the weather." in output
         assert "[tool_call: get_weather(city=Beijing)]" in output
-        assert "  => Sunny, 25\u00b0C" in output
+        assert "=> Sunny, 25\u00b0C" in output
+        assert output.endswith("\n")
+
+        printer.close()
+
+
+class TestConversationPrinterIndent:
+    """Tests for ConversationPrinter with indent > 0."""
+
+    @pytest.fixture
+    def mock_agent(self):
+        """Create a mock agent with listener support."""
+        agent = MagicMock()
+        agent.tools = []
+        return agent
+
+    def test_indent_zero_default(self, mock_agent, capsys):
+        """Default indent=0 should produce no extra spacing."""
+        printer = ConversationPrinter(mock_agent, indent=0)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="Hello"))
+        captured = capsys.readouterr()
+        assert captured.out == "Hello"
+
+        printer.close()
+
+    def test_indent_one_text_delta(self, mock_agent, capsys):
+        """indent=1 should prefix first TextDelta with 4 spaces."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="Hello"))
+        captured = capsys.readouterr()
+        assert captured.out == "    Hello"
+
+        printer.close()
+
+    def test_indent_one_text_delta_multiple(self, mock_agent, capsys):
+        """Only the first TextDelta gets indent prefix; subsequent ones don't."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="Hello "))
+        handler(egent.agent.TextDelta(text="World"))
+        captured = capsys.readouterr()
+        assert captured.out == "    Hello World"
+
+        printer.close()
+
+    def test_indent_two_text_delta(self, mock_agent, capsys):
+        """indent=2 should prefix first TextDelta with 8 spaces."""
+        printer = ConversationPrinter(mock_agent, indent=2)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="Hi"))
+        captured = capsys.readouterr()
+        assert captured.out == "        Hi"
+
+        printer.close()
+
+    def test_indent_one_tool_call_started(self, mock_agent, capsys):
+        """ToolCallStarted should use indent prefix after newline."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallStarted(
+            name="test_func",
+            arguments=json.dumps({"arg": "val"}),
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == "\n    [tool_call: test_func(arg=val)]\n"
+
+        printer.close()
+
+    def test_indent_one_tool_call_started_no_args(self, mock_agent, capsys):
+        """ToolCallStarted without args should use indent prefix."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallStarted(
+            name="list_files",
+            arguments="{}",
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == "\n    [tool_call: list_files]\n"
+
+        printer.close()
+
+    def test_indent_one_tool_call_executed(self, mock_agent, capsys):
+        """ToolCallExecuted should use indent prefix instead of hardcoded spaces."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.ToolCallExecuted(
+            name="test",
+            arguments="{}",
+            result="Result line",
+        ))
+        captured = capsys.readouterr()
+        assert captured.out == "    => Result line\n"
+
+        printer.close()
+
+    def test_indent_one_turn_completed_resets_indent(self, mock_agent, capsys):
+        """TurnCompleted should reset _indent_printed so next turn gets indent."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        # First turn
+        handler(egent.agent.TextDelta(text="First turn. "))
+        handler(egent.agent.TurnCompleted(text=""))
+        captured = capsys.readouterr()
+        assert captured.out == "    First turn. \n"
+
+        # Second turn - should get indent again
+        handler(egent.agent.TextDelta(text="Second turn."))
+        captured = capsys.readouterr()
+        assert captured.out == "    Second turn."
+
+        printer.close()
+
+    def test_indent_one_full_flow(self, mock_agent, capsys):
+        """Full flow with indent=1 should indent all elements correctly."""
+        printer = ConversationPrinter(mock_agent, indent=1)
+        handler = mock_agent.add_listener.call_args[0][0]
+
+        handler(egent.agent.TextDelta(text="Let me "))
+        handler(egent.agent.TextDelta(text="check."))
+        handler(egent.agent.ToolCallStarted(
+            name="get_weather",
+            arguments=json.dumps({"city": "Beijing"}),
+        ))
+        handler(egent.agent.ToolCallExecuted(
+            name="get_weather",
+            arguments=json.dumps({"city": "Beijing"}),
+            result="Sunny, 25\u00b0C",
+        ))
+        handler(egent.agent.TurnCompleted(text="Done"))
+
+        captured = capsys.readouterr()
+        output = captured.out
+        assert output.startswith("    Let me check.")
+        assert "\n    [tool_call: get_weather(city=Beijing)]" in output
+        assert "\n    => Sunny, 25\u00b0C" in output
         assert output.endswith("\n")
 
         printer.close()
