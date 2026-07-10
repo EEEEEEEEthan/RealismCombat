@@ -52,13 +52,17 @@ static func _create_arrow_texture() -> AtlasTexture:
 	return tex
 
 func _init() -> void:
+	var shift_arrow := func(btn: TextureButton, y: float) -> void:
+		var r: Rect2 = btn.texture_normal.region
+		btn.texture_normal.region = Rect2(r.position.x, y, r.size.x, r.size.y)
+
 	_up_arrow = TextureButton.new()
 	_up_arrow.name = &"UpArrow"
 	_up_arrow.texture_normal = _create_arrow_texture()
 	_up_arrow.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
 	_up_arrow.custom_minimum_size = Vector2(0, 8)
-	_up_arrow.button_down.connect(_on_up_arrow_down)
-	_up_arrow.button_up.connect(_on_up_arrow_up)
+	_up_arrow.button_down.connect(shift_arrow.bind(_up_arrow, ARROW_REGION_BASE_Y - 1))
+	_up_arrow.button_up.connect(shift_arrow.bind(_up_arrow, ARROW_REGION_BASE_Y))
 	add_child(_up_arrow, false, Node.INTERNAL_MODE_FRONT)
 	_down_arrow = TextureButton.new()
 	_down_arrow.name = &"DownArrow"
@@ -66,29 +70,10 @@ func _init() -> void:
 	_down_arrow.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
 	_down_arrow.custom_minimum_size = Vector2(0, 8)
 	_down_arrow.flip_v = true
-	_down_arrow.button_down.connect(_on_down_arrow_down)
-	_down_arrow.button_up.connect(_on_down_arrow_up)
+	_down_arrow.button_down.connect(shift_arrow.bind(_down_arrow, ARROW_REGION_BASE_Y + 1))
+	_down_arrow.button_up.connect(shift_arrow.bind(_down_arrow, ARROW_REGION_BASE_Y))
 	add_child(_down_arrow, false, Node.INTERNAL_MODE_BACK)
 
-func _on_up_arrow_down() -> void: _set_arrow_region_y(_up_arrow, ARROW_REGION_BASE_Y - 1)
-func _on_up_arrow_up() -> void: _set_arrow_region_y(_up_arrow, ARROW_REGION_BASE_Y)
-func _on_down_arrow_down() -> void: _set_arrow_region_y(_down_arrow, ARROW_REGION_BASE_Y + 1)
-func _on_down_arrow_up() -> void: _set_arrow_region_y(_down_arrow, ARROW_REGION_BASE_Y)
-
-static func _set_arrow_region_y(btn: TextureButton, y: float) -> void:
-	var r: Rect2 = btn.texture_normal.region
-	btn.texture_normal.region = Rect2(r.position.x, y, r.size.x, r.size.y)
-
 func _exit_tree() -> void:
-	if _up_arrow != null:
-		if _up_arrow.button_down.is_connected(_on_up_arrow_down):
-			_up_arrow.button_down.disconnect(_on_up_arrow_down)
-		if _up_arrow.button_up.is_connected(_on_up_arrow_up):
-			_up_arrow.button_up.disconnect(_on_up_arrow_up)
-		_up_arrow = null
-	if _down_arrow != null:
-		if _down_arrow.button_down.is_connected(_on_down_arrow_down):
-			_down_arrow.button_down.disconnect(_on_down_arrow_down)
-		if _down_arrow.button_up.is_connected(_on_down_arrow_up):
-			_down_arrow.button_up.disconnect(_on_down_arrow_up)
-		_down_arrow = null
+	_up_arrow = null
+	_down_arrow = null
