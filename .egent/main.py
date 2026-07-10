@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import importlib
 import sys
 from pathlib import Path
 
@@ -52,6 +53,36 @@ def make_delegate_develop_workflow() -> egent.tool.ToolCallable:
 def make_delegate_egent_develop_workflow() -> egent.tool.ToolCallable:
     """生成可供 agent 调用的 egent 开发委派工具。"""
 
+    _module_reload_order = (
+        "workflow_gameplay_develop",
+        "workflow_egent_develop",
+        "conversation_printer",
+        "egent",
+        "egent.agent",
+        "egent.builtin_tools.path_validator",
+        "_common",
+    )
+
+    def _reload_modules() -> None:
+        """reload 已在 sys.modules 中的 .egent 模块，失败时只警告不崩溃。"""
+        for name in _module_reload_order:
+            module = sys.modules.get(name)
+            if module is None:
+                continue
+            try:
+                importlib.reload(module)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                print(f"Warning: failed to reload module '{name}': {exc}", file=sys.stderr)
+
+        for key in ("main", "__main__"):
+            module = sys.modules.get(key)
+            if module is not None:
+                try:
+                    importlib.reload(module)
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    print(f"Warning: failed to reload module '{key}': {exc}", file=sys.stderr)
+                break
+
     async def delegate_egent_develop_workflow(description: str) -> str:
         """委派 egent 开发工作：编码、验收、pytest 回归循环，直至通过或耗尽重试。
 
@@ -59,6 +90,7 @@ def make_delegate_egent_develop_workflow() -> egent.tool.ToolCallable:
         """
         success, summary = await workflow_egent_develop.begin_egent_develop_workflow(description)
         if success:
+            _reload_modules()
             return summary
         repo = str(_PROJECT_ROOT)
         reset_result = egent.builtin_tools.git_tools.git_reset(hard=True, path=repo)
