@@ -4,41 +4,48 @@ class_name PagedVBoxContainer
 
 const ARROW_REGION_BASE_Y: float = 2.0
 
-@export_range(0, 32) var viewport_begin: int:
+@export_range(0, 32, 1, "prefer_slider") var viewport_begin: int:
+	get:
+		if viewport_begin < 0: return 0
+		var child_count = get_child_count()
+		if child_count <= height: return 0
+		var result = viewport_begin
+		result = min(child_count - height + 1, result)
+		return result
 	set(value):
-		if value == 1:
-			value = 0
 		viewport_begin = value
 		_update_viewport()
 
-@export_range(1, 8) var viewport_size: int:
+@export_range(3, 16, 1, "prefer_slider") var height: int:
 	set(value):
-		viewport_size = value
+		height = value
 		_update_viewport()
 
-var _true_viewport_begin: int:
+var _up_arrow_visible: bool:
 	get:
-		return 0 if viewport_begin == 0 else viewport_begin + 1
+		return viewport_begin > 0
 
-var _true_viewport_size: int:
+var _down_arrow_visible: bool:
 	get:
-		var child_count = get_child_count()
-		var offset := 0
-		if viewport_begin == 0:
-			offset -= 1
-		if viewport_begin + viewport_size > child_count:
-			offset -= 1
-		return viewport_size + offset
+		var viewport_height = height
+		if _up_arrow_visible: viewport_height -= 1
+		return viewport_begin + viewport_height < get_child_count()
+
+var _viewport_height: int:
+	get:
+		var result = height
+		if _up_arrow_visible: result -= 1
+		if _down_arrow_visible: result -= 1
+		return result
 
 func _update_viewport() -> void:
 	if not is_node_ready(): await ready
 	var child_count := get_child_count()
-	var viewport_end = _true_viewport_begin + _true_viewport_size
+	var viewport_end = viewport_begin + _viewport_height
 	for i in child_count:
-		get_child(i).visible = i >= _true_viewport_begin and i < viewport_end
-	_up_arrow.visible = viewport_begin > 0
-	_down_arrow.visible = viewport_end < child_count
-	print(viewport_end, "/", child_count)
+		get_child(i).visible = i >= viewport_begin and i < viewport_end
+	_up_arrow.visible = _up_arrow_visible
+	_down_arrow.visible = _down_arrow_visible
 
 var _up_arrow: TextureButton
 var _down_arrow: TextureButton

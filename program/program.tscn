@@ -31,15 +31,13 @@ region = Rect2(1, 1, 9, 8)
 [node name="Program" type="Node" unique_id=248735067]
 
 [node name="PagedVBoxContainer" type="VBoxContainer" parent="." unique_id=697717502]
-offset_right = 48.0
-offset_bottom = 48.0
+offset_right = 49.0
+offset_bottom = 56.0
 script = ExtResource("1_bt24b")
-viewport_begin = 2
-viewport_size = 3
+height = 4
 metadata/_custom_type_script = "uid://fya68eii6sm1"
 
 [node name="Button" type="Button" parent="PagedVBoxContainer" unique_id=1412484322]
-visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button1"
@@ -48,7 +46,6 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button2" type="Button" parent="PagedVBoxContainer" unique_id=2005962679]
-visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button2"
@@ -57,7 +54,6 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button3" type="Button" parent="PagedVBoxContainer" unique_id=1668476019]
-visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button3"
@@ -66,6 +62,7 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button4" type="Button" parent="PagedVBoxContainer" unique_id=544150400]
+visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button4"
@@ -74,6 +71,7 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button5" type="Button" parent="PagedVBoxContainer" unique_id=1906965799]
+visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button5"
@@ -82,6 +80,7 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button6" type="Button" parent="PagedVBoxContainer" unique_id=581690046]
+visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button6
