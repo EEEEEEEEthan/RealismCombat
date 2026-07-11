@@ -6,23 +6,27 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6efdo"]
 atlas = ExtResource("2_yrscs")
-region = Rect2(1, 1, 8, 8)
+region = Rect2(1, 1, 9, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_nspkn"]
 atlas = ExtResource("2_yrscs")
-region = Rect2(1, 1, 8, 8)
+region = Rect2(1, 1, 9, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jot8w"]
 atlas = ExtResource("2_yrscs")
-region = Rect2(1, 1, 8, 8)
+region = Rect2(1, 1, 9, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7nhsc"]
 atlas = ExtResource("2_yrscs")
-region = Rect2(1, 1, 8, 8)
+region = Rect2(1, 1, 9, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_an84y"]
 atlas = ExtResource("2_yrscs")
-region = Rect2(1, 1, 8, 8)
+region = Rect2(1, 1, 9, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5f5ij"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 9, 8)
 
 [node name="Program" type="Node" unique_id=248735067]
 
@@ -30,10 +34,12 @@ region = Rect2(1, 1, 8, 8)
 offset_right = 48.0
 offset_bottom = 48.0
 script = ExtResource("1_bt24b")
+viewport_begin = 2
 viewport_size = 3
 metadata/_custom_type_script = "uid://fya68eii6sm1"
 
 [node name="Button" type="Button" parent="PagedVBoxContainer" unique_id=1412484322]
+visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button1"
@@ -42,6 +48,7 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button2" type="Button" parent="PagedVBoxContainer" unique_id=2005962679]
+visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button2"
@@ -59,7 +66,6 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button4" type="Button" parent="PagedVBoxContainer" unique_id=544150400]
-visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button4"
@@ -68,10 +74,18 @@ script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
 [node name="Button5" type="Button" parent="PagedVBoxContainer" unique_id=1906965799]
-visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button5"
 icon = SubResource("AtlasTexture_an84y")
+script = ExtResource("3_6efdo")
+metadata/_custom_type_script = "uid://rm2as8tg2rcq"
+
+[node name="Button6" type="Button" parent="PagedVBoxContainer" unique_id=581690046]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+text = "button6
+"
+icon = SubResource("AtlasTexture_5f5ij")
 script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://rm2as8tg2rcq"
