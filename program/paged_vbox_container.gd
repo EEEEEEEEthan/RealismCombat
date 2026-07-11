@@ -70,6 +70,7 @@ func _init() -> void:
 	_up_arrow.custom_minimum_size = Vector2(0, 8)
 	_up_arrow.button_down.connect(shift_arrow.bind(_up_arrow, ARROW_REGION_BASE_Y - 1))
 	_up_arrow.button_up.connect(shift_arrow.bind(_up_arrow, ARROW_REGION_BASE_Y))
+	_up_arrow.pressed.connect(func(): viewport_begin -= 1)
 	add_child(_up_arrow, false, Node.INTERNAL_MODE_FRONT)
 	_down_arrow = TextureButton.new()
 	_down_arrow.name = &"DownArrow"
@@ -79,6 +80,7 @@ func _init() -> void:
 	_down_arrow.flip_v = true
 	_down_arrow.button_down.connect(shift_arrow.bind(_down_arrow, ARROW_REGION_BASE_Y + 1))
 	_down_arrow.button_up.connect(shift_arrow.bind(_down_arrow, ARROW_REGION_BASE_Y))
+	_down_arrow.pressed.connect(func(): viewport_begin += 1)
 	add_child(_down_arrow, false, Node.INTERNAL_MODE_BACK)
 
 func _exit_tree() -> void:
