@@ -103,6 +103,31 @@ async def test_reload_modules_skips_missing_modules() -> None:
 
 
 @pytest.mark.asyncio
+async def test_run_turn_recovers_from_connection_error(capsys: pytest.CaptureFixture[str]) -> None:
+    """run_turn 在 API 连接失败时应回滚消息并继续，而非崩溃。"""
+    import main  # pylint: disable=import-outside-toplevel
+    from openai import APIConnectionError
+
+    agent = main.egent.agent.Agent("gpt5", skills=())
+    agent.add_message("system", "test")
+    message_count_before_turn = main._agent_message_count(agent)
+
+    async def fake_request_raises(*, tools: object, **_kwargs: object) -> None:
+        _ = tools
+        raise APIConnectionError(request=None)
+
+    with (
+        patch("builtins.input", return_value="用户输入"),
+        patch.object(main.conversation_printer.ConversationPrinter, "request", side_effect=fake_request_raises),
+    ):
+        await main.run_turn(agent, main.conversation_printer.ConversationPrinter(agent))
+
+    assert main._agent_message_count(agent) == message_count_before_turn
+    captured = capsys.readouterr()
+    assert "连接失败，请重试" in captured.err
+
+
+@pytest.mark.asyncio
 async def test_run_turn_includes_fuck_tool() -> None:
     """run_turn 的 tools 列表应包含 _common.make_fuck("[主程]") 创建的吐槽工具。"""
     import main  # pylint: disable=import-outside-toplevel

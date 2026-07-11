@@ -80,6 +80,10 @@ class ConversationPrinter:
         """取消事件监听。"""
         self._agent.remove_listener(self.__handle_event)
 
+    def reset_output_state(self) -> None:
+        """重置终端输出状态（请求失败时恢复缩进标记）。"""
+        self._indent_printed = False
+
     def __enter__(self) -> ConversationPrinter:
         return self
 

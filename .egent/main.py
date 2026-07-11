@@ -13,6 +13,9 @@ import importlib
 import sys
 from pathlib import Path
 
+import httpx
+from openai import APIConnectionError, APIStatusError, APITimeoutError, RateLimitError
+
 _EGENT_DIR = Path(__file__).resolve().parent
 if str(_EGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_EGENT_DIR))
@@ -123,25 +126,51 @@ def make_delegate_info_collect_workflow() -> egent.tool.ToolCallable:
     return delegate_info_collect_workflow
 
 
+def _agent_message_count(agent: egent.agent.Agent) -> int:
+    """返回 agent 当前消息条数。"""
+    return len(agent._Agent__messages)  # pylint: disable=protected-access
+
+
+def _agent_restore_messages(agent: egent.agent.Agent, message_count: int) -> None:
+    """将 agent 消息历史截断到指定条数。"""
+    del agent._Agent__messages[message_count:]  # pylint: disable=protected-access
+
+
+def _is_request_connection_failure(error: BaseException) -> bool:
+    """判断是否为请求阶段的网络/连接类失败（已耗尽 egent 内置重试）。"""
+    if isinstance(error, APIStatusError):
+        return error.status_code >= 500
+    return isinstance(error, (httpx.HTTPError, APIConnectionError, APITimeoutError, RateLimitError))
+
+
 async def run_turn(
     agent: egent.agent.Agent,
     printer: conversation_printer.ConversationPrinter,
 ) -> None:
     """运行一轮交互：收集用户输入并发送请求。"""
     prompt = input(">>> ").strip()
+    message_count_before_turn = _agent_message_count(agent)
     agent.add_message("user", prompt)
-    await printer.request(
-        tools=[
-            *_common.GIT_READ_ONLY_TOOLS,
-            _common.make_fuck("[主程]"),
-            make_delegate_develop_workflow(),
-            make_delegate_egent_develop_workflow(),
-            make_delegate_info_collect_workflow(),
-            egent.builtin_tools.git_tools.git_add,
-            egent.builtin_tools.git_tools.git_commit,
-            egent.builtin_tools.git_tools.git_push,
-        ],
-    )
+    try:
+        await printer.request(
+            tools=[
+                *_common.GIT_READ_ONLY_TOOLS,
+                _common.make_fuck("[主程]"),
+                make_delegate_develop_workflow(),
+                make_delegate_egent_develop_workflow(),
+                make_delegate_info_collect_workflow(),
+                egent.builtin_tools.git_tools.git_add,
+                egent.builtin_tools.git_tools.git_commit,
+                egent.builtin_tools.git_tools.git_push,
+            ],
+        )
+    except Exception as error:
+        if not _is_request_connection_failure(error):
+            raise
+        print(flush=True)
+        _agent_restore_messages(agent, message_count_before_turn)
+        printer.reset_output_state()
+        print(f"连接失败，请重试: {error}", file=sys.stderr)
 
 
 async def async_main() -> int:
