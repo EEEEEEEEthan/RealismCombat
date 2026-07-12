@@ -11,10 +11,9 @@ from datetime import datetime
 from pathlib import Path
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_EGENT_DIR = Path(__file__).resolve().parent
 _IDE_MCP_DIR = _PROJECT_ROOT / "addons" / "godot_runtime_mcp"
 _GODOT_EXE = _PROJECT_ROOT / ".engine" / ".engine.exe"
-_LOG_DIR = _EGENT_DIR / ".logs"
+_LOG_DIR = Path(__file__).resolve().parent / ".logs"
 _PORT_PATTERN = re.compile(r"<<<GAME_MCP::PORT=(\d+)>>>")
 
 if str(_IDE_MCP_DIR) not in sys.path:
@@ -114,38 +113,17 @@ def launch_game() -> str:
     )
 
 
-def _require_white_test_script(script_path: str) -> str:
-    """读取 white_tests 下的 .gd 脚本；路径非法或文件不存在时抛异常。"""
-    normalized_path = script_path.strip().replace("\\", "/")
-    if not normalized_path:
-        raise ValueError("脚本路径不能为空")
-    candidate = Path(normalized_path)
-    if not candidate.is_absolute():
-        candidate = _PROJECT_ROOT / candidate
-    resolved = candidate.resolve()
-    white_tests_resolved = (_PROJECT_ROOT / "tests" / "white_tests").resolve()
-    try:
-        resolved.relative_to(white_tests_resolved)
-    except ValueError as path_error:
-        raise ValueError(
-            f"脚本路径无效或不存在，须为 tests/white_tests 下的 .gd 文件: {script_path}"
-        ) from path_error
-    if resolved.suffix != ".gd" or not resolved.is_file():
-        raise FileNotFoundError(
-            f"脚本路径无效或不存在，须为 tests/white_tests 下的 .gd 文件: {script_path}"
-        )
-    script_source = resolved.read_text(encoding="utf-8")
-    if not script_source.strip():
-        raise ValueError(f"脚本为空: {script_path}")
-    return script_source
+def execute(port: int, script: str, *, timeout: float) -> str:
+    """在运行中的 Godot 实例里执行 GDScript 代码。
 
-
-def run_gdscript(port: int, script_path: str, *, timeout: float) -> str:
-    """在运行中的 Godot 实例里执行 tests/white_tests 下的白盒测试脚本。
-
-    @param script_path: tests/white_tests 下的 .gd 路径，如 tests/white_tests/test_pause.gd
-    @param timeout HTTP 请求超时秒数，调用方必须显式指定。
+    @param script: 完整 GDScript 源码（须定义 static func run(scene_tree: SceneTree) -> Variant）
+    @param timeout HTTP 请求超时秒数，必须 > 0。
+    @raise ValueError: 当 timeout <= 0 或 script 为空时。
     """
-    script_source = _require_white_test_script(script_path)
+    if timeout <= 0:
+        raise ValueError(f"timeout 必须大于 0，收到: {timeout}")
+    script_source = script.strip()
+    if not script_source:
+        raise ValueError("脚本源码为空")
     result = send_http(port, script_source, timeout_seconds=timeout)
     return json.dumps(result, ensure_ascii=False, indent=2)

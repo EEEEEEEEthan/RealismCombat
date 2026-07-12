@@ -172,7 +172,7 @@ async def coding(
         coder.tools = [
             *_common.GIT_READ_ONLY_TOOLS,
             run_regression_test,
-            godot_game_tools.run_gdscript,
+            godot_game_tools.execute,
             fuck,
         ]
         submitted = await coder.request_submit({
@@ -210,7 +210,7 @@ async def coding(
 
 
 async def test(_prompt: str) -> tuple[bool, str]:
-    """通过 run_gdscript 白盒校验游戏是否满足需求。"""
+    """通过 execute 白盒校验游戏是否满足需求。"""
     _processes: list[subprocess.Popen] = []
 
     def launch_game() -> str:
@@ -267,7 +267,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "1. walk_files / git_diff 了解变更与场景结构\n"
                 "2. 拆用例清单，在 tests/white_tests 下编写测试脚本（每个脚本只做一件简单的事,用来模拟玩家操作或者查看场景树），"
                 "并在 tests/white_tests/index.md 登记脚本功能；优先复用已有脚本与 _common.gd\n"
-                "3. 使用步骤 0 获取的 port 调用 `run_gdscript(port=port, script_path=..., timeout=...)` 执行测试；"
+                "3. 使用步骤 0 获取的 port 调用 `execute(port=port, script=..., timeout=...)` 执行测试；"
                 "失败查日志（log_path），必要时修正脚本后重跑\n"
                 "4. 汇总各用例结果（含期望/实际差异），用 submit_task 提交\n"
                 "\n"
@@ -276,9 +276,8 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "- tests/white_tests/index.md 记录每个脚本的功能，鼓励复用、避免重复造轮子\n"
                 "- 禁止访问 tests/regression（回归测试由其他流程负责）\n"
                 "\n"
-                "## run_gdscript 脚本约定\n"
-                "- script_path：tests/white_tests 下的 .gd 路径，如 tests/white_tests/test_pause.gd\n"
-                "- 脚本须 extends RefCounted，定义 static func run(scene_tree: SceneTree) -> Variant\n"
+                "## execute 脚本约定\n"
+                "- script：完整 GDScript 源码，须 extends RefCounted 并定义 static func run(scene_tree: SceneTree) -> Variant\n"
                 '- 返回可 JSON 序列化的断言数据（如 {"ok": true, ...}）\n'
                 "- 可 preload res://tests/white_tests/_common.gd 复用 start_new_game / wait_until 等工具\n"
                 "- 每个脚本只做一件简单的事；复杂场景拆成多个脚本组合调用\n"
@@ -339,7 +338,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
             )
             tester.tools = [
                 *_common.GIT_READ_ONLY_TOOLS,
-                godot_game_tools.run_gdscript,
+                godot_game_tools.execute,
                 launch_game,
             ]
             submitted = await tester.request_submit({

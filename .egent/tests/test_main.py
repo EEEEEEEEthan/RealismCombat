@@ -106,7 +106,7 @@ async def test_reload_modules_skips_missing_modules() -> None:
 async def test_run_turn_recovers_from_connection_error(capsys: pytest.CaptureFixture[str]) -> None:
     """run_turn 在 API 连接失败时应回滚消息并继续，而非崩溃。"""
     import main  # pylint: disable=import-outside-toplevel
-    from openai import APIConnectionError
+    from openai import APIConnectionError  # pylint: disable=import-outside-toplevel
 
     agent = main.egent.agent.Agent("gpt5", skills=())
     agent.add_message("system", "test")
