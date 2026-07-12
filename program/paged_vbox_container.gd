@@ -4,7 +4,6 @@ class_name PagedVBoxContainer
 
 const ARROW_REGION_BASE_Y: float = 2.0
 const INDEXER_ARROW_FOCUS_REGION = Rect2(11, 1, 9, 8)
-const INDEXER_ARROW_PRESSED_REGION = Rect2(10, 1, 9, 8)
 
 static var _theme_atlas_cache: Texture2D
 
@@ -20,7 +19,7 @@ static var _theme_atlas_cache: Texture2D
 		viewport_begin = value
 		_update_viewport()
 
-@export_range(3, 16, 1, "prefer_slider") var height: int:
+@export_range(5, 16, 1, "prefer_slider") var height: int:
 	set(value):
 		height = value
 		_update_viewport()
@@ -118,14 +117,24 @@ func _init() -> void:
 	_indexer_control.visible = false
 
 func _ready() -> void:
-	child_entered_tree.connect(_on_child_entered_tree)
-	child_exiting_tree.connect(_on_child_exiting_tree)
+	child_entered_tree.connect(func(child: Node):
+		if _is_internal_node(child) or not child is Control:
+			return
+		_connect_child_signals(child)
+		_update_indexer()
+	)
+	child_exiting_tree.connect(func(child: Node):
+		if _is_internal_node(child) or not child is Control:
+			return
+		for signal_name in _get_tracked_signal_names(child):
+			child.disconnect(signal_name, _update_indexer)
+		_update_indexer()
+	)
 	resized.connect(_update_indexer)
 	for child in get_children():
-		if _is_internal_node(child):
+		if _is_internal_node(child) or not child is Control:
 			continue
-		if child is Control:
-			_connect_child_signals(child)
+		_connect_child_signals(child)
 	_update_viewport()
 	_update_indexer()
 
@@ -138,30 +147,9 @@ func _exit_tree() -> void:
 func _is_internal_node(node: Node) -> bool:
 	return node == _up_arrow or node == _down_arrow or node == _indexer_control
 
-func _content_child_count() -> int:
-	return get_child_count() - 3
-
 func _connect_child_signals(child: Node) -> void:
 	for signal_name in _get_tracked_signal_names(child):
 		child.connect(signal_name, _update_indexer)
-
-func _disconnect_child_signals(child: Node) -> void:
-	for signal_name in _get_tracked_signal_names(child):
-		child.disconnect(signal_name, _update_indexer)
-
-func _on_child_entered_tree(child: Node) -> void:
-	if _is_internal_node(child):
-		return
-	if child is Control:
-		_connect_child_signals(child)
-		_update_indexer()
-
-func _on_child_exiting_tree(child: Node) -> void:
-	if _is_internal_node(child):
-		return
-	if child is Control:
-		_disconnect_child_signals(child)
-		_update_indexer()
 
 func _update_indexer() -> void:
 	if not is_node_ready():
@@ -171,6 +159,11 @@ func _update_indexer() -> void:
 		_indexer_control.visible = false
 		return
 	_indexer_control.visible = true
+	var focused_idx := get_children().find(focused)
+	if focused_idx == viewport_begin and viewport_begin > 0:
+		viewport_begin -= 1
+	elif focused_idx == viewport_begin + _viewport_height - 1 and viewport_begin + _viewport_height < get_child_count():
+		viewport_begin += 1
 	_update_indexer_deferred.call_deferred(focused)
 
 func _update_indexer_deferred(focused: Control) -> void:
@@ -179,6 +172,6 @@ func _update_indexer_deferred(focused: Control) -> void:
 	_indexer_control.global_position = focused.global_position
 	_indexer_control.size = focused.size
 	if focused is Button and focused.button_pressed:
-		_indexer_arrow_texture.region = INDEXER_ARROW_PRESSED_REGION
+		_indexer_arrow_texture.region = Rect2(10, 1, 9, 8)
 	else:
 		_indexer_arrow_texture.region = INDEXER_ARROW_FOCUS_REGION
