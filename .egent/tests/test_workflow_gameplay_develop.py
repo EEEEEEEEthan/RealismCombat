@@ -390,27 +390,23 @@ def test_test_example1_uses_void_return() -> None:
     """示例 1 的 run 方法应使用 -> void。"""
     prompt = _get_test_system_prompt()
     assert "static func run(scene_tree: SceneTree) -> void:" in prompt
-    assert "-> Dictionary" not in prompt.split("### 示例 2", maxsplit=1)[0], (
-        "示例 1 不应包含 -> Dictionary"
-    )
 
 
 def test_test_example1_uses_print_instead_of_return() -> None:
-    """示例 1 应使用 print 输出结果，而非 return 字典。"""
+    """示例 1 应使用简洁的 print 输出结果，不含 _Common 等多余内容。"""
     prompt = _get_test_system_prompt()
     example1 = prompt.split("### 示例 2", maxsplit=1)[0]
 
-    assert 'print("FAIL: ", boot.error)' in example1, (
-        "示例 1 错误处理应使用 print 而非 return 字典"
-    )
     assert 'print("paused: ", scene_tree.paused)' in example1, (
         "示例 1 应 print paused 状态"
     )
-    assert "position_unchanged" in example1, (
-        "示例 1 应 print position_unchanged"
+    assert "_Common" not in example1, (
+        "示例 1 不应包含 _Common"
     )
-    # 确认没有 return 字典
-    assert 'return {"ok":' not in example1, (
+    assert '"FAIL"' not in example1, (
+        "示例 1 不应包含 FAIL 错误处理"
+    )
+    assert 'return {"ok"' not in example1, (
         "示例 1 不应包含 return 字典"
     )
 
@@ -418,29 +414,37 @@ def test_test_example1_uses_print_instead_of_return() -> None:
 def test_test_example2_uses_void_return() -> None:
     """示例 2 的 run 方法应使用 -> void。"""
     prompt = _get_test_system_prompt()
+    assert "static func run(scene_tree: SceneTree) -> void:" in prompt
+
     examples = prompt.split("### 示例 2", maxsplit=1)
     assert len(examples) >= 2
     example2 = examples[1]
     assert "static func run(scene_tree: SceneTree) -> void:" in example2
-    assert "-> Dictionary" not in example2, (
-        "示例 2 不应包含 -> Dictionary"
-    )
 
 
 def test_test_example2_uses_print_instead_of_return() -> None:
-    """示例 2 应使用 print 输出结果，而非 return 字典。"""
+    """示例 2 应使用 create_timer + await 输出结果，不含手动帧累加。"""
     prompt = _get_test_system_prompt()
     examples = prompt.split("### 示例 2", maxsplit=1)
     assert len(examples) >= 2
     example2 = examples[1]
 
-    assert 'print("FAIL: ", boot.error)' in example2, (
-        "示例 2 错误处理应使用 print 而非 return 字典"
+    assert "create_timer(1.0, false, false, true)" in example2, (
+        "示例 2 应使用 create_timer(1.0, false, false, true)"
     )
-    assert 'print("elapsed_sec: ", elapsed_sec)' in example2, (
-        "示例 2 应 print elapsed_sec"
+    assert "await timer.timeout" in example2, (
+        "示例 2 应 await timer.timeout"
     )
-    assert 'return {"ok":' not in example2, (
+    assert 'print("1 second passed")' in example2, (
+        "示例 2 应 print 1 second passed"
+    )
+    assert "_Common" not in example2, (
+        "示例 2 不应包含 _Common"
+    )
+    assert "elapsed_sec" not in example2, (
+        "示例 2 不应包含 elapsed_sec"
+    )
+    assert 'return {"ok"' not in example2, (
         "示例 2 不应包含 return 字典"
     )
 

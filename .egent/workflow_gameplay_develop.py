@@ -257,49 +257,19 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "```gdscript\n"
                 "extends RefCounted\n"
                 "\n"
-                'const _Common := preload("res://tests/white_tests/_common.gd")\n'
-                "\n"
                 "static func run(scene_tree: SceneTree) -> void:\n"
-                "	await scene_tree.process_frame\n"
-                "	var boot := await _Common.start_new_game(scene_tree)\n"
-                "	if not boot.passed:\n"
-                '		print("FAIL: ", boot.error)\n'
-                "		return\n"
-                "\n"
-                "	var game: Game = boot.game\n"
-                "	var character := game.character\n"
-                "	var position_before := character.global_position\n"
-                "\n"
                 "	scene_tree.paused = true\n"
-                "	var elapsed_sec := 0.0\n"
-                "	while elapsed_sec < 0.2:\n"
-                "		await scene_tree.process_frame\n"
-                "		elapsed_sec += scene_tree.get_process_delta_time()\n"
-                "\n"
                 '	print("paused: ", scene_tree.paused)\n'
-                '	print("position_unchanged: ", character.global_position == position_before)\n'
                 "```\n"
                 "\n"
                 "### 示例 2：推进游戏时间 1 秒\n"
                 "```gdscript\n"
                 "extends RefCounted\n"
                 "\n"
-                'const _Common := preload("res://tests/white_tests/_common.gd")\n'
-                "\n"
                 "static func run(scene_tree: SceneTree) -> void:\n"
-                "	await scene_tree.process_frame\n"
-                "	var boot := await _Common.start_new_game(scene_tree)\n"
-                "	if not boot.passed:\n"
-                '		print("FAIL: ", boot.error)\n'
-                "		return\n"
-                "\n"
-                "	scene_tree.paused = false\n"
-                "	var elapsed_sec := 0.0\n"
-                "	while elapsed_sec < 1.0:\n"
-                "		await scene_tree.process_frame\n"
-                "		elapsed_sec += scene_tree.get_process_delta_time()\n"
-                "\n"
-                '	print("elapsed_sec: ", elapsed_sec)\n'
+                "	var timer := scene_tree.create_timer(1.0, false, false, true)\n"
+                "	await timer.timeout\n"
+                '	print("1 second passed")\n'
                 "```\n\n"
                 "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。\n",
             )
