@@ -20,6 +20,47 @@ if str(_PROJECT_ROOT) not in sys.path:
 from tests.run_tests import run_regression  # pylint: disable=wrong-import-position
 
 
+def _make_path_permissions(
+    project_root: str,
+    *,
+    extra_discoverable_blacklist: tuple[str, ...] = (),
+    extra_readable_blacklist: tuple[str, ...] = (),
+    editable_whitelist: tuple[str, ...] = (),
+    editable_blacklist: tuple[str, ...] = (),
+) -> egent.builtin_tools.path_validator.PathPermissions:
+    """创建项目通用的 PathPermissions，各函数仅覆写差异部分。"""
+    _PathRule = egent.builtin_tools.path_validator.PathPermissionRule
+    _discoverable_blacklist = (
+        "*.pyc",
+        "*/.pytest_cache",
+        "*/.ruff_cache",
+        "*/__pycache__",
+        f"{project_root}/.agents",
+        f"{project_root}/.cursor",
+        f"{project_root}/.egent",
+        f"{project_root}/.engine",
+        f"{project_root}/.export",
+        f"{project_root}/.git",
+        f"{project_root}/.godot",
+        f"{project_root}/.logs",
+    )
+    _readable_blacklist = ("*/.model.toml",)
+    return egent.builtin_tools.path_validator.PathPermissions(
+        discoverable=_PathRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=_discoverable_blacklist + extra_discoverable_blacklist,
+        ),
+        readable=_PathRule(
+            whitelist=(project_root, f"{project_root}/*"),
+            blacklist=_readable_blacklist + extra_readable_blacklist,
+        ),
+        editable=_PathRule(
+            whitelist=editable_whitelist,
+            blacklist=editable_blacklist,
+        ),
+    )
+
+
 async def review(prompt: str) -> tuple[bool, str]:
     """验收开发成果是否满足需求。"""
     reviewer = egent.agent.Agent(
@@ -27,33 +68,7 @@ async def review(prompt: str) -> tuple[bool, str]:
         skills=_common.discover_project_skills(),
     )
     project_root = Path.cwd().resolve().as_posix()
-    reviewer.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*.pyc",
-                "*/.pytest_cache",
-                "*/.ruff_cache",
-                "*/__pycache__",
-                f"{project_root}/.agents",
-                f"{project_root}/.cursor",
-                f"{project_root}/.egent",
-                f"{project_root}/.engine",
-                f"{project_root}/.export",
-                f"{project_root}/.git",
-                f"{project_root}/.godot",
-                f"{project_root}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=("*/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(),
-            blacklist=(),
-        ),
-    )
+    reviewer.path_permissions = _make_path_permissions(project_root)
     fuck = _common.make_fuck("[gameplay审查")
 
     with conversation_printer.ConversationPrinter(reviewer, indent=2):
@@ -84,45 +99,23 @@ async def coding(
 ) -> tuple[bool, str]:
     """执行开发：实现、优化、跑回归测试；最多重试直至通过。"""
     project_root = Path.cwd().resolve().as_posix()
-    coder.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-        discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*.pyc",
-                "*/.pytest_cache",
-                "*/.ruff_cache",
-                "*/__pycache__",
-                f"{project_root}/.agents",
-                f"{project_root}/.cursor",
-                f"{project_root}/.egent",
-                f"{project_root}/.engine",
-                f"{project_root}/.export",
-                f"{project_root}/.git",
-                f"{project_root}/.godot",
-                f"{project_root}/.logs",
-            ),
-        ),
-        readable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=("*/.model.toml",),
-        ),
-        editable=egent.builtin_tools.path_validator.PathPermissionRule(
-            whitelist=(project_root, f"{project_root}/*"),
-            blacklist=(
-                "*/.model.toml",
-                "*.pyc",
-                "*/.pytest_cache/*",
-                "*/.ruff_cache/*",
-                "*/__pycache__/*",
-                f"{project_root}/.agents/*",
-                f"{project_root}/.cursor/*",
-                f"{project_root}/.egent/*",
-                f"{project_root}/.engine/*",
-                f"{project_root}/.export/*",
-                f"{project_root}/.git/*",
-                f"{project_root}/.godot/*",
-                f"{project_root}/.logs/*",
-            ),
+    coder.path_permissions = _make_path_permissions(
+        project_root,
+        editable_whitelist=(project_root, f"{project_root}/*"),
+        editable_blacklist=(
+            "*/.model.toml",
+            "*.pyc",
+            "*/.pytest_cache/*",
+            "*/.ruff_cache/*",
+            "*/__pycache__/*",
+            f"{project_root}/.agents/*",
+            f"{project_root}/.cursor/*",
+            f"{project_root}/.egent/*",
+            f"{project_root}/.engine/*",
+            f"{project_root}/.export/*",
+            f"{project_root}/.git/*",
+            f"{project_root}/.godot/*",
+            f"{project_root}/.logs/*",
         ),
     )
 
@@ -222,38 +215,16 @@ async def test(_prompt: str) -> tuple[bool, str]:
     try:
         tester = egent.agent.Agent("gpt5")
         project_root = Path.cwd().resolve().as_posix()
-        tester.path_permissions = egent.builtin_tools.path_validator.PathPermissions(
-            discoverable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=(project_root, f"{project_root}/*"),
-                blacklist=(
-                    "*.pyc",
-                    "*/.pytest_cache",
-                    "*/.ruff_cache",
-                    "*/__pycache__",
-                    f"{project_root}/.agents",
-                    f"{project_root}/.cursor",
-                    f"{project_root}/.egent",
-                    f"{project_root}/.engine",
-                    f"{project_root}/.export",
-                    f"{project_root}/.git",
-                    f"{project_root}/.godot",
-                    f"{project_root}/.logs",
-                    f"{project_root}/tests/regression",
-                ),
+        tester.path_permissions = _make_path_permissions(
+            project_root,
+            extra_discoverable_blacklist=(f"{project_root}/tests/regression",),
+            extra_readable_blacklist=(
+                f"{project_root}/tests/regression",
+                f"{project_root}/tests/regression/*",
             ),
-            readable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=(project_root, f"{project_root}/*"),
-                blacklist=(
-                    "*/.model.toml",
-                    f"{project_root}/tests/regression",
-                    f"{project_root}/tests/regression/*",
-                ),
-            ),
-            editable=egent.builtin_tools.path_validator.PathPermissionRule(
-                whitelist=(
-                    f"{project_root}/tests/white_tests",
-                    f"{project_root}/tests/white_tests/*",
-                ),
+            editable_whitelist=(
+                f"{project_root}/tests/white_tests",
+                f"{project_root}/tests/white_tests/*",
             ),
         )
         with conversation_printer.ConversationPrinter(tester, indent=3):
@@ -277,8 +248,8 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "- 禁止访问 tests/regression（回归测试由其他流程负责）\n"
                 "\n"
                 "## execute 脚本约定\n"
-                "- script：完整 GDScript 源码，须 extends RefCounted 并定义 static func run(scene_tree: SceneTree) -> Variant\n"
-                '- 返回可 JSON 序列化的断言数据（如 {"ok": true, ...}）\n'
+                "- script：完整 GDScript 源码，须 extends RefCounted 并定义 static func run(scene_tree: SceneTree) -> void\n"
+                "- 用 print() 输出关键值，不要用 return 返回数据\n"
                 "- 可 preload res://tests/white_tests/_common.gd 复用 start_new_game / wait_until 等工具\n"
                 "- 每个脚本只做一件简单的事；复杂场景拆成多个脚本组合调用\n"
                 "\n"
@@ -288,11 +259,12 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "\n"
                 'const _Common := preload("res://tests/white_tests/_common.gd")\n'
                 "\n"
-                "static func run(scene_tree: SceneTree) -> Dictionary:\n"
+                "static func run(scene_tree: SceneTree) -> void:\n"
                 "	await scene_tree.process_frame\n"
                 "	var boot := await _Common.start_new_game(scene_tree)\n"
                 "	if not boot.passed:\n"
-                '		return {"ok": false, "error": boot.error}\n'
+                '		print("FAIL: ", boot.error)\n'
+                "		return\n"
                 "\n"
                 "	var game: Game = boot.game\n"
                 "	var character := game.character\n"
@@ -304,11 +276,8 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "		await scene_tree.process_frame\n"
                 "		elapsed_sec += scene_tree.get_process_delta_time()\n"
                 "\n"
-                "	return {\n"
-                '		"ok": scene_tree.paused and character.global_position == position_before,\n'
-                '		"paused": scene_tree.paused,\n'
-                '		"position_unchanged": character.global_position == position_before,\n'
-                "	}\n"
+                '	print("paused: ", scene_tree.paused)\n'
+                '	print("position_unchanged: ", character.global_position == position_before)\n'
                 "```\n"
                 "\n"
                 "### 示例 2：推进游戏时间 1 秒\n"
@@ -317,11 +286,12 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "\n"
                 'const _Common := preload("res://tests/white_tests/_common.gd")\n'
                 "\n"
-                "static func run(scene_tree: SceneTree) -> Dictionary:\n"
+                "static func run(scene_tree: SceneTree) -> void:\n"
                 "	await scene_tree.process_frame\n"
                 "	var boot := await _Common.start_new_game(scene_tree)\n"
                 "	if not boot.passed:\n"
-                '		return {"ok": false, "error": boot.error}\n'
+                '		print("FAIL: ", boot.error)\n'
+                "		return\n"
                 "\n"
                 "	scene_tree.paused = false\n"
                 "	var elapsed_sec := 0.0\n"
@@ -329,10 +299,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "		await scene_tree.process_frame\n"
                 "		elapsed_sec += scene_tree.get_process_delta_time()\n"
                 "\n"
-                "	return {\n"
-                '		"ok": elapsed_sec >= 0.99,\n'
-                '		"elapsed_sec": elapsed_sec,'
-                "	}\n"
+                '	print("elapsed_sec: ", elapsed_sec)\n'
                 "```\n\n"
                 "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。\n",
             )

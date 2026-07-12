@@ -1,4 +1,4 @@
-"""测试 workflow_gameplay_develop 模块的 fuck 工具函数注册。"""
+"""测试 workflow_gameplay_develop 模块的 fuck 工具函数注册与 system prompt 内容。"""
 
 # pylint: disable=protected-access
 
@@ -339,6 +339,110 @@ def test_test_finally_kills_processes() -> None:
                     assert "_processes" in source, (
                         "finally 块中应引用 _processes"
                     )
+
+
+# ── test() system prompt 内容 ────────────────────────────────────────────────
+
+
+def _get_test_system_prompt() -> str:
+    """提取 test 函数中 tester.add_message('system', ...) 的完整字符串。"""
+    test_node = _get_test_source()
+    source = ast.unparse(test_node)  # type: ignore[arg-type]
+
+    # 在源码字符串中定位 system prompt 段落
+    # 我们提取从 "你是这个项目的白盒测试员" 到最后一个 "fuck 工具吐槽反馈。\n" 之间的内容
+    lines = source.splitlines()
+    prompt_lines: list[str] = []
+    in_prompt = False
+    for line in lines:
+        # 跳过引号包裹的边界
+        stripped = line.strip()
+        if '你是这个项目的白盒测试员' in stripped:
+            in_prompt = True
+        if in_prompt:
+            prompt_lines.append(stripped)
+        if in_prompt and 'fuck 工具吐槽反馈。' in stripped:
+            break
+
+    return "\n".join(prompt_lines)
+
+
+def test_test_execute_convention_uses_void_return() -> None:
+    """execute 脚本约定中 run 应声明 -> void。"""
+    prompt = _get_test_system_prompt()
+    assert "static func run(scene_tree: SceneTree) -> void" in prompt, (
+        "execute 脚本约定应使用 -> void 而非 -> Variant"
+    )
+
+
+def test_test_execute_convention_uses_print() -> None:
+    """execute 脚本约定应描述用 print() 输出关键值。"""
+    prompt = _get_test_system_prompt()
+    assert "用 print() 输出关键值" in prompt, (
+        "应描述用 print() 输出关键值而非 return"
+    )
+    assert "不要用 return 返回数据" in prompt, (
+        "应明确说明不要用 return 返回数据"
+    )
+
+
+def test_test_example1_uses_void_return() -> None:
+    """示例 1 的 run 方法应使用 -> void。"""
+    prompt = _get_test_system_prompt()
+    assert "static func run(scene_tree: SceneTree) -> void:" in prompt
+    assert "-> Dictionary" not in prompt.split("### 示例 2", maxsplit=1)[0], (
+        "示例 1 不应包含 -> Dictionary"
+    )
+
+
+def test_test_example1_uses_print_instead_of_return() -> None:
+    """示例 1 应使用 print 输出结果，而非 return 字典。"""
+    prompt = _get_test_system_prompt()
+    example1 = prompt.split("### 示例 2", maxsplit=1)[0]
+
+    assert 'print("FAIL: ", boot.error)' in example1, (
+        "示例 1 错误处理应使用 print 而非 return 字典"
+    )
+    assert 'print("paused: ", scene_tree.paused)' in example1, (
+        "示例 1 应 print paused 状态"
+    )
+    assert "position_unchanged" in example1, (
+        "示例 1 应 print position_unchanged"
+    )
+    # 确认没有 return 字典
+    assert 'return {"ok":' not in example1, (
+        "示例 1 不应包含 return 字典"
+    )
+
+
+def test_test_example2_uses_void_return() -> None:
+    """示例 2 的 run 方法应使用 -> void。"""
+    prompt = _get_test_system_prompt()
+    examples = prompt.split("### 示例 2", maxsplit=1)
+    assert len(examples) >= 2
+    example2 = examples[1]
+    assert "static func run(scene_tree: SceneTree) -> void:" in example2
+    assert "-> Dictionary" not in example2, (
+        "示例 2 不应包含 -> Dictionary"
+    )
+
+
+def test_test_example2_uses_print_instead_of_return() -> None:
+    """示例 2 应使用 print 输出结果，而非 return 字典。"""
+    prompt = _get_test_system_prompt()
+    examples = prompt.split("### 示例 2", maxsplit=1)
+    assert len(examples) >= 2
+    example2 = examples[1]
+
+    assert 'print("FAIL: ", boot.error)' in example2, (
+        "示例 2 错误处理应使用 print 而非 return 字典"
+    )
+    assert 'print("elapsed_sec: ", elapsed_sec)' in example2, (
+        "示例 2 应 print elapsed_sec"
+    )
+    assert 'return {"ok":' not in example2, (
+        "示例 2 不应包含 return 字典"
+    )
 
 
 # ── 模块级 ────────────────────────────────────────────────────────────────────
