@@ -17,7 +17,7 @@ offset_bottom = 28.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_bt24b")
-height = 4
+height = 5
 metadata/_custom_type_script = "uid://fya68eii6sm1"
 
 [node name="Button" type="Button" parent="PagedVBoxContainer" unique_id=1412484322]
@@ -36,7 +36,6 @@ theme_type_variation = &"FlatButton"
 text = "button3"
 
 [node name="Button4" type="Button" parent="PagedVBoxContainer" unique_id=544150400]
-visible = false
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "button4"
