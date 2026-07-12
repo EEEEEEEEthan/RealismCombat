@@ -108,22 +108,17 @@ def make_delegate_egent_develop_workflow() -> egent.tool.ToolCallable:
     return delegate_egent_develop_workflow
 
 
-def make_delegate_info_collect_workflow() -> egent.tool.ToolCallable:
-    """生成可供 agent 调用的信息采集委派工具。"""
+async def delegate_info_collect_workflow(description: str) -> str:
+    """委派信息采集/代码分析任务：纯只读 Agent 分析项目并返回报告。
 
-    async def delegate_info_collect_workflow(description: str) -> str:
-        """委派信息采集/代码分析任务：纯只读 Agent 分析项目并返回报告。
+    本工具不会修改工作区，失败时无需清理。
 
-        本工具不会修改工作区，失败时无需清理。
-
-        @param description 信息采集需求描述
-        """
-        success, summary = await workflow_info_collect.begin_info_collect_workflow(description)
-        if success:
-            return summary
-        return f"信息采集失败:\n{summary}"
-
-    return delegate_info_collect_workflow
+    @param description 信息采集需求描述
+    """
+    success, summary = await workflow_info_collect.begin_info_collect_workflow(description)
+    if success:
+        return summary
+    return f"信息采集失败:\n{summary}"
 
 
 def _agent_message_count(agent: egent.agent.Agent) -> int:
@@ -158,7 +153,7 @@ async def run_turn(
                 _common.make_fuck("[主程]"),
                 make_delegate_develop_workflow(),
                 make_delegate_egent_develop_workflow(),
-                make_delegate_info_collect_workflow(),
+                delegate_info_collect_workflow,
                 egent.builtin_tools.git_tools.git_add,
                 egent.builtin_tools.git_tools.git_commit,
                 egent.builtin_tools.git_tools.git_push,

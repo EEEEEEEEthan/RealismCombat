@@ -35,6 +35,8 @@ async def begin_info_collect_workflow(description: str) -> tuple[bool, str]:
                     f"{project_root}/.godot",
                     f"{project_root}/.export",
                     f"{project_root}/.logs",
+                    f"{project_root}/.egent/.logs",
+                    f"{project_root}/.egent/.temp",
                 ),
             ),
             readable=egent.builtin_tools.path_validator.PathPermissionRule(
