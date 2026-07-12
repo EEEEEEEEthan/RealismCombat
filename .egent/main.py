@@ -159,7 +159,7 @@ async def run_turn(
                 egent.builtin_tools.git_tools.git_push,
             ],
         )
-    except Exception as error:
+    except Exception as error:  # pylint: disable=broad-exception-caught
         if not _is_request_connection_failure(error):
             raise
         print(flush=True)
