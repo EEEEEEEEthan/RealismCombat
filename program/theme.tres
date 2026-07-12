@@ -1,12 +1,31 @@
 [gd_resource type="Theme" format=3 uid="uid://d0sf100b0m4ql"]
 
+[ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="1_7kwuh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5f5ij"]
+atlas = ExtResource("1_7kwuh")
+region = Rect2(11, 1, 9, 8)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_86vsg"]
 resource_name = "Empty"
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_yrscs"]
+atlas = ExtResource("1_7kwuh")
+region = Rect2(0, 10, 10, 10)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bt24b"]
+texture = SubResource("AtlasTexture_yrscs")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
 [resource]
 default_font_size = 8
+FlatButton/icons/icon = SubResource("AtlasTexture_5f5ij")
 FlatButton/styles/disabled = SubResource("StyleBoxEmpty_86vsg")
 FlatButton/styles/focus = SubResource("StyleBoxEmpty_86vsg")
 FlatButton/styles/hover = SubResource("StyleBoxEmpty_86vsg")
 FlatButton/styles/normal = SubResource("StyleBoxEmpty_86vsg")
 FlatButton/styles/pressed = SubResource("StyleBoxEmpty_86vsg")
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_bt24b")
