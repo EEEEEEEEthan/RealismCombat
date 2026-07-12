@@ -121,6 +121,7 @@ async def coding(
 
     def _run_batch() -> tuple[bool, str]:
         """运行回归测试批处理，返回 (是否通过, 输出)。"""
+        print("进行回归测试批处理")
         regression_bat = _PROJECT_ROOT / "run-regression.bat"
         timeout_seconds = 120.0
         try:
@@ -133,8 +134,10 @@ async def coding(
                 timeout=timeout_seconds,
             )
         except subprocess.TimeoutExpired:
+            print(f"回归测试超时（{timeout_seconds:.0f}s）")
             return False, f"回归测试超时（{timeout_seconds:.0f}s）"
         if test_result.returncode == 0:
+            print("回归测试通过")
             return True, "测试通过"
         return False, f"{test_result.stdout}\n{test_result.stderr}".strip()
 

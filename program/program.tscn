@@ -10,16 +10,20 @@ region = Rect2(22, 0, 6, 4)
 [sub_resource type="GDScript" id="GDScript_6efdo"]
 script/source = "extends VBoxContainer
 
-func _ready() -> void:
-	pass
-
 func _on_item_rect_changed() -> void:
 	_update_arrows()
 
 func _update_arrows() -> void:
-	# %UpArrow.self_modulate
-	# %DownArrow.self_modulate
-	pass
+	var scroll := get_parent() as ScrollContainer
+	if not scroll:
+		return
+	var bar := scroll.get_v_scroll_bar()
+	if bar.max_value == 0.0:
+		%UpArrow.visible = false
+		%DownArrow.visible = false
+		return
+	%UpArrow.visible = bar.value > 0.0
+	%DownArrow.visible = bar.value < bar.max_value
 "
 
 [node name="Program" type="Node" unique_id=248735067]
