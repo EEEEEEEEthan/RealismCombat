@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="2_yrscs"]
-[ext_resource type="Script" uid="uid://rm2as8tg2rcq" path="res://program/game_button.gd" id="3_6efdo"]
+[ext_resource type="Script" path="res://program/game_button.gd" id="3_6efdo"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mur2c"]
 atlas = ExtResource("2_yrscs")
@@ -19,11 +19,11 @@ func _update_arrows() -> void:
 		return
 	var bar := scroll.get_v_scroll_bar()
 	if bar.max_value == 0.0:
-		%UpArrow.visible = false
-		%DownArrow.visible = false
+		%UpArrow.self_modulate.a = 0.0
+		%DownArrow.self_modulate.a = 0.0
 		return
-	%UpArrow.visible = bar.value > 0.0
-	%DownArrow.visible = bar.value < bar.max_value
+	%UpArrow.self_modulate.a = 1.0 if bar.value > 0.0 else 0.0
+	%DownArrow.self_modulate.a = 1.0 if bar.value < bar.max_value - bar.page else 0.0
 "
 
 [node name="Program" type="Node" unique_id=248735067]
