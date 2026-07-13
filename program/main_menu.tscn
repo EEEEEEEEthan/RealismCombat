@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="2_ii8tc"]
 
 [sub_resource type="GDScript" id="GDScript_ii8tc"]
+resource_name = "Menu"
 script/source = "@tool
 extends PanelContainer
 
@@ -20,21 +21,63 @@ extends PanelContainer
 			focus_mode = Control.FOCUS_ALL
 			grab_focus()
 			self_modulate = colorpalette.colors[55]
+			%LoadGame.button_pressed = false
+			%NewGame.button_pressed = false
+			%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
+			%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
+			%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 		else:
 			release_focus()
 			%Menu.self_modulate = colorpalette.colors[3]
+			%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
+			%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
+			%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 
 func _ready() -> void:
-	%LoadGame.toggled.connect(_on_load_game_toggled)
+	%LoadGame.pressed.connect(_on_load_game_pressed)
+	%NewGame.pressed.connect(_on_new_game_pressed)
 
-func _on_load_game_toggled(is_on: bool) -> void:
-	%Slots.visible = is_on
+func _on_load_game_pressed() -> void:
+	%Slots.visible = true
+	%LoadGame.toggle_mode = true
+	%LoadGame.button_pressed = true
+	enabled = false
+	await %Slots.visibility_changed
+	enabled = true
+	%LoadGame.button_pressed = false
+	%LoadGame.toggle_mode = false
+	%LoadGame.grab_focus()
 
-func _on_new_game_toggled(is_on: bool) -> void:
-	%Slots.visible = is_on
+func _on_new_game_pressed() -> void:
+	%Slots.visible = true
+	%NewGame.toggle_mode = true
+	%NewGame.button_pressed = true
+	enabled = false
+	await %Slots.visibility_changed
+	enabled = true
+	%NewGame.button_pressed = false
+	%NewGame.toggle_mode = false
+	%NewGame.grab_focus()
+
+func _wait() -> void:
+	var colorpalette = ResourceLoader.load(\"uid://crnuuc7im2w62\") as ColorPalette
+	%Menu.self_modulate = colorpalette.colors[3]
+	%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
+	%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
+	%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
+	var current_modulate = self_modulate
+	await %Slots.visibility_changed
+	self_modulate = current_modulate
+	%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
+	%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
+	%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 "
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_p1j5j"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_agoep"]
+atlas = ExtResource("1_agoep")
+region = Rect2(1, 1, 9, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ii8tc"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
@@ -42,18 +85,12 @@ region = Rect2(1, 1, 9, 8)
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bxwyc"]
-atlas = ExtResource("1_agoep")
-region = Rect2(1, 1, 9, 8)
-
 [sub_resource type="GDScript" id="GDScript_agoep"]
+resource_name = "Slots"
 script/source = "extends PanelContainer
 
 func _ready() -> void:
 	visible = %LoadGame.button_pressed or %NewGame.button_pressed
-
-func _on_visibility_changed() -> void:
-	%Menu.enabled = !visible
 
 func _input(event: InputEvent) -> void:
 	if not visible:
@@ -62,13 +99,18 @@ func _input(event: InputEvent) -> void:
 		visible = false
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		visible = false
+
+
+func _on_visibility_changed() -> void:
+	if visible:
+		%Slot0.grab_focus()
 "
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_agoep"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_p1j5j"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ii8tc"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_bxwyc"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
@@ -107,9 +149,8 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
-toggle_mode = true
 text = "继续游戏"
-icon = SubResource("AtlasTexture_p1j5j")
+icon = SubResource("AtlasTexture_agoep")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
@@ -118,9 +159,8 @@ metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
-toggle_mode = true
 text = "新的开始"
-icon = SubResource("AtlasTexture_ipec5")
+icon = SubResource("AtlasTexture_ii8tc")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
@@ -131,7 +171,7 @@ layout_mode = 2
 theme_type_variation = &"FlatButton"
 toggle_mode = true
 text = "退出"
-icon = SubResource("AtlasTexture_bxwyc")
+icon = SubResource("AtlasTexture_ipec5")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
@@ -157,7 +197,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "存档1"
-icon = SubResource("AtlasTexture_agoep")
+icon = SubResource("AtlasTexture_p1j5j")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
@@ -167,7 +207,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "存档2"
-icon = SubResource("AtlasTexture_ii8tc")
+icon = SubResource("AtlasTexture_bxwyc")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
