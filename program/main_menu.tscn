@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://lb3ta0rakcoq"]
+
+[ext_resource type="PackedScene" path="res://program/dialogues/menu_dialogue/menu_dialogue.tscn" id="1_858hy"]
+
+[sub_resource type="GDScript" id="GDScript_jot8w"]
+script/source = "extends Control
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	print(111111111)
+	print(%MenuDialogue)
+	await get_tree().process_frame
+	%MenuDialogue.add_option(\"开始游戏\", \"开始新游戏\")
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
+[node name="MainMenu" type="Control" unique_id=1237664156]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_jot8w")
+
+[node name="MenuDialogue" parent="." unique_id=1613946414 instance=ExtResource("1_858hy")]
+unique_name_in_owner = true
+layout_mode = 1

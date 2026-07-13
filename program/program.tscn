@@ -1,14 +1,22 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
-[ext_resource type="PackedScene" uid="uid://cxwinnxa41ibr" path="res://program/dialogues/menu_dialogue/menu_dialogue.tscn" id="1_bt24b"]
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="2_yrscs"]
 [ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="3_6efdo"]
+[ext_resource type="PackedScene" uid="uid://lb3ta0rakcoq" path="res://program/main_menu.tscn" id="3_nspkn"]
+
+[sub_resource type="GDScript" id="GDScript_5sy16"]
+script/source = "extends Node
+
+func _ready() -> void:
+	pass
+"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6efdo"]
 atlas = ExtResource("2_yrscs")
 region = Rect2(1, 1, 9, 8)
 
 [node name="Program" type="Node" unique_id=248735067]
+script = SubResource("GDScript_5sy16")
 
 [node name="Button" type="Button" parent="." unique_id=1140536559]
 offset_left = 104.0
@@ -21,4 +29,4 @@ icon = SubResource("AtlasTexture_6efdo")
 script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
-[node name="MenuDialogue" parent="." unique_id=1174033307 instance=ExtResource("1_bt24b")]
+[node name="MainMenu" parent="." unique_id=1237664156 instance=ExtResource("3_nspkn")]
