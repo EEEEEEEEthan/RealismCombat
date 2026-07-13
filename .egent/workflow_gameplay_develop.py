@@ -267,6 +267,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 "	await timer.timeout\n"
                 '	print("1 second passed")\n'
                 "```\n\n"
+                "做完测试之后,你要记得把游戏关掉\n\n"
                 "遇到任何令你不满的问题（工具失败、架构糟糕、API 设计烂等），请使用 fuck 工具吐槽反馈。\n",
             )
             tester.tools = [
