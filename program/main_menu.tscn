@@ -8,66 +8,37 @@ resource_name = "Menu"
 script/source = "@tool
 extends PanelContainer
 
-@export var enabled: bool:
-	set(value):
-		enabled = value
-		if not is_node_ready():
-			await ready
-		%LoadGame.disabled = !value
-		%NewGame.disabled = !value
-		%Quit.disabled = !value
-		var colorpalette = ResourceLoader.load(\"uid://crnuuc7im2w62\") as ColorPalette
-		if value:
-			focus_mode = Control.FOCUS_ALL
-			grab_focus()
-			self_modulate = colorpalette.colors[55]
-			%LoadGame.button_pressed = false
-			%NewGame.button_pressed = false
-			%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
-			%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
-			%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
-		else:
-			release_focus()
-			%Menu.self_modulate = colorpalette.colors[3]
-			%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
-			%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
-			%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
-
 func _ready() -> void:
 	%LoadGame.pressed.connect(_on_load_game_pressed)
 	%NewGame.pressed.connect(_on_new_game_pressed)
 
 func _on_load_game_pressed() -> void:
-	%Slots.visible = true
 	%LoadGame.toggle_mode = true
 	%LoadGame.button_pressed = true
-	enabled = false
-	await %Slots.visibility_changed
-	enabled = true
+	%Slots.visible = true
+	await _wait()
 	%LoadGame.button_pressed = false
 	%LoadGame.toggle_mode = false
 	%LoadGame.grab_focus()
 
 func _on_new_game_pressed() -> void:
-	%Slots.visible = true
 	%NewGame.toggle_mode = true
 	%NewGame.button_pressed = true
-	enabled = false
-	await %Slots.visibility_changed
-	enabled = true
+	%Slots.visible = true
+	await _wait()
 	%NewGame.button_pressed = false
 	%NewGame.toggle_mode = false
 	%NewGame.grab_focus()
 
 func _wait() -> void:
 	var colorpalette = ResourceLoader.load(\"uid://crnuuc7im2w62\") as ColorPalette
-	%Menu.self_modulate = colorpalette.colors[3]
+	%Menu.modulate = colorpalette.colors[3]
 	%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 	%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 	%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 	var current_modulate = self_modulate
 	await %Slots.visibility_changed
-	self_modulate = current_modulate
+	modulate = current_modulate
 	%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 	%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 	%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
