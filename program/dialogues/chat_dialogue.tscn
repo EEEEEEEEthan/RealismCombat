@@ -3,6 +3,30 @@
 [ext_resource type="PackedScene" uid="uid://bxx1q4k4qj155" path="res://program/dialogues/_dialogue.tscn" id="1_o5djb"]
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="1_wma8j"]
 
+[sub_resource type="GDScript" id="GDScript_fk2hi"]
+resource_name = "ChatDialogue"
+script/source = "extends VBoxContainer
+
+func await_message(msg: String) -> void:
+	# 将msg追加到 %Message, 自动打字机播放
+	# 按住任意键可以加速播放
+	# 异步函数,在播放结束时结束
+	pass
+
+func await_continue() -> void:
+	# 显示 %ContinueArrow
+	# 等待玩家按确认,或者鼠标点击任意位置
+	# 隐藏 %ContinueArrow
+	pass
+
+func await_choice(choices: Array[String]) -> int:
+	# %Options添加对应按钮
+	# 等待玩家点对应按钮
+	# 返回按钮下标
+	# 删除这些按钮
+	return 0
+"
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_rvqfj"]
 atlas = ExtResource("1_wma8j")
 region = Rect2(21, 5, 8, 5)
@@ -45,16 +69,20 @@ _data = {
 }
 
 [node name="ChatDialogue" unique_id=1613946414 instance=ExtResource("1_o5djb")]
+script = SubResource("GDScript_fk2hi")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="BodyContainer/MarginContainer" parent_id_path=PackedInt32Array(752668279) index="0" unique_id=987102144]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="RichTextLabel" type="RichTextLabel" parent="BodyContainer/MarginContainer/VBoxContainer" index="0" unique_id=1841989679]
+[node name="Message" type="RichTextLabel" parent="BodyContainer/MarginContainer/VBoxContainer" index="0" unique_id=1841989679]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 text = "This is a looooong long looooooooooooooong loooooooong loooooong message."
 scroll_active = false
+scroll_following = true
+scroll_following_visible_characters = true
 
 [node name="Options" type="HBoxContainer" parent="BodyContainer/MarginContainer/VBoxContainer" index="1" unique_id=1270350003]
 unique_name_in_owner = true
