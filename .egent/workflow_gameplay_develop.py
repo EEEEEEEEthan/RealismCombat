@@ -225,10 +225,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 f"{project_root}/tests/regression",
                 f"{project_root}/tests/regression/*",
             ),
-            editable_whitelist=(
-                f"{project_root}/tests/white_tests",
-                f"{project_root}/tests/white_tests/*",
-            ),
+            editable_whitelist=(),
         )
         with conversation_printer.ConversationPrinter(tester, indent=3):
             tester.add_message(
