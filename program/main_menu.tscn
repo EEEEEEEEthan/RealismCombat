@@ -22,6 +22,15 @@ extends PanelContainer
 		else:
 			release_focus()
 			%Menu.self_modulate = colorpalette.colors[3]
+
+func _ready() -> void:
+	%LoadGame.toggled.connect(_on_load_game_toggled)
+
+func _on_load_game_toggled(is_on: bool) -> void:
+	%Slots.visible = is_on
+
+func _on_new_game_toggled(is_on: bool) -> void:
+	%Slots.visible = is_on
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p1j5j"]
@@ -48,6 +57,10 @@ func _update_visible() -> void:
 
 func _on_visibility_changed() -> void:
 	%Menu.enabled = !visible
+
+func _unhandled_input(event: InputEvent) -> void:
+	#按esc或者鼠标在任何地方点右键都visible = false
+	pass
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_agoep"]
@@ -71,7 +84,7 @@ layout_mode = 0
 offset_left = 51.0
 offset_top = 49.0
 offset_right = 141.0
-offset_bottom = 97.0
+offset_bottom = 93.0
 theme_override_constants/separation = -5
 
 [node name="Menu" type="PanelContainer" parent="HBoxContainer" unique_id=1929706928]
@@ -158,6 +171,4 @@ alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
-[connection signal="pressed" from="HBoxContainer/Menu/MarginContainer/VBoxContainer/LoadGame" to="HBoxContainer/Slots" method="_update_visible"]
-[connection signal="pressed" from="HBoxContainer/Menu/MarginContainer/VBoxContainer/NewGame" to="HBoxContainer/Slots" method="_update_visible"]
 [connection signal="visibility_changed" from="HBoxContainer/Slots" to="HBoxContainer/Slots" method="_on_visibility_changed"]

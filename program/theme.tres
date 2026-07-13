@@ -37,3 +37,4 @@ FlatButton/styles/hover = SubResource("StyleBoxEmpty_86vsg")
 FlatButton/styles/normal = SubResource("StyleBoxEmpty_86vsg")
 FlatButton/styles/pressed = SubResource("StyleBoxEmpty_86vsg")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_bt24b")
+VBoxContainer/constants/separation = 2
