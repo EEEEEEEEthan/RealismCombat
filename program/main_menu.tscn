@@ -3,6 +3,27 @@
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="1_agoep"]
 [ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="2_ii8tc"]
 
+[sub_resource type="GDScript" id="GDScript_ii8tc"]
+script/source = "@tool
+extends PanelContainer
+
+@export var enabled: bool:
+	set(value):
+		enabled = value
+		if not is_node_ready():
+			await ready
+		%LoadGame.disabled = !value
+		%NewGame.disabled = !value
+		%Quit.disabled = !value
+		var colorpalette = ResourceLoader.load(\"uid://crnuuc7im2w62\") as ColorPalette
+		if value:
+			grab_focus()
+			self_modulate = colorpalette.colors[55]
+		else:
+			release_focus()
+			%Menu.self_modulate = colorpalette.colors[3]
+"
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_p1j5j"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
@@ -14,6 +35,20 @@ region = Rect2(1, 1, 9, 8)
 [sub_resource type="AtlasTexture" id="AtlasTexture_bxwyc"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
+
+[sub_resource type="GDScript" id="GDScript_agoep"]
+script/source = "extends PanelContainer
+
+func _ready() -> void:
+	visible = false
+	_update_visible()
+
+func _update_visible() -> void:
+	visible = %LoadGame.button_pressed or %NewGame.button_pressed
+
+func _on_visibility_changed() -> void:
+	%Menu.enabled = !visible
+"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_agoep"]
 atlas = ExtResource("1_agoep")
@@ -42,10 +77,11 @@ theme_override_constants/separation = -5
 [node name="Menu" type="PanelContainer" parent="HBoxContainer" unique_id=1929706928]
 unique_name_in_owner = true
 layout_mode = 2
+script = SubResource("GDScript_ii8tc")
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Menu" unique_id=423592787]
 layout_mode = 2
-theme_override_constants/margin_left = -4
+theme_override_constants/margin_left = -5
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
@@ -54,8 +90,10 @@ theme_override_constants/margin_bottom = 4
 layout_mode = 2
 
 [node name="LoadGame" type="Button" parent="HBoxContainer/Menu/MarginContainer/VBoxContainer" unique_id=450765865]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
+toggle_mode = true
 text = "继续游戏"
 icon = SubResource("AtlasTexture_p1j5j")
 alignment = 0
@@ -63,8 +101,10 @@ script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
 [node name="NewGame" type="Button" parent="HBoxContainer/Menu/MarginContainer/VBoxContainer" unique_id=1428930657]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
+toggle_mode = true
 text = "新的开始"
 icon = SubResource("AtlasTexture_ipec5")
 alignment = 0
@@ -72,8 +112,10 @@ script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
 [node name="Quit" type="Button" parent="HBoxContainer/Menu/MarginContainer/VBoxContainer" unique_id=825039888]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
+toggle_mode = true
 text = "退出"
 icon = SubResource("AtlasTexture_bxwyc")
 alignment = 0
@@ -84,10 +126,11 @@ metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
+script = SubResource("GDScript_agoep")
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Slots" unique_id=2135158054]
 layout_mode = 2
-theme_override_constants/margin_left = -4
+theme_override_constants/margin_left = -5
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
@@ -95,7 +138,8 @@ theme_override_constants/margin_bottom = 4
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/Slots/MarginContainer" unique_id=1568094849]
 layout_mode = 2
 
-[node name="Slot1" type="Button" parent="HBoxContainer/Slots/MarginContainer/VBoxContainer" unique_id=499315273]
+[node name="Slot0" type="Button" parent="HBoxContainer/Slots/MarginContainer/VBoxContainer" unique_id=499315273]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "存档1"
@@ -104,7 +148,8 @@ alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
-[node name="Slot2" type="Button" parent="HBoxContainer/Slots/MarginContainer/VBoxContainer" unique_id=1617851493]
+[node name="Slot1" type="Button" parent="HBoxContainer/Slots/MarginContainer/VBoxContainer" unique_id=1617851493]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "存档2"
@@ -113,4 +158,6 @@ alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
-[connection signal="ready" from="HBoxContainer/Slots" to="HBoxContainer/Slots" method="set_visible" flags=6 binds= [false]]
+[connection signal="pressed" from="HBoxContainer/Menu/MarginContainer/VBoxContainer/LoadGame" to="HBoxContainer/Slots" method="_update_visible"]
+[connection signal="pressed" from="HBoxContainer/Menu/MarginContainer/VBoxContainer/NewGame" to="HBoxContainer/Slots" method="_update_visible"]
+[connection signal="visibility_changed" from="HBoxContainer/Slots" to="HBoxContainer/Slots" method="_on_visibility_changed"]

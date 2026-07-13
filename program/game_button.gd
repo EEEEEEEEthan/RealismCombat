@@ -18,10 +18,9 @@ func update_icon() -> void:
 	icon = AtlasTexture.new()
 	icon.atlas = image
 	assert(image)
-	if has_focus():
-		if button_pressed:
-			icon.region = Rect2(10, 1, 9, 8)
-		else:
-			icon.region = Rect2(11, 1, 9, 8)
+	if button_pressed:
+		icon.region = Rect2(10, 1, 9, 8)
+	elif has_focus():
+		icon.region = Rect2(11, 1, 9, 8)
 	else:
 		icon.region = Rect2(1, 1, 9, 8)
