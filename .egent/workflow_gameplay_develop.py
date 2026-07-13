@@ -271,7 +271,7 @@ async def test(_prompt: str) -> tuple[bool, str]:
                 launch_game,
             ]
             submitted = await tester.request_submit({
-                "success": (bool, "true表示所有用例通过"),
+                "success": (bool, "true表示测试通过"),
                 "summary": (str, "测试摘要"),
             })
         return submitted["success"], submitted["summary"]
