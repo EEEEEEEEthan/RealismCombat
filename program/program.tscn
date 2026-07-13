@@ -10,26 +10,20 @@ region = Rect2(22, 0, 6, 4)
 [sub_resource type="GDScript" id="GDScript_6efdo"]
 script/source = "extends VBoxContainer
 
-@onready var _scroll := get_parent() as ScrollContainer
-
 func _ready() -> void:
-	if _scroll:
-		_scroll.get_v_scroll_bar().value_changed.connect(_update_arrows)
-
-func _on_item_rect_changed() -> void:
+	%ScrollContainer.get_v_scroll_bar().value_changed.connect(_update_arrows)
+	item_rect_changed.connect(_update_arrows)
 	_update_arrows()
 
 func _update_arrows(_unused: float = 0.0) -> void:
-	if not _scroll:
-		return
 	var content_h := size.y
-	var view_h := _scroll.size.y
+	var view_h: float = %ScrollContainer.size.y
 	if content_h <= view_h:
 		%UpArrow.self_modulate.a = 0.0
 		%DownArrow.self_modulate.a = 0.0
 		return
-	%UpArrow.self_modulate.a = 1.0 if _scroll.scroll_vertical > 0 else 0.0
-	%DownArrow.self_modulate.a = 1.0 if _scroll.scroll_vertical < content_h - view_h else 0.0
+	%UpArrow.self_modulate.a = 1.0 if %ScrollContainer.scroll_vertical > 0 else 0.0
+	%DownArrow.self_modulate.a = 1.0 if %ScrollContainer.scroll_vertical < content_h - view_h else 0.0
 "
 
 [node name="Program" type="Node" unique_id=248735067]
@@ -160,4 +154,4 @@ size_flags_horizontal = 4
 texture = SubResource("AtlasTexture_mur2c")
 flip_v = true
 
-[connection signal="item_rect_changed" from="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" to="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" method="_on_item_rect_changed"]
+
