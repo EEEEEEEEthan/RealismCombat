@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://b6fp1s2wdbi17"]
+
+[ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="1_oyfjo"]
+[ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="2_7bpxl"]
+
+[sub_resource type="GDScript" id="GDScript_agoep"]
+resource_name = "Slots"
+script/source = "extends PanelContainer
+
+signal submitted(index: int)
+
+func _ready() -> void:
+	visible = false
+	visibility_changed.connect(_on_visibility_changed)
+	%Slot0.pressed.connect(func (): submitted.emit(0))
+	%Slot1.pressed.connect(func (): submitted.emit(1))
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed:
+		visible = false
+		submitted.emit(-1)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		visible = false
+		submitted.emit(-1)
+
+func _on_visibility_changed() -> void:
+	if visible:
+		%Slot0.grab_focus()
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oyfjo"]
+atlas = ExtResource("1_oyfjo")
+region = Rect2(1, 1, 9, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7bpxl"]
+atlas = ExtResource("1_oyfjo")
+region = Rect2(1, 1, 9, 8)
+
+[node name="Slots" type="PanelContainer" unique_id=1316143045]
+size_flags_vertical = 0
+script = SubResource("GDScript_agoep")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1725835062]
+layout_mode = 2
+theme_override_constants/margin_left = -5
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1318130867]
+layout_mode = 2
+
+[node name="Slot0" type="Button" parent="MarginContainer/VBoxContainer" unique_id=668557434]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+text = "存档1"
+icon = SubResource("AtlasTexture_oyfjo")
+alignment = 0
+script = ExtResource("2_7bpxl")
+metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
+
+[node name="Slot1" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1046451994]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+text = "存档2"
+icon = SubResource("AtlasTexture_7bpxl")
+alignment = 0
+script = ExtResource("2_7bpxl")
+metadata/_custom_type_script = "uid://c7x2ufjmo3scc"

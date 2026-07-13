@@ -2,6 +2,13 @@
 
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="1_agoep"]
 [ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="2_ii8tc"]
+[ext_resource type="PackedScene" uid="uid://b6fp1s2wdbi17" path="res://program/main_menu/save_slots.tscn" id="3_udobc"]
+
+[sub_resource type="GDScript" id="GDScript_udobc"]
+script/source = "extends Control
+
+signal submitted(command: String, args: Array[Variant])
+"
 
 [sub_resource type="GDScript" id="GDScript_ii8tc"]
 resource_name = "Menu"
@@ -11,77 +18,56 @@ extends PanelContainer
 func _ready() -> void:
 	%LoadGame.pressed.connect(_on_load_game_pressed)
 	%NewGame.pressed.connect(_on_new_game_pressed)
+	%Quit.pressed.connect(func(): get_tree().quit(0))
 
 func _on_load_game_pressed() -> void:
 	%LoadGame.toggle_mode = true
 	%LoadGame.button_pressed = true
 	%Slots.visible = true
-	await _wait()
-	%LoadGame.button_pressed = false
-	%LoadGame.toggle_mode = false
-	%LoadGame.grab_focus()
+	var choice := await _wait()
+	if choice < 0:
+		%LoadGame.button_pressed = false
+		%LoadGame.toggle_mode = false
+		%LoadGame.grab_focus()
+		return
+	owner.submitted.emit(\"load_game\", [choice])
 
 func _on_new_game_pressed() -> void:
 	%NewGame.toggle_mode = true
 	%NewGame.button_pressed = true
 	%Slots.visible = true
-	await _wait()
-	%NewGame.button_pressed = false
-	%NewGame.toggle_mode = false
-	%NewGame.grab_focus()
+	var choice := await _wait()
+	if choice < 0:
+		%NewGame.button_pressed = false
+		%NewGame.toggle_mode = false
+		%NewGame.grab_focus()
+		return
+	owner.submitted.emit(\"new_game\", [choice])
 
-func _wait() -> void:
+func _wait() -> int:
 	var colorpalette = ResourceLoader.load(\"uid://crnuuc7im2w62\") as ColorPalette
 	%Menu.modulate = colorpalette.colors[3]
 	%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 	%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 	%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_IGNORE
 	var current_modulate = self_modulate
-	await %Slots.visibility_changed
+	var choice := await %Slots.submitted as int
 	modulate = current_modulate
 	%LoadGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 	%NewGame.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 	%Quit.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
+	return choice
 "
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_agoep"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_udobc"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ii8tc"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_msskj"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ipec5"]
-atlas = ExtResource("1_agoep")
-region = Rect2(1, 1, 9, 8)
-
-[sub_resource type="GDScript" id="GDScript_agoep"]
-resource_name = "Slots"
-script/source = "extends PanelContainer
-
-func _ready() -> void:
-	visible = %LoadGame.button_pressed or %NewGame.button_pressed
-
-func _input(event: InputEvent) -> void:
-	if not visible:
-		return
-	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed:
-		visible = false
-	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		visible = false
-
-
-func _on_visibility_changed() -> void:
-	if visible:
-		%Slot0.grab_focus()
-"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_p1j5j"]
-atlas = ExtResource("1_agoep")
-region = Rect2(1, 1, 9, 8)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_bxwyc"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_0t33m"]
 atlas = ExtResource("1_agoep")
 region = Rect2(1, 1, 9, 8)
 
@@ -92,6 +78,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_udobc")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=937250539]
 layout_mode = 0
@@ -121,7 +108,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "继续游戏"
-icon = SubResource("AtlasTexture_agoep")
+icon = SubResource("AtlasTexture_udobc")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
@@ -131,7 +118,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "新的开始"
-icon = SubResource("AtlasTexture_ii8tc")
+icon = SubResource("AtlasTexture_msskj")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
@@ -142,45 +129,11 @@ layout_mode = 2
 theme_type_variation = &"FlatButton"
 toggle_mode = true
 text = "退出"
-icon = SubResource("AtlasTexture_ipec5")
+icon = SubResource("AtlasTexture_0t33m")
 alignment = 0
 script = ExtResource("2_ii8tc")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
-[node name="Slots" type="PanelContainer" parent="HBoxContainer" unique_id=1396914230]
+[node name="Slots" parent="HBoxContainer" unique_id=1316143045 instance=ExtResource("3_udobc")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 0
-script = SubResource("GDScript_agoep")
-
-[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Slots" unique_id=2135158054]
-layout_mode = 2
-theme_override_constants/margin_left = -5
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/Slots/MarginContainer" unique_id=1568094849]
-layout_mode = 2
-
-[node name="Slot0" type="Button" parent="HBoxContainer/Slots/MarginContainer/VBoxContainer" unique_id=499315273]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"FlatButton"
-text = "存档1"
-icon = SubResource("AtlasTexture_p1j5j")
-alignment = 0
-script = ExtResource("2_ii8tc")
-metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
-
-[node name="Slot1" type="Button" parent="HBoxContainer/Slots/MarginContainer/VBoxContainer" unique_id=1617851493]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"FlatButton"
-text = "存档2"
-icon = SubResource("AtlasTexture_bxwyc")
-alignment = 0
-script = ExtResource("2_ii8tc")
-metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
-
-[connection signal="visibility_changed" from="HBoxContainer/Slots" to="HBoxContainer/Slots" method="_on_visibility_changed"]

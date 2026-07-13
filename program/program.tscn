@@ -1,15 +1,29 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
-[ext_resource type="PackedScene" path="res://program/main_menu.tscn" id="3_nspkn"]
-
 [sub_resource type="GDScript" id="GDScript_5sy16"]
 script/source = "extends Node
 
 func _ready() -> void:
-	pass
+	while true:
+		var main_menu = %MainMenuPlaceHolder.create_instance()
+		var line = await main_menu.submitted
+		var command = line[0]
+		var args = line[1]
+		if command == \"new_game\":
+			main_menu.queue_free()
+			var game = %GamePlaceHolder.create_instance()
+			await game.tree_exited
+		if command == \"load_game\":
+			main_menu.queue_free()
+			var game = %GamePlaceHolder.create_instance()
+			await game.tree_exited
 "
 
 [node name="Program" type="Node" unique_id=248735067]
 script = SubResource("GDScript_5sy16")
 
-[node name="MainMenu" parent="." unique_id=1237664156 instance=ExtResource("3_nspkn")]
+[node name="MainMenuPlaceHolder" parent="." unique_id=1237664156 instance_placeholder="res://program/main_menu/main_menu.tscn"]
+unique_name_in_owner = true
+
+[node name="GamePlaceHolder" parent="." unique_id=995626218 instance_placeholder="res://program/game/game.tscn"]
+unique_name_in_owner = true
