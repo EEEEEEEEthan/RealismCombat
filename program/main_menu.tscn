@@ -17,6 +17,7 @@ extends PanelContainer
 		%Quit.disabled = !value
 		var colorpalette = ResourceLoader.load(\"uid://crnuuc7im2w62\") as ColorPalette
 		if value:
+			focus_mode = Control.FOCUS_ALL
 			grab_focus()
 			self_modulate = colorpalette.colors[55]
 		else:
@@ -49,18 +50,18 @@ region = Rect2(1, 1, 9, 8)
 script/source = "extends PanelContainer
 
 func _ready() -> void:
-	visible = false
-	_update_visible()
-
-func _update_visible() -> void:
 	visible = %LoadGame.button_pressed or %NewGame.button_pressed
 
 func _on_visibility_changed() -> void:
 	%Menu.enabled = !visible
 
-func _unhandled_input(event: InputEvent) -> void:
-	#按esc或者鼠标在任何地方点右键都visible = false
-	pass
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed:
+		visible = false
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		visible = false
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_agoep"]
