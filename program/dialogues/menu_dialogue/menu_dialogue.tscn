@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cxwinnxa41ibr"]
 
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="1_6no2d"]
-[ext_resource type="Script" uid="uid://6arqivd8fo6t" path="res://program/menu_dialogue/menu_diaolgue.gd" id="1_tb728"]
+[ext_resource type="Script" uid="uid://6arqivd8fo6t" path="res://program/dialogues/menu_dialogue/menu_diaolgue.gd" id="1_tb728"]
 [ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="2_d0rhp"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mur2c"]
