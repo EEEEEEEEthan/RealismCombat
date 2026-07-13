@@ -1,7 +1,12 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
-[ext_resource type="PackedScene" uid="uid://cxwinnxa41ibr" path="res://program/menu_dialogue.tscn" id="1_bt24b"]
+[ext_resource type="PackedScene" uid="uid://cxwinnxa41ibr" path="res://program/menu_dialogue/menu_dialogue.tscn" id="1_bt24b"]
+[ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="2_yrscs"]
 [ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="3_6efdo"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6efdo"]
+atlas = ExtResource("2_yrscs")
+region = Rect2(1, 1, 9, 8)
 
 [node name="Program" type="Node" unique_id=248735067]
 
@@ -12,6 +17,7 @@ offset_right = 148.0
 offset_bottom = 89.0
 theme_type_variation = &"FlatButton"
 text = "ffff"
+icon = SubResource("AtlasTexture_6efdo")
 script = ExtResource("3_6efdo")
 metadata/_custom_type_script = "uid://c7x2ufjmo3scc"
 
