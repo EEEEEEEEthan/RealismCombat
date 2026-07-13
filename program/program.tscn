@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://6mmoxrtvmr2r"]
 
 [ext_resource type="Texture2D" uid="uid://dkajou5ypu7d0" path="res://program/theme_atlas.png" id="2_yrscs"]
-[ext_resource type="Script" path="res://program/game_button.gd" id="3_6efdo"]
+[ext_resource type="Script" uid="uid://c7x2ufjmo3scc" path="res://program/game_button.gd" id="3_6efdo"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mur2c"]
 atlas = ExtResource("2_yrscs")
@@ -40,29 +40,34 @@ offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MenuDialogue" unique_id=379412196]
+[node name="MarginContainer" type="MarginContainer" parent="MenuDialogue" unique_id=1301860342]
+layout_mode = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuDialogue/MarginContainer" unique_id=379412196]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuDialogue/HBoxContainer" unique_id=59461185]
+[node name="MarginContainer" type="MarginContainer" parent="MenuDialogue/MarginContainer/HBoxContainer" unique_id=59461185]
 layout_mode = 2
-theme_override_constants/margin_top = -2
-theme_override_constants/margin_bottom = -2
+theme_override_constants/margin_top = -4
+theme_override_constants/margin_bottom = -4
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MenuDialogue/HBoxContainer/MarginContainer" unique_id=163303128]
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer" unique_id=163303128]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="UpArrow" type="TextureRect" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer" unique_id=1101416542]
+[node name="UpArrow" type="TextureRect" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer" unique_id=1101416542]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 texture = SubResource("AtlasTexture_mur2c")
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer" unique_id=475483695]
+[node name="MarginContainer" type="MarginContainer" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer" unique_id=475483695]
 layout_mode = 2
 theme_override_constants/margin_left = -4
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer" unique_id=1937573880]
+[node name="ScrollContainer" type="ScrollContainer" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer" unique_id=1937573880]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 custom_maximum_size = Vector2(-1, 64)
@@ -71,87 +76,85 @@ follow_focus = true
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
 
-[node name="OptionContainer" type="VBoxContainer" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer" unique_id=1896738690]
+[node name="OptionContainer" type="VBoxContainer" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer" unique_id=1896738690]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 0
 script = SubResource("GDScript_6efdo")
 
-[node name="GameButton" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=440852436]
+[node name="GameButton" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=440852436]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+text = "button"
+script = ExtResource("3_6efdo")
+
+[node name="GameButton2" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=101879148]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton2" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=101879148]
+[node name="GameButton3" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=2012728227]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton3" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=2012728227]
+[node name="GameButton4" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=2003816158]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton4" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=2003816158]
+[node name="GameButton5" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=1044550927]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton5" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=1044550927]
+[node name="GameButton6" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=437891226]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton6" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=437891226]
+[node name="GameButton7" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=2074622317]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton7" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=2074622317]
+[node name="GameButton8" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=1934959539]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton8" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=1934959539]
+[node name="GameButton9" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=661056018]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton9" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=661056018]
+[node name="GameButton10" type="Button" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=156064209]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
 
-[node name="GameButton10" type="Button" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=156064209]
-layout_mode = 2
-theme_type_variation = &"FlatButton"
-text = "asdfasdf"
-script = ExtResource("3_6efdo")
-metadata/_custom_type_script = "uid://rm2as8tg2rcq"
-
-[node name="DownArrow" type="TextureRect" parent="MenuDialogue/HBoxContainer/MarginContainer/VBoxContainer" unique_id=632606172]
+[node name="DownArrow" type="TextureRect" parent="MenuDialogue/MarginContainer/HBoxContainer/MarginContainer/VBoxContainer" unique_id=632606172]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 texture = SubResource("AtlasTexture_mur2c")
 flip_v = true
 
+[node name="ColorRect" type="ColorRect" parent="MenuDialogue/MarginContainer/HBoxContainer" unique_id=1025222077]
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
 
+[node name="Label" type="RichTextLabel" parent="MenuDialogue/MarginContainer/HBoxContainer" unique_id=389304831]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "This is a long long long long long loooooong loong message"
+scroll_active = false
