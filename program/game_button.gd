@@ -1,3 +1,4 @@
+@tool
 extends Button
 class_name GameButton
 

@@ -140,6 +140,12 @@ theme_type_variation = &"FlatButton"
 text = "asdfasdf"
 script = ExtResource("2_d0rhp")
 
+[node name="GameButton11" type="Button" parent="MarginContainer/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/OptionContainer" unique_id=1531300899]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+text = "asdfasdf"
+script = ExtResource("2_d0rhp")
+
 [node name="DownArrow" type="TextureRect" parent="MarginContainer/HBoxContainer/MarginContainer/VBoxContainer" unique_id=1339033276]
 unique_name_in_owner = true
 layout_mode = 2
