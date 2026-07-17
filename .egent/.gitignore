@@ -1,0 +1,6 @@
+.model.toml
+/.temp/
+/.logs/
+/.memories/
+__pycache__/
+*.egg-info/
