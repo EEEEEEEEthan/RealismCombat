@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "realism-combat-agent"
-version = "0.1.0"
+version = "0.1.1"
 description = "RealismCombat 的 egent 聊天 CLI"
 requires-python = ">=3.13"
 dependencies = [
     "egent @ git+https://github.com/EEEEEEEEthan/egent.git",
+    "prompt_toolkit>=3.0",
 ]
 
 [project.optional-dependencies]

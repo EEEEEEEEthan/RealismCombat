@@ -15,6 +15,9 @@ from pathlib import Path
 
 import _bootstrap  # noqa: F401  # pylint: disable=unused-import  # 必须在 import egent 之前
 
+from prompt_toolkit import PromptSession
+from prompt_toolkit.key_binding import KeyBindings
+
 import conversation_printer
 import shell_tools
 import workflow
@@ -123,8 +126,16 @@ async def chat() -> None:
     )
     leader.add_message("system", f"日志文件路径: {egent.agent.get_log_path()}")
     conversation_printer.ConversationPrinter(leader)
+
+    key_bindings = KeyBindings()
+
+    @key_bindings.add("c-j")
+    def submit_multiline_prompt(binding_event) -> None:
+        binding_event.current_buffer.validate_and_handle()
+
+    prompt_session = PromptSession(key_bindings=key_bindings, multiline=True)
     while True:
-        user_input = input(">>> ").strip()
+        user_input = (await prompt_session.prompt_async(">>> \n")).strip()
         if not user_input:
             continue
         if user_input == "/clear":

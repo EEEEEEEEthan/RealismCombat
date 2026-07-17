@@ -5,10 +5,12 @@ cd /d "%~dp0"
 if /I "%~1"=="--update" (
     python -m pip install --upgrade --force-reinstall "egent @ git+https://github.com/EEEEEEEEthan/egent.git"
     if errorlevel 1 exit /b 1
+    python -m pip install -e ".[dev]" --upgrade
+    if errorlevel 1 exit /b 1
 ) else (
-    python -c "import egent" >nul 2>nul
+    python -c "import egent, prompt_toolkit" >nul 2>nul
     if errorlevel 1 (
-        python -m pip install "egent @ git+https://github.com/EEEEEEEEthan/egent.git"
+        python -m pip install -e .
         if errorlevel 1 exit /b 1
     )
 )

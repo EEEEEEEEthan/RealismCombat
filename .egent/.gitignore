@@ -4,3 +4,4 @@
 /.memories/
 __pycache__/
 *.egg-info/
+*/memories/
